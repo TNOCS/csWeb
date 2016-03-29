@@ -21,7 +21,7 @@ module csComp.Services {
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
         /** website is running in touch mode */
-        touchMode : boolean = false;
+        touchMode: boolean = false;
 
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
@@ -172,88 +172,79 @@ module csComp.Services {
 
         public refreshActiveLayers() {
             for (var l in this.loadedLayers) {
-                    var layer = <ProjectLayer>this.loadedLayers[l];
-                    if (layer.timeDependent) {
-                        layer.layerSource.refreshLayer(layer);
-                    }
+                var layer = <ProjectLayer>this.loadedLayers[l];
+                if (layer.timeDependent) {
+                    layer.layerSource.refreshLayer(layer);
                 }
+            }
         }
 
-       public updateLayerSensorLink(layer : ProjectLayer)
-        {
+        public updateLayerSensorLink(layer: ProjectLayer) {
             if (layer.sensorLink) {
-                    // create sensorlink
-                     
-                    var link = layer.sensorLink.url;
-                    if (!this.project.activeDashboard.isLive)
-                    {
-                      link+= "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
-                      //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
-                    }                     
-                    else
-                    {
-                        link+="?tbox=24h"
-                    }
-                    layer._gui['lastSensorLink'] = link;
-                    console.log('downloading ' + link);
-                    layer._gui["loadingSensorLink"] = true;
-                    this.$http.get(link)
-                        .success((data: ISensorLinkResult) => {     
-                            layer._gui["loadingSensorLink"] = false;
-                            if (typeof data.kpis !== 'undefined')
-                            {
-                                layer.sensors = data.kpis; 
-                            }                           
-                            layer.timestamps = data.timestamps;
-                            layer.data.features.forEach((f: IFeature) => { 
-                                    f.sensors = {};
-                                    data.properties.forEach(s => f.sensors[s] = []);
-                                });
-                            var t = 0;
-                            
-                            var featureLookup = []
-                            
-                            data.features.forEach(f =>{
-                               var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
-                               if (index!==-1) featureLookup.push(index);                               
-                            });
-                            
-                            for (var s in data.data)
-                            {
-                                var sensordata = data.data[s];
-                                for (var ti =0; ti < data.timestamps.length;ti++)
-                                {
-                                    for (var fi = 0;fi < sensordata[ti].length; fi++)
-                                    {
-                                        // get feature
-                                        var findex = featureLookup[fi];
-                                        if (findex>=0)
-                                        {
+                // create sensorlink
+
+
+                if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
+
+                var link = layer.sensorLink.url;
+                if (!this.project.activeDashboard.isLive) {
+                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
+                }
+                else {
+                    link += "?tbox=24h"
+                }
+                layer._gui['lastSensorLink'] = link;
+                console.log('downloading ' + link);
+                layer._gui["loadingSensorLink"] = true;
+                this.$http.get(link)
+                    .success((data: ISensorLinkResult) => {
+                        layer._gui["loadingSensorLink"] = false;
+                        if (typeof data.kpis !== 'undefined') {
+                            layer.sensors = data.kpis;
+                        }
+                        layer.timestamps = data.timestamps;
+                        layer.data.features.forEach((f: IFeature) => {
+                            f.sensors = {};
+                            data.properties.forEach(s => f.sensors[s] = []);
+                        });
+                        var t = 0;
+
+                        var featureLookup = []
+
+                        data.features.forEach(f => {
+                            var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
+                            if (index !== -1) featureLookup.push(index);
+                        });
+
+                        for (var s in data.data) {
+                            var sensordata = data.data[s];
+                            for (var ti = 0; ti < data.timestamps.length; ti++) {
+                                for (var fi = 0; fi < sensordata[ti].length; fi++) {
+                                    // get feature
+                                    var findex = featureLookup[fi];
+                                    if (findex >= 0) {
                                         var f = layer.data.features[findex];
-                                        if (f)
-                                        {
+                                        if (f) {
                                             var value = sensordata[ti][fi];
-                                        //if (value === -1) value = null;
+                                            //if (value === -1) value = null;
                                             f.sensors[s].push(value);
                                         }
-                                        }
-                                        
-                                    }                                    
-                                }
-                                
-                                
-                            }
+                                    }
 
-                           
-                            this.throttleSensorDataUpdate();
-                            
-                            this.$messageBusService.publish("timeline","sensorLinkUpdated");
-                        })
-                        .error((e) => {
-                            layer._gui["loadingSensorLink"] = false;
-                            console.log('error loading sensor data');
-                        });
-                }
+                                }
+                            }
+                        }
+
+
+                        this.throttleSensorDataUpdate();
+                        this.$messageBusService.publish("timeline", "sensorLinkUpdated");
+                    })
+                    .error((e) => {
+                        layer._gui["loadingSensorLink"] = false;
+                        console.log('error loading sensor data');
+                    });
+            }
         }
 
 
@@ -504,49 +495,48 @@ module csComp.Services {
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
-                                
+
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
-                                if (typeof prop.layerProps.dashboard === 'undefined' || prop.layerProps.dashboard === this.project.activeDashboard.id)
-                                {
+                                if (typeof prop.layerProps.dashboard === 'undefined' || prop.layerProps.dashboard === this.project.activeDashboard.id) {
 
-                                feature.layer._lastSelectedFeature = feature;
+                                    feature.layer._lastSelectedFeature = feature;
 
-                                var l = feature.properties[prop.label];
-                                var pl = this.findLayer(l);
-                                if (pl) {
-                                    this.addLayer(pl);
-                                } else {
-                                    if (typeof l === 'string') {
-                                        pl = new ProjectLayer();
-                                        pl.url = l;
+                                    var l = feature.properties[prop.label];
+                                    var pl = this.findLayer(l);
+                                    if (pl) {
+                                        this.addLayer(pl);
                                     } else {
-                                        pl = l;
-                                    }
-
-                                    if (!pl.id) pl.id = l;
-                                    pl.groupId = prop.layerProps.groupId;
-                                    if (!pl.group) {
-                                        if (pl.groupId) {
-                                            pl.group = this.findGroupById(pl.groupId);
+                                        if (typeof l === 'string') {
+                                            pl = new ProjectLayer();
+                                            pl.url = l;
                                         } else {
-                                            pl.group = feature.layer.group;
+                                            pl = l;
                                         }
-                                    } else {
-                                        if (typeof pl.group === 'string') {
-                                            pl.group = this.findGroupById(<any>pl.group);
-                                        }
-                                    }
-                                    if (!pl.type) pl.type = feature.layer.type;
-                                    if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
-                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
-                                    if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
-                                    if (!pl.defaultLegendProperty) pl.defaultLegendProperty = prop.layerProps.defaultLegendProperty;
-                                    pl.hasSensorData = true;
 
-                                    //pl.parentFeature = feature;
-                                    pl.group.layers.push(pl);
-                                }
-                                this.addLayer(pl);
+                                        if (!pl.id) pl.id = l;
+                                        pl.groupId = prop.layerProps.groupId;
+                                        if (!pl.group) {
+                                            if (pl.groupId) {
+                                                pl.group = this.findGroupById(pl.groupId);
+                                            } else {
+                                                pl.group = feature.layer.group;
+                                            }
+                                        } else {
+                                            if (typeof pl.group === 'string') {
+                                                pl.group = this.findGroupById(<any>pl.group);
+                                            }
+                                        }
+                                        if (!pl.type) pl.type = feature.layer.type;
+                                        if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
+                                        if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
+                                        if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
+                                        if (!pl.defaultLegendProperty) pl.defaultLegendProperty = prop.layerProps.defaultLegendProperty;
+                                        pl.hasSensorData = true;
+
+                                        //pl.parentFeature = feature;
+                                        pl.group.layers.push(pl);
+                                    }
+                                    this.addLayer(pl);
                                 }
                             }
                         });
@@ -641,17 +631,17 @@ module csComp.Services {
                             if (this.actionServices) this.actionServices.forEach(as => {
                                 if (as.addLayer) as.addLayer(layer);
                             });
-                             
+
                             this.updateLayerSensorLink(layer);
-                            this.updateLayerSensorData(layer,this.project.timeLine.focusDate());
+                            this.updateLayerSensorData(layer, this.project.timeLine.focusDate());
 
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
-                            
-                        }                        
-                    }, data);                    
+
+                        }
+                    }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
                 },
@@ -665,7 +655,7 @@ module csComp.Services {
                 }
             ]);
         }
-        
+
         /// If a layer has a default legend defined it will lookup the resource and return the legend 
         public getLayerLegend(l: ProjectLayer): Legend {
             var tr = this.findResourceByLayer(l);
@@ -676,7 +666,7 @@ module csComp.Services {
 
         }
 
-        public evaluateLayerExpressions(l: ProjectLayer, fTypes: {[key: string] : IFeatureType}) {
+        public evaluateLayerExpressions(l: ProjectLayer, fTypes: { [key: string]: IFeatureType }) {
             this.expressionService.evalLayer(l, fTypes);
         }
 
@@ -1011,19 +1001,19 @@ module csComp.Services {
                 feature.isSelected = !feature.isSelected;
             }
             feature._gui['title'] = Helpers.getFeatureTitle(feature);
-            
+
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
                 this.deselectFeature(this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));            
+                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
             }
-            
+
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             });
 
-            
+
             if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
@@ -1054,8 +1044,8 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info',false);
+
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false);
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 
@@ -1123,7 +1113,7 @@ module csComp.Services {
                 this.$messageBusService.publish('feature', 'onFeatureUpdated');
             }
         }
-        
+
         public getSensorIndex(d: Number, timestamps: Number[]) {
             for (var i = 1; i < timestamps.length; i++) {
                 if (timestamps[i] > d) {
@@ -1137,7 +1127,7 @@ module csComp.Services {
         public updateFeatureSensorData(f: IFeature, date: number) {
             var l = f.layer;
             if (f.sensors || f.coordinates) {
-                
+
                 var pos = 0;
                 if (f.timestamps) { // check if feature contains timestamps
                     pos = this.getSensorIndex(date, f.timestamps);
@@ -1173,36 +1163,43 @@ module csComp.Services {
                 }
             }
         }
-        
-        public updateLayerSensorData(l : ProjectLayer, date)
-        {
-            delete l._gui["timestampIndex"];  
-                delete l._gui["timestamp"];
-                if ((l.hasSensorData || l.sensorLink) && l.data.features) {
-                    console.log('updating sensor data for ' + l.title);
-                    
-                    l.data.features.forEach((f: IFeature) => {
-                        this.updateFeatureSensorData(f, date);
-                    });
-                                        
-                    this.mb.publish("layer","sensordataUpdated",l);
-                    
-                }
-                if (l.isDynamic && l.useLog) {
-                    l.data.features.forEach((f: IFeature) => {
-                        this.updateLog(f);
-                    });
-                }
+
+        public updateLayerSensorData(l: ProjectLayer, date) {
+            delete l._gui["timestampIndex"];
+            delete l._gui["timestamp"];
+            if ((l.hasSensorData || l.sensorLink) && l.data.features) {
+                console.log('updating sensor data for ' + l.title);
+
+                l.data.features.forEach((f: IFeature) => {
+                    this.updateFeatureSensorData(f, date);
+                });
+
+                this.mb.publish("layer", "sensordataUpdated", l);
+
+            }
+            if (l.isDynamic && l.useLog) {
+                l.data.features.forEach((f: IFeature) => {
+                    this.updateLog(f);
+                });
+            }
         }
 
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             var date = this.project.timeLine.focus;
-            
+
             for (var ll in this.loadedLayers) {
                 var l = this.loadedLayers[ll];
-                this.updateLayerSensorData(l,date);                                
+                if (this.project.activeDashboard.isLive) {
+                    if (!_.isUndefined(l.timestamps) && _.isArray(l.timestamps)) {
+                        date = l.timestamps[l.timestamps.length - 1];
+                        this.updateLayerSensorData(l, date);
+                    }
+                }
+                else {
+                    this.updateLayerSensorData(l, date);
+                }
             };
         }
 
@@ -1252,10 +1249,10 @@ module csComp.Services {
                         var propType = this.getPropertyType(feature, s);
                         if (propType && propType.sensorNull)
                             for (var i = 0; i < feature.sensors[s].length; i++) {
-                               if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
+                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
                             }
-                        }
                     }
+                }
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
@@ -1274,8 +1271,8 @@ module csComp.Services {
                 feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f !== feature; });
             feature.layer.group.ndx.remove([feature]);
             this.activeMapRenderer.removeFeature(feature);
-            
-            this.$messageBusService.publish("feature","onFeatureRemoved",feature);
+
+            this.$messageBusService.publish("feature", "onFeatureRemoved", feature);
 
             if (dynamic) {
                 var s = new LayerUpdate();
@@ -1344,12 +1341,11 @@ module csComp.Services {
             }
 
             feature._gui['style'] = {};
-            if (feature.layer)
-            {
+            if (feature.layer) {
                 s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
-                s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);    
-            } 
-            
+                s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
+            }
+
             if (feature.layer && feature.layer.group && feature.layer.group.styles) {
                 feature.layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
@@ -1493,15 +1489,12 @@ module csComp.Services {
                     return this.typesResources[typeUrl];
                 } else return null;
             } else return null;
-        } 
-        
-        public findPropertyTypeById(id : string) : IPropertyType
-        {            
-            if (id.indexOf('#')===-1) return null;
-            for (var r in this.typesResources)
-            {
-                if (id.indexOf(r)===0)
-                {
+        }
+
+        public findPropertyTypeById(id: string): IPropertyType {
+            if (id.indexOf('#') === -1) return null;
+            for (var r in this.typesResources) {
+                if (id.indexOf(r) === 0) {
                     var res = this.typesResources[r].propertyTypeData;
                     var k = id.split('#')[1];
                     if (res.hasOwnProperty(k)) return res[k];
@@ -1533,8 +1526,8 @@ module csComp.Services {
                     return feature;
             }
         }
-        
-        
+
+
         /**
          * Find a feature by layerId and FeatureId.
          * @layerId {string}
@@ -1542,14 +1535,14 @@ module csComp.Services {
          */
         public findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
-        } 
+        }
 
         /**
          * Find a feature by layerId and FeatureId.
          * @property {string}
          * @value {number}
          */
-        public findFeatureByPropertyValue(property : string, value : Object): IFeature {
+        public findFeatureByPropertyValue(property: string, value: Object): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
         }
 
@@ -1643,8 +1636,7 @@ module csComp.Services {
             gs.enabled = true;
             gs.property = property.label;
             gs.group = group;
-            if (property.legend)
-            {
+            if (property.legend) {
                 gs.activeLegend = property.legend;
             } else {
                 gs.colors = ['white', '#FF5500'];
@@ -1658,6 +1650,17 @@ module csComp.Services {
                 }
             });
             this.$messageBusService.publish('updatelegend', 'updatedstyle', gs);
+        }
+
+        public setStyleForProperty(layer: ProjectLayer, property: string) {
+            this.setStyle({
+                feature: {
+                    featureTypeName: layer.url + '#' + property,
+                    layer: layer
+                },
+                property: property,
+                key: property,
+            }, false);
         }
 
         /**
@@ -2321,7 +2324,7 @@ module csComp.Services {
                 }];
                 this.project.dashboards.push(d2);
             } else {
-                
+
                 // initialize dashboards                
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
@@ -2334,7 +2337,7 @@ module csComp.Services {
             }
             async.series([
                 (callback) => {
-                    
+
                     // load extra type resources                    
                     if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                         async.eachSeries(this.project.typeUrls, (item, cb) => {
@@ -2347,7 +2350,7 @@ module csComp.Services {
                     }
                 },
                 (callback) => {
-                    
+
                     // load data resources
                     if (!this.project.datasources) this.project.datasources = [];
 
@@ -2457,7 +2460,7 @@ module csComp.Services {
                 if (!this.directoryHandle) {
                     this.directoryHandle = this.$messageBusService.serverSubscribe('', 'directory', (sub: string, msg: any) => {
                         if (msg.action === 'subscribed') return;
-                        
+
                         // received layer update
                         if (msg.action === 'layer' && msg.data && msg.data.item) {
                             // Disabled for single-project-solutions, as layers from excel2map get updated twice: on layer update and on project update
@@ -2478,7 +2481,7 @@ module csComp.Services {
                                 }
                             }
                         }
-                        
+
                         // received project update
                         if (msg.action === 'project' && msg.data && msg.data.item) {
                             var project = <Project>msg.data.item;
@@ -2499,9 +2502,9 @@ module csComp.Services {
                                         //     this.openProject(solutionProject, null, project);    
                                         // });
                                         //this.openProject(solutionProject, null, project);
-                                        
+
                                         //var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
-                                        
+
                                     }
                                 }
                             }
@@ -2606,8 +2609,8 @@ module csComp.Services {
                 // find dashboard from url
                 if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
                     startd = this.findDashboardById(this.startDashboardId);
-                } 
-               this.$messageBusService.publish('dashboard-main', 'activated', startd);
+                }
+                this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
 
             if (this.project.useOfflineSearch) {
@@ -2617,8 +2620,8 @@ module csComp.Services {
             if (this.project.useOnlineSearch && this.project.hasOwnProperty('onlineSearchUrl')) {
                 this.addActionService(new OnlineSearchActions(this.$http, this.project.onlineSearchUrl));
             }
-            
-            
+
+
         }
 
         private apply() {
@@ -2629,17 +2632,15 @@ module csComp.Services {
             if (_.isUndefined(layer.enabled)) {
                 layer.enabled = true;
             }
-            else
-            {
+            else {
                 layer.enabled = !layer.enabled;
             }
             this.checkToggleLayer(layer);
             //if (!_.isUndefined(layer.group.oneLayerActive) && this.findLoadedLayer(layer.id)) layer.enabled = false;
-            
+
         }
-        
-        public checkToggleLayer(layer : ProjectLayer)
-        {
+
+        public checkToggleLayer(layer: ProjectLayer) {
             if (layer.enabled) {
                 this.addLayer(layer);
             } else {
@@ -2808,13 +2809,13 @@ module csComp.Services {
          * Calculate min/max/count/mean/varience/sd for a specific property in a group
          */
         public calculatePropertyInfo(group: ProjectGroup, property: string): PropertyInfo {
-            var r = <PropertyInfo> {
+            var r = <PropertyInfo>{
                 count: 0,
                 max: Number.MIN_VALUE,
                 min: Number.MAX_VALUE
             };
             var sumOfElements = 0;
-            var sumOfSquares  = 0;
+            var sumOfSquares = 0;
 
             group.layers.forEach((l: ProjectLayer) => {
                 if (l.enabled) {
@@ -2824,7 +2825,7 @@ module csComp.Services {
                             if (isNaN(v)) return;
                             r.count++;
                             sumOfElements += v;
-                            sumOfSquares  += v * v;
+                            sumOfSquares += v * v;
                             if (v > r.max) r.max = v;
                             if (v < r.min) r.min = v;
                         }
@@ -2920,7 +2921,7 @@ module csComp.Services {
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 
-                var pu = <ProjectUpdate>{ projectId : this.project.id, action : ProjectUpdateAction.updateProject, item : data};
+                var pu = <ProjectUpdate>{ projectId: this.project.id, action: ProjectUpdateAction.updateProject, item: data };
                 this.$messageBusService.serverSendMessageAction('project', pu);
                 //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
                 // console.log('URL: ' + url);
@@ -2940,7 +2941,7 @@ module csComp.Services {
             }, 0);
         }
 
-        private updateProjectReady(data) {}
+        private updateProjectReady(data) { }
 
         /**
          * Save feature back to the server
@@ -3025,9 +3026,9 @@ module csComp.Services {
         deleteFeature,
         updateLayer,
         deleteLayer,
-        addUpdateFeatureBatch      
+        addUpdateFeatureBatch
     }
-    
+
     /** Type of change in an ApiEvent */
     export enum ChangeType {
         Create, Update, Delete
