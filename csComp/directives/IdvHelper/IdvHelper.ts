@@ -605,7 +605,7 @@ module Idv {
             }
 
 
-            var width = config.width * this.defaultWidth;
+            var width = (config.width * this.defaultWidth)-25;
             var height = (config.height * 125)-25;
             
             
@@ -723,8 +723,7 @@ module Idv {
                         .height(height)
                         .symbolSize(3)
                         .x(d3.scale.linear())
-                        .y(d3.scale.linear()) 
-                        
+                        .y(d3.scale.linear())                         
                         .elasticX(true)
                         .elasticY(true)                                                                                                
                         .dimension(config.dimension)
@@ -742,6 +741,7 @@ module Idv {
                         .elasticX(true)
                         .dimension(config.dimension)
                         .group(config.group)
+                        .xAxis().ticks(4)
 
                     if (!config.ordering) config.ordering = "value";
 
