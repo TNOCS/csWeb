@@ -324,16 +324,24 @@ module Idv {
             prepare(this.enums, data);
 
             this.updateCharts(); 
-            done(); 
+            done();
         }
         
         public reset(id)
         {            
-            var cc = this.config.charts.filter(c=>{return c.elementId === id;});
-            cc.forEach(c=>{
-                c.chart.filterAll();                
-              //c.dimension.filterAll();  
-            })
+            var cc = _.findWhere(this.config.charts, { id : id });
+            if (!_.isUndefined(cc)) 
+            {
+                cc.chart.filterAll();                
+                dc.renderAll();
+            }
+        }
+        
+        public resetAll()
+        {
+            this.config.charts.forEach(c=>{
+                if (!_.isUndefined(c.chart)) c.chart.filterAll();
+            });
             dc.renderAll();
         }
         
@@ -789,11 +797,28 @@ module Idv {
                      } 
                     //this.addChart(c)
                 });        
-        }
-        
+        }        
+                
         private createGridsterItem(config: Idv.ChartConfig)
         {
-            var w = this.layerService.$compile("<li style='padding:4px'><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
+            var html = "<li style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
+            html+="<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li>"; 
+            html+="</ul>" + config.title + "</header><div id='" + config.elementId + "' ></li>";   
+            (<any>this.scope).resetFilter = (id)=>{
+                this.reset(id);                                
+            }
+            (<any>this.scope).resetAll = ()=>{
+                this.resetAll();                                
+            }
+            (<any>this.scope).disableFilter = (id)=>{
+                var c = _.findWhere(this.config.charts, { id : id});
+                if (!_.isUndefined(c))
+                {
+                    c.enabled = false;
+                    this.updateCharts();                    
+                }                
+            }
+            var w = this.layerService.$compile(html)(this.scope);
             this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
         }
 

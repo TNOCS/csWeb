@@ -61,6 +61,40 @@ body,
     padding-right: 10px;
 }
 
+.dc-chart g.row text {
+            fill: black;
+        }
+        
+        .gridster > ul {
+            list-style: none
+        }
+        
+        .gridster > ul > li {
+            background: #eee;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            visibility: visible;   
+            position: relative;         
+        }
+        
+        .gridster > * {
+            padding: 0;
+            width: 100% !important;
+        }
+        
+        .gridster .gs-w {
+            list-style: none;
+        }
+        
+        .scan-loading {
+            font-size: 50px;
+            width: 100%;
+            text-align: center;
+            margin-top: 200px;
+        }
+
 /* general structure */
  .righttab-box {
             position: absolute;
