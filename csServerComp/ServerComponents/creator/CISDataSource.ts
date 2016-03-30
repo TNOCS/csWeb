@@ -18,6 +18,8 @@ export interface ICISOptions {
     cisNotifyUrl?: string;
 }
 
+
+
 /** CIS datasource
  *  Provides an endpoint for obtaining and sending CIS messages
  */
@@ -38,25 +40,24 @@ export class CISDataSource {
         this.cisOptions.cisNotifyUrl = options.cisNotifyUrl || '';
         
         Winston.info('Init CIS datasource listening on port ' + this.server.get('port') + ' with endpoint ' + this.cisOptions.sendMessageUrl);
-
+        
         this.server.put(this.cisOptions.cisMsgReceivedUrl, (req: express.Request, res: express.Response) => {
             console.log('Got message from CIS: ' + req.body);
         });
 
-        this.server.get(this.cisOptions.sendMessageUrl, (req: express.Request, res: express.Response) => {
+        this.server.post(this.cisOptions.sendMessageUrl, (req: express.Request, res: express.Response) => {
             Winston.info('Notify the CIS datasource on ' + this.cisOptions.cisNotifyUrl);
-            var cisMessage = {url: this.cisOptions.cisNotifyUrl, msg: "test", msgType: "CAP"};
-            request.get(cisMessage, (err, response, data) => {
+            request.post({
+                url: this.cisOptions.cisNotifyUrl,
+                body: req.body
+            },
+            (err, response, data) => {
                 if (!err) {
                     Winston.info('Notified the CIS datasource');
+                } else {
+                    Winston.info('Error in notifying the CIS datasource: ' + err);
                 }
             });
-            if (!cisMessage) {
-                res.sendStatus(404);
-                return;
-            } else {
-                res.sendStatus(200);
-            }
         });
 
         callback('CIS datasource loaded successfully!');

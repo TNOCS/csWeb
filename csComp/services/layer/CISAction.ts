@@ -10,15 +10,18 @@ module CISAction {
     }
     
     export interface IDEParameters {
-        DISTR_ID: string;
-        DISTR_SENDERID: string;
-        DISTR_DATETIMESENT: string;
-        DISTR_DATETIMEEXPIRES: string;
-        DISTR_STATUS: string;
-        DISTR_KIND: string;
+        id: string;
+        senderId: string;
+        dateTimeSent: string;
+        status: string;
+        kind: string;
+        descriptionType?: string;
+        contentType?: string;
+        contentObjectType?: string;
     }
 
     import IFeature = csComp.Services.IFeature;
+    import IProjectLayer = csComp.Services.IProjectLayer;
     import IActionOption = csComp.Services.IActionOption;
 
     export class CISAction implements csComp.Services.IActionService {
@@ -49,15 +52,24 @@ module CISAction {
         deselectFeature(feature: IFeature) { }
 
         updateFeature(feuture: IFeature) { }
+        
+        getLayerActions(layer: IProjectLayer) { 
+            return [];
+        }
 
         private sendCISMessage(feature: IFeature, layerService: csComp.Services.LayerService) {
             var fType = layerService.getFeatureType(feature);
             var url = fType['cisUrl'] || '/cis/notify';
             console.log('Send CIS message');
             var cisMessage = JSON.parse(JSON.stringify(CISAction.createDefaultCISMessage()));
-            url += `?msgType=${cisMessage.msgType}&msg=${cisMessage.msg}`;//&deParameters=${cisMessage.deParameters}`;
             console.log(url);
-            $.get(url, {
+            $.ajax({
+                contentType: 'application/json',
+                data: cisMessage,
+                url: url,
+                dataType: 'json',
+                crossDomain: true,
+                type: 'POST',
                 success: (data, status, jqxhr) => {
                     console.log('Sent CIS successfully');
                 },
@@ -69,12 +81,11 @@ module CISAction {
         
         private static createDefaultCISMessage(): ICISMessage {
             var deParams: IDEParameters = {
-                DISTR_ID: 'csweb' + csComp.Helpers.getGuid(),
-                DISTR_SENDERID: 'someone@csweb',
-                DISTR_DATETIMESENT: (new Date().toISOString()),
-                DISTR_DATETIMEEXPIRES: (new Date(Date.now() + 300000).toISOString()), //5mins
-                DISTR_KIND: 'Report',
-                DISTR_STATUS: 'Excercise'
+                id: 'csweb' + csComp.Helpers.getGuid(),
+                senderId: 'someone@csweb',
+                dateTimeSent: (new Date().toISOString()),
+                kind: 'Report',
+                status: 'Excercise'                
             }
 
             var cisMessage: ICISMessage = {
