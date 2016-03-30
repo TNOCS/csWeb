@@ -227,7 +227,20 @@ module Dashboard {
             var d = this.$scope.dashboard;     // RS mod January 2016
             if (d.showTimeline && d.timeline) {
                 //console.log("checkTimeline: dashboard has timeline");
+                
+                if (!_.isUndefined(d.timeline.fixedRange))
+                {
+                    switch(d.timeline.fixedRange)
+                    {
+                        case "24h" :
+                            d.timeline.end = Date.now();
+                            d.timeline.start = Date.now() - 1000 * 60 * 24;          
+                        break;
+                    }
+                }
+                
                 this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
+                
                 // now move the focustimeContainer to the right position
                 if (d.timeline.focus && d.timeline.start && d.timeline.end &&
                     (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
@@ -239,6 +252,7 @@ module Dashboard {
                     var newpos = f * w - $("#focustimeContainer").width() / 2;
                     $("#focustimeContainer").css('left', newpos);
                 }
+                
             }                                  // end RS mod
         }
 

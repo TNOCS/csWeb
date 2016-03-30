@@ -101,6 +101,20 @@ module FocusTimeWidget {
 
         }
         
+        public lastHour()
+        {
+            this.layer.sensorLink.liveInterval = "1h";
+            this.layerService.updateLayerSensorLink(this.layer);
+            
+        }
+        
+        public lastDay()
+        {
+            this.layer.sensorLink.liveInterval = "24h";
+            this.layerService.updateLayerSensorLink(this.layer);
+            console.log('last 24');
+        }
+        
        
 
         public checkLayerTimestamp() {                   

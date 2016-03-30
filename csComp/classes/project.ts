@@ -42,6 +42,7 @@ module csComp.Services {
         start:         number;
         end:           number;
         focus:         number;
+        fixedRange      : string;
         range:         number; // total time range in ms
         zoomLevel:     number;
         zoomLevelName: string;

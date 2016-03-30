@@ -1,17 +1,16 @@
 <div style="box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);height:100%;background:white">
     <div class="fa fa-clock-o" style="float:left;font-size:50px;margin:5px" />
     <div ng-show="vm.layer._gui.loadingSensorLink">
-        <span>Loading sensor data</span>
+        <span>Sensor data wordt geladen, even geduld</span>
     </div>
     <div ng-hide="vm.layer._gui.loadingSensorLink">
         <div ng-show="vm.time">
             <div class="focustime-widget-date">{{vm.time | date:vm.dateFormat}}</div>
             <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}</div>
-
+            <!--<div style="margin:10px"><button class="button" ng-click="vm.lastHour()" style="margin-right:5px">laatste uur</button><button ng-click="vm.lastDay()" class="button">laatste 24 uur</button></div>-->
         </div>
         <div ng-hide="vm.time">
-            <span>No sensor data available for this moment</span>
+            <span>Momenteel is er geen sensor data beschikbaar</span>
         </div>
-
     </div>
 </div>
