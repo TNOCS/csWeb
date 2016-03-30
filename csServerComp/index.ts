@@ -26,6 +26,7 @@ export * from './ServerComponents/rules/RuleEngine';
 export * from './ServerComponents/creator/ProjectRepositoryService';
 export * from './ServerComponents/creator/MapLayerFactory';
 export * from './ServerComponents/creator/RestDataService';
+export * from './ServerComponents/creator/CISDataSource';
 export * from './ServerComponents/import/Store';
 export * from './ServerComponents/import/IsoLines';
 export * from './ServerComponents/helpers/GeoJSON';
