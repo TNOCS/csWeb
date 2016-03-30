@@ -214,7 +214,7 @@ export class RuleEngine {
         // Update the set of applicable rules
         this.activeRules = this.activeRules.filter(r => r.isActive);
         this.inactiveRules = this.inactiveRules.filter(r => !r.isActive);
-        console.log(`Starting to evaluate ${this.activeRules.length} rules...`);
+        console.log(`Starting to evaluate ${this.activeRules.length} rules:`);
         // Process all rules
         this.worldState.activeFeature = feature;
         this.activeRules.forEach(r => r.process(this.worldState, this.service));

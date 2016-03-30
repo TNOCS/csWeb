@@ -575,20 +575,14 @@ module csComp.Helpers {
         url = url.substring(0, url.length - 1);
         return url;
     }
-    
-    
 
     export function createIconHtml(feature: IFeature): {
         html: string,
         iconPlusBorderWidth: number,
         iconPlusBorderHeight: number
     } {
-        var html = '<div ';
-
         var effectiveStyle = feature.effectiveStyle;
-        //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
         var iconUri = effectiveStyle.iconUri; //ft.style.iconUri;
-        //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
         // TODO refactor to object
         var iconPlusBorderWidth, iconPlusBorderHeight;
@@ -600,30 +594,55 @@ module csComp.Helpers {
             iconPlusBorderHeight = effectiveStyle.iconHeight;
         }
 
-        html += 'style="display: inline-block;vertical-align: middle;text-align: center;'
-            + `background:${effectiveStyle.fillColor};`
-            + `width:${iconPlusBorderWidth}px;`
-            + `height:${iconPlusBorderHeight}px;`
-            + `border-radius:${effectiveStyle.cornerRadius}%;`
-            + 'border-style:solid;'
-            + `border-color:${effectiveStyle.strokeColor};`
-            + `border-width:${effectiveStyle.strokeWidth}px;`
-            + `opacity:${effectiveStyle.opacity};`
-            + '">';
+        var html: string,
+            content: string,
+            closeImageTag: string = '';
 
         if (effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(effectiveStyle.innerTextProperty)) {
             var textSize = effectiveStyle.innerTextSize || 12;
-            html += `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[effectiveStyle.innerTextProperty]}</span>`;
+            content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[effectiveStyle.innerTextProperty]}</span>`;
         } else if (iconUri != null) {
             // Must the iconUri be formatted?
             if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-
-            html += '<img src="' + iconUri + '" style="width:' + (effectiveStyle.iconWidth) + 'px;height:' + (effectiveStyle.iconHeight) + 'px;display:block';
-            if (effectiveStyle.rotate && effectiveStyle.rotate > 0) html += ';transform:rotate(' + effectiveStyle.rotate + 'deg)';
-            html += '" />';
+            content = `<img src="${iconUri}" style="width:${effectiveStyle.iconWidth}px;height:${effectiveStyle.iconHeight}px;display:block;`;
+            if (effectiveStyle.rotate && effectiveStyle.rotate > 0) content += `;transform:rotate(${effectiveStyle.rotate}deg)`;
+            closeImageTag = '" />';
         }
 
-        html += '</div>';
+        switch (effectiveStyle.marker) {
+            case 'pin':
+                html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                    + `background:${effectiveStyle.fillColor};`
+                    + `width:${iconPlusBorderWidth}px;`
+                    + `height:${iconPlusBorderHeight}px;`
+                    + `opacity:${effectiveStyle.opacity};`
+                    + '"></div>'
+                    + content + `position:absolute;margin:${effectiveStyle.strokeWidth}px" />`;
+                break;
+            case 'bubble':
+                html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                    + `background:${effectiveStyle.fillColor};`
+                    + `width:${iconPlusBorderWidth}px;`
+                    + `height:${iconPlusBorderHeight}px;`
+                    + `opacity:${effectiveStyle.opacity};`
+                    + '"></div>'
+                    + content + `position:absolute;margin:${effectiveStyle.strokeWidth}px" />`;
+                break;
+            default:
+                html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
+                    + `background:${effectiveStyle.fillColor};`
+                    + `width:${iconPlusBorderWidth}px;`
+                    + `height:${iconPlusBorderHeight}px;`
+                    + `border-radius:${effectiveStyle.cornerRadius}%;`
+                    + 'border-style:solid;'
+                    + `border-color:${effectiveStyle.strokeColor};`
+                    + `border-width:${effectiveStyle.strokeWidth}px;`
+                    + `opacity:${effectiveStyle.opacity};`
+                    + '">'
+                    + content + closeImageTag
+                    + '</div>';
+                break;
+        }
 
         var iconHtml = {
             html: html,

@@ -1293,6 +1293,7 @@ module csComp.Services {
             var properties = feature.properties;
             if (style) {
                 if (style.nameLabel) s.nameLabel = style.nameLabel;
+                if (style.marker) s.marker = style.marker;
                 if (style.iconUri) s.iconUri = style.iconUri;
                 if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
                 if (style.opacity >= 0) s.opacity = style.opacity;

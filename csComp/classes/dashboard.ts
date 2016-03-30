@@ -58,7 +58,8 @@ module csComp.Services {
         bottom?:            string;
 
         icon?:              string;
-
+        /** When true, hide the widget. */
+        hideIfLeftPanel?:   boolean;
         name?:              string; id: string;
         timeDependent?:     boolean;
         properties?:        {};

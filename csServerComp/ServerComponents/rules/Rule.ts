@@ -111,6 +111,7 @@ export class Rule implements IRule {
         if (!this.isGenericRule && typeof worldState.activeFeature !== 'undefined' && typeof this.feature !== 'undefined' && worldState.activeFeature.id !== this.feature.id) return;
         // Finally, check the conditions, if any (if none, just go ahead and execute the actions)
         if (typeof this.conditions === 'undefined' || this.evaluateConditions(worldState)) {
+            console.log('Start executing actions...');
             this.executeActions(worldState, service);
             if (this.recurrence > 0) this.recurrence--;
             if (this.recurrence === 0) service.deactivateRule(this.id);
@@ -124,20 +125,21 @@ export class Rule implements IRule {
             var check = c[0];
             if (typeof check === 'string') {
                 var length = c.length;
+                var prop: string | number | boolean;
                 switch (check.toLowerCase()) {
-                    case "propertyexists":
+                    case 'propertyexists':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 2) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             console.log(`Property ${prop} exists.`);
                         }
                         break;
-                    case "propertyisset":
+                    case 'propertyisset':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length < 2) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -146,10 +148,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} is set` + (length === 2 ? '.' : ' ' + c[2]));
                         }
                         break;
-                    case "propertygreaterorequalthan":
+                    case 'propertygreaterorequalthan':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -157,10 +159,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} is greater than ${c[2]}.`);
                         }
                         break;
-                    case "propertygreaterthan":
+                    case 'propertygreaterthan':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -168,10 +170,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} is greater than ${c[2]}.`);
                         }
                         break;
-                    case "propertyequals":
+                    case 'propertyequals':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -179,11 +181,11 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} equals ${c[2]}.`);
                         }
                         break;
-                    case "propertydoesnotequal":
-                    case "propertynotequal":
+                    case 'propertydoesnotequal':
+                    case 'propertynotequal':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -191,10 +193,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} does not equal ${c[2]}.`);
                         }
                         break;
-                    case "propertylessthan":
+                    case 'propertylessthan':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -202,10 +204,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} is less than ${c[2]}.`);
                         }
                         break;
-                    case "propertylessorequalthan":
+                    case 'propertylessorequalthan':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let propValue = worldState.activeFeature.properties[prop];
@@ -213,10 +215,10 @@ export class Rule implements IRule {
                             console.log(`Property ${prop} is less or equal than ${c[2]}.`);
                         }
                         break;
-                    case "propertycontains":
+                    case 'propertycontains':
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 3) return this.showWarning(c);
-                        var prop = c[1];
+                        prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let props: any[] = worldState.activeFeature.properties[prop];
@@ -241,8 +243,10 @@ export class Rule implements IRule {
     }
 
     private executeActions(worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) {
+        console.log(`Executing ${this.actions.length} actions:`);
         for (let i = 0; i < this.actions.length; i++) {
             var a = this.actions[i];
+            console.log(`Executing action: ` + JSON.stringify(a, null, 2));
             var action = a[0];
             var key: string | number | boolean;
             if (typeof action === 'string') {

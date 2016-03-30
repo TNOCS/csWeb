@@ -263,10 +263,11 @@ describe('Helpers spec:', function() {
         });
         it('should be created correctly', () => {
             var icon = csComp.Helpers.createIconHtml(f);
-            expect(icon.html)
-                .toBe('<div style="display: inline-block;vertical-align: middle;text-align: center;'
+            var expectation = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
                 + 'background:#ff0000;width:30px;height:30px;border-radius:5%;border-style:solid;border-color:#ffff00;border-width:3px;opacity:0.5;">'
-                + '<img src="images/marker.png" style="width:24px;height:24px;display:block" /></div>');
+                + '<img src="images/marker.png" style="width:24px;height:24px;display:block;" /></div>';
+            expect(icon.html.replace(' ', ''))
+                .toBe(expectation.replace(' ', ''));
             expect(icon.iconPlusBorderHeight).toBe(30);
             expect(icon.iconPlusBorderWidth) .toBe(30);
         });
@@ -277,10 +278,11 @@ describe('Helpers spec:', function() {
             f.effectiveStyle.innerTextProperty = 'inner';
             f.effectiveStyle.innerTextSize = 14;
             var icon = csComp.Helpers.createIconHtml(f);
-            expect(icon.html)
-                .toBe('<div style="display: inline-block;vertical-align: middle;text-align: center;'
+            var expectation = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
                 + 'background:#ff0000;width:30px;height:30px;border-radius:5%;border-style:solid;border-color:#ffff00;border-width:3px;opacity:0.5;">'
-                + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>');
+                + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>'; 
+            expect(icon.html.replace(' ', ''))
+                .toBe(expectation.replace(' ', ''));
         });
     });
 });

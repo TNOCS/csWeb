@@ -20,11 +20,11 @@ import Winston = require('winston');
 
 export class SocketIOAPI extends BaseConnector.BaseConnector {
 
-    public manager: ApiManager.ApiManager
+    public manager: ApiManager.ApiManager;
 
     constructor(public connection: ClientConnection.ConnectionManager) {
         super();
-        this.id = "socketio";
+        this.id = 'socketio';
         this.isInterface = true;
     }
 
@@ -39,7 +39,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                     case ClientConnection.LayerUpdateAction.updateLog:
                         // find feature
                         var featureId = lu.item.featureId;
-                        var logs: { [key: string]: Log[] } = lu.item["logs"];
+                        var logs: { [key: string]: Log[] } = lu.item['logs'];
                         this.manager.updateLogs(lu.layerId, featureId, logs, <ApiMeta>{ source: this.id, user: clientId }, () => { });
                         break;
                     case ClientConnection.LayerUpdateAction.updateFeature:
@@ -55,16 +55,14 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                 }
             }
         });
-        
-        
-        
-        this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {                        
+
+        this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {
             var lu = <ClientConnection.ProjectUpdate>result.data;
-            if (lu) {                
+            if (lu) {
                 ///TODO: check if lu.layerId really exists
                 switch (lu.action) {
-                    case ClientConnection.ProjectUpdateAction.updateProject:                        
-                        var p: Project = JSON.parse(lu.item);                                                                        
+                    case ClientConnection.ProjectUpdateAction.updateProject:
+                        var p: Project = JSON.parse(lu.item);
                         this.manager.updateProject(p, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
                     case ClientConnection.ProjectUpdateAction.deleteProject:
@@ -87,14 +85,14 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                 }
             }
             //result.data
-        })
+        });
         callback();
     }
-    
+
      /** Sends a message (json) to a specific project, only works with socket io for now */
     public sendClientMessage(project : string, message : Object)
-    {        
-        this.connection.publish(project, "layer", "msg", message);
+    {
+        this.connection.publish(project, 'layer', 'msg', message);
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {

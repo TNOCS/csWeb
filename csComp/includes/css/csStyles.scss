@@ -1223,46 +1223,47 @@ body,
     margin-right:4px;
 }
 
-    .button-container {
-       background: rgba(255, 255, 255, 0.77);
-        box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
-        cursor : pointer;
-        font-size: 20px;
-        margin-top:5px;
-        color:black;        
+.button-container {
+    background: rgba(255, 255, 255, 0.77);
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
+    cursor : pointer;
+    font-size: 20px;
+    margin-top:5px;
+    color:black;
+    
     } 
     
-    .button-container:active {
-        background: rgba(100, 100, 100, 0.77);    
-        color: white;
-    } 
-    
-    .button-container-down {
-        background: rgba(100, 100, 100, 0.77);     
-        color: white;
-    } 
-    
-    .button-edit-button
-    {
-        cursor:pointer;
-            position: absolute;
-            color:white;
-          padding-top:5px;
-          padding-left:5px;   
-            text-decoration: none;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 50px;
-    background: rgba(100, 100, 100, 0.77);
-    border-left-color: white;
-    border-left-width: 2px;
-    border-left-style: solid;
-    }
-    
-    .button-edit-button > span {
-        margin:10px
-    }
+.button-container:active {
+    background: rgba(100, 100, 100, 0.77);    
+    color: white;
+} 
+
+.button-container-down {
+    background: rgba(100, 100, 100, 0.77);     
+    color: white;
+} 
+
+.button-edit-button
+{
+    cursor:pointer;
+        position: absolute;
+        color:white;
+        padding-top:5px;
+        padding-left:5px;   
+        text-decoration: none;
+right: 0;
+top: 0;
+bottom: 0;
+width: 50px;
+background: rgba(100, 100, 100, 0.77);
+border-left-color: white;
+border-left-width: 2px;
+border-left-style: solid;
+}
+
+.button-edit-button > span {
+    margin:10px
+}
 
   /**
  * Base style
@@ -2897,13 +2898,13 @@ input[type="checkbox"] {
 }
 .isQuestion {
     background-color: #f5f5f5;
-    background-image: url("cs/images/question.png");
+    background-image: url("../images/question.png");
     background-repeat: no-repeat;
     background-position: right;
 }
 .isAnsweredQuestion {
     background-color: #f5f5f5;
-    background-image: url("cs/images/check.png");
+    background-image: url("../images/check.png");
     background-repeat: no-repeat;
     background-position: right;
 }
@@ -2951,6 +2952,61 @@ input[type="checkbox"] {
     width: 20px;
     height:20px;
 }
+
+.pin {
+    width: 30px;
+    height: 30px;
+    -webkit-border-radius: 50% 50% 50% 0;
+    border-radius: 50% 50% 50% 0;
+    background: #89849b;
+    position: absolute;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -20px 0 0 -20px;
+    /*-webkit-animation-name: bounce;
+        -moz-animation-name: bounce;
+        -o-animation-name: bounce;
+        -ms-animation-name: bounce;
+        animation-name: bounce;
+        -webkit-animation-fill-mode: both;
+        -moz-animation-fill-mode: both;
+        -o-animation-fill-mode: both;
+        -ms-animation-fill-mode: both;
+        animation-fill-mode: both;
+        -webkit-animation-duration: 1s;
+        -moz-animation-duration: 1s;
+        -o-animation-duration: 1s;
+        -ms-animation-duration: 1s;
+        animation-duration: 1s;*/
+}
+
+.bubble {
+    width: 30px;
+    height: 30px;
+    -webkit-border-radius: 50% 50% 0 50%;
+    border-radius: 50% 50% 0 50%;
+    background: #89849b;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -20px 0 0 -20px;
+}
+// .bubble:after {
+//   content: '';
+//   width: 14px;
+//   height: 14px;
+//   margin: 8px 0 0 8px;
+//   background: #2f2f2f;
+//   position: absolute;
+//   -webkit-border-radius: 50%;
+//   border-radius: 50%;
+// }
+
 
 /* End Kanban board style */
 
