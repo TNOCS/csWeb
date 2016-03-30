@@ -178,12 +178,49 @@ module csComp.Services {
                 }
             }
         }
+        
+        public updateLayerKpiLink(layer : ProjectLayer)
+        {
+            if (layer.sensorLink && layer.sensorLink.kpiUrl) {
+                // create sensorlink
+                if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
+
+                var link = layer.sensorLink.kpiUrl;
+                if (!this.project.activeDashboard.isLive) {
+                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;                      
+                }
+                else {
+                    
+                    if (_.isUndefined(layer.sensorLink.liveInterval)) {
+                        link += "?tbox=1h";
+                    }
+                    else
+                    {
+                        link += "?tbox=" + layer.sensorLink.liveInterval;
+                    }  
+                }
+                console.log('kpi:' + link); 
+                layer._gui["loadingKpiLink"] = true;
+                this.$http.get(link)
+                    .success((data: ISensorLinkResult) => {
+                        layer._gui["loadingKpiLink"] = false;
+                        
+                        layer.kpiTimestamps = data.timestamps;
+                        if (typeof data.kpis !== 'undefined') {
+                            layer.sensors = data.kpis;
+                        }                        
+                        this.$messageBusService.publish("timeline", "sensorLinkUpdated");
+                    })
+                    .error((e) => {
+                        layer._gui["loadingKpiLink"] = false;
+                        console.log('error loading sensor data');
+                    });
+            }
+        }
 
         public updateLayerSensorLink(layer: ProjectLayer) {
             if (layer.sensorLink) {
                 // create sensorlink
-
-
                 if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
 
                 var link = layer.sensorLink.url;
@@ -192,7 +229,14 @@ module csComp.Services {
                     //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
                 }
                 else {
-                    link += "?tbox=24h"
+                    
+                    if (_.isUndefined(layer.sensorLink.liveInterval)) {
+                        link += "?tbox=24h";
+                    }
+                    else
+                    {
+                        link += "?tbox=" + layer.sensorLink.liveInterval;
+                    }  
                 }
                 layer._gui['lastSensorLink'] = link;
                 console.log('downloading ' + link);
@@ -200,9 +244,7 @@ module csComp.Services {
                 this.$http.get(link)
                     .success((data: ISensorLinkResult) => {
                         layer._gui["loadingSensorLink"] = false;
-                        if (typeof data.kpis !== 'undefined') {
-                            layer.sensors = data.kpis;
-                        }
+                        
                         layer.timestamps = data.timestamps;
                         layer.data.features.forEach((f: IFeature) => {
                             f.sensors = {};
@@ -211,10 +253,13 @@ module csComp.Services {
                         var t = 0;
 
                         var featureLookup = []
+                        var p = 0;
 
                         data.features.forEach(f => {
-                            var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
-                            if (index !== -1) featureLookup.push(index);
+                            //var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
+                            //if (index !== -1) featureLookup.push(index);
+                            featureLookup.push(p);
+                            p+=1;
                         });
 
                         for (var s in data.data) {
@@ -246,6 +291,7 @@ module csComp.Services {
                         console.log('error loading sensor data');
                     });
             }
+            this.updateLayerKpiLink(layer);
         }
 
 

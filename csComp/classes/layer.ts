@@ -6,6 +6,10 @@ module csComp.Services {
         linkid? : string;
         /** url to fetch the sensor data */
         url? : string;
+        /** url to fetch layer kpi data */
+        kpiUrl? : string;
+        /** interval for live link (1h, 24h, etc) */
+        liveInterval? : string;
     }
 
     /** Interface of a project layer
@@ -208,6 +212,7 @@ module csComp.Services {
         * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
         */
         timestamps: number[];
+        kpiTimestamps: number[];
         /** Internal ID, e.g. for the Excel service */
         id: string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */

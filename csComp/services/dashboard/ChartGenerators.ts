@@ -384,9 +384,9 @@ module csComp.Services {
         private selectLayer(layer : ProjectLayer) {
             this.layer = layer;
             if (!layer) return; 
-            if (!_.isArray(layer.timestamps)) return; 
+            if (!_.isArray(layer.kpiTimestamps)) return; 
             if (this.options.hasOwnProperty("layer")) {               
-                var sensors = [];
+                var sensors = []; 
                 if (this.options.hasOwnProperty("sensors")) {
                     // set width/height using the widget width/height (must be set) 
                     var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
@@ -400,12 +400,10 @@ module csComp.Services {
                     }
                     var values = [];
                     if (!sensors) return; 
-                    sensors.forEach((p: string) => {
-                        
-                        
+                    sensors.forEach((p: string) => {                                               
                         if (layer.sensors && layer.sensors.hasOwnProperty(p)) {
-                            var i =0;
-                            layer.timestamps.forEach(t=>{
+                            var i =0;                            
+                            layer.kpiTimestamps.forEach(t=>{
                                 var s = layer.sensors[p][i];
                                 if (s===-1) s = null;
                                 if (layer.sensors[p].length>i) values.push({x : t, y : s, c : 0});
@@ -446,8 +444,8 @@ module csComp.Services {
                                 "range": "width",
                                 "points": true,
                                 "domain": { "data": "table", "field": "x" },
-                                "domainMin" : layer.timestamps[0],
-                                "domainMax" : layer.timestamps[layer.timestamps.length-1]
+                                "domainMin" : layer.kpiTimestamps[0],
+                                "domainMax" : layer.kpiTimestamps[layer.kpiTimestamps.length-1]
                             },
                             {
                                 "name": "y",
