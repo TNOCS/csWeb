@@ -220,18 +220,19 @@ module csComp.Services {
                         for (var s in data.data) {
                             var sensordata = data.data[s];
                             for (var ti = 0; ti < data.timestamps.length; ti++) {
-                                for (var fi = 0; fi < sensordata[ti].length; fi++) {
-                                    // get feature
-                                    var findex = featureLookup[fi];
-                                    if (findex >= 0) {
-                                        var f = layer.data.features[findex];
-                                        if (f) {
-                                            var value = sensordata[ti][fi];
-                                            //if (value === -1) value = null;
-                                            f.sensors[s].push(value);
+                                if (sensordata.length > ti) {
+                                    for (var fi = 0; fi < sensordata[ti].length; fi++) {
+                                        // get feature
+                                        var findex = featureLookup[fi];
+                                        if (findex >= 0) {
+                                            var f = layer.data.features[findex];
+                                            if (f) {
+                                                var value = sensordata[ti][fi];
+                                                //if (value === -1) value = null;
+                                                f.sensors[s].push(value);
+                                            }
                                         }
                                     }
-
                                 }
                             }
                         }

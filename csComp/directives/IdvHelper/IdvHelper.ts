@@ -28,6 +28,9 @@ module Idv {
         featureProperty? : string;
         featureTargetProperty? : string;
         filtered? : Function;
+        _view : any;
+        xaxis? : string;
+        yaxis? : string;
     } 
 
     export interface ScanConfig {
@@ -40,6 +43,8 @@ module Idv {
     }
 
     declare var gridster;
+        declare var vg;
+
 
     export class Idv {
 
@@ -170,6 +175,8 @@ module Idv {
             }
 
             dc.renderAll();
+            
+            this.triggerFilter(this.config.charts[0]);
 
            
             if (this.scope.$root.$$phase !== '$apply' && this.scope.$root.$$phase !== '$digest') { this.scope.$apply(); }
@@ -361,11 +368,130 @@ module Idv {
                                 });
                                 chart.dimension.top(Infinity);
                                 dc.redrawAll();                            
-                        }                                                
-                     
+                        }                  
+                        this.triggerFilter(config);     
+                           
                 });
                 var all = this.ndx.groupAll();
                 (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
+        }
+        
+        public addSumCompare(config : Idv.ChartConfig)
+        {
+            this.createGridsterItem(config);
+            
+            var updateChart = (values : number[])=>{
+                try {
+
+                var vgspec = {
+                    'width': 200,
+                    'height': 200,
+                    'data': [
+                        {
+                        'name': 'table',
+                        'values': values,
+                        'transform': [{'type': 'pie','field': 'value'}]
+                        }
+                    ],
+                    'scales': [
+                        {
+                        'name': 'r',
+                        'type': 'sqrt',
+                        'domain': {'data': 'table','field': 'value'},
+                        'range': [20,100]
+                        } ,
+                         {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "table", "field": "position"},
+      "range": "category20"
+    }
+                    ],
+                    'marks': [
+                        {
+                        'type': 'arc',
+                        'from': {'data': 'table'},
+                        'properties': {
+                            'enter': {
+                            'x': {'field': {'group': 'width'},'mult': 0.5},
+                            'y': {'field': {'group': 'height'},'mult': 0.5},
+                            'startAngle': {'field': 'layout_start'},
+                            'endAngle': {'field': 'layout_end'},
+                            'innerRadius': {'value': 20},
+                            'outerRadius': {'scale': 'r','field': 'value'},
+                            'stroke': {'value': '#fff'}
+                            },
+                            'update': {'fill': {"scale": "color", "field": "position"}},
+                            'hover': {'fill': {'value': 'pink'}}
+                        }
+                        },
+                        {
+                        'type': 'text',
+                        'from': {'data': 'table'},
+                        'properties': {
+                            'enter': {
+                            'x': {'field': {'group': 'width'},'mult': 0.5},
+                            'y': {'field': {'group': 'height'},'mult': 0.5},
+                            'radius': {'scale': 'r','field': 'value','offset': 8},
+                            'theta': {'field': 'layout_mid'},
+                            'fill': {'value': '#000'},
+                            'align': {'value': 'center'},
+                            'baseline': {'value': 'middle'},
+                            'text': {'field': 'title'}
+                            }
+                        }
+                        },
+                        {
+                        'type': 'text',
+                        'from': {'data': 'table'},
+                        'properties': {
+                            'enter': {
+                            'x': {'field': {'group': 'width'},'mult': 0.5},
+                            'y': {'field': {'group': 'height'},'mult': 0.5,'offset':-10},                            
+                            'radius': {'scale': 'r','field': 'value','offset': 8},
+                            'theta': {'field': 'layout_mid'},
+                            'fill': {'value': '#000'},
+                            'align': {'value': 'center'},
+                            'baseline': {'value': 'middle'},
+                            'text': {'field': 'value'}
+                            }
+                        }
+                        }
+                    ]
+                };
+                
+                //parse(vgspec);
+                if (vgspec)
+
+                    var res = vg.embed("#" + config.elementId, vgspec, (view, vega_spec) => {
+                        config._view = view;
+                        $("#" + config.elementId).css("margin-left","30px");
+                        //$('.vega-actions').css("display","none");
+                        // Callback receiving the View instance and parsed Vega spec...
+                        // The View resides under the '#vis' element
+                    });
+            } catch (e) {
+
+            }
+            }
+             
+            updateChart([]);
+             
+                                
+            config.filtered = (result)=>{
+                var res = { };
+                config.properties.forEach(p=>res[p] = 0);
+                result.forEach(i=>{
+                   config.properties.forEach(p=>{ if (i.hasOwnProperty(p)) res[p] += Math.round(+i[p]) });                   
+                }); 
+                var values = [];
+                var pos = 0;
+                for (var i in res) {
+                    if (res[i]>0) values.push({ title : i, value : res[i], position : pos});
+                    pos+=1;
+                }
+                updateChart(values); 
+            };
         }
         
         public addLayerLink(config : Idv.ChartConfig)
@@ -392,7 +518,7 @@ module Idv {
                             {
                                 var f = mapping[r.key];
                                 f.properties[config.featureTargetProperty] = r.value;                                
-                            }                           
+                            }                         
                         });
                         this.layerService.updateLayerFeatures(l);
                         l.group.styles.forEach(s=>{
@@ -636,15 +762,11 @@ module Idv {
                     break;
             }
             
+            if (!_.isUndefined(config.xaxis)) { config.chart.xAxisLabel(config.xaxis);  }
+            if (!_.isUndefined(config.yaxis)) { config.chart.yAxisLabel(config.yaxis);  }
+            
             config.chart.on("filtered", (chart, filter)=>{
-                var gall = config.group.all();
-                var res = config.dimension.top(Infinity);
-                 this.config.charts.forEach(c=> {
-                     if (!_.isUndefined(c.filtered) && _.isFunction(c.filtered)){
-                         c.filtered(res);
-                     } 
-                    //this.addChart(c)
-                });                  
+                    this.triggerFilter(config);     
             })
             
             if (config.stat === "average")
@@ -656,6 +778,17 @@ module Idv {
 
 
             console.log("Add chart " + config.title);
+        }
+        
+        private triggerFilter(config)
+        {             
+                var res = config.dimension.top(Infinity);
+                 this.config.charts.forEach(c=> {
+                     if (!_.isUndefined(c.filtered) && _.isFunction(c.filtered)){
+                         c.filtered(res);
+                     } 
+                    //this.addChart(c)
+                });        
         }
         
         private createGridsterItem(config: Idv.ChartConfig)
@@ -685,6 +818,10 @@ module Idv {
                 case "layer":
                     this.addLayerLink(config);
                     break;
+                case "sumcompare":
+                    this.addSumCompare(config);
+                    break;
+                    
                 default:
                     this.addChartItem(config);
                 break;
