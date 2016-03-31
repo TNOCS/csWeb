@@ -122,10 +122,30 @@ module CISAction {
                 kind: 'Report',
                 status: 'Excercise'                
             }
+            
+            var alertMsg: ICAPAlert = {
+                identifier: deParams.id,
+                sender: 'CSWEB',
+                sent: '2016-03-31T10:33:00+02:00',//(new Date().toISOString()).replace('Z','+02:00'),
+                status: 'Test',
+                msgType: 'Alert',
+                scope: 'Public',
+                info: {
+                    category: 'Met',
+                    event: 'Monitor',
+                    urgency: 'Immediate',
+                    severity: 'Severe',
+                    certainty: 'Observed',
+                    area: {
+                        areaDesc: 'Testarea',
+                        polygon: '52.13504,4.29006 52.06145,4.185 52.06625,4.19123 52.13504,4.29006'
+                    }
+                }
+            }
 
             var cisMessage: ICISMessage = {
                 msgType: "CAP",
-                msg: "csWeb-testmessage",
+                msg: JSON.stringify(alertMsg),
                 deParameters: deParams
             }
             return cisMessage;

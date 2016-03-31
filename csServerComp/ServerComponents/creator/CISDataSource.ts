@@ -3,6 +3,7 @@ import cors = require('cors')
 import Winston = require('winston');
 import request = require('request');
 import path = require('path');
+import xml2js = require('xml2js');
 import fs = require('fs-extra');
 import _ = require('underscore');
 import GeoJSONHelper = require('../helpers/GeoJSON');
@@ -25,6 +26,7 @@ export interface ICISOptions {
  */
 export class CISDataSource {
     private cisOptions: ICISOptions = <ICISOptions>{};
+    private xmlBuilder = new xml2js.Builder({});
 
     constructor(public server: express.Express, private apiManager: Api.ApiManager, public url: string = '/cis') {
     }
@@ -47,19 +49,43 @@ export class CISDataSource {
 
         this.server.post(this.cisOptions.sendMessageUrl, (req: express.Request, res: express.Response) => {
             Winston.info('Notify the CIS datasource on ' + this.cisOptions.cisNotifyUrl);
+            var cisMsg = req.body;
+            if (cisMsg.hasOwnProperty('msg')) {
+                var jsonMsg = JSON.parse(cisMsg['msg']);
+                var xmlMsg = this.xmlBuilder.buildObject(jsonMsg);
+                xmlMsg = xmlMsg.replace('<root>', '<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">').replace('</root>', '</alert>')
+                cisMsg['msg'] = xmlMsg;
+            }
             request.post({
                 url: this.cisOptions.cisNotifyUrl,
-                json: req.body
+                json: cisMsg
             },
-            (err, response, data) => {
-                if (!err) {
-                    Winston.info('Notified the CIS datasource');
-                } else {
-                    Winston.info('Error in notifying the CIS datasource: ' + err);
+                (err, response, data) => {
+                    if (!err && response && response.statusCode && response.statusCode == 200) {
+                        Winston.info('Notified the CIS datasource');
+                    } else {
+                        Winston.info('Error in notifying the CIS datasource: ' + err);
+                    }
+                });
+        });
+
+        this.server.post('CISMsgReceived', (req: express.Request, res: express.Response) => {
+            Winston.info('CISMsg received');
+            this.parseCisMessage(req.body, (result) => {
+                if (result) {
+                    this.sendCapFeature(result);
                 }
             });
         });
 
         callback('CIS datasource loaded successfully!');
+    }
+    
+    private parseCisMessage(msg: any, cb: Function) {
+        cb(msg);
+    }
+        
+    private sendCapFeature(msg: any) {
+        Winston.info('Send CAP feature');
     }
 }
