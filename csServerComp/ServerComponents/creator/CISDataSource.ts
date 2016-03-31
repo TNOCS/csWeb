@@ -49,7 +49,7 @@ export class CISDataSource {
             Winston.info('Notify the CIS datasource on ' + this.cisOptions.cisNotifyUrl);
             request.post({
                 url: this.cisOptions.cisNotifyUrl,
-                body: req.body
+                json: req.body
             },
             (err, response, data) => {
                 if (!err) {

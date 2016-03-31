@@ -78,7 +78,7 @@ module csComp.Services {
                                 layer.enabled = false;
                                 layer.isConnected = false;
                                 this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                                // this.service.$messageBusService.publish('layer', 'error', layer);
+                                this.service.$messageBusService.publish('layer', 'error', layer);
                                 cb(null, null);
                             });
                     }

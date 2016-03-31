@@ -20,6 +20,41 @@ module CISAction {
         contentObjectType?: string;
     }
 
+    export interface ICAPAlert {
+        identifier: string;
+        sender: string;
+        sent: string;
+        status: string;
+        msgType: string;
+        scope: string;
+        addresses?: string[];
+        references?: string[];
+        info: ICAPInfo;
+    }
+    
+    export interface ICAPInfo {
+        senderName?: string;
+        event: string;
+        description?: string;
+        category: string;
+        severity: string;
+        certainty: string;
+        urgency: string;
+        onset?: string;
+        eventCode?: string;
+        headline?: string;
+        expires?: string;
+        responseType?: string;
+        instruction?: string;
+        area: ICAPArea;
+    }
+
+    export interface ICAPArea {
+        areaDesc: string;
+        polygon?: Object;
+        point?: Object;
+    }
+
     import IFeature = csComp.Services.IFeature;
     import IProjectLayer = csComp.Services.IProjectLayer;
     import IActionOption = csComp.Services.IActionOption;
@@ -65,7 +100,7 @@ module CISAction {
             console.log(url);
             $.ajax({
                 contentType: 'application/json',
-                data: cisMessage,
+                data: JSON.stringify(cisMessage),
                 url: url,
                 dataType: 'json',
                 crossDomain: true,
