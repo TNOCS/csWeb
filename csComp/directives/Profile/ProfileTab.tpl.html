@@ -38,6 +38,13 @@
         </form>
         </div>
         <div ng-show="vm.profileService.loggedIn">
-            hi
+            <div class="layer-actions">
+
+                <button ng-disabled="!loginForm.$valid" ng-click="vm.logout()"  class="layer-action save">
+                    <span class="fa fa-save layer-action-icon" />logout
+                </button>
+
+            </div>
+            
             </div>
 </div>
