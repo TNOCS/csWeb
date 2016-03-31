@@ -27,6 +27,12 @@ module ProfileTab {
         public validateUser()
         {
             this.profileService.validateUser(this.userName,this.userPassword);
+            this.userPassword = "";
+        }
+        
+        public logout()
+        {
+            this.profileService.logout();
         }
         
      
