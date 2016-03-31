@@ -5,7 +5,7 @@ module ContourAction {
 
     export class ContourActionModel implements csComp.Services.IActionService {
         public id: string = 'ContourActionModel';
-        private layerService: csComp.Services.LayerService
+        private layerService: csComp.Services.LayerService;
 
         stop() { }
         addFeature(feature: IFeature) { }
@@ -17,7 +17,7 @@ module ContourAction {
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];
         }
-        
+
         getLayerActions(layer : csComp.Services.IProjectLayer)
         {
             return null;
