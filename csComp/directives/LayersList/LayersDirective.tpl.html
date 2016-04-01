@@ -74,13 +74,7 @@
 
         <!-- overflow-y: auto; overflow-x: hidden;  -->
         <!-- ng-hide="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
-        <div class="scrolling" style="overflow-y: scroll !important; ;position: absolute;
-    overflow-y: scroll !important;
-    overflow-x: visible !important;
-    top: 40px;
-    bottom: 0;
-    left: 0;
-    right: 0;">
+        <div class="scrolling leftpanel-scroll">
             <div ng-if="!vm.layerfilter || (group.layers| filter: {title:vm.layerfilter}).length > 0" ng-mouseenter="group._gui.mo = true"
             ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
                 <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px;margin-right:5px" data-toggle="collapse"

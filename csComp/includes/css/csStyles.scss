@@ -1323,6 +1323,12 @@ border-left-style: solid;
 
 
 /* leftpanel */
+
+.leftpanel-scroll
+{
+ overflow-y: scroll !important; ;position: absolute;overflow-y: scroll !important;overflow-x: visible !important;top: 40px;bottom: 0;left: 0;right: 0;   
+}
+
 .leftpanel-entrance {
     -webkit-animation: fadeInLeft 0.1s;
 }
