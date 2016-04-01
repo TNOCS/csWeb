@@ -50,9 +50,7 @@
     "bcrypt/bcrypt.d.ts": {
       "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
     },
-    "serve-static/serve-static.d.ts": {
-      "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
-    },
+  
     "express/express.d.ts": {
       "commit": "708609e0764daeb5eb64104af7aca50c520c4e6e"
     },
