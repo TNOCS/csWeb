@@ -75,10 +75,10 @@
         <!-- overflow-y: auto; overflow-x: hidden;  -->
         <!-- ng-hide="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
         <div class="scrolling leftpanel-scroll">
-            <div ng-if="!vm.layerfilter || (group.layers| filter: {title:vm.layerfilter}).length > 0" ng-mouseenter="group._gui.mo = true"
-            ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
-                <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px;margin-right:5px" data-toggle="collapse"
-                data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+            <div ng-if="!vm.layerfilter || (group.layers| filter: {title:vm.layerfilter}).length > 0" data-toggle="collapse"
+                data-target="#layergroup_{{group.id}}" ng-mouseenter="group._gui.mo = true"
+            ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;cursor:pointer">
+                <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px;margin-right:5px" ><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                 <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
                 popover-append-to-body="true" class="group-title">{{group.title}}</div>
                 <div ng-show="vm.$mapService.isAdminExpert && group._gui.mo" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer"
