@@ -65,3 +65,4 @@ test/Scripts/
 .vscode/
 tmp.txt
 test/bower_components/
+typings/
