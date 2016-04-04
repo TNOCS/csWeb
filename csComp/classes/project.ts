@@ -147,12 +147,13 @@ module csComp.Services {
     export enum authMethods
     {
         none,
-        local
+        local,
+        custom
     }
     
     export interface Profile
     {
-        authenticationMethod : authMethods;
+        authenticationMethod? : authMethods;
     }
 
     /** project configuration. */

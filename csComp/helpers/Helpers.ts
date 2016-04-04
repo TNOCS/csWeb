@@ -152,7 +152,7 @@ module csComp.Helpers {
         }
         if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
             title = title.replace(/&amp;/g, '&');
-        return title;
+        return '' + title;
     }
 
     /**

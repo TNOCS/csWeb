@@ -2,6 +2,7 @@
      <h4 class="rightpanel-header">
         <i class="layersIcon rightpanel-header-icon" />User Login
     </h4>
+    <div ng-hide="vm.profileService.loggedIn">
      <form name="loginForm" novalidate>
 
             <div class="layer-actions">
@@ -35,4 +36,15 @@
                 <button ng-click="vm.exitDirectory()" class="btn btn-primary">Cancel</button>-->
             </div>
         </form>
+        </div>
+        <div ng-show="vm.profileService.loggedIn">
+            <div class="layer-actions">
+
+                <button ng-disabled="!loginForm.$valid" ng-click="vm.logout()"  class="layer-action save">
+                    <span class="fa fa-save layer-action-icon" />logout
+                </button>
+
+            </div>
+            
+            </div>
 </div>

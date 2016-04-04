@@ -1,5 +1,5 @@
 {
-    "version": "1.7.3",
+    "version": "1.8.9",
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
@@ -76,7 +76,7 @@
         "csComp/directives/Heatmap/HeatMapModel.ts",
         "csComp/directives/Heatmap/HeatmapSettings.ts",
         "csComp/directives/Heatmap/HeatSpot.ts",
-        "csComp/directives/Heatmap/IdealityMeasure.ts",        
+        "csComp/directives/Heatmap/IdealityMeasure.ts",
         "csComp/directives/IdvHelper/IdvEdit.ts",
         "csComp/directives/IdvHelper/IdvHelper.ts",
         "csComp/directives/KanbanBoard/KanbanBoard-edit.ts",
@@ -183,7 +183,6 @@
         "csComp/services/geolocation/geolocation.ts",
         "csComp/services/layer/actions/OfflineSearchAction.ts",
         "csComp/services/layer/actions/OnlineSearchAction.ts",
-        "csComp/services/layer/CISAction.ts",
         "csComp/services/layer/ContourAction.ts",
         "csComp/services/layer/ExpressionService.ts",
         "csComp/services/layer/LayerActions.ts",

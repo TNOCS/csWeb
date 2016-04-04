@@ -2309,7 +2309,7 @@ module csComp.Services {
 
             if (!project) {
                 this.$http.get(solutionProject.url)
-                    .success((prj: Project) => {
+                    .success((prj: Project) => { 
                         this.parseProject(prj, solutionProject, layerIds);
                         //alert('project open ' + this.$location.absUrl());
                     })
