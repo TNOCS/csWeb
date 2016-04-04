@@ -1,7 +1,7 @@
 @import 'css3mixins';
 /*custom fonts - Bitter, Montserrat*/
-$background-dark: #42145f;
-$background-light: #b5a3c1;
+$background-dark: #aaa;
+$background-light: #eee;
 $navbar-height: 50px;
 
 ::-webkit-scrollbar {
@@ -198,6 +198,7 @@ body,
     border-bottom-style: solid;
     border-bottom-color: lightgray;
     border-bottom-width: thin;
+    background: $background-light; 
 }
 
 .layer-action
@@ -433,7 +434,7 @@ body,
 .rightpanelTabs {
     pointer-events: none;
     margin-right: 0;
-    width: 50px;
+    width: 60px;
     height: 100%;
     right: 350px;
     position: absolute;
@@ -1030,7 +1031,7 @@ body,
 .featureTooltip {
     margin: 20px;
     padding: 0;
-    width: 100%;
+    width: 100%; 
     -webkit-box-shadow: 10px 10px 5px #888;
     -ms-box-shadow: 10px 10px 5px #888;
     box-shadow: 10px 10px 5px #888;
@@ -2152,20 +2153,21 @@ input[type="checkbox"] {
     border-bottom-style: groove;
     border-top-style: none;
 }
-.rightpanel-header {
-    background: $background-light;
+.rightpanel-header {    
     color: black;
     font-size: 22px;
     font-weight: bold;
-    height: 35px;
+    height: 45px;
     margin-top: 1px;
     overflow: hidden;
     padding-bottom: 10px;
     padding-top: 5px;
     padding-top: 5px;
+    margin-bottom: -10px;
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    background:$background-light;
 }
 .leftpanel-header {
     font-size: 35px;
@@ -2514,7 +2516,7 @@ input[type="checkbox"] {
     margin-right: 0;
 }
 .tabs-right > li > a {
-    border-radius: 0 4px 4px 0;
+    
     margin-right: 0;
 }
 .my-div-icon {
@@ -2569,10 +2571,7 @@ input[type="checkbox"] {
     margin-bottom: 0;
     margin-top: -1px;
 }
-#rightpanelTabContainer.tabs-below > .nav-tabs > li > a {
-    -moz-border-radius: 0 0 4px 4px;
-    -webkit-border-radius: 0 0 4px 4px;
-    border-radius: 0 0 4px 4px;
+#rightpanelTabContainer.tabs-below > .nav-tabs > li > a {        
     color: black;
 }
 #rightpanelTabContainer.tabs-below > .nav-tabs > li > a:hover,
@@ -2592,18 +2591,21 @@ input[type="checkbox"] {
 }
 #rightpanelTabContainer.tabs-left > .nav-tabs > li > a,
 #rightpanelTabContainer.tabs-right > .nav-tabs > li > a {
-    margin-bottom: 3px;
     margin-right: 0;
+    height:60px;
+    font-size:18px;        
+    padding-left: 20px;
+    padding-top: 15px;
+    margin-bottom: 10px;
+    border-radius:0;
+    
 }
 #rightpanelTabContainer.tabs-left > .nav-tabs {
     border-right: 1px solid #ddd;
     float: left;
 }
-#rightpanelTabContainer.tabs-left > .nav-tabs > li > a {
-    -moz-border-radius: 4px 0 0 4px;
-    -webkit-border-radius: 4px 0 0 4px;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 4px 0 0 4px;
+#rightpanelTabContainer.tabs-left > .nav-tabs > li > a {    
+    background-color: rgba(255, 255, 255, 0.7);    
     margin-right: -1px;
 }
 #rightpanelTabContainer.tabs-left > .nav-tabs > li > a:hover {
@@ -2623,12 +2625,9 @@ input[type="checkbox"] {
 #rightpanelTabContainer.tabs-right > .nav-tabs {
     border-left: 1px solid #ddd;
     float: right;
-    margin-left: 19px;
+    margin-left: 5px;
 }
-#rightpanelTabContainer.tabs-right > .nav-tabs > li > a {
-    -moz-border-radius: 0 4px 4px 0;
-    -webkit-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+#rightpanelTabContainer.tabs-right > .nav-tabs > li > a {    
     margin-left: -1px;
 }
 #rightpanelTabContainer.tabs-right > .nav-tabs > li > a:hover,
@@ -2639,7 +2638,7 @@ input[type="checkbox"] {
 #rightpanelTabContainer.tabs-right > .nav-tabs .active > a:hover,
 #rightpanelTabContainer.tabs-right > .nav-tabs .active > a:focus {
     border-color: #ddd #ddd #ddd transparent;
-    *border-left-color: #fff;
+    *border-left-color: #fff;    
 }
 .rightPanelTabAnimated {
     -webkit-transition: 0.5s ease-in-out all;

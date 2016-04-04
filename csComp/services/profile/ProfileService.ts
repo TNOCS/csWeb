@@ -21,7 +21,7 @@ module csComp.Services {
         
         public startLogin()
         {
-            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user');
+            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user',true,false);
             this.$messageBusService.publish('rightpanel', 'activate', rpt); 
         }
         
