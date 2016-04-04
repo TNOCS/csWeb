@@ -88,6 +88,11 @@
                                             <label for="booledit-{{item.property}}">{{item.propertyType.title}}</label>
                                         </div>
                                         <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                        <div ng-switch-when="options">
+                                             <select id="optionsedit-{{item.property}}" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                                <option ng-selected="item.feature.properties[item.property]===$index" ng-repeat="option in item.propertyType.options track by $index" value="{{$index}}">{{option}}</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </ng-form>
                             </div>

@@ -616,6 +616,10 @@ body,
     position: relative;
 }
 
+.dropdown-menu > li > a {
+    cursor: pointer;
+}
+
 .menu > .dropdown-menu {
     position: static;
     display: block;
