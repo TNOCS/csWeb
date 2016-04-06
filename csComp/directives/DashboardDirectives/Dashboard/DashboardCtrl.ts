@@ -64,9 +64,8 @@ module Dashboard {
                 // In LayerService, you expect the name to be dashboard-main too. 
                 $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
-                    if (this.project.activeDashboard)
-                    {
-                        this.closeDashboard();                        
+                    if (this.project.activeDashboard) {
+                        this.closeDashboard();
                     }
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
@@ -98,12 +97,11 @@ module Dashboard {
                 //alert($scope.dashboard.name);
             };
         }
-        
-        public closeDashboard()
-        {
-            this.project.activeDashboard.widgets.forEach(w=>{
-                if (w.stop) w.stop();                
-            })
+
+        public closeDashboard() {
+            this.project.activeDashboard.widgets.forEach(w => {
+                if (w.stop) w.stop();
+            });
         }
 
         public toggleWidget(widget: csComp.Services.IWidget) {
@@ -115,7 +113,7 @@ module Dashboard {
         public updateWidget(w: csComp.Services.IWidget) {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
-            
+
             w._initialized = true;
             var widgetElement;
             var newScope = this.$scope;
@@ -181,7 +179,7 @@ module Dashboard {
             }
 
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
-                //this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                //this.$messageBusService.publish('map', 'setbaselayer', this.$scope.dashboard.baselayer);
                 var layer: csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.$scope.dashboard.baselayer);
                 this.$layerService.activeMapRenderer.changeBaseLayer(layer);
                 this.$layerService.$mapService.changeBaseLayer(this.$scope.dashboard.baselayer);
@@ -213,7 +211,6 @@ module Dashboard {
         }
 
         public checkTimeline() {
-
             if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
@@ -226,34 +223,31 @@ module Dashboard {
             }
             var d = this.$scope.dashboard;     // RS mod January 2016
             if (d.showTimeline && d.timeline) {
-                //console.log("checkTimeline: dashboard has timeline");
-                
-                if (!_.isUndefined(d.timeline.fixedRange))
-                {
-                    switch(d.timeline.fixedRange)
-                    {
-                        case "24h" :
+                //console.log('checkTimeline: dashboard has timeline');
+
+                if (!_.isUndefined(d.timeline.fixedRange)) {
+                    switch (d.timeline.fixedRange) {
+                        case '24h' :
                             d.timeline.end = Date.now();
-                            d.timeline.start = Date.now() - 1000 * 60 * 24;          
+                            d.timeline.start = Date.now() - 1000 * 60 * 24;
                         break;
                     }
                 }
-                
+
                 this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
-                
+
                 // now move the focustimeContainer to the right position
                 if (d.timeline.focus && d.timeline.start && d.timeline.end &&
                     (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
                     var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
-                    //var w = $("#timeline").width();           // unfortunately, on the first call, 
+                    //var w = $('#timeline').width();           // unfortunately, on the first call, 
                     //the timeline has a width of 100 (not resized yet)
-                    //var w = $("#timeline").parent().width();  // does not help: = 0 on first call
-                    var w = $("#map").width();                  // this works but might be dangerous
-                    var newpos = f * w - $("#focustimeContainer").width() / 2;
-                    $("#focustimeContainer").css('left', newpos);
+                    //var w = $('#timeline').parent().width();  // does not help: = 0 on first call
+                    var w = $('#map').width();                  // this works but might be dangerous
+                    var newpos = f * w - $('#focustimeContainer').width() / 2;
+                    $('#focustimeContainer').css('left', newpos);
                 }
-                
-            }                                  // end RS mod
+            }  // end RS mod
         }
 
         private setValue(diff: number, value: string): string {
@@ -272,7 +266,6 @@ module Dashboard {
         public isReady(widget: csComp.Services.IWidget) {
             //this.updateWidget(widget); 
             setTimeout(() => {
-                
                 // select the target node
                 // var target = document.querySelector('#' + widget.elementId + '-parent');
                 //
@@ -397,7 +390,7 @@ module Dashboard {
             this.checkLayers();
             this.checkViewbound();
 
-            //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
+            //this.$messageBusService.publish('leftmenu',(d.showLeftmenu) ? 'show' : 'hide');
             // if (!this.$mapService.isAdminExpert) {
             if (!d._initialized) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
@@ -408,14 +401,14 @@ module Dashboard {
                     w._initialized = false;
                     this.updateWidget(w);
                 });
-                
-                this.$timeout(()=>{
+
+                this.$timeout(() => {
                     this.$scope.$watchCollection('dashboard.widgets', (da) => {
                         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
                             this.updateWidget(w);
                         });
                     });
-                },300);
+                }, 300);
                 d._initialized = true;
 
             }, 500);
