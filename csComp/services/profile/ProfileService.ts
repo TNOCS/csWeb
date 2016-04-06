@@ -9,6 +9,7 @@ module csComp.Services {
         
         public loggedIn : boolean;
         public validate : Function;
+        public logout : Function;
         
         public static $inject = [
             
@@ -39,9 +40,13 @@ module csComp.Services {
            } 
         }
         
-        public logout()
+        public logoutUser()
         {
             this.loggedIn = false;
+            if (_.isFunction(this.logout))
+            {
+               this.logout();
+            }
         }
 
         
