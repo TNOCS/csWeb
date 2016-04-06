@@ -112,13 +112,20 @@ module csComp.Services {
             this.initLayerSources();
             this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 500);
 
-            $messageBusService.subscribe('timeline', (trigger: string) => {
+            var delayFocusChange = _.debounce((date) => {
+                this.refreshActiveLayers();
+            }, 500);
+
+            $messageBusService.subscribe('timeline', (trigger: string, date: Date) => {
                 switch (trigger) {
                     case 'focusChange':
                         this.throttleSensorDataUpdate();
                         break;
                     case 'timeSpanUpdated':
                         this.updateSensorLinks();
+                        break;
+                    case 'focusChange':
+                        delayFocusChange(date);
                         break;
                 }
             });
@@ -152,19 +159,23 @@ module csComp.Services {
                 }
             });
 
+            $messageBusService.subscribe('menu', (title, data) => {
+                if (title === 'show' && typeof data === 'boolean') this.visual.leftPanelVisible = data;
+            });
+
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
 
-            var delayFocusChange = _.debounce((date) => {
-                this.refreshActiveLayers();
-            }, 500);
+            // var delayFocusChange = _.debounce((date) => {
+            //     this.refreshActiveLayers();
+            // }, 500);
 
-            $messageBusService.subscribe('timeline', (action: string, date: Date) => {
-                if (action === 'focusChange') {
-                    delayFocusChange(date);
-                    //this.refreshActiveLayers();
-                }
-            });
+            // $messageBusService.subscribe('timeline', (action: string, date: Date) => {
+            //     if (action === 'focusChange') {
+            //         delayFocusChange(date);
+            //         //this.refreshActiveLayers();
+            //     }
+            // });
 
             this.checkMobile();
             this.enableDrop();
@@ -178,7 +189,7 @@ module csComp.Services {
                 }
             }
         }
-        
+
         public updateLayerKpiLink(layer : ProjectLayer)
         {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
