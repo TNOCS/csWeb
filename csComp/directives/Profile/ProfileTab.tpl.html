@@ -2,8 +2,8 @@
      <h4 class="rightpanel-header">
         <i class="layersIcon rightpanel-header-icon" />User Login
     </h4>
-    <div ng-hide="vm.profileService.loggedIn">
-     <form name="loginForm" novalidate>
+    <div ng-hide="vm.profileService.loggedIn" >
+     <form name="loginForm"  novalidate>
 
             <div class="layer-actions">
 
@@ -29,7 +29,7 @@
                     <label class="editor-title input-xlarge" for="groupDescription">Password</label>
                     <input type="password" class="form-control" name="userPassword" id="userPassword" ng-model="vm.userPassword" placeholder="Enter password"
                     required>
-                    <span class="help-block" ng-show="loginForm.userPassword.$error.required">Not a valid username</span>
+                    <span class="help-block" ng-show="loginForm.userPassword.$error.required">Not a valid password</span>
                 </div>
                
                 <!--<button type="submit" ng-disabled="!loginForm.$valid" class="btn btn-primary">Create layer</button>
@@ -40,7 +40,7 @@
         <div ng-show="vm.profileService.loggedIn">
             <div class="layer-actions">
 
-                <button ng-disabled="!loginForm.$valid" ng-click="vm.logout()"  class="layer-action save">
+                <button ng-click="vm.logout()"  class="layer-action save">
                     <span class="fa fa-save layer-action-icon" />logout
                 </button>
 

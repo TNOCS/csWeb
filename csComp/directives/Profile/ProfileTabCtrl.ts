@@ -32,7 +32,7 @@ module ProfileTab {
         
         public logout()
         {
-            this.profileService.logout();
+            this.profileService.logoutUser();
         }
         
      
