@@ -55,6 +55,35 @@ body,
     height: 100%;
 }
 
+/** notifications */
+
+.alert-warning
+{
+    
+}
+
+.ui-pnotify-container
+{
+    background:gold;
+    border-style: none;
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
+    color: black;
+    
+}
+
+.csNotify
+{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    top:0px;
+    width:700px;
+    background:white;
+    
+}
+
 /* idee */
 
 .dc-table-column {

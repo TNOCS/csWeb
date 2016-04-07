@@ -184,7 +184,8 @@ module csComp.Services {
         BottomRight,
         BottomLeft,
         TopRight,
-        TopLeft
+        TopLeft,
+        TopBar
     }
 
     export enum NotifyType {
@@ -202,7 +203,7 @@ module csComp.Services {
         constructor(
             public target: string,
             public type: string
-            ) {
+        ) {
             this.callbacks = [];
             this.id = Helpers.getGuid();
         }
@@ -303,7 +304,7 @@ module csComp.Services {
          * @location:    the location on the screen where the notification is shown (default bottom right)
          * @notifyType:  the type of notification
 		 */
-        public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
+        public notify(title: string, text: string, location = NotifyLocation.TopBar, notifyType = NotifyType.Normal) {
             console.log('notify : ' + title);
 
             //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
@@ -331,7 +332,7 @@ module csComp.Services {
                             splittedText.push(text);
                         }
                         updatedText = splittedText.join('\n');
-                        n.update({text: updatedText});
+                        n.update({ text: updatedText });
                         return true;
                     } else {
                         return false;
@@ -344,7 +345,7 @@ module csComp.Services {
 
             var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
-            var myStack: { dir1: string, dir2: string } = { dir1: '', dir2: '' };
+            var myStack: { dir1: string, dir2: string, push: string, spacing1: number, spacing2: number } = { dir1: '', dir2: '', push: '', spacing1: 0, spacing2: 0 };
             switch (location) {
                 case NotifyLocation.BottomLeft:
                     cssLocation = 'stack-bottomleft';
@@ -355,6 +356,12 @@ module csComp.Services {
                     cssLocation = 'stack-topleft';
                     myStack.dir1 = 'down';
                     myStack.dir2 = 'right';
+                    break;
+                case NotifyLocation.TopBar:
+                    cssLocation = 'stack-bottomleft';
+                    myStack.dir1 = 'down';
+                    myStack.dir2 = 'left';
+                    myStack.push = 'top';
                     break;
                 default:
                     //case NotifyLocation.TopRight:
@@ -410,12 +417,19 @@ module csComp.Services {
             //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'width': '500px', 'spacing1': 0, 'spacing2': 0 };
             //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 0, 'firstpos2': ($(window).width() / 2 - 500) }
             var stack_bar_bottom = { 'dir1': 'up', 'dir2': 'right', 'spacing1': 0, 'spacing2': 0 };
+            var stack_bar_top = { "dir1": "down", "dir2": "right", "spacing1": 0, "spacing2": 0 };
 
             var opts = {
                 title: title,
                 text: text,
                 cornerclass: 'ui-pnotify-sharp',
                 shadow: false,
+                addclass: "csNotify",
+                width: "500px",
+                animation: "fade",
+                mouse_reset: true,
+                animate_speed: "slow",
+                delay: 4000,
                 nonblock: {
                     nonblock: true,
                     nonblock_opacity: .2
@@ -448,10 +462,9 @@ module csComp.Services {
                 //     }]
                 // },
                 buttons: {
-                    closer: false,
+                    closer: true,
                     sticker: false
                 },
-                type: 'info',
                 hide: true
             };
 
@@ -589,7 +602,7 @@ module csComp.Services {
         }
 
         registerEvent(evtname: string) {
-            this[evtname] = function(callback, replace) {
+            this[evtname] = function (callback, replace) {
                 if (typeof callback === 'function') {
                     if (replace) this.unbindEvent(evtname);
 
