@@ -81,7 +81,7 @@ module csComp.Services {
 
         search(query: ISearchQuery, result: Function) {
             result(null, []);
-        }
+        } 
 
         public init(layerService: csComp.Services.LayerService) {
             this.layerService = layerService;
@@ -90,6 +90,14 @@ module csComp.Services {
 
     export class LayerActions extends BasicActionService {
         public id: string = 'LayerActions';
+        
+        addLayer(layer: ProjectLayer)
+        {
+            if (layer.fitToMap && layer.layerSource && _.isFunction(layer.layerSource.fitMap))
+            {
+                layer.layerSource.fitMap(layer);
+            }
+        }
 
         getLayerActions(layer: ProjectLayer): IActionOption[] {
             if (!layer) return;

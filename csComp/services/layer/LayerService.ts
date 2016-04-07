@@ -694,12 +694,11 @@ module csComp.Services {
 
                             this.updateLayerSensorLink(layer);
                             this.updateLayerSensorData(layer, this.project.timeLine.focusDate());
-
+                            
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
-                            this.expressionService.evalLayer(l, this._featureTypes);
-
+                            this.expressionService.evalLayer(l, this._featureTypes);                            
                         }
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');

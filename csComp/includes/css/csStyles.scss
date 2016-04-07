@@ -237,6 +237,7 @@ body,
 .layer-action-icon
 {
     margin-right: 3px;
+    margin-left: 5px;
 }
 
 .layers-create-form
@@ -1646,7 +1647,14 @@ border-bottom-style: solid;
     /*height: 100px;*/
     width: 100%;
     background: white;
+    z-index:3
 }
+
+.timeline-widget
+{
+    height:150px;position:absolute;bottom:0;width:100%;pointer-events:none
+}
+
 .timeline-expand-button {
     border-style: solid;
     /* border: black; */

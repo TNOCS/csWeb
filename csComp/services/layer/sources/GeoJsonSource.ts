@@ -69,8 +69,7 @@ module csComp.Services {
                                 layer.count = 0;
                                 layer.isLoading = false;
                                 layer.enabled = true;
-                                this.initLayer(data, layer);
-                                if (layer.fitToMap) this.fitMap(layer);
+                                this.initLayer(data, layer);                                
                                 if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
                             })

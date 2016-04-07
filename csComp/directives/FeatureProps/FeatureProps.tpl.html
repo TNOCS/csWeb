@@ -41,17 +41,21 @@
     </div>
 
     <h4 style="position:absolute;right:3px;top:45px">
-        <div ng-show="vm.$mapService.isAdminExpert && !feature._gui.editMode" style="float:right">
+        
+       
+        
+        
+        <!--<div ng-show="vm.$mapService.isAdminExpert && !feature._gui.editMode" style="float:right">
             <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
             <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="vm.saveFeatureType();configMode=false" />
-        </div>
-        <div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
+        </div>-->
+        <!--<div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
             <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature._gui.editMode" ng-click="vm.startEditFeature()"
             />
             <button tooltip-html-unsafe="{{'REMOVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-trash leftpanel-header-button" ng-show="!feature._gui.editMode" ng-click="vm.removeFeature()"
             />
             <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" />
-        </div>
+        </div>-->
     </h4>
 
     <div ng-if="vm.$mapService.isAdminExpert">
@@ -66,12 +70,47 @@
             </li>
         </ul>
     </div> -->
-    <div ng-hide="configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden; width: 100%;" resize resize-y="150">
+    <div ng-hide="configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden; width: 100%" resize resize-y="150">
+        
+         <div class="layer-actions" ng-show="!configMode" style="background:white">
+            <div class="inner-addon left-addon" style="margin:5px;float:left" ng-focus="">
+                <i class="fa fa-search"></i>
+                <input type="text" ng-model="propFilter" expand-to="200px" style="width:100px;height:30px" />
+            </div>
+
+            <!--<div ng-show="vm.allCollapsed" class="leftpanel-header-button-container-left">
+                <button class="button fa fa-chevron-up leftpanel-header-button" ng-click="vm.expandAll()" popover="{{'EXPAND_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+            </div>
+            <div ng-hide="vm.allCollapsed" class="leftpanel-header-button-container-left">
+                <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+            </div>            -->
+            <!--<div class="layer-action" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter">            
+                <span class="fa fa-folder layer-action-icon" ng-click="vm.openDirectory()" />add
+            </div>-->
+
+            <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && !feature._gui.editMode" ng-click="vm.startEditFeature()" class="layer-action"
+                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                <span class="fa fa-pencil layer-action-icon" />{{'EDIT' | translate}}
+            </button>
+            
+             <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
+                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                <span class="fa fa-check layer-action-icon" />{{'SAVE' | translate}}
+            </button>
+            
+            <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && feature._gui.editMode" ng-click="vm.removeFeature()" class="layer-action"
+                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                <span class="fa fa-check layer-action-icon" />{{'REMOVE' | translate}}
+            </button>
+
+        </div>
+        
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
+            
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
-                    popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
+                    popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties | filter: {property:propFilter}">
                         <div ng-show="feature._gui.editMode" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>

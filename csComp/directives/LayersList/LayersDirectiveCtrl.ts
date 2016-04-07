@@ -4,8 +4,7 @@ module LayersDirective {
 
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
-        options: Function;
-      
+        options: Function;      
     }
 
     export class LayersDirectiveCtrl {

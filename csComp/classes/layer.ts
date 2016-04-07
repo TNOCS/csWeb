@@ -127,7 +127,7 @@ module csComp.Services {
         /** last updated time */
         updated?: number;
         /** zoom to layer if it gets activated */
-        zoomOnActived? : number;
+        fitToMap? : boolean;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -300,7 +300,7 @@ module csComp.Services {
 
         /** handle for receiving zoom events */
         zoomHandle: MessageBusHandle;
-
+        
         /** True when the layer features are transparent, e.g. when outside zoom range */
         isTransparent: boolean;
 
