@@ -113,17 +113,31 @@ module Filters {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
                     if (!pt) pt = this.$layerService.getPropertyType(d,filter.property);
-                    if (d.properties[filter.property] != null) {
-                        
-                        var a = d.properties[filter.property];
-                        var r;
-                        if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                            r = a + "." + pt.options[a];
-                        } else { r = a + "." + a}
-                        return r;
+                        if (d.properties[filter.property] != null) {
+                            var a = d.properties[filter.property];
+                            if (pt.type === 'options') {
+                                var r;
+                                if (pt && pt.options && pt.options.hasOwnProperty(a)) {
+                                    r = a + "." + pt.options[a];
+                                } else { r = a + "." + a}
+                                return r;
+                            } else if (pt.type === 'number') {
+                                console.log(a);
+                                var label;
+                                pt.legend.legendEntries.some((le) => {
+                                    if (a >= le.interval.min && le.interval.max >= a) {
+                                        label = le.label;
+                                        return true;
+                                    }
+                                });
+                                if (!label) label = 'other';
+                                return label;
+                            } else if (pt.type === 'text') {
+                                return a;
+                            }
+                        }
+                        return null;
                     }
-                    return null;
-                }
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
@@ -138,17 +152,20 @@ module Filters {
                     return d.key })
                 .elasticX(true)                
                 .colors(d=>{
-                    if (pt.legend)
-                    {                        
-                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]),pt.legend);
+                    if (pt.legend) {
+                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
+                        if (!pt.options) {
+                            var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
+                            return (arr.length > 0 ? arr[0].color : '#000000');
+                        }
                     }
-                    else
-                    {
-                        return "red";    
+                    else {
+                        return "red";
                     }
                     
                     
                 })
+                .cap(10)
                 .on('renderlet', (e) => {
                     // var fil = e.hasFilter();
                     // var s = '';

@@ -12,7 +12,7 @@ module ButtonWidget {
     }
 
     /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    myModule.directive('buttonwidget', [function (): ng.IDirective {
+    myModule.directive('buttonwidget', [function(): ng.IDirective {
         return {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
@@ -241,7 +241,22 @@ module ButtonWidget {
                     this.layerService.$mapService.changeBaseLayer(b.layer);
                     break;
             }
+        }
 
+        public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
+            if (!le) return;
+            var projGroup = this.layerService.findGroupById(group);
+            var gf = new csComp.Services.GroupFilter();
+            gf.property = prop.split('#').pop();
+            gf.id = 'buttonwidget_filter';
+            gf.group = projGroup;
+            gf.filterType = 'row';
+            gf.title = 'TITLE';
+            gf.rangex = [le.interval.min, le.interval.max];
+            console.log('Setting filter');
+            this.layerService.rebuildFilters(projGroup);
+            projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
+            this.layerService.setFilter(gf, projGroup);
         }
     }
 }

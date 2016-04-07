@@ -1921,6 +1921,9 @@ module csComp.Services {
                                     //    gf.filterType  = 'bar';
                                     //    gf.value = property.value.split(',')[0];
                                     //    break;
+                                    case 'text':
+                                        gf.filterType = 'row';
+                                        break;
                                     default:
                                         gf.filterType = 'text';
                                         gf.stringValue = property.value;

@@ -114,7 +114,7 @@ module csComp.Services {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) projLayer.enabled = false;
             if (layer.data) {
-                layer.data['features'] = [];
+                layer.data['features'].length = 0;
             }
             //alert('remove layer');
         }
