@@ -6,6 +6,8 @@ module csComp.Services {
         addLayer(layer: ProjectLayer, callback: Function, data: Object);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
+        fitMap?(layer : ProjectLayer) : void;
+        fitTimeline?(layer : ProjectLayer) : void;
         requiresLayer: boolean;
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
@@ -231,7 +233,7 @@ module csComp.Services {
                 else {
                     
                     if (_.isUndefined(layer.sensorLink.liveInterval)) {
-                        link += "?tbox=24h";
+                        link += "?tbox=15m";
                     }
                     else
                     {
@@ -1091,9 +1093,10 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false);
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);                
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);    
+                
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{'RELATED_FEATURES' | translate}}', 'link');
@@ -1164,7 +1167,7 @@ module csComp.Services {
         public getSensorIndex(d: Number, timestamps: Number[]) {
             for (var i = 1; i < timestamps.length; i++) {
                 if (timestamps[i] > d) {
-                    return i;
+                    return i-1;
                 }
             }
             return timestamps.length - 1;
@@ -1215,8 +1218,7 @@ module csComp.Services {
             delete l._gui["timestampIndex"];
             delete l._gui["timestamp"];
             if ((l.hasSensorData || l.sensorLink) && l.data.features) {
-                console.log('updating sensor data for ' + l.title);
-
+                
                 l.data.features.forEach((f: IFeature) => {
                     this.updateFeatureSensorData(f, date);
                 });

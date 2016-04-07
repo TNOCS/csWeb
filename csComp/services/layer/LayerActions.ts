@@ -95,17 +95,25 @@ module csComp.Services {
             if (!layer) return;
             var res = [];
 
-            if (layer.layerSource) {
+            if (layer.enabled && layer.layerSource) {
                 var refresh = <IActionOption>{ title: 'Refresh Layer', icon: 'refresh' };
                 refresh.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                     layer.layerSource.refreshLayer(layer);
                 };
                 res.push(refresh);
-            } 
+
+                if (_.isFunction(layer.layerSource.fitMap)) {
+                    var fit = <IActionOption>{ title: 'Fit Map', icon: 'map' };
+                    fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        layer.layerSource.fitMap(layer);
+                    };
+                    res.push(fit);
+                }
+            }
 
             var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
             remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
-                layerService.removeLayer(layer,true);
+                layerService.removeLayer(layer, true);
             };
             res.push(remove);
             return res;

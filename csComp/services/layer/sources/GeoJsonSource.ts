@@ -1,4 +1,6 @@
 module csComp.Services {
+    
+    
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
@@ -118,16 +120,21 @@ module csComp.Services {
 
             // store raw result in layer
             layer.data = <any>data;
-            if (layer.data.geometries && !layer.data.features) {
-                layer.data.features = layer.data.geometries;
-            }
-            layer.data.features.forEach((f) => {
-                this.service.initFeature(f, layer, false, false);
-            });
-            if (data.features.length > 0) {
-                var firstFeature = data.features[0];
-                var resource = this.service.findResourceByFeature(firstFeature);
-                csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
+            if (!_.isUndefined(layer.data)) {
+                if (layer.data.geometries && !layer.data.features) {
+                    layer.data.features = layer.data.geometries;
+                }
+
+                if (!_.isUndefined(layer.data.features)) {
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer, false, false);
+                    });
+                    if (data.features.length > 0) {
+                        var firstFeature = data.features[0];
+                        var resource = this.service.findResourceByFeature(firstFeature);
+                        csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
+                    }
+                }
             }
 
             layer.isTransparent = false;
@@ -150,6 +157,7 @@ module csComp.Services {
                     }
                 });
             }
+
 
             if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
         }
@@ -335,10 +343,10 @@ module csComp.Services {
                         layer.isConnected = true;
                         //console.log('sucesfully subscribed');
                         break;
-                    case 'msg' :
+                    case 'msg':
                         var d = msg.data;
                         if (d.hasOwnProperty('message')) {
-                            this.service.$messageBusService.notify(this.layer.title,d.message);
+                            this.service.$messageBusService.notify(this.layer.title, d.message);
                         }
                         break;
                     case 'layer':
@@ -429,7 +437,7 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer._gui['editing']) this.stopAddingFeatures(layer);
+            if (layer._gui['editing']) this.stopEditing(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
@@ -442,7 +450,7 @@ module csComp.Services {
             return result;
         }
 
-        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+        public startEditing(layer: csComp.Services.ProjectLayer) {
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 var v = false;
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
@@ -458,26 +466,8 @@ module csComp.Services {
             this.service.editing = true;
             this.initAvailableFeatureTypes(layer);
         }
-
-        public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
-            var featureTypes = {};
-            if (layer) {
-                if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
-                    for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                        var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        if (_.isUndefined(t.style.drawingMode)) t.style.drawingMode = "Point";
-                        if (t.style.drawingMode.toLowerCase() === 'point') {
-                                                        
-                            featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];                            
-                            featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
-                        }
-                    }
-                }
-            }
-            layer._gui['featureTypes'] = featureTypes;
-        }
-
-        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+        
+        public stopEditing(layer: csComp.Services.ProjectLayer) {
             delete layer._gui['featureTypes'];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 delete g._gui['editing'];
@@ -487,6 +477,26 @@ module csComp.Services {
             });
             this.service.editing = false;
         }
+
+        public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
+            var featureTypes = {};
+            if (layer) {
+                if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
+                    for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
+                        var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                        if (_.isUndefined(t.style.drawingMode)) t.style.drawingMode = "Point";
+                        if (t.style.drawingMode.toLowerCase() === 'point') {
+
+                            featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                            featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                        }
+                    }
+                }
+            }
+            layer._gui['featureTypes'] = featureTypes;
+        }
+
+        
     }
 
     export interface IOtpLeg {
@@ -514,7 +524,7 @@ module csComp.Services {
             // Open a layer URL
 
             layer.isLoading = true;
-            var url = (layer.useProxy) ?  '/api/proxy' : layer.url;
+            var url = (layer.useProxy) ? '/api/proxy' : layer.url;
             this.$http({
                 url: url,
                 method: 'GET',
