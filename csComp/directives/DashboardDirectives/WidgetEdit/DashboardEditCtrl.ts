@@ -80,9 +80,8 @@ module DashboardEdit {
 
             for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
         }
-        
-        public setBaseLayer()
-        {                        
+
+        public setBaseLayer() {
             this.dashboard.baselayer = this.$mapService.activeBaseLayerId;
         }
 
@@ -114,9 +113,7 @@ module DashboardEdit {
             }
         }
 
-        public checkTimeline() {
-            
-        }
+        public checkTimeline() {}
 
         public checkLegend() {
             var db = this.$layerService.project.activeDashboard;

@@ -467,7 +467,7 @@ module csComp.Services {
 
             for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                if (!t.style.drawingMode) t.style.drawingMode = 'point';
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
                 if (t.style.drawingMode.toLowerCase() === 'point') {
                     featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
                     featureTypes[ft].u = csComp.Helpers.getImageUri(ft);

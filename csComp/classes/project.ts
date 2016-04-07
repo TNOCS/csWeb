@@ -143,16 +143,14 @@ module csComp.Services {
         locale?:   string;
         timeLine?: DateRange;
     }
-    
-    export enum authMethods
-    {
+
+    export enum authMethods {
         none,
         local,
         custom
     }
-    
-    export interface Profile
-    {
+
+    export interface Profile {
         authenticationMethod? : authMethods;
     }
 
@@ -271,7 +269,7 @@ module csComp.Services {
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = input.solution;
             if (typeof input.exportModeSelectionEnabled === 'undefined' ) res.exportModeSelectionEnabled = true;
-            if (typeof input.profile === 'undefined') res.profile = <Profile>{};            
+            if (typeof input.profile === 'undefined') res.profile = <Profile>{};
             if (typeof res.profile.authenticationMethod === 'undefined') res.profile.authenticationMethod = authMethods.local;
             if (!input.opacity) { input.opacity = 100; }
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);

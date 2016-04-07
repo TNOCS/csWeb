@@ -15,7 +15,7 @@ module ProjectSettings {
             '$timeout',
             'layerService'
         ];
-        
+
         public project : csComp.Services.Project;
 
         // dependencies are injected via AngularJS $injector
@@ -26,42 +26,27 @@ module ProjectSettings {
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;
-
         }
 
         saveSettings() {
             this.$timeout(() => {
                 var data = this.$layerService.project.serialize();
                 //console.log(data);
-                console.log("Save settings: ");
-                csComp.Helpers.saveData(data, "project", "json");
+                console.log('Save settings: ');
+                csComp.Helpers.saveData(data, 'project', 'json');
             }, 0);
         }
 
         updateProject() {
             this.$layerService.updateProject();
-            
-
-            // for (var id in this.$layerService.typesResources) {
-            //     if (id.indexOf('data/resourceTypes/') >= 0) {
-
-            //         var file = this.$layerService.typesResources[id];
-            //         var data = csComp.Services.TypeResource.serialize(file);
-            //         var url = "api/resourceTypes/" + id.replace('data/resourceTypes/', ''); //this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
-            //         $.ajax({
-            //             url: url,
-            //             type: "POST",
-            //             data: data,
-            //             contentType: "application/json",
-            //             complete: this.updateProjectReady
-            //         });
-            //     }
-            // }
         }
 
         private updateProjectReady(data) {
-            if (data.success().statusText != 'OK') console.error('Error update project.json: ' + JSON.stringify(data));
-            else console.log('Project.json updated succesfully!')
+            if (data.success().statusText !== 'OK') {
+                console.error('Error update project.json: ' + JSON.stringify(data));
+            } else {
+                console.log('Project.json updated succesfully!');
+            }
         }
     }
 }
