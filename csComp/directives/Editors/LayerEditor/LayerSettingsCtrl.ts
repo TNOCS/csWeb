@@ -34,12 +34,16 @@ module LayerSettings {
             ) {
             this.scope = $scope;
             $scope.vm = this;
-            this.layer = $scope.$parent["data"];
+            this.layer = $scope.$parent['data'];
             this.getTypes();
             var ft = <csComp.Services.IFeatureType>{};
         }
 
-        public addLayer() {
+        // public addLayer() {
+        // }
+
+        public saveLayer() {
+            this.$layerService.updateProject();
         }
 
         public removeLayer() {
@@ -47,43 +51,37 @@ module LayerSettings {
         }
 
         public addFeatureType() {
-            if (this.layer.typeUrl) {
-                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, () => {
-                    if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                        var r = this.$layerService.typesResources[this.layer.typeUrl];
+            if (!this.layer.typeUrl) return;
+            this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, () => {
+                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                    var r = this.$layerService.typesResources[this.layer.typeUrl];
+                    var ft = <csComp.Services.IFeatureType>{};
+                    var id = this.layer.typeUrl + '#' + this.layer.defaultFeatureType;
+                    ft.id = this.layer.defaultFeatureType;
+                    ft.name = ft.id;
+                    ft.style = csComp.Helpers.getDefaultFeatureStyle(null);
+                    if (!r.featureTypes.hasOwnProperty(id)) {
                         var ft = <csComp.Services.IFeatureType>{};
-                        var id = this.layer.typeUrl + "#" + this.layer.defaultFeatureType;
                         ft.id = this.layer.defaultFeatureType;
                         ft.name = ft.id;
-                        ft.style = csComp.Helpers.getDefaultFeatureStyle(null);
-                        if (!r.featureTypes.hasOwnProperty(id)) {
-                            var ft = <csComp.Services.IFeatureType>{};
-                            ft.id = this.layer.defaultFeatureType;
-                            ft.name = ft.id;
-                            ft.style = <csComp.Services.IFeatureTypeStyle>{};
-                            ft.style.drawingMode = "Point"; 
-                            // EV already called before.
-                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
-                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-                            this.$layerService._featureTypes[id] = ft;
-                            r.featureTypes[ft.id] = ft;
-                        }
+                        ft.style = <csComp.Services.IFeatureTypeStyle>{};
+                        ft.style.drawingMode = 'Point';
+                        this.$layerService._featureTypes[id] = ft;
+                        r.featureTypes[ft.id] = ft;
                     }
-                });
-            }
+                }
+            });
         }
 
         public getTypes() {
-            console.log('its me babe');
             this.$http.get(this.layer.typeUrl)
                 .success((response: any) => {
                     setTimeout(() => {
                         this.availabeTypes = response.featureTypes;
-                        console.log(this.availabeTypes);
+                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') this.$scope.$apply();
                     }, 0);
                 })
-                .error(() => { console.log('LayerEditCtl: error with $http'); });
+                .error(() => { console.log('LayerEditCtl.getTypes: error with $http'); });
         };
     }
 }
