@@ -461,20 +461,18 @@ module csComp.Services {
 
         public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
             var featureTypes = {};
+            layer._gui['featureTypes'] = featureTypes;
 
-            if (layer) {
-                if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
-                    for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                        var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        if (t.style.drawingMode.toLowerCase() === 'point') {
-                                                        
-                            featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];                            
-                            featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
-                        }
-                    }
+            if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
+
+            for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
+                var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
+                if (t.style.drawingMode.toLowerCase() === 'point') {
+                    featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                    featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                 }
             }
-            layer._gui['featureTypes'] = featureTypes;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {

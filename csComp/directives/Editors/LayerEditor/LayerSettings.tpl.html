@@ -16,6 +16,10 @@
 
         <div ng-hide="vm.layer.enabled">
             <div class="controls">
+                <label class="editor-title input-xlarge" for="layerTags">Tags</label>
+                <input id="layerTags" name="textinput" type="text" ng-model="vm.layer.tags" placeholder="presentation, agenda" class="input-xlarge editor-text-input">
+            </div>
+            <div class="controls">
                 <label class="editor-title input-xlarge" for="layerRefreshTimer">Auto Refresh (in seconds)</label>
                 <input id="layerRefreshTimer" name="textinput" type="number" ng-model="vm.layer.refreshTimer" placeholder="refresh timer (in seconds)" class="input-xlarge editor-text-input">
             </div>
@@ -60,12 +64,12 @@
                 </div> -->
                 <div class="controls" style="position:relative" ng-if="vm.layer.typeUrl">
                     <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
-                    <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="placeholder" class="input-xlarge editor-text-input">
+                    <input id="defaultFeatureType" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="placeholder" class="input-xlarge editor-text-input">
                     <button style="background:transparent;float:right;position:absolute;right:45px;top:30px" class="fa fa-plus" ng-click="vm.addFeatureType()"></button>
                     <button style="background:transparent;float:right;position:absolute;right:15px;top:30px" class="fa fa-refresh" ng-click="vm.getTypes()"></button>
                     <br/>
                     <select ng-model="vm.layer.defaultFeatureType">
-                        <option ng-repeat="(key,value) in vm.availabeTypes" ng-value="key">{{value.name}}</option>
+                        <option ng-repeat="(key,value) in vm.availabeTypes" ng-value="key">{{key}}</option>
                     </select>
 
                 </div>
@@ -76,7 +80,8 @@
 
             </div>
             <div class="controls" style="margin-top:10px; margin-bottom: 40px;">
-                <button class="btn" ng-click="vm.removeLayer()">remove layer</button>
+                <button class="btn fa fa-trash" ng-click="vm.removeLayer()">&nbsp;remove layer</button>
+                <button class="btn fa fa-save" ng-click="vm.saveLayer()">&nbsp;save project</button>
             </div>
         </div>
 
