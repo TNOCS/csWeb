@@ -171,7 +171,7 @@ export class BagDatabase {
                 callback(null);
                 return;
             }
-            var sql = `SELECT bu_naam, buurt.bu_code, gm_naam, aant_inw, a_woning, g_woz, p_1gezw, p_mgezw, p_koopw,p_huurw, p_e_o_w, ST_AsGeoJSON(ST_Force_2D(ST_Transform(buurt.geom, 4326)), 6, 0) as contour FROM bagactueel.buurt, bagactueel.buurt_2014 WHERE ST_Intersects(buurt.geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND buurt.bu_code = buurt_2014.bu_code AND aant_inw > 0 LIMIT 75`;
+            var sql = `SELECT bu_naam, bu_code, gm_naam, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 75`;
             client.query(sql, (err, result) => {
                 done();
                 if (err) {

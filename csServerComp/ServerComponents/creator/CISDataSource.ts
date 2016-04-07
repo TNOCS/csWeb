@@ -44,7 +44,7 @@ export interface ICISMessage {
         status: string;
         msgType: string;
         scope: string;
-        addresses?: string[];
+        addresses?: string;
         references?: string[];
         info: ICAPInfo;
     }
@@ -103,7 +103,13 @@ export class CISDataSource {
             // Transform flat properties to CAP alert structure
             Object.keys(props).forEach((key) => {
                 if (cisMsg.msg.hasOwnProperty(key)) {
-                    cisMsg.msg[key] = props[key];
+                    if (key === 'sender') {
+                        cisMsg.msg[key] = "csweb";
+                    } else if (key === "sent") {
+                        cisMsg.msg[key] = CISDataSource.convertDateToCAPDate(new Date());
+                    } else {
+                        cisMsg.msg[key] = props[key];
+                    }
                 }
                 if (cisMsg.msg.hasOwnProperty('info') && cisMsg.msg['info'].hasOwnProperty(key)) {
                     cisMsg.msg['info'][key] = props[key];
@@ -223,6 +229,7 @@ export class CISDataSource {
             status: 'Test',
             msgType: 'Alert',
             scope: 'Public',
+            addresses: '',
             info: {
                 category: 'Met',
                 event: 'Monitor',
