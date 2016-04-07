@@ -1,9 +1,5 @@
 <div resize resize-y="150">
     <div class="kanbanColumn-title">{{column.title}}</div>
-
-    <!-- <form>
-        <input type="text" ng-model="query"></input>
-    </form> -->
     <div style="margin-right:10px;margin-top:12px;position:absolute;right:0;top:0">
         <!-- <span class="fa fa-cog kanbanColumn-option" style="color:gray"></span> -->
         <div ng-if="fields['prio']" class="dropdown kanbanColumn-option">
@@ -37,7 +33,7 @@
         <div class="card-list-container">
             <ul class="card-list">
                 <!-- <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.layer.data.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter"> -->
-                <li class="card-item" ng-class="vm.getClass(feature)" } ng-repeat="feature in vm.layer.data.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
+                <li class="card-item" ng-class="vm.getClass(feature)" ng-repeat="feature in vm.layer.data.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter" >
                     <div style="float:left">
                         <img ng-src="{{feature.effectiveStyle.iconUri}}" style="width:20px;height:20px;margin-right:5px" />
                     </div>
@@ -48,7 +44,7 @@
                         <div ng-if="feature._gui.questions" style="margin-bottom:10px">
                             <form name="question-form-{{feature.id}}">
                                 <div ng-repeat="question in feature._gui.questions">
-                                    <div ng-switch='question.ptype.type'>
+                                    <div ng-switch="question.ptype.type">
                                         <div ng-switch-when="category">
                                             <button ng-repeat="cat in question.ptype.categories" class="btn" ng-class="{'btn-primary' : feature.properties[question.property] === cat}" style="margin:5px" ng-click="vm.saveCategory(feature,question.property,cat)">
                                                 <span style="text-align:center">{{cat}}</span>
@@ -69,7 +65,7 @@
                         </div>
                     </div>
 
-                    <span ng-if="vm.column.showFeatureTags" ng-repeat="t in feature.properties['tags'] track by $index">[{{t}}]</span> 
+                    <span ng-if="vm.column.showFeatureTags" ng-repeat="t in feature.properties['tags'] track by $index">[{{t}}]</span>
 
                     <span style="margin-left:25px;color:gray;opacity:0.75">
                         <span class="fa fa-clock-o" /> {{feature._gui.relativeTime}}

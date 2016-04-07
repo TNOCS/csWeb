@@ -1,6 +1,7 @@
 import express = require('express')
 import cors = require('cors')
 import Winston = require('winston');
+import BodyParser = require('body-parser');
 import request = require('request');
 import path = require('path');
 import xml2js = require('xml2js');
@@ -43,7 +44,7 @@ export interface ICISMessage {
         status: string;
         msgType: string;
         scope: string;
-        addresses?: string[];
+        addresses?: string;
         references?: string[];
         info: ICAPInfo;
     }
@@ -77,8 +78,8 @@ export interface ICISMessage {
 export class CISDataSource {
     private cisOptions: ICISOptions = <ICISOptions>{};
     private xmlBuilder = new xml2js.Builder({headless: true});
-
-    constructor(public server: express.Express, private apiManager: Api.ApiManager, public url: string = '/cis') {
+    private xmlParser = new xml2js.Parser({ignoreAttrs: true, explicitArray: false});
+    constructor(public server: express.Express, private apiManager: Api.ApiManager, public capLayerId: string, public url: string = '/cis') {
     }
 
     public init(options: ICISOptions, callback: Function) {
@@ -95,13 +96,20 @@ export class CISDataSource {
 
         this.server.post(this.cisOptions.sendMessageUrl, (req: express.Request, res: express.Response) => {
             Winston.info('Notify the CIS datasource on ' + this.cisOptions.cisNotifyUrl);
-            var feature = req.body['feature'];
-            var fType = req.body['fType'];
+            res.sendStatus(200);
+            var feature = req.body;
             var props = (feature.properties) ? feature.properties : {};
             var cisMsg = CISDataSource.createDefaultCISMessage();
+            // Transform flat properties to CAP alert structure
             Object.keys(props).forEach((key) => {
                 if (cisMsg.msg.hasOwnProperty(key)) {
-                    cisMsg.msg[key] = props[key];
+                    if (key === 'sender') {
+                        cisMsg.msg[key] = "csweb";
+                    } else if (key === "sent") {
+                        cisMsg.msg[key] = CISDataSource.convertDateToCAPDate(new Date());
+                    } else {
+                        cisMsg.msg[key] = props[key];
+                    }
                 }
                 if (cisMsg.msg.hasOwnProperty('info') && cisMsg.msg['info'].hasOwnProperty(key)) {
                     cisMsg.msg['info'][key] = props[key];
@@ -110,14 +118,19 @@ export class CISDataSource {
                     cisMsg.msg['info']['area'][key] = props[key];
                 }
             });
+            // Add geometry
+            if (cisMsg.msg.hasOwnProperty('info') && cisMsg.msg['info'].hasOwnProperty('area')) {
+                var keyVal = CISDataSource.convertGeoJSONToCAPGeometry(feature.geometry, 20);
+                cisMsg.msg['info']['area'][keyVal.key] = keyVal.val;
+            }
+            // Parse JSON to xml
             var xmlMsg = this.xmlBuilder.buildObject(cisMsg.msg);
-            xmlMsg = xmlMsg.replace('<root>', '<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">').replace('</root>', '</alert>')
-            var convertedMsg = cisMsg;
-            convertedMsg.msg = <any>xmlMsg;
+            xmlMsg = xmlMsg.replace('<root>', '<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">').replace('</root>', '</alert>');
+            cisMsg.msg = <any>xmlMsg;
             Winston.info(xmlMsg);
             request.post({
                 url: this.cisOptions.cisNotifyUrl,
-                json: convertedMsg
+                json: cisMsg
             },
                 (err, response, data) => {
                     if (!err && response && response.statusCode && response.statusCode == 200) {
@@ -128,11 +141,12 @@ export class CISDataSource {
                 });
         });
 
-        this.server.post(this.cisOptions.cisMsgReceivedUrl, (req: express.Request, res: express.Response) => {
+        this.server.post(this.cisOptions.cisMsgReceivedUrl, BodyParser.text(), (req: express.Request, res: express.Response) => {
             Winston.info('CISMsg received');
+            Winston.debug(req.body);
             this.parseCisMessage(req.body, (result) => {
                 if (result) {
-                    this.sendCapFeature(result);
+                    this.convertCapFeature(result);
                 }
             });
             res.sendStatus(200);
@@ -140,20 +154,70 @@ export class CISDataSource {
 
         callback('CIS datasource loaded successfully!');
     }
-    
+
     private parseCisMessage(msg: any, cb: Function) {
-        cb(msg);
+        if (!msg) {
+            Winston.info('No xml-string found');
+            cb();
+            return;
+        }
+        this.xmlParser.parseString(msg, (err, cap: ICAPAlert) => {
+            if (err) {
+                Winston.error(err);
+                cb();
+            } else {
+                Winston.info(JSON.stringify(cap, null, 2));
+                cb(cap);
+            }
+        });
     }
 
-    private sendCapFeature(msg: any) {
-        Winston.info('Send CAP feature');
+    private convertCapFeature(cap: any) {
+        Winston.info('Convert CAP to a feature');
+        var f = <Api.Feature>{
+            type: "Feature",
+            id: Utils.newGuid(),
+            properties: {},
+            geometry: null
+        };
+        f.properties = CISDataSource.flattenObject(cap, {});
+        Winston.info(JSON.stringify(f.properties, null, 2));
+        if (f.properties.hasOwnProperty('polygon')) {
+            f.geometry = CISDataSource.convertCAPGeometryToGeoJSON(f.properties['polygon'], 'polygon');
+        } else if (f.properties.hasOwnProperty('circle')) {
+            f.geometry = CISDataSource.convertCAPGeometryToGeoJSON(f.properties['circle'], 'circle');
+        } else {
+            Winston.error('No valid CAP geometry found.');
+            return;
+        }
+        f.properties['featureTypeId'] = "Alert";
+        this.apiManager.addFeature(this.capLayerId, f, {}, () => { });
+    }
+    
+    /**
+     * Flattens a nested object to a flat dictionary.
+     * Example:  
+     * { X: 1, Y: {Ya: 2, Yb: 3}}
+     *       }
+     * }
+     * to {X: 1, Ya: 2, Yb: 3}
+     */
+    private static flattenObject(nest: any, flat: Dictionary<{}>, key: string = 'unknown') {
+        if (_.isObject(nest)) {
+            _.each(<Dictionary<{}>>nest, (v, k) => {
+                CISDataSource.flattenObject(v, flat, k);
+            });
+        } else {
+            flat[key] = nest;
+        }
+        return flat;
     }
 
     private static createDefaultCISMessage(): ICISMessage {
         var deParams: IDEParameters = {
             id: 'csweb-' + Utils.newGuid(),
             senderId: 'someone@csweb',
-            dateTimeSent: (new Date().toISOString()),
+            dateTimeSent: CISDataSource.convertDateToCAPDate(new Date()),
             kind: 'Report',
             status: 'Excercise'
         }
@@ -161,10 +225,11 @@ export class CISDataSource {
         var alertMsg: ICAPAlert = {
             identifier: deParams.id,
             sender: 'CSWEB',
-            sent: '2016-03-31T11:33:00+02:00',//(new Date().toISOString()).replace('Z','+02:00'),
+            sent: CISDataSource.convertDateToCAPDate(new Date()),//'2016-03-31T11:33:00+02:00',//(new Date().toISOString()).replace('Z','+02:00'),
             status: 'Test',
             msgType: 'Alert',
             scope: 'Public',
+            addresses: '',
             info: {
                 category: 'Met',
                 event: 'Monitor',
@@ -172,8 +237,7 @@ export class CISDataSource {
                 severity: 'Severe',
                 certainty: 'Observed',
                 area: {
-                    areaDesc: 'Testarea',
-                    polygon: '52.6494107854,3.0604549348 52.9158436911,3.0604549348 52.9158436911,3.5588077605 52.6494107854,3.0604549348'
+                    areaDesc: 'Testarea'
                 }
             }
         }
@@ -185,5 +249,70 @@ export class CISDataSource {
         }
         
         return cisMessage;
+    }
+    
+    /**
+     * Takes a date object, outputs a CAP date string
+     */
+    private static convertDateToCAPDate(date: Date): string {
+        if (!date) return;
+        var tdiff = date.getTimezoneOffset();
+        var tdiffh = Math.floor(Math.abs(tdiff / 60));
+        var tdiffm = tdiff % 60;
+        var tdiffpm = (tdiff <= 0) ? '-' : '+';
+        var iso = date.toISOString().split('.').shift();
+        iso = ''.concat(iso, tdiffpm, (tdiffh < 10) ? '0' : '', tdiffh.toFixed(0), ':', (tdiffm < 10) ? '0' : '', tdiffm.toFixed(0));
+        Winston.info(`Converted date to ${iso}`);
+        return iso;
+    }
+    
+    /**
+     * Takes a a GeoJSON Polygon or Point {type, coordinates: [[y,x],[y,x]]} (WGS84)
+     * Outputs a CAP Polygon in the format: "x,y x,y x,y" or Circle in the format "x,y r" (r in km)
+     * Optionally provide a circle radius in km, in case a point is provided (default: 10km)
+     */
+    private static convertGeoJSONToCAPGeometry(geo: Api.Geometry, radiusKM: number = 10): { key: string, val: string } {
+        if (!geo || !geo.type || !geo.coordinates) return;
+        var capCoords = '';
+        var coords = geo.coordinates;
+        if (geo.type.toLowerCase() === 'polygon') {
+            for (let i = 0; i < coords[0].length; i++) {
+                let cc = coords[i];
+                capCoords += cc[1] + ',' + cc[0] + ' ';
+            }
+            capCoords = capCoords.substr(0, capCoords.length - 1); //Remove last space
+        } else if (geo.type.toLowerCase() === 'point') {
+            capCoords = coords[1] + ',' + coords[0] + ' ' + radiusKM;
+        } else {
+            Winston.warn('Could not convert GeoJSON geometry to CAP');
+        }
+        Winston.info(`Converted ${JSON.stringify(geo)} to ${capCoords}`);
+        var type = (geo.type.toLowerCase() === 'polygon') ? 'polygon' : 'circle';
+        return { key: type, val: capCoords };
+    }
+    
+    /**
+     * Takes a CAP Polygon in the format: "x,y x,y x,y". (WGS84)
+     * Outputs a GeoJSON geometry {type, coordinates: [[y,x],[y,x]]}.
+     */
+    private static convertCAPGeometryToGeoJSON(cisPoly: string, cisType: string) {
+        if (!cisPoly) return;
+        var result;
+        var cisCoords = cisPoly.split(' ');
+        if (cisType === 'polygon') {
+            result = {type: "Polygon", coordinates: [[]]};
+            for (let i = 0; i < cisCoords.length; i++) {
+                let cc = cisCoords[i];
+                let xy = cc.split(',');
+                result.coordinates[0].push([+xy[1], +xy[0]]);
+            }
+        } else if (cisType === 'circle') {
+            let xy = cisCoords[0].split(' ').shift().split(',');
+            result = {type: "Point", coordinates: [+xy[1], +xy[0]]};
+        } else {
+            Winston.warn('Could not convert CAP geometry');
+        }
+        Winston.info(`Converted ${cisPoly} to ${JSON.stringify(result)}`);
+        return result;
     }
 }

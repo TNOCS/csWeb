@@ -61,10 +61,7 @@ gulp.task('bower_useref', ['bower_install'], function(cb){
 });
 
 gulp.task('concat_css', ['include_css'], function (cb) {
-    //var assets = useref.assets();
-
     return gulp.src('./csComp/includes/bower_dep/index.html')
-        
         .pipe(useref())
         .pipe(gulp.dest('./dist-bower')); 
 });

@@ -66,7 +66,7 @@
             </li>
         </ul>
     </div> -->
-    <div ng-hide="configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
+    <div ng-hide="configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden; width: 100%;" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
@@ -88,6 +88,11 @@
                                             <label for="booledit-{{item.property}}">{{item.propertyType.title}}</label>
                                         </div>
                                         <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                        <div ng-switch-when="options">
+                                            <select id="optionsedit-{{item.property}}" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                                <option ng-selected="item.feature.properties[item.property]===val" ng-repeat="(key, val) in item.propertyType.options track by $index" value="{{key}}">{{val}}</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </ng-form>
                             </div>
