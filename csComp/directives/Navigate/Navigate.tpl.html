@@ -4,6 +4,7 @@
         <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
         <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
     </a> -->
+    <div style="padding:10px">
 <div>
     <input class="addlayer-filter form-control" type="text" id="layerFilter" ng-model="search" placeholder="Search"/>
 </div>
@@ -17,7 +18,7 @@
         </div>
     </div>
 </div>
-<div ng-if="!vm.searchResults.length>0">
+<div ng-if="false">  <!--ng-if="!vm.searchResults.length>0"-->
 
     <div ng-if="vm.mobileLayers && vm.$layerService.isMobile" style="margin-top:10px">
         <div class="group-title" style="margin-left: 0">Share my location</div>
