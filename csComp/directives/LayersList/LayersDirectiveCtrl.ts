@@ -156,10 +156,7 @@ module LayersDirective {
                        this.$layerService.saveResource(tr);
                     }
                     
-                    this.editLayer(this.layer);
-                    
-                    
-                    
+                    this.editLayer(this.layer);                    
                 }
             }
         }
@@ -167,9 +164,11 @@ module LayersDirective {
         public editFeaturetype(featureType : csComp.Services.IFeatureType)
         {
             var tr = this.$layerService.typesResources[this.layer.typeUrl];
-            featureType._resource = tr; 
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'feature-type-editor', featureType, 'Feature type', 'Feature type','cog',true,true);
-            this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            featureType._resource = tr;            
+            this.state = "editfeaturetype";
+              
+            //var rpt = csComp.Helpers.createRightPanelTab('edit', 'feature-type-editor', featureType, 'Feature type', 'Feature type','cog',true,true);
+            //this.$messageBusService.publish('rightpanel', 'activate', rpt);
             
             
         }
@@ -429,7 +428,8 @@ module LayersDirective {
 
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = "editlayer";
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
+            
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
             this.layer = layer;
             if (!this.layer.typeUrl) {
 
@@ -445,7 +445,7 @@ module LayersDirective {
                     interact('#layerfeaturetype-' + key).onend = null;
                 };
             }
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopAddingFeatures(layer);
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
         }
 
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {

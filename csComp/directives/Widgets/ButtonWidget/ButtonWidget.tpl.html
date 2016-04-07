@@ -1,6 +1,7 @@
 <div ng-repeat="b in buttons" class="s3d button-container" ng-class="{'button-container-down': b._active}">
-
+    <img class="button-widget-image" ng-if="b.image" ng-src="{{b.image}}"></img>
     <div class="button-widget-content" ng-click="$parent.vm.click(b)" style="width:100%;height:100%">{{b.title}}
+        <div ng-hide="b.showLegend && b._active" class="button-widget-description">{{b.description}}</div>
         <div ng-show="b._layer.isLoading" class="spinner" style="position:absolute;right:3px;top:-10px">
             <div class="bounce1" style="background:white"></div>
             <div class="bounce2" style="background:white"></div>
@@ -10,19 +11,21 @@
             <div data-ng-if="b._legend" style="float:left;clear:left">
 
                 <div data-ng-if="b._legend.legendKind === 'discrete' || b._legend.legendKind === 'discreteStrings'  ">
-                    <span class="button-legend-label">{{b._firstLegendLabel}}</span>
+                    <span class="button-legend-label">{{b._lastLegendLabel}}</span>
+                    
                     <div data-ng-repeat="le in b._legend.legendEntries " style="float:left;margin-right:4px;margin-top:3px">
                         <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
                     </div>
-                    <span class="button-legend-label">{{b._lastLegendLabel}}</span>
+                    <span class="button-legend-label">{{b._firstLegendLabel}}</span>
 
                 </div>
                 <div data-ng-if="b._legend.legendKind === 'interpolated' || b._legend.legendKind === 'discreteStrings'  ">
-                    <span class="button-legend-label">{{b._firstLegendLabel}}</span>
+                    <span class="button-legend-label">{{b._lastLegendLabel}}</span>
                     <div data-ng-repeat="le in b._legend.legendEntries" style="float:left;margin-right:4px;margin-top:3px">
                         <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
                     </div>
-                    <span class="button-legend-label">{{b._lastLegendLabel}}</span>
+                    
+                    <span class="button-legend-label">{{b._firstLegendLabel}}</span>
                 </div>
 
                 <!--<div data-ng-if="b._legend.legendKind === 'interpolated'">
@@ -41,10 +44,15 @@
 
             </div>
         </div>
+        
+       
 
     </div>
-    <div ng-if="b._canEdit" class="button-edit-button" ng-click="$parent.vm.editLayer(b);$event.stopPropagation();">
+    <div ng-show="b._canEdit" class="button-edit-button" ng-click="$parent.vm.editLayer(b)">
         <span class="fa fa-pencil" />
     </div>
+    
+     <layereditor ng-show="b._layer._gui['editing']" view="icons" />
+    
 
 </div>

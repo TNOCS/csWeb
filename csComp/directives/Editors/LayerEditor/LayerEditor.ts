@@ -26,7 +26,9 @@ module LayerEditor {
             return {
                 terminal  : true,       // do not compile any other internal directives
                 restrict  : 'E',        // E = elements, other options are A=attributes and C=classes
-                scope     : {},         // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
+                scope     : {
+                    view : "="
+                },         // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Editors/LayerEditor/LayerEditor.tpl.html',                
                 replace   : false,   // Remove the directive from the DOM
                 transclude: true,   // Add elements and attributes to the template

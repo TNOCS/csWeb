@@ -1,3 +1,21 @@
 <div>
-    <h1>hoi</h1>
+    <h1>{{view}}</h1>
+    <div style="padding:0px">
+        <div ng-repeat="(key,featureType) in vm.layer._gui.featureTypes" class="featureType-item">
+            <div id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
+                when-ready="vm.initDrag(key,vm.layer)">
+                <feature-type featuretype="featureType" />
+            </div>
+            <div class="featureType-name">{{featureType.name}}</div>
+            <div style="position:absolute;right:10px;top:8px">
+                <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
+                    aria-expanded="false">
+                </div>
+                <ul class="dropdown-menu pull-right">
+                    <li ng-click="vm.editFeaturetype(featureType)" class="dropdown-item"><a>Edit Featuretype</a><span class="fa fa-pencil dropdown-item-icon" /></li>
+                    <li ng-click="vm.deleteFeaturetype(featureType)" class="dropdown-item"><a>Delete Featuretype</a><span class="fa fa-trash dropdown-item-icon" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

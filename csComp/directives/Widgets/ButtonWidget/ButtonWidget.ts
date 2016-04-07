@@ -12,7 +12,7 @@ module ButtonWidget {
     }
 
     /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    myModule.directive('buttonwidget', [function(): ng.IDirective {
+    myModule.directive('buttonwidget', [function (): ng.IDirective {
         return {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
@@ -28,34 +28,36 @@ module ButtonWidget {
     export interface IButtonWidgetScope extends ng.IScope {
         vm: ButtonWidgetCtrl;
         data: IButtonData;
-        buttons : IButton[];
+        buttons: IButton[];
     }
 
     export interface IButtonWidget {
         id: string;
         name: string;
     }
-    
-    export interface IButton{
+
+    export interface IButton {
         title: string;
+        description: string;
         action: string;
         layer: string;
         group: string;
-        timerange : string;
+        timerange: string;
         property: string;
-        showLegend : boolean;
-        _legend : csComp.Services.Legend;
-        _layer : csComp.Services.ProjectLayer;
-        _disabled : boolean;
-        _active : boolean;
-        _firstLegendLabel : string;
-        _lastLegendLabel : string;    
-        _canEdit : boolean;    
+        showLegend: boolean;
+        image: string;
+        _legend: csComp.Services.Legend;
+        _layer: csComp.Services.ProjectLayer;
+        _disabled: boolean;
+        _active: boolean;
+        _firstLegendLabel: string;
+        _lastLegendLabel: string;
+        _canEdit: boolean;
     }
 
     export interface IButtonData {
-        buttons : IButton[];
-        layerGroup : string;        
+        buttons: IButton[];
+        layerGroup: string;
     }
 
     export class ButtonWidgetCtrl {
@@ -80,135 +82,137 @@ module ButtonWidget {
 
             var par = <any>$scope.$parent;
             $scope.data = <IButtonData>par.widget.data;
-            
-            
-            if (typeof $scope.data.buttons === 'undefined')
-            {
-                $scope.data.buttons = [ ];                
+
+
+            if (typeof $scope.data.buttons === 'undefined') {
+                $scope.data.buttons = [];
             }
-            
-            if (!_.isUndefined($scope.data.layerGroup))
-            {
-                this.initLayerGroup();                
+
+            if (!_.isUndefined($scope.data.layerGroup)) {
+                this.initLayerGroup();
             }
-            else
-            {
-                this.$scope.buttons = this.$scope.data.buttons;                                   
+            else {
+                this.$scope.buttons = this.$scope.data.buttons;
                 this.initButtons();
-            }    
-        }
-        
-        private initButtons()
-        {
-            this.$scope.buttons.forEach(b =>
-            {
-                switch (b.action) {
-                case "Activate TimeRange":
-                    
-                    break;
-                case "Activate Layer":
-                    this.checkLayer(b);
-                    this.messageBusService.subscribe("layer", (a, l) => this.checkLayer(b));
-                    break;
-                case "Activate Style":
-                    this.checkStyle(b);
-                    this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle(b));
-                    break;
-                case "Activate Baselayer" :
-                    this.checkBaselayer(b); 
-                    this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer(b)); 
-                    break;
             }
-                
-            });
-            
         }
-        
-        private initLayerGroup()
-        {
+
+        private initButtons() {
+            this.$scope.buttons.forEach(b => {
+                switch (b.action) {
+                    case "Activate TimeRange":
+
+                        break;
+                    case "Activate Layer":
+                        this.checkLayer(b);
+                        this.messageBusService.subscribe("layer", (a, l) => this.checkLayer(b));
+                        break;
+                    case "Activate Style":
+                        this.checkStyle(b);
+                        this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle(b));
+                        break;
+                    case "Activate Baselayer":
+                        this.checkBaselayer(b);
+                        this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer(b));
+                        break;
+                }
+
+            });
+
+        }
+
+        private initLayerGroup() {
             this.checkLayerGroup();
             this.messageBusService.subscribe("layer", (a, l) => this.checkLayerGroup());
         }
-        
+
         private checkLayerGroup() {
             var group = this.layerService.findGroupById(this.$scope.data.layerGroup);
             this.$scope.buttons = [];
             if (!_.isUndefined(group)) {
                 group.layers.forEach(l => {
                     var b = <IButton>{
-                            title: l.title,
-                            action: "Activate Layer",
-                            layer: l.id,
-                            showLegend: false
-                        };
+                        title: l.title,
+                        action: "Activate Layer",
+                        layer: l.id,
+                        showLegend: false
+                    };
                     this.$scope.buttons.push(b);
                     this.checkLayer(b);
-                    
+
                 });
-            }            
-        }
-        
-        private checkBaselayer(b : IButton)
-        {
-            b._active = this.layerService.$mapService.activeBaseLayerId === b.layer;
-        }
-        
-        public editLayer(b : IButton)
-        {            
-            console.log('edit layer');
+            }
         }
 
-        private checkLayer(b : IButton) {
+        private checkBaselayer(b: IButton) {
+            b._active = this.layerService.$mapService.activeBaseLayerId === b.layer;
+        }
+
+        public editLayer(b: IButton) {
+            console.log('edit layer');
+            if (!_.isUndefined(b._layer)) {
+                var layer = b._layer;
+
+                if (layer._gui.hasOwnProperty('editing') && layer._gui['editing'] === true) {
+                    (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
+                }
+                else {
+                    (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
+                }
+            }
+        }
+
+        private checkLayer(b: IButton) {
             b._layer = this.layerService.findLayer(b.layer);
-            
+
             if (b.showLegend && b._layer.defaultLegend) {
                 b._legend = this.layerService.getLayerLegend(b._layer);
-                if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length>0)
-                {
-                    b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length-1].label;
-                    b._lastLegendLabel = b._legend.legendEntries[0].label; 
+                if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length > 0) {
+                    b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
+                    b._lastLegendLabel = b._legend.legendEntries[0].label;
                 }
-            }  
-            
-                        
+            }
+
+            if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
+
+
             if (!_.isUndefined(b._layer)) {
                 b._disabled = false;
                 b._active = b._layer.enabled;
-                b._canEdit = b._layer.enabled && b._layer.isDynamic;                                             
+                b._canEdit = b._layer.enabled && b._layer.isDynamic;
             }
             else {
                 b._disabled = true;
             }
-            
+
         }
 
-        private checkStyle(b : IButton) {
+        private checkStyle(b: IButton) {
             var group = this.layerService.findGroupById(b.group);
             var prop = b.property;
-            if (prop.indexOf("#")>-1) prop = prop.split("#")[1];
+            if (prop.indexOf("#") > -1) prop = prop.split("#")[1];
             if (typeof group !== 'undefined') {
-                var selected = group.styles.filter(gs=>{
-                    return gs.property === prop});
-                b._active = selected.length>0;
-                if (b._active && b.showLegend) {                     
+                var selected = group.styles.filter(gs => {
+                    return gs.property === prop
+                });
+                b._active = selected.length > 0;
+                if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
-                    this.checkLegend(b); 
-                } else {b._legend = null; }                 
-                
+                    this.checkLegend(b);
+                } else { b._legend = null; }
+
             }
-            
-        } 
-        
-        public checkLegend(b : IButton)
-        {
-            if (b._legend && b._legend.legendEntries.length>0)
-            {
-                if (typeof b._lastLegendLabel === 'undefined') b._lastLegendLabel = b._legend.legendEntries[0].label; 
-                if (typeof b._firstLegendLabel === 'undefined') b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length-1].label;
+
+        }
+
+        public checkLegend(b: IButton) {
+            if (b._legend && b._legend.legendEntries.length > 0) {
+                if (typeof b._lastLegendLabel === 'undefined') b._lastLegendLabel = b._legend.legendEntries[0].label;
+                if (typeof b._firstLegendLabel === 'undefined') b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
             }
         }
 
-        public click(b : IButton) {
+        public click(b: IButton) {
             switch (b.action) {
                 case "Activate TimeRange":
                     console.log('time range');
@@ -219,7 +223,7 @@ module ButtonWidget {
                 case "Activate Layer":
                     var pl = this.layerService.findLayer(b.layer);
                     if (typeof pl !== 'undefined') {
-                        this.layerService.toggleLayer(pl);                        
+                        this.layerService.toggleLayer(pl);
                     }
                     break;
                 case "Activate Style":
@@ -227,12 +231,12 @@ module ButtonWidget {
                     if (typeof group !== 'undefined') {
                         var propType = this.layerService.findPropertyTypeById(b.property);
                         if (typeof propType !== 'undefined') {
-                            this.layerService.setGroupStyle(group, propType);                            
+                            this.layerService.setGroupStyle(group, propType);
                         }
                     }
                     break;
-                case "Activate Baselayer" :
-                    var layer : csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
+                case "Activate Baselayer":
+                    var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
                     this.layerService.activeMapRenderer.changeBaseLayer(layer);
                     this.layerService.$mapService.changeBaseLayer(b.layer);
                     break;
