@@ -1247,6 +1247,22 @@ body,
     cursor: pointer;
 }
 
+.button-widget-image
+{
+    float:left;
+    height:25px;
+    margin-top:5px;
+    margin-right:5px;
+}
+
+.button-widget-description
+{
+    font-size:13px;
+    clear:left;
+    color: #444;
+    margin-top:-2px;
+}
+
 .button-title
 {
     font-size: 20px;
@@ -1266,6 +1282,7 @@ body,
     font-size: 20px;
     margin-top:5px;
     color:black;
+        min-height: 46px;
     
     } 
     
@@ -1289,12 +1306,16 @@ body,
         text-decoration: none;
 right: 0;
 top: 0;
-bottom: 0;
+ 
 width: 50px;
 background: rgba(100, 100, 100, 0.77);
 border-left-color: white;
 border-left-width: 2px;
 border-left-style: solid;
+border-bottom-color: white;
+
+border-bottom-width: 2px;
+border-bottom-style: solid;
 }
 
 .button-edit-button > span {
