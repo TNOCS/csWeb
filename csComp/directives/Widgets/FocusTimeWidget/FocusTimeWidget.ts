@@ -50,6 +50,12 @@ module FocusTimeWidget {
         public dateFormat : string;
         public timeFormat : string;
         private handle: csComp.Services.MessageBusHandle;
+        public isOpen : boolean = true;
+        
+        private timeOptions = {
+            readonlyInput: false,
+            showMeridian: false
+        };
         
 
         public static $inject = [
@@ -100,6 +106,13 @@ module FocusTimeWidget {
             }
 
         }
+        
+         public openCalendar(e: Event) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.isOpen = true;
+        };
         
         public lastHour()
         {
