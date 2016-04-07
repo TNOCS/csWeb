@@ -8,7 +8,7 @@ module csComp.Services {
         url? : string;
         /** url to fetch layer kpi data */
         kpiUrl? : string;
-        /** interval for live link (1h, 24h, etc) */
+        /** interval for live link (15m, 1h, 24h, etc) */
         liveInterval? : string;
     }
 
@@ -126,13 +126,15 @@ module csComp.Services {
         image?: string;
         /** last updated time */
         updated?: number;
+        /** zoom to layer if it gets activated */
+        zoomOnActived? : number;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer implements IProjectLayer {
         /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
-        /** Key of the legend entry **/
+        /** Key of the legend entry (from resource -> legends) **/
         defaultLegend : string;
         /** Title as displayed in the menu */
         title: string;
@@ -271,6 +273,7 @@ module csComp.Services {
          * gui is used for setting temp. values for rendering
          */
         _gui: any = {};
+        
         /** image for this layer */
         image: string;
 

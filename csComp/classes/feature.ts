@@ -281,7 +281,7 @@ module csComp.Services {
         innerTextSize?:         number;
         analysispropertyType?:  any;
         /** Internal (private) property, indicating that the feature has been initialized (initFeatureType has been called) */
-        _isInitialized?:        boolean;
+        _isInitialized?:        boolean;        
     }
 
     export interface IFeatureType {
@@ -302,6 +302,8 @@ module csComp.Services {
          */
         propertyTypeKeys?:  string;
         languages?:         ILanguageData;
+        /** Action after selection, not set: open Feature Properties */
+        selectAction?:          string;
         _isInitialized?:    boolean; 
         _resource? : ITypesResource;
     }

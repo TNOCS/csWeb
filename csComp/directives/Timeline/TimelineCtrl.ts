@@ -51,21 +51,24 @@ module Timeline {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope:             ITimelineScope,
-            private $layerService:      csComp.Services.LayerService,
-            private $mapService:        csComp.Services.MapService,
+            private $scope: ITimelineScope,
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
-            private TimelineService:    Timeline.ITimelineService
+            private TimelineService: Timeline.ITimelineService
         ) {
             this.loadLocales();
 
             this.options = {
-                'width':    '100%',
+                'width': '100%',
                 'editable': false,
-                'margin':   0,
-                'height':   '54px'
+                'margin': 0,
+                'height': '54px',
+                'zoomMax' : 172800000,
+                'zoomMin' : 3600000
                 //'layout': 'box'
             };
+
 
             this.debounceUpdate = _.debounce(this.updateFeatures, 500);
             this.debounceSetItems = _.debounce((items) => { this.setItems(items); }, 500);
@@ -75,9 +78,18 @@ module Timeline {
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
                 setTimeout(() => {
                     //    this.initTimeline();
+                    
+                    
+                    // set min/max zoom levels if available
+                    if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
+                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMax)) this.$scope.timeline.options["zoomMax"] = this.$layerService.project.timeLine.zoomMax;
+                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMin)) this.$scope.timeline.options["zoomMin"] = this.$layerService.project.timeLine.zoomMin;
+                    }
+                    
                     this.updateFocusTime();
                     this.updateDragging();
                     this.myTimer();
+                    
                     if (this.$layerService.project.timeLine.isLive) this.goLive();
                 }, 0);
             });
@@ -195,9 +207,16 @@ module Timeline {
             while (container.firstChild) {
                 container.removeChild(container.firstChild);
             }
+
+
+            
+            
+            
+
             this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
             this.$layerService.timeline.redraw();
+
 
             if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
                 this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
@@ -213,7 +232,7 @@ module Timeline {
                     if (f) {
                         this.$layerService.selectFeature(f);
                     } else if (this.$layerService.project.eventTab) {
-                        this.$messageBusService.publish('eventtab', 'zoomto', {id: id});
+                        this.$messageBusService.publish('eventtab', 'zoomto', { id: id });
                     }
                 }
             });

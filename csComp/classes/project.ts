@@ -46,6 +46,10 @@ module csComp.Services {
         range:         number; // total time range in ms
         zoomLevel:     number;
         zoomLevelName: string;
+        /** Set a maximum zoom interval for the visible range in milliseconds. It will not be possible to zoom out further than this maximum. Default value equals about 10000 years. */
+        zoomMax:       number;
+        /** Set a minimum zoom interval for the visible range in milliseconds. It will not be possible to zoom in further than this minimum. */
+        zoomMin:       number;
         isLive:        boolean;
         enableLive:    boolean = true;
         enablePlay:    boolean = true;

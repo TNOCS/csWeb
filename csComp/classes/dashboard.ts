@@ -12,6 +12,7 @@ module csComp.Services {
         borderRadius:       string;
         opacity:            number;
         disableIfLeftPanel: boolean;
+        borderShadow:       boolean = true;
     }
 
     export interface IWidgetCtrl {
