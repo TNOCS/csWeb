@@ -271,23 +271,8 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             //this.updateWidget(widget); 
-            setTimeout(() => {
-                
-                // select the target node
-                // var target = document.querySelector('#' + widget.elementId + '-parent');
-                //
-                // // create an observer instance
-                // var observer = new MutationObserver((mutations) => {
-                //     mutations.forEach((mutation) => {
-                //         console.log(mutation.type);
-                //     });
-                // });
-                //
-                // // configuration of the observer:
-                // var config = { attributes: true, childList: true, characterData: true };
-                //
-                // // pass in the target node, as well as the observer options
-                // observer.observe(target, config);
+            
+            setTimeout(() => {               
 
                 if (!widget._ijs)
                     widget._ijs = interact('#' + widget.elementId + '-parent')
