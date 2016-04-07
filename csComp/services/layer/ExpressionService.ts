@@ -152,7 +152,7 @@ module csComp.Services {
             for (var feature of features) {
                 if (!feature.properties) continue;
                 let hasFeatureType = feature.properties.hasOwnProperty('featureTypeId');
-                if ((hasFeatureType && feature.properties['featureTypeid'] === propertyType.label)
+                if ((hasFeatureType && feature.properties['featureTypeId'] === propertyType.label)
                     || !hasFeatureType && isDefaultPropertyType) {
                     scope.properties = feature.properties;
                     feature.properties[propertyType.label] = parsedExpression(scope, this.ops);
