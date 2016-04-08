@@ -145,18 +145,18 @@ module csComp.Services {
                     var layer = this.loadedLayers[l];
                     if (layer.refreshBBOX) {
                         // When any groupstyle(s) present, store and re-apply after refreshing the layer
-                        var oldStyles;
-                        if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
-                            oldStyles = layer.group.styles;
-                        }
+                        // var oldStyles;
+                        // if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
+                        //     oldStyles = layer.group.styles;
+                        // }
                         layer.BBOX = bbox;
                         layer.layerSource.refreshLayer(layer);
-                        if (layer.group && oldStyles) {
-                            oldStyles.forEach((gs) => {
-                                this.saveStyle(layer.group, gs);
-                            });
-                            this.updateGroupFeatures(layer.group);
-                        }
+                        // if (layer.group && oldStyles) {
+                        //     oldStyles.forEach((gs) => {
+                        //         this.saveStyle(layer.group, gs);
+                        //     });
+                        //     this.updateGroupFeatures(layer.group);
+                        // }
                     }
                 }
             });
@@ -727,6 +727,10 @@ module csComp.Services {
 
         public evaluateLayerExpressions(l: ProjectLayer, fTypes: { [key: string]: IFeatureType }) {
             this.expressionService.evalLayer(l, fTypes);
+        }
+
+        public evaluateFeatureExpressions(f: Feature) {
+            this.expressionService.evalResourceExpressions(this.findResourceByFeature(f), [f]);
         }
 
         public saveResource(resource: TypeResource) {

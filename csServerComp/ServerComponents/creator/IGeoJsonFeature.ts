@@ -1,4 +1,5 @@
 interface IGeoJsonFeature {
+    id?: string;
     type: string;
     geometry: {
         type: string;

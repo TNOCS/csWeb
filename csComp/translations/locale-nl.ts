@@ -5,6 +5,8 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'van',
             TO: 'tot',
+            ZOOM_LEVEL_LOW: 'Zoom niveau te laag',
+            ZOOM_IN_FOR_CONTOURS: 'Zoom in om de contouren te tonen',
             NAVIGATE:'Start',
             REMOVE: 'Verwijder',
             CREATE_SCATTER: 'Creeer spreidingsdiagram',

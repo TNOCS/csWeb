@@ -5,6 +5,8 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'from',
             TO: 'to',
+            ZOOM_LEVEL_LOW: 'Zoom level too low',
+            ZOOM_IN_FOR_CONTOURS: 'Zoom in to show contours',
             NAVIGATE: 'Start',
             CREATE_SCATTER: 'Create scatter with',
             EXPAND_ALL: 'Expand all',
