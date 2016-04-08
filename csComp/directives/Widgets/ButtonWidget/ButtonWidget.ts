@@ -246,13 +246,15 @@ module ButtonWidget {
         public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
             if (!le) return;
             var projGroup = this.layerService.findGroupById(group);
+            var property = this.layerService.findPropertyTypeById(prop);
             var gf = new csComp.Services.GroupFilter();
             gf.property = prop.split('#').pop();
             gf.id = 'buttonwidget_filter';
             gf.group = projGroup;
             gf.filterType = 'row';
-            gf.title = 'TITLE';
+            gf.title = property.title;
             gf.rangex = [le.interval.min, le.interval.max];
+            gf.filterLabel = le.label;
             console.log('Setting filter');
             this.layerService.rebuildFilters(projGroup);
             projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });

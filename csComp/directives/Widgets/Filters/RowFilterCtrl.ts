@@ -76,24 +76,6 @@ module Filters {
             this.$layerService.createScatterFilter(this.$scope.filter.group, this.$scope.filter.property, gf.property);
         }
 
-        private displayFilterRange(min, max) {
-            if ((+min) > (+max)) {
-                min = max;
-            }
-            var filter = this.$scope.filter;
-            if (filter.rangex[0] < min) {
-                filter.from = min;
-            } else {
-                filter.from = filter.rangex[0];
-            }
-            if (filter.rangex[1] > max) {
-                filter.to = max;
-            } else {
-                filter.to = filter.rangex[1];
-            }
-            this.$scope.$apply();
-        }
-
         private dcChart: any;
 
 
@@ -122,7 +104,6 @@ module Filters {
                                 } else { r = a + "." + a}
                                 return r;
                             } else if (pt.type === 'number') {
-                                console.log(a);
                                 var label;
                                 pt.legend.legendEntries.some((le) => {
                                     if (a >= le.interval.min && le.interval.max >= a) {
@@ -142,17 +123,15 @@ module Filters {
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
 
-            //var scale =
             this.dcChart.width(315)
                 .height(210)                
                 .dimension(dcDim)
                 .group(dcGroup)
                 .title(d=> {
-                    console.log(d); 
                     return d.key })
                 .elasticX(true)                
                 .colors(d=>{
-                    if (pt.legend) {
+                    if (pt && pt.legend) {
                         if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
                         if (!pt.options) {
                             var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
@@ -162,18 +141,9 @@ module Filters {
                     else {
                         return "red";
                     }
-                    
-                    
                 })
                 .cap(10)
                 .on('renderlet', (e) => {
-                    // var fil = e.hasFilter();
-                    // var s = '';
-                    // if (e.filters.length > 0) {
-                    //     var localFilter = e.filters[0];
-                    //     this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
-                    //     s += localFilter[0];
-                    // }
                     dc.events.trigger(() => {
                         this.$layerService.updateFilterGroupCount(group);
                     }, 0);
@@ -181,51 +151,29 @@ module Filters {
                         group.filterResult = dcDim.top(Infinity);
                         this.$layerService.updateMapFilter(group);
                     }, 100);
+                }).on('filtered', (e) => {
+                    console.log('Filtered rowchart');
                 });
             this.dcChart.selectAll();
-            //this.displayFilterRange(min,max);
-
-
-            
-
-
-            //this.$scope.$watch('filter.from',()=>this.updateFilter());
-            //  this.$scope.$watch('filter.to',()=>this.updateFilter());
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
-
-            //this.dcChart.yAxis().ticks(5);
-            //this.dcChart.xAxis().ticks(5);
-            //this.dcChart.mouseZoomable(true);
-            dc.renderAll();
             this.updateRange();
-            //  this.updateChartRange(this.dcChart,filter);
-
+            dc.renderAll();
         }
 
         private updateFilter() {
             setTimeout(() => {
-                this.dcChart.filter([this.$scope.filter.from, this.$scope.filter.to]);
+                this.dcChart.filter(this.$scope.filter.filterLabel);
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
             }, 10);
-
         }
 
         public updateRange() {
             setTimeout(() => {
                 var filter = this.$scope.filter;
                 var group = filter.group;
-                this.displayFilterRange(this.$scope.filter.from, this.$scope.filter.to);
                 this.dcChart.filterAll();
-                this.dcChart.filter((<any>dc).filters.RangedFilter(this.$scope.filter.from, this.$scope.filter.to));
+                this.dcChart.filter(this.$scope.filter.filterLabel);
                 this.dcChart.render();
                 dc.redrawAll();
                 group.filterResult = filter.dimension.top(Infinity);
@@ -239,6 +187,5 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-
     }
 }

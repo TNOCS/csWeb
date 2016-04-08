@@ -287,10 +287,10 @@ module csComp.Services {
          * @text:        the translation key of the notification's content
          * @location:    the location on the screen where the notification is shown (default bottom right)
 		 */
-        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight) {
+        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight, type = NotifyType.Normal) {
             this.$translate(title).then((translatedTitle) => {
                 this.$translate(text).then((translatedText) => {
-                    this.notify(translatedTitle, translatedText, location);
+                    this.notify(translatedTitle, translatedText, location, type);
                 });
             });
         }

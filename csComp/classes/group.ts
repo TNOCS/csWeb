@@ -154,6 +154,7 @@ module csComp.Services {
         meta:        IPropertyType;
         to:          number;
         from:        number;
+        filterLabel: string;
     }
 
     /**
