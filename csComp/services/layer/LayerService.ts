@@ -1104,7 +1104,7 @@ module csComp.Services {
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
                 
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);                
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false,true);                
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);    
                 
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
