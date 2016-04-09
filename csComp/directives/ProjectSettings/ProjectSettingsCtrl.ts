@@ -13,19 +13,54 @@ module ProjectSettings {
         public static $inject = [
             '$scope',
             '$timeout',
-            'layerService'
+            'layerService',
+            'dashboardService',
+            'mapService',
+            'messageBusService'
         ];
 
-        public project : csComp.Services.Project;
+        public project: csComp.Services.Project;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: IProjectSettingsScope,
             private $timeout: ng.ITimeoutService,
-            private $layerService: csComp.Services.LayerService
-            ) {
+            private $layerService: csComp.Services.LayerService,
+            private dashboardService: csComp.Services.DashboardService,
+            private mapService: csComp.Services.MapService,
+            private messageBus: csComp.Services.MessageBusService
+        ) {
             $scope.vm = this;
+        } 
+
+        toggleTouchMode() {
+            this.dashboardService.touchMode = !this.dashboardService.touchMode;
+        }
+
+        toggleRenderer() {
+            if (this.$layerService.activeMapRenderer.title === 'cesium') {
+                this.$layerService.selectRenderer('leaflet')
+            }
+            else {
+                this.$layerService.selectRenderer('cesium')
+            }
+            
+        }
+        
+        toggleAdminMode()
+        {
+            if (this.mapService.expertMode !== csComp.Services.Expertise.Admin)
+            {
+                this.mapService.expertMode = csComp.Services.Expertise.Admin;
+                this.messageBus.publish('expertMode', 'newExpertise', csComp.Services.Expertise.Admin);                
+            }
+            else
+            {
+                this.mapService.expertMode = csComp.Services.Expertise.Expert;
+                this.messageBus.publish('expertMode', 'newExpertise', csComp.Services.Expertise.Expert);
+                
+            }
         }
 
         saveSettings() {

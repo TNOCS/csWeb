@@ -1,21 +1,42 @@
-<div style="padding:5px">
-    
-    <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+<div style="overflow-y: auto; overflow-x: hidden; padding:5px; margin-top: 20px; margin-left:10px">
 
+    <div class="controls">
+        <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
+            <input type="checkbox" id="touchMode" ng-checked="vm.dashboardService.touchMode" data-ng-click="vm.toggleTouchMode();">
+            <label class="editor-title input-xlarge" for="touchMode">touch mode</label>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
+            <input type="checkbox" id="rendererSelection" ng-checked="vm.$layerService.activeMapRenderer.title=='cesium'" data-ng-click="vm.toggleRenderer();">
+            <label class="editor-title input-xlarge" for="rendererSelection">3D view</label>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
+            <input type="checkbox" id="adminModeSelection" ng-checked="vm.mapService.isAdminExpert" data-ng-click="vm.toggleAdminMode();">
+            <label class="editor-title input-xlarge" for="adminModeSelection">Admin Mode</label>
+        </div>
+    </div>
+
+    <!-- Select renderer -->
+    <!--<ul class="nav navbar-nav" style="float:right">
+                <li data-ng-if="vm.$layerService.activeMapRenderer.title!='leaflet'"><a data-ng-click="vm.$layerService.selectRenderer('leaflet')">2D</a></li>
+                <li data-ng-if="vm.$layerService.activeMapRenderer.title!='cesium'"><a data-ng-click="vm.$layerService.selectRenderer('cesium')">3D</a></li>
+            </ul>-->
+
+    <div ng-show="vm.mapService.isAdminExpert">
         <div class="controls">
             <label class="editor-title input-xlarge" for="projectTitle">Title</label>
             <input id="projectTitle" name="textinput" type="text" ng-model="vm.$layerService.project.title" placeholder="title" class="input-xlarge editor-text-input">
         </div>
 
         <button type="button" class="btn btn-primary" data-ng-click="vm.updateProject()" style="margin-top: 5px; margin-right: 1em; float: right;">
-            <i class="fa fa-save fa-2x"></i>
-        </button>
+                <i class="fa fa-save fa-2x"></i>
+            </button>
         <button type="button" class="btn btn-primary" data-ng-click="vm.saveSettings()" style="margin-top: 5px; margin-right: 1em; float: right;">
-            <i class="fa fa-download fa-2x"></i>
-        </button>
+                <i class="fa fa-download fa-2x"></i>
+            </button>
+        <dashboard-selection />
     </div>
-    
-    <dashboard-selection />
-
-
 </div>
