@@ -25,6 +25,9 @@ module csComp.Services {
         public chartGenerators: { [key: string]: Function } = {};
         public socket;
         public editWidgetMode: boolean;
+        /** website is running in touch mode */
+        public touchMode: boolean = false;
+
 
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};
 

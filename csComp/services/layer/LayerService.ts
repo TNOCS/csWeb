@@ -22,9 +22,7 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
-        /** website is running in touch mode */
-        touchMode: boolean = false;
-
+        
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
         solution: Solution;
