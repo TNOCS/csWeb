@@ -55,6 +55,13 @@ body,
     height: 100%;
 }
 
+/* layer editor */
+
+.layer-editor-icon
+{
+    width:30px;height:30px;margin-right:10px;border:none;float:left;background:transparent
+} 
+
 /** notifications */
 
 .alert-warning
@@ -320,7 +327,7 @@ body,
 
 .featureType-item
 {
-    clear:both;
+    
     margin-bottom: 5px;
     position: relative;
 }
@@ -1280,6 +1287,15 @@ body,
     cursor: pointer;
 }
 
+.button-layer-editor
+{
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
 .button-widget-image
 {
     float:left;
@@ -1325,7 +1341,7 @@ body,
 } 
 
 .button-container-down {
-    background: rgba(100, 100, 100, 0.77);     
+    background: #aaa;     
     color: white;
 } 
 

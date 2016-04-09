@@ -7,12 +7,15 @@
             <div class="bounce2" style="background:white"></div>
             <div class="bounce3" style="background:white"></div>
         </div>
+
+        <layereditor ng-show="b._layer._gui['editing']" view="icons" class="button-layer-editor" />
+
         <div ng-if="b.showLegend" ng-show="b._active">
             <div data-ng-if="b._legend" style="float:left;clear:left">
 
                 <div data-ng-if="b._legend.legendKind === 'discrete' || b._legend.legendKind === 'discreteStrings'">
                     <span class="button-legend-label">{{b._lastLegendLabel}}</span>
-                    
+
                     <div data-ng-repeat="le in b._legend.legendEntries " style="float:left;margin-right:4px;margin-top:3px" ng-click="$parent.$parent.$parent.$parent.$parent.vm.createFilter(le, b.group, b.property);$event.stopPropagation();">
                         <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
                     </div>
@@ -24,7 +27,7 @@
                     <div data-ng-repeat="le in b._legend.legendEntries" style="float:left;margin-right:4px;margin-top:3px">
                         <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
                     </div>
-                    
+
                     <span class="button-legend-label">{{b._firstLegendLabel}}</span>
                 </div>
 
@@ -43,16 +46,18 @@
         </div>-->
 
             </div>
+
+
+
+
         </div>
-        
-       
+
+
 
     </div>
     <div ng-show="b._canEdit" class="button-edit-button" ng-click="$parent.vm.editLayer(b)">
         <span class="fa fa-pencil" />
     </div>
-    
-     <layereditor ng-show="b._layer._gui['editing']" view="icons" />
-    
+
 
 </div>
