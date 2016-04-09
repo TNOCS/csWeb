@@ -36,6 +36,9 @@ module csComp.Services {
         _activeContextMenu: IActionOption[];
         editing: boolean;
         directoryHandle: MessageBusHandle;
+        
+        /** true if no filters are active */
+        noFilters = true;
 
         /** indicator true for mobile devices */
         isMobile: boolean;
@@ -1813,6 +1816,15 @@ module csComp.Services {
             }
             group.styles.push(style);
         }
+        
+        /** checks if there are any filters available, used to show/hide filter tab leftpanel menu */
+        updateFilterAvailability()
+        {
+            this.noFilters = true;
+            this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                if (g.filters.length > 0 && this.noFilters) this.noFilters = false;
+            });
+        }
 
         addFilter(group: ProjectGroup, prop: string) {
             var filter = this.findFilter(group, prop);
@@ -1994,6 +2006,7 @@ module csComp.Services {
 
         public triggerUpdateFilter(groupId: string) {
             this.mb.publish('filters', 'updated', groupId);
+            this.updateFilterAvailability();
         }
 
         /** remove filter from group */
