@@ -5,7 +5,7 @@
         }
     </style>
     <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
-    <div class="scrolling" style="overflow-y: auto; overflow-x: hidden" resize resize-y="95">
+    <div class="scrolling" style="overflow-y: auto;    overflow-x: hidden;    position: absolute;    left: 0;    right: 0;    top: 0;    bottom: 0;">
         <div class="panel" style="margin-bottom:10px">
             <div role="tab" id="heading-active-styles">                
                 <div class="group-title">
@@ -19,7 +19,7 @@
                     <div data-ng-repeat="style in group.styles">
                         <div class="checkbox checkbox-primary" style="float:left">
                             <input type="checkbox" id="cbstyle{{style.id}}" ng-model="style.enabled" data-ng-change="vm.$layerService.updateStyle(style);">
-                            <label class="style-title" for="cbstyle{{style.id}}" style="width:165px">{{style.title}}</label>
+                            <label class="style-title" for="cbstyle{{style.id}}" style="max-width:300px">{{style.title}}</label>
                         </div>
 
                         <div style="float:right;width: 48px">
