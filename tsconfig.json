@@ -185,6 +185,7 @@
         "csComp/services/dashboard/DashboardService.ts",
         "csComp/services/dashboard/top10chart.ts",
         "csComp/services/geolocation/geolocation.ts",
+        "csComp/services/layer/actions/BingSearchAction.ts",
         "csComp/services/layer/actions/OfflineSearchAction.ts",
         "csComp/services/layer/actions/OnlineSearchAction.ts",
         "csComp/services/layer/ContourAction.ts",
