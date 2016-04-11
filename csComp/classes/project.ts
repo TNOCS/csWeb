@@ -158,6 +158,17 @@ module csComp.Services {
         authenticationMethod? : authMethods;
     }
 
+    export interface ISearchProvider {
+        /** Name, is used to register the search provider, e.g. offline, bag, or bing */
+        name: string;
+        /** Optional address of the search end point */
+        url?: string;
+        /** Optional key */
+        key?: string;
+        /** Optional extra data */
+        data?: any;
+    }
+
     /** project configuration. */
     export class Project implements ISerializable<Project> {
         id:          string;
@@ -168,7 +179,7 @@ module csComp.Services {
         storage:     string;
         url:         string;
         opacity:     number;
-        profile : Profile;
+        profile:     Profile;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         isDynamic:         boolean;
         activeDashboard:   Dashboard;
@@ -198,12 +209,15 @@ module csComp.Services {
         expertMode      = Expertise.Expert;
         markers         = {};
         eventTab:       boolean;
-        /** If true (default false), indicates that we should load an offline search result. */
-        useOfflineSearch: boolean = false;
-        /** If true (default false), indicates that we should enable an online search engine. */
-        useOnlineSearch: boolean = false;
-        /** If useOnlineSearch = true define the url of the online search engine. */
-        onlineSearchUrl: string;
+        /** List of search providers to use, e.g. bag, offline, bing */
+        searchProviders: ISearchProvider[] = [];
+        // /** If true (default false), indicates that we should load an offline search result. */
+        // useOfflineSearch: boolean = false;
+        // /** If true (default false), indicates that we should enable an online search engine. */
+        // useOnlineSearch: boolean = false;
+        // /** If useOnlineSearch = true define the url of the online search engine. */
+        // onlineSearchUrl: string;
+
         /**
          * Serialize the project to a JSON string.
          */
@@ -255,7 +269,7 @@ module csComp.Services {
                 collapseAllLayers: project.collapseAllLayers,
                 userPrivileges:    project.userPrivileges,
                 languages:         project.languages,
-                modeSelection : project.exportModeSelectionEnabled,
+                modeSelection:     project.exportModeSelectionEnabled,
                 expertMode:        project.expertMode,
                 baselayers:        project.baselayers,
                 featureTypes:      project.featureTypes, //reset
@@ -263,9 +277,10 @@ module csComp.Services {
                 groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
                 layerDirectory:    project.layerDirectory,
                 eventTab:          project.eventTab,
-                useOfflineSearch:  project.useOnlineSearch,
-                useOnlineSearch:   project.useOnlineSearch,
-                onlineSearchUrl:   project.onlineSearchUrl
+                searchProviders:   project.searchProviders
+                // useOfflineSearch:  project.useOnlineSearch,
+                // useOnlineSearch:   project.useOnlineSearch,
+                // onlineSearchUrl:   project.onlineSearchUrl
             };
         }
 
