@@ -94,9 +94,9 @@ module Filters {
 
             this.$scope.$apply();
 
-            var info = this.$layerService.calculatePropertyInfo(group, filter.property);
+            var info = (filter.meta['propertyInfo']) ? filter.meta['propertyInfo'] :this.$layerService.calculatePropertyInfo(group, filter.property);
 
-            var nBins = Math.ceil(Math.sqrt(Object.keys(group.markers).length));
+            var nBins = (filter.meta['numberOfBins']) ? filter.meta['numberOfBins'] : Math.ceil(Math.sqrt(Object.keys(group.markers).length));
             var min = info.min;
             var max = info.max;
             var binWidth = Math.ceil(Math.abs(max - min) / nBins);

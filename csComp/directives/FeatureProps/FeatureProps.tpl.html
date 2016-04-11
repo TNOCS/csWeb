@@ -125,7 +125,7 @@
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
-                                            <div ng-repeat="media in item.feature.properties[item.property]">
+                                            <div ng-repeat="media in item.feature.properties[item.property] track by $index">
                                                 <img ng-src="{{media}}" style="width:300px;float:left;margin:5px">
                                             </div>
                                         </div>
