@@ -62,7 +62,17 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // get an existing resource type file
         this.server.get(this.resourceUrl + ':resourceId', (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
+            this.manager.getResource(req.params.resourceId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                if (result.result === ApiResult.OK)
+                {
+                    res.send(result.resource);    
+                }
+                else
+                {
+                    res.sendStatus(result.result);
+                }                
+            });
+            //res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
         });
 
         // get all available public layers

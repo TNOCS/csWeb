@@ -54,6 +54,7 @@ export class CallbackResult {
     public groups: string[];
     public feature: Feature;
     public features: Feature[];
+    public resource : ResourceFile;
     public keys: { [keyId: string]: Key };
     public key: Key;
 }
@@ -116,6 +117,8 @@ export interface IConnector {
 
     /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+    /** Get a resource file  */
+    getResource(resourceId : string, meta : ApiMeta, callback : Function);
     /** Add a file to the store, e.g. an icon or other media. */
     addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
 
@@ -307,8 +310,9 @@ export class PropertyType {
 export class ResourceFile implements StorageObject {
     _localFile : string;
     featureTypes: { [key: string]: FeatureType };
-    propertyTypes: { [key: string]: PropertyType };
+    propertyTypeData: { [key: string]: PropertyType };
     id: string;
+    title : string;
     storage: string;
 }
 
@@ -549,7 +553,7 @@ export class ApiManager extends events.EventEmitter {
         {
             resource._localFile = this.resources[resource.id]._localFile;
         }
-        this.resources[resource.id] = resource;
+        this.resources[resource.id] = <ResourceFile>{ _localFile : resource._localFile, id : resource.id, title : resource.title, storage : resource.storage };
         var s = this.findStorage(resource);
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.addResource(resource, meta, () => { });
@@ -564,12 +568,25 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public getResource(id: string): ResourceFile {
-        if (this.resources.hasOwnProperty(id)) {
-            return this.resources[id];
+    public getResource(id: string, meta : ApiMeta, callback : Function) {
+        if (this.resources.hasOwnProperty(id))
+        {
+            var s = this.findStorage(this.resources[id]);
+            if (s)
+            {
+                s.getResource(id,meta,(r : CallbackResult)=>{
+                   callback(r); 
+                });
+            }
+            else
+            {
+                callback(<CallbackResult>{ result : ApiResult.ResourceNotFound});
+            }
         }
-        return null;
-        //TODO implement
+        else
+        {
+            callback(<CallbackResult>{ result : ApiResult.ResourceNotFound});
+        }            
     }
 
     public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {

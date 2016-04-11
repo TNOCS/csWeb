@@ -150,6 +150,12 @@ export class BaseConnector implements ApiManager.IConnector {
     public addResource(resource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {
 
     }
+    
+    /** Get a resource file  */
+    public getResource(resourceId : string, meta : ApiMeta, callback : Function)
+    {
+        
+    }
 
     /** Get a specific key */
     public getKey(keyId: string, meta: ApiMeta, callback: Function) { }

@@ -239,6 +239,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
             }
         });
     }
+    
+    
 
     /** Save project file to disk */
     private saveProjectFile(project: Project) {
@@ -664,11 +666,24 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
         if (!res.id) res.id = helpers.newGuid();
-        if (!res.propertyTypes) res.propertyTypes = {};
+        if (!res.propertyTypeData) res.propertyTypeData = {};
         if (!res.featureTypes) res.featureTypes = {};
         this.resources[res.id] = res;
         this.saveResourcesDelay(res);
         callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+    
+    /** Get a resource file  */
+    public getResource(resourceId : string, meta : ApiMeta, callback : Function)
+    {
+       if (this.resources.hasOwnProperty(resourceId))
+       {
+           callback(<CallbackResult> { result : ApiResult.OK, resource : this.resources[resourceId]});
+       }   
+       else
+       {
+           callback(<CallbackResult> { result : ApiResult.ResourceNotFound});
+       }
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
