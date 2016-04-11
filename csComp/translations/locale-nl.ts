@@ -5,7 +5,9 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'van',
             TO: 'tot',
-            NAVIGATE:'Start',
+            NAVIGATE: {
+                TITLE: 'Zoekresultaten'
+            },
             REMOVE: 'Verwijder',
             CREATE_SCATTER: 'Creeer spreidingsdiagram',
             EXPAND_ALL: 'Alles uitklappen',
