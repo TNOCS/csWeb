@@ -72,14 +72,12 @@ module LayersDirective {
             });
 
             this.$messageBusService.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
-                if (action === 'deactivate' && layer === this.layer) this.stopAddingFeatures(layer);
+                if (action === 'deactivate' && layer === this.layer) this.stopEditingLayer(layer);
             });
             
             this.$messageBusService.subscribe('featuretype',(action: string, type : csComp.Services.IFeatureType)=>{
                 if (action === "startEditing") {
-                    this.selectedFeatureType = type;
-                    this.state = "editfeaturetype";
-                    
+                    this.editFeaturetype(type);                    
                 }                
             });
         }
@@ -161,13 +159,12 @@ module LayersDirective {
             }
         }
 
+        /** start editing feature type */
         public editFeaturetype(featureType: csComp.Services.IFeatureType) {
             var tr = this.$layerService.typesResources[this.layer.typeUrl];
             featureType._resource = tr;
+            this.selectedFeatureType = featureType;
             this.state = 'editfeaturetype';
-
-            //var rpt = csComp.Helpers.createRightPanelTab('edit', 'feature-type-editor', featureType, 'Feature type', 'Feature type','cog',true,true);
-            //this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
         public initGroups() {
@@ -363,16 +360,23 @@ module LayersDirective {
             this.state = 'layers';
         }
         
+        /** save a resource (back to api and update features) */
         public saveFeatureType()
-        {
-            
+        {                        
+            if (!_.isUndefined(this.selectedFeatureType._resource)){
+                this.$layerService.saveResource(this.selectedFeatureType._resource);                                     
+            }            
+            this.$layerService.updateFeatureTypes(this.selectedFeatureType);
+            this.state = 'editlayer';
         }
 
+        /** create a project layer, check if a new resource and/or group needs to be created */
         public addProjectLayer() {
             if (this.layerResourceType === '<new>') {
-                this.selectedLayer.typeUrl = 'api/resources/' + this.selectedLayer.title;
+                var resourceId = csComp.Helpers.getGuid();
+                this.selectedLayer.typeUrl = 'api/resources/' + resourceId;
 
-                var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
+                var r = <csComp.Services.TypeResource>{ id: resourceId, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
                 r.featureTypes['Default'] = <csComp.Services.IFeatureType>{
                     name: 'Default', style: <csComp.Services.IFeatureTypeStyle>{
                         drawingMode: 'Point', cornerRadius: 50, fillColor: 'yellow', iconHeight: 30, iconWidth: 30
@@ -406,6 +410,7 @@ module LayersDirective {
             this.state = 'layers';
         }
 
+        /* start editing layer */
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'editlayer';
 
@@ -413,7 +418,8 @@ module LayersDirective {
             this.layer = layer;
         }
 
-        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+        /* stop editing layer */
+        public stopEditingLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'layers';
             if (layer._gui['featureTypes']) {
                 for (var key in layer._gui['featureTypes']) {

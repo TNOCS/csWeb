@@ -730,9 +730,12 @@ module csComp.Services {
         public evaluateFeatureExpressions(f: Feature) {
             this.expressionService.evalResourceExpressions(this.findResourceByFeature(f), [f]);
         }
-
+        
+        /** save a resource back to the api */
         public saveResource(resource: TypeResource) {
             console.log('saving feature type');
+            if (resource.url)
+            {
             this.$http.post('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
                 .success((data) => {
                     console.log('resource saved');
@@ -740,6 +743,7 @@ module csComp.Services {
                 .error((e) => {
                     console.log('error saving resource');
                 });
+            }
         }
 
         public expandGroup(layer: ProjectLayer) {
