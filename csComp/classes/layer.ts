@@ -32,7 +32,7 @@ module csComp.Services {
         sensorLink? : ISensorLink;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
-        /** render type */ 
+        /** render type */
         renderType?: string;
         /** Data source */
         url: string;
@@ -65,13 +65,13 @@ module csComp.Services {
          */
         isConnected?: boolean;
         /**
-         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, 
+         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time,
          * otherwise the complete feature with all its properties and geometry is overwritten
          */
         useLog?: boolean;
         /** indicates if features should be shown on timeline */
         showOnTimeline?: boolean;
-        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the 
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the
          * resourceType on every load */
         dynamicResource?: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
@@ -222,10 +222,10 @@ module csComp.Services {
         events: Event[];
         /** Language information that can be used to localize the title and description */
         languages: ILanguageData;
-        
+
         /** layer specific sensors, can be used for kpis */
         sensors : {[id : string] : number[]}
-        
+
         /** layer original source */
         data: any;
         /**
@@ -254,14 +254,14 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
-        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and 
+        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and
         feature geometry and property values. changes are distributed to all active clients in realtime */
         isDynamic: boolean;
 
-        /** 
-         * Logging mechanism allows you to specify specific property values and geometries in time,  
-         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers 
-         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
+        /**
+         * Logging mechanism allows you to specify specific property values and geometries in time,
+         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers
+         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers
         */
         useLog: boolean;
         isConnected: boolean;
@@ -273,7 +273,7 @@ module csComp.Services {
          * gui is used for setting temp. values for rendering
          */
         _gui: any = {};
-        
+
         /** image for this layer */
         image: string;
 
@@ -291,7 +291,7 @@ module csComp.Services {
          */
         fitToMap: boolean;
 
-        /** 
+        /**
          * Select a min and max zoom for the layer to be shown.
          * When the zoomlevel is out of range, hide all features using the opacity.
          */
@@ -300,7 +300,7 @@ module csComp.Services {
 
         /** handle for receiving zoom events */
         zoomHandle: MessageBusHandle;
-        
+
         /** True when the layer features are transparent, e.g. when outside zoom range */
         isTransparent: boolean;
 
@@ -369,10 +369,10 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
-        /** 
-         * Max native zoom level: 
-         * Maximum zoom number the tiles source has available. 
-         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+        /**
+         * Max native zoom level:
+         * Maximum zoom number the tiles source has available.
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled.
          */
         maxNativeZoom:   number;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
@@ -398,10 +398,10 @@ module csComp.Services {
         maxZoom:        number;
         /** Minimum zoom level */
         minZoom:        number;
-        /** 
-         * Max native zoom level: 
-         * Maximum zoom number the tiles source has available. 
-         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+        /**
+         * Max native zoom level:
+         * Maximum zoom number the tiles source has available.
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled.
          */
         maxNativeZoom = 19;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
