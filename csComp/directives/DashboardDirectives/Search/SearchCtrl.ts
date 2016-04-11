@@ -1,11 +1,8 @@
 module Search {
-
-    
     declare var interact;
 
     export interface ISearchScope extends ng.IScope {
         vm: SearchCtrl;
-       
     }
 
     export interface IWidgetScope extends ng.IScope {
@@ -15,6 +12,7 @@ module Search {
     export class SearchCtrl {
         private scope: ISearchScope;
         private project: csComp.Services.Project;
+        private query; string;
 
         //public dashboard: csComp.Services.Dashboard;
 
@@ -29,9 +27,9 @@ module Search {
             'mapService',
             'messageBusService',
             'dashboardService',
-            '$templateCache', '$timeout'
+            '$templateCache',
+            '$timeout'
         ];
-
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -47,9 +45,9 @@ module Search {
         ) {
             $scope.vm = this;
 
-           
-           
+            $scope.$watch('vm.query', _.throttle(search => {
+                this.$dashboardService.search = { query: search };
+            }, 500));
         }
-        
     }
 }
