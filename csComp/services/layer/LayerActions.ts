@@ -5,26 +5,28 @@ module csComp.Services {
 
     export enum ActionType {
         Context = 0,
-        Hover = 1
+        Hover   = 1
     }
 
     export interface IActionOption {
-        title: string;
-        icon: string;
-        feature: IFeature;
+        title:    string;
+        icon:     string;
+        feature:  IFeature;
         callback: Function;
     }
 
     export interface ISearchResultItem {
-        type?: string;
-        feature?: IFeature;
+        type?:        string;
+        feature?:     IFeature;
         description?: string;
-        title: string;
-        score?: number;
-        icon?: string;
-        service: string;
-        click: Function;
-        location?: IGeoJsonGeometry;
+        title:        string;
+        score?:       number;
+        icon?:        string;
+        service:      string;
+        click:        Function;
+        location?:    IGeoJsonGeometry;
+        /** The position the item has in the result, e.g. A, B, or C... */
+        searchIndex?: string;
     }
 
     export declare type SearchResultHandler = (error: Error, result: ISearchResultItem[]) => void;
@@ -81,7 +83,7 @@ module csComp.Services {
 
         search(query: ISearchQuery, result: Function) {
             result(null, []);
-        } 
+        }
 
         public init(layerService: csComp.Services.LayerService) {
             this.layerService = layerService;
@@ -90,11 +92,9 @@ module csComp.Services {
 
     export class LayerActions extends BasicActionService {
         public id: string = 'LayerActions';
-        
-        addLayer(layer: ProjectLayer)
-        {
-            if (layer.fitToMap && layer.layerSource && _.isFunction(layer.layerSource.fitMap))
-            {
+
+        addLayer(layer: ProjectLayer) {
+            if (layer.fitToMap && layer.layerSource && _.isFunction(layer.layerSource.fitMap)) {
                 layer.layerSource.fitMap(layer);
             }
         }
@@ -163,13 +163,14 @@ module csComp.Services {
         }
 
         public search(query: ISearchQuery, result: SearchResultHandler) {
+            const scoreMinThreshold = 0.5;
             var r: ISearchResultItem[] = [];
             var temp = [];
             this.layerService.project.features.forEach(f => {
                 var title = csComp.Helpers.getFeatureTitle(f);
                 if (title) {
                     var score = title.toString().score(query.query, null);
-                    temp.push({ score: score, feature: f, title: title });
+                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: title });
                 }
             });
             temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
