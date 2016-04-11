@@ -1,10 +1,10 @@
-import fs = require('fs');
-import path = require('path');
-import express = require('express');
-import IApiServiceManager = require('../api/IApiServiceManager');
-import IStore = require("../import/IStore");
-import IProjectRepositoryService = require("./IProjectRepositoryService");
-import ConfigurationService = require('../configuration/ConfigurationService');
+import fs                        = require('fs');
+import path                      = require('path');
+import express                   = require('express');
+import IApiServiceManager        = require('../api/IApiServiceManager');
+import IStore                    = require('../import/IStore');
+import IProjectRepositoryService = require('./IProjectRepositoryService');
+import ConfigurationService      = require('../configuration/ConfigurationService');
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
 export class ProjectRepositoryService implements IProjectRepositoryService {
@@ -57,7 +57,7 @@ export class ProjectRepositoryService implements IProjectRepositoryService {
          */
         server.post(this.resourceTypeUrl + '/:id', (req, res) => {
             var id = req.params.id;
-            if (!this.endsWith(id, ".json")) id += ".json";
+            if (!this.endsWith(id, '.json')) id += '.json';
             var resourceType = req.body;
             console.log(resourceType);
             res.send(this.create(id, resourceType));
