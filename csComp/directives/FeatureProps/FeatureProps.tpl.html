@@ -56,17 +56,17 @@
                 <input type="text" ng-model="propFilter" expand-to="200px" style="width:100px;height:30px" />
             </div>-->
 
-            <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && !feature._gui.editMode" ng-click="vm.startEditFeature()" class="layer-action"
+            <button ng-show="vm.$mapService.isExpert && feature.layer.isDynamic && !feature._gui.editMode" ng-click="vm.startEditFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-pencil layer-action-icon" />{{'EDIT' | translate}}
             </button>
             
-             <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
+             <button ng-show="vm.$mapService.isExpert && feature.layer.isDynamic && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'SAVE' | translate}}
             </button>
             
-            <button ng-show="vm.$mapService.isAdminExpert && feature.layer.isDynamic && feature._gui.editMode" ng-click="vm.removeFeature()" class="layer-action"
+            <button ng-show="vm.$mapService.isExpert && feature.layer.isDynamic" ng-click="vm.removeFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'REMOVE' | translate}}
             </button>

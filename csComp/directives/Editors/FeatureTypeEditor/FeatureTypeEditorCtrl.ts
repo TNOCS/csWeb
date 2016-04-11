@@ -33,13 +33,11 @@ module FeatureTypeEditor {
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             this.$scope.vm = this;
-            if (this.$scope.$root.hasOwnProperty('data')) {
-                $scope.featureType = (<any>$scope.$root).data;
-                //$scope.featureType = (<any>$scope.$parent.$parent).vm.featureType;
-
-                console.log('feature type editor');
-                console.log($scope.featureType);
-
+            if ((<any>this.$scope.$parent.$parent).vm.hasOwnProperty('selectedFeatureType'))
+            {
+                $scope.featureType = (<any>this.$scope.$parent.$parent).vm.selectedFeatureType;
+            } else if (this.$scope.$root.hasOwnProperty('data')) {
+                $scope.featureType = (<any>$scope.$root).data;                
             }
             else {
                 console.log('no feature type');

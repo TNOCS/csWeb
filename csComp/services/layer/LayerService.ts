@@ -1047,9 +1047,10 @@ module csComp.Services {
             }
         }
 
-        public editFeature(feature: IFeature) {
+        public editFeature(feature: IFeature, select = true) {
             feature._gui['editMode'] = true;
-            this.selectFeature(feature);
+            this.updateFeature(feature);
+            if (select) this.selectFeature(feature);
         }
 
         private deselectFeature(feature: IFeature) {

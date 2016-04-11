@@ -1,6 +1,6 @@
 module LayerEditor {
-    
-        declare var interact;
+
+    declare var interact;
 
 
     export interface ILayerEditorScope extends ng.IScope {
@@ -23,7 +23,7 @@ module LayerEditor {
             'layerService',
             'messageBusService',
             'dashboardService'
-        ]; 
+        ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -36,18 +36,18 @@ module LayerEditor {
             private $dashboardService: csComp.Services.DashboardService
         ) {
             this.scope = $scope;
-            $scope.vm = this; 
+            $scope.vm = this;
             console.log('open layer editor');
-            if ($scope.$parent.hasOwnProperty("b"))
-            {
-                this.layer = $scope.$parent["b"]["_layer"];    
+            if ($scope.$parent.hasOwnProperty("b")) {
+                this.layer = $scope.$parent["b"]["_layer"];
             } else if ($scope.$parent.$parent.hasOwnProperty("vm")) this.layer = $scope.$parent.$parent["vm"]["layer"];
-            
-            
-            var ft = <csComp.Services.IFeatureType>{};            
+
+
+            var ft = <csComp.Services.IFeatureType>{};
+           // ft.style.drawingMode
         }
-        
-          public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
+
+        public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
             var transformProp;
             var startx, starty;
 
@@ -84,35 +84,30 @@ module LayerEditor {
                         f.properties = { "featureTypeId": key, "Name": fid };
                         var tr = this.$layerService.findResourceByLayer(layer);
                         var fid = "new object"
-                        if (tr.featureTypes.hasOwnProperty(key))
-                        {
+                        if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
-                            if (!ft._isInitialized)
-                            {
-                                this.$layerService.initFeatureType(ft,tr.propertyTypeData);                                                              
+                            if (!ft._isInitialized) {
+                                this.$layerService.initFeatureType(ft, tr.propertyTypeData);
                             }
-                            if (_.isArray(ft._propertyTypeData))
-                            {
-                                for (var k in ft._propertyTypeData)
-                                {
+                            if (_.isArray(ft._propertyTypeData)) {
+                                for (var k in ft._propertyTypeData) {
                                     var pt = ft._propertyTypeData[k];
-                                    ft._propertyTypeData.forEach(pt=>{
-                                    f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
-                                })
+                                    ft._propertyTypeData.forEach(pt => {
+                                        f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
+                                    })
                                 }
-                            
-                            }  
+
+                            }
                             fid = ft.name;
-                            
                         }
 
-                                                                        
+
                         layer.data.features.push(f);
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
                         this.$layerService.selectFeature(f);
-                        
+
                     }, 10);
 
                     //this.$dashboardService.mainDashboard.widgets.push(widget);
@@ -120,7 +115,7 @@ module LayerEditor {
                     // event.target.setAttribute('data-y', 0);
                     // event.target.style.left = '0px';
                     // event.target.style.top = '0px';     
-                    $(event.target).remove();                                   
+                    $(event.target).remove();
                 }
             }).on('move', (event) => {
 
@@ -132,21 +127,21 @@ module LayerEditor {
 
                     var original = event.target;
 
-                    var pos = {left:0,top:0}; //$(original).offset();
+                    var pos = { left: 0, top: 0 }; //$(original).offset();
 
                     // create a clone of the currentTarget element
                     var clone = event.currentTarget.cloneNode(true);
 
                     // Remove CSS class using JS only (not jQuery or jQLite) - http://stackoverflow.com/a/2155786/4972844
                     clone.className = clone.className.replace(/\bdrag-element-source\b/, '');
-                    
-                    pos.left = event.clientX-20; //-interaction.startOffset.left;
-                    pos.top = event.clientY-20; //-interaction.startOffset.top;
-                    
+
+                    pos.left = event.clientX - 20; //-interaction.startOffset.left;
+                    pos.top = event.clientY - 20; //-interaction.startOffset.top;
+
 
                     // update the posiion attributes
-                  //  clone.setAttribute('data-x', pos.left);
-                   // clone.setAttribute('data-y', pos.top);
+                    //  clone.setAttribute('data-x', pos.left);
+                    // clone.setAttribute('data-y', pos.top);
                     $(clone).css("left", pos.left);
                     $(clone).css("top", pos.top);
                     $(clone).css("z-index", 1000);
@@ -168,6 +163,12 @@ module LayerEditor {
             });
         }
 
+        editFeaturetype(type: csComp.Services.IFeatureType) {
+            this.$messageBusService.publish('featuretype','startEditing',type);
+        }
+
 
     }
+
+
 }

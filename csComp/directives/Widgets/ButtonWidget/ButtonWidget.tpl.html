@@ -47,16 +47,12 @@
 
             </div>
 
-
-
-
         </div>
 
-
-
     </div>
-    <div ng-show="b._canEdit" class="button-edit-button" ng-click="$parent.vm.editLayer(b)">
-        <span class="fa fa-pencil" />
+    <div ng-show="b._canEdit" class="button-edit-button" ng-click="$parent.vm.toggleEditLayer(b)">
+        <span ng-if="!b._layer._gui.editing" class="fa fa-pencil" />
+        <span ng-if="b._layer._gui.editing" class="fa fa-save" />
     </div>
 
 

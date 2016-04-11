@@ -457,7 +457,7 @@ module csComp.Services {
                         v = true;
                         l._gui['editing'] = true;
                     } else {
-                        l._gui['editing'] = false;
+                        delete l._gui['editing'];
                     }
                 });
                 g._gui.editing = v;
@@ -471,7 +471,7 @@ module csComp.Services {
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    l._gui['editing'] = false;
+                    delete l._gui['editing'];
                 });
             });
             this.service.editing = false;

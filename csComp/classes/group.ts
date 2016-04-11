@@ -55,17 +55,17 @@ module csComp.Services {
          */
         public static serializeableData(projectGroup: ProjectGroup): Object {
             return {
-                id:               projectGroup.id,
-                title:            projectGroup.title,
-                description:      projectGroup.description,
-                showTitle:        projectGroup.showTitle,
-                clustering:       projectGroup.clustering,
-                clusterLevel:     projectGroup.clusterLevel,
+                id: projectGroup.id,
+                title: projectGroup.title,
+                description: projectGroup.description,
+                showTitle: projectGroup.showTitle,
+                clustering: projectGroup.clustering,
+                clusterLevel: projectGroup.clusterLevel,
                 maxClusterRadius: projectGroup.maxClusterRadius,
-                oneLayerActive:   projectGroup.oneLayerActive,
-                styleProperty:    projectGroup.styleProperty,
-                languages:        projectGroup.languages,
-                layers:           csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
+                oneLayerActive: projectGroup.oneLayerActive,
+                styleProperty: projectGroup.styleProperty,
+                languages: projectGroup.languages,
+                layers: csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
             };
         }
 
@@ -74,9 +74,11 @@ module csComp.Services {
             if (res.owsurl) {
                 res.loadLayersFromOWS();
             }
-            res.layers.forEach(layer => {
-                if (!layer.opacity) layer.opacity = 100;
-            });
+            if (res.layers) {
+                res.layers.forEach(layer => {
+                    if (!layer.opacity) layer.opacity = 100;
+                });
+            }
             return res;
         }
 
@@ -90,16 +92,16 @@ module csComp.Services {
                 $http.get(this.owsurl)
                     .success((xml) => { this.parseXML(xml); })
                     .error((xml, status) => {
-                    console.log('Unable to load OWSurl: ' + this.owsurl);
-                    console.log('          HTTP status: ' + status);
-                });
+                        console.log('Unable to load OWSurl: ' + this.owsurl);
+                        console.log('          HTTP status: ' + status);
+                    });
             });
         }
 
         private parseXML(xml: any): void {
             var theGroup = this;
             var baseurl = this.owsurl.split('?')[0];
-            $(xml).find('Layer').each(function() {
+            $(xml).find('Layer').each(function () {
                 // DO NOT use arrow notation (=>) as it will break this !!!
                 var layerName = $(this).children('Name').text();
                 if (layerName != null && layerName !== '') {
@@ -114,23 +116,23 @@ module csComp.Services {
 
         private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
             var extraInfo = {
-                'id':        Helpers.getGuid(),
+                'id': Helpers.getGuid(),
                 'reference': layerName,
-                'title':     title,
-                'enabled':   false,
-                'group':     this
+                'title': title,
+                'enabled': false,
+                'group': this
             };
             // Image layers
             if (this.owsgeojson) {
                 extraInfo['type'] = 'geojson';
                 extraInfo['url'] = baseurl + '?service=wfs&request=getFeature' +
-                '&outputFormat=application/json&typeName=' + layerName;
+                    '&outputFormat=application/json&typeName=' + layerName;
             } else {
                 extraInfo['type'] = 'wms';
                 extraInfo['wmsLayers'] = layerName;
                 extraInfo['url'] = baseurl;
             }
-            var layer = <ProjectLayer> jQuery.extend(new ProjectLayer(), extraInfo);
+            var layer = <ProjectLayer>jQuery.extend(new ProjectLayer(), extraInfo);
             return layer;
         }
     }
@@ -139,21 +141,21 @@ module csComp.Services {
      * Filters are used to select a subset of features within a group.
      */
     export class GroupFilter {
-        id:          string;
-        title:       string;
-        enabled:     boolean;
-        filterType:  string;
-        property:    string;
-        property2:   string;
-        criteria:    string;
-        group:       ProjectGroup;
-        dimension:   any;
-        value:       any;
+        id: string;
+        title: string;
+        enabled: boolean;
+        filterType: string;
+        property: string;
+        property2: string;
+        criteria: string;
+        group: ProjectGroup;
+        dimension: any;
+        value: any;
         stringValue: string;
-        rangex:      number[];
-        meta:        IPropertyType;
-        to:          number;
-        from:        number;
+        rangex: number[];
+        meta: IPropertyType;
+        to: number;
+        from: number;
         filterLabel: string;
     }
 
@@ -161,28 +163,28 @@ module csComp.Services {
      * Styles determine how features are shown on the map.
      */
     export class GroupStyle {
-        id:               string;
-        title:            string;
-        enabled:          boolean;
-        layers:           string[];
-        visualAspect:     string;
-        property:         string;
-        colors:           string[];
-        group:            ProjectGroup;
+        id: string;
+        title: string;
+        enabled: boolean;
+        layers: string[];
+        visualAspect: string;
+        property: string;
+        colors: string[];
+        group: ProjectGroup;
         availableAspects: string[];
-        canSelectColor:   boolean;
-        colorScales:      any;
-        info:             PropertyInfo;
-        meta:             IPropertyType;
-        legends:          { [key: string]: Legend; };
-        activeLegend:     Legend;
-        fixedColorRange:  boolean;
+        canSelectColor: boolean;
+        colorScales: any;
+        info: PropertyInfo;
+        meta: IPropertyType;
+        legends: { [key: string]: Legend; };
+        activeLegend: Legend;
+        fixedColorRange: boolean;
 
         constructor($translate: ng.translate.ITranslateService) {
             this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth', 'height'];
-            this.colorScales      = {};
-            this.legends          = {};
-            this.fixedColorRange  = false;
+            this.colorScales = {};
+            this.legends = {};
+            this.fixedColorRange = false;
 
             $translate('WHITE_RED').then((translation) => {
                 this.colorScales[translation] = ['white', 'red'];
@@ -228,10 +230,10 @@ module csComp.Services {
      * (see also the function getColor())
     */
     export class Legend {
-        id:            string;
-        description:   string;
-        legendKind:    string;
-        visualAspect:  string;
+        id: string;
+        description: string;
+        legendKind: string;
+        visualAspect: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order

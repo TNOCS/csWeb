@@ -17,6 +17,7 @@ module LayersDirective {
         public directory: csComp.Services.ProjectLayer[];
         public mylayers: string[];
         public selectedLayer: csComp.Services.ProjectLayer;
+        public selectedFeatureType : csComp.Services.IFeatureType;
         public newLayer: csComp.Services.ProjectLayer;
         public layerResourceType: string;
         public resources: { [key: string]: csComp.Services.TypeResource };
@@ -72,6 +73,14 @@ module LayersDirective {
             
             this.$messageBusService.subscribe('layer',(action: string, layer : csComp.Services.ProjectLayer)=>{
                 if (action === "deactivate" && layer === this.layer) this.stopAddingFeatures(layer);                
+            });
+            
+            this.$messageBusService.subscribe('featuretype',(action: string, type : csComp.Services.IFeatureType)=>{
+                if (action === "startEditing") {
+                    this.selectedFeatureType = type;
+                    this.state = "editfeaturetype";
+                    
+                }                
             });
         }
 
