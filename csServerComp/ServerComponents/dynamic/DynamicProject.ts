@@ -1,9 +1,9 @@
-import express = require('express')
+import express          = require('express')
 import ClientConnection = require('./ClientConnection');
-import MessageBus = require('../bus/MessageBus');
-import fs = require('fs');
-import path = require('path');
-var chokidar = require('chokidar');
+import MessageBus       = require('../bus/MessageBus');
+import fs               = require('fs');
+import path             = require('path');
+var chokidar            = require('chokidar');
 
 export class DynamicProject {
     public project: any;
@@ -23,14 +23,14 @@ export class DynamicProject {
         this.watchFolder();
 
         // setup http handler
-        this.service.server.get("/project/" + this.id, (req, res) => { this.GetLayer(req, res); });
+        this.service.server.get('/project/' + this.id, (req, res) => { this.GetLayer(req, res); });
     }
 
     public AddLayer(data: any) {
-        var groupFolder = this.folder + "\\" + data.group;
-        var resourceFolder = this.folder + "\\..\\..\\resourceTypes";
-        var geojsonfile = groupFolder + "\\" + data.reference + ".json";
-        var resourcefile = resourceFolder + "\\" + data.featureType + ".json";
+        var groupFolder = this.folder + '\\' + data.group;
+        var resourceFolder = this.folder + '\\..\\..\\resourceTypes';
+        var geojsonfile = groupFolder + '\\' + data.reference + '.json';
+        var resourcefile = resourceFolder + '\\' + data.featureType + '.json';
         if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
         if (!fs.existsSync(resourceFolder)) fs.mkdirSync(resourceFolder);
         var combinedjson = this.splitJson(data);
@@ -81,7 +81,7 @@ export class DynamicProject {
     Open project file from disk
     */
     public openFile() {
-        var f = this.folder + "\\project.json";
+        var f = this.folder + '\\project.json';
         fs.readFile(f, 'utf8', (err, data) => {
             if (!err) {
                 try {
@@ -90,10 +90,9 @@ export class DynamicProject {
                     if (!this.project.id) this.project.id = this.project.title;
 
                     if (!this.project.groups) this.project.groups = [];
-                    //console.log("ProjectID: " + this.project.id);
-                }
-                catch (e) {
-                    console.log("Error (" + f + "): " + e);
+                    //console.log('ProjectID: ' + this.project.id);
+                } catch (e) {
+                    console.log('Error (' + f + '): ' + e);
                 }
             }
         });
@@ -104,29 +103,29 @@ export class DynamicProject {
         setTimeout(() => {
             var watcher = chokidar.watch(this.folder, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-                if (action == "add") {
+                if (action === 'add') {
                     this.addLayer(path);
                 }
-                if (action == "unlink") {
+                if (action === 'unlink') {
                     this.removeLayer(path);
                 }
-                if (action == "change") {
+                if (action === 'change') {
                     this.addLayer(path);
                 }
             }));
         }, 1000);
-        //console.log(action + " - " + path); });
+        //console.log(action + ' - ' + path); });
     }
 
     public removeLayer(file: string) {
-        console.log("removing : " + file);
+        console.log('removing : ' + file);
         var p = path;
         var pp = file.split(p.sep);
         if (p.basename(file) === 'project.json') return;
 
         // determine group
-        var groupTitle = p.dirname(file).replace(this.folder, "").replace(p.sep, "");
-        if (groupTitle === "") return;
+        var groupTitle = p.dirname(file).replace(this.folder, '').replace(p.sep, '');
+        if (groupTitle === '') return;
 
         // check if group exists
         var gg = this.project.groups.filter((element: any) => (element != null && element.title && element.title.toLowerCase() == groupTitle.toLowerCase()));
@@ -137,7 +136,7 @@ export class DynamicProject {
             layer.id = file;
             layer.groupId = g.title;
             g.layers = g.layers.filter(l => layer.id != l.id);
-            this.service.connection.publish(this.project.id, "project", "layer-remove", [layer]);
+            this.service.connection.publish(this.project.id, 'project', 'layer-remove', [layer]);
         }
     }
 
@@ -148,9 +147,9 @@ export class DynamicProject {
 
         if (p.basename(file) === 'project.json') return;
         // determine group
-        var groupTitle = p.dirname(file).replace(this.folder, "").replace(p.sep, "");
+        var groupTitle = p.dirname(file).replace(this.folder, '').replace(p.sep, '');
 
-        if (groupTitle === "") return;
+        if (groupTitle === '') return;
 
         // obtain additional parameters (useClustering, isEnabled, etc.)
         var parameters = this.service.projectParameters[groupTitle];
@@ -164,8 +163,7 @@ export class DynamicProject {
         var g: any = {};
         if (gg.length > 0) {
             g = gg[0];
-        }
-        else {
+        } else {
             //  var g : any; //new csComp.Services.ProjectGroup();
             g.id = groupTitle;
             g.title = groupTitle;
@@ -184,14 +182,14 @@ export class DynamicProject {
         layer.id = file;
         layer.description = parameters.description;
         layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
-        layer.type = "geojson";
+        layer.type = 'geojson';
         layer.dynamicResource = true;
-        layer.url = "data/projects/" + this.id + "/" + g.title + "/" + p.basename(file);
+        layer.url = 'data/projects/' + this.id + '/' + g.title + '/' + p.basename(file);
         layer.groupId = g.id;
         layer.enabled = parameters.enabled;
         layer.reference = parameters.reference;
         layer.defaultFeatureType = parameters.featureType;
-        if (parameters.featureType) layer.typeUrl = "data/resourceTypes/" + parameters.featureType + ".json";
+        if (parameters.featureType) layer.typeUrl = 'data/resourceTypes/' + parameters.featureType + '.json';
 
         var layerExists = false;
         for (var i = 0; i < g.layers.length; i++) {
@@ -202,14 +200,14 @@ export class DynamicProject {
         }
         if (!layerExists) g.layers.push(layer);
 
-        this.service.connection.publish(this.project.id, "project", "layer-update", { layer: [layer], group: g });
+        this.service.connection.publish(this.project.id, 'project', 'layer-update', { layer: [layer], group: g });
 
         // save project.json (+backup)
-        //console.log("g:" + group);
+        //console.log('g:' + group);
     }
 
     public GetLayer(req: express.Request, res: express.Response) {
-        console.log("Get Layer: " + this.folder);
+        console.log('Get Layer: ' + this.folder);
         res.send(JSON.stringify(this.project));
         //res.send("postgres layer");
     }
@@ -223,28 +221,28 @@ export class DynamicProjectService {
     public constructor(public server: express.Express, public connection: ClientConnection.ConnectionManager, public messageBus: MessageBus.MessageBusService) { }
 
     public Start(server: express.Express) {
-        console.log("Start project service");
+        console.log('Start project service');
         this.messageBus.subscribe('dynamic_project_layer', (title: string, data: any) => {
             if (title === 'send-layer') {
-                this.connection.publish(data.id, "layer", "layer-update", data);
+                this.connection.publish(data.id, 'layer', 'layer-update', data);
             } else {
                 // find project
                 if (this.projects.hasOwnProperty(data.project)) {
                     var dp = this.projects[data.project];
-                    //console.log("adding layer");
+                    //console.log('adding layer');
                     dp.AddLayer(data);
                     this.projectParameters[data.group] = data;
                 }
             }
         });
 
-        var rootDir = "public\\data\\projects";
+        var rootDir = 'public\\data\\projects';
         fs.readdir(rootDir, (error, folders) => {
             if (!error) {
                 folders.forEach((f) => {
-                    var filePath = rootDir + "\\" + f;
+                    var filePath = rootDir + '\\' + f;
                     fs.stat(filePath, (error, stat) => {
-                        if (!error && stat.isDirectory && filePath.indexOf('projects.json') == -1) {
+                        if (!error && stat.isDirectory && filePath.indexOf('projects.json') === -1) {
                             var dp = new DynamicProject(filePath, f, this, this.messageBus);
                             this.projects[f] = dp;
                             dp.Start();
