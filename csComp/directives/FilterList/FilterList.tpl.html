@@ -1,21 +1,21 @@
 <div style="padding:5px">
-        <div class="filter-dropdown">
+    <!--<div class="filter-dropdown">
         <div class="dropdown">
             <a style="cursor:pointer" data-toggle="dropdown">Create location filter for group... <span class="caret"></span></a>
             <ul class="dropdown-menu" ng-hide="vm.locationFilterActive">
-                <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                
                 <li data-ng-repeat="group in vm.$layerService.project.groups">
                     <a ng-click="vm.setLocationFilter(group)" style="margin-bottom:10px; display:block;">{{group.title}}</a>
                 </li>
             </ul>
             <ul class="dropdown-menu" ng-show="vm.locationFilterActive">
-                <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                
                 <li>
                     Remove the other location filter first.
                 </li>
             </ul>
         </div>
-    </div>
+    </div>-->
     <!-- <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
         <span class="fa fa-filter"></span>
         <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
@@ -33,16 +33,16 @@
             <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#filtergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
             <div class="group-title">{{group.title}}</div>
             <div id="filtergroup_{{group.id}}" class="collapse in">
-              <div data-ng-repeat="filter in group.filters">
-                  <txt2 ng-if="filter.filterType == 'text'"></txt2>
-                  <bar-filter ng-if="filter.filterType == 'bar'"></bar-filter>
-                  <row-filter ng-if="filter.filterType == 'row'"></row-filter>
-                  <date-filter ng-if="filter.filterType == 'date'"></date-filter>
-                  <bool-filter ng-if="filter.filterType == 'boolean'"></bool-filter>
-                  <scatter-filter ng-if="filter.filterType == 'scatter'"></scatter-filter>
-                  <location-filter ng-if="filter.filterType == 'location'"></location-filter>
-                  <area-filter ng-if="filter.filterType == 'area'"></area-filter>
+                <div data-ng-repeat="filter in group.filters">
+                    <txt2 ng-if="filter.filterType == 'text'"></txt2>
+                    <bar-filter ng-if="filter.filterType == 'bar'"></bar-filter>
+                    <row-filter ng-if="filter.filterType == 'row'"></row-filter>
+                    <date-filter ng-if="filter.filterType == 'date'"></date-filter>
+                    <bool-filter ng-if="filter.filterType == 'boolean'"></bool-filter>
+                    <scatter-filter ng-if="filter.filterType == 'scatter'"></scatter-filter>
+                    <location-filter ng-if="filter.filterType == 'location'"></location-filter>
+                    <area-filter ng-if="filter.filterType == 'area'"></area-filter>
+                </div>
             </div>
         </div>
     </div>
-</div>

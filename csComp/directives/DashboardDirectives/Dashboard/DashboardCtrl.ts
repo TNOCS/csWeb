@@ -333,9 +333,10 @@ module Dashboard {
                 w.parentDashboard = d;
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
-                w.left = '10px';
+                w.left = '20px';
                 w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
-                w.top = '20px';
+                w.top = '80px';
+                w.hideIfLeftPanel = true;
                 w.width = '150px';
                 w.enabled = true;
                 d.widgets.push(w);

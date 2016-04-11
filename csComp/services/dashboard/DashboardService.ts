@@ -33,8 +33,10 @@ module csComp.Services {
         public chartGenerators: { [key: string]: Function } = {};
         public socket;
         public editWidgetMode: boolean;
+        /** Search status: if isActive is true, show the Navigate directive. */
         private _search: ISearch = { isActive: false, query: '' };
-
+        /** website is running in touch mode */
+        public touchMode: boolean = false;
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};
 
         public static $inject = [

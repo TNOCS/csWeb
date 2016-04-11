@@ -338,7 +338,8 @@ export class MapLayerFactory {
                     var f: IGeoJsonFeature = {
                         type: 'Feature',
                         geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
-                        properties: props
+                        properties: props,
+                        id: props['pandid'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });
@@ -405,7 +406,8 @@ export class MapLayerFactory {
                     var f: IGeoJsonFeature = {
                         type: 'Feature',
                         geometry: JSON.parse(area.contour),
-                        properties: props
+                        properties: props,
+                        id: props['bu_code'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });

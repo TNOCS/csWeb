@@ -22,8 +22,6 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
-        /** website is running in touch mode */
-        touchMode: boolean = false;
 
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
@@ -38,6 +36,9 @@ module csComp.Services {
         _activeContextMenu: IActionOption[];
         editing: boolean;
         directoryHandle: MessageBusHandle;
+
+        /** true if no filters are active */
+        noFilters = true;
 
         /** indicator true for mobile devices */
         isMobile: boolean;
@@ -145,18 +146,18 @@ module csComp.Services {
                     var layer = this.loadedLayers[l];
                     if (layer.refreshBBOX) {
                         // When any groupstyle(s) present, store and re-apply after refreshing the layer
-                        var oldStyles;
-                        if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
-                            oldStyles = layer.group.styles;
-                        }
+                        // var oldStyles;
+                        // if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
+                        //     oldStyles = layer.group.styles;
+                        // }
                         layer.BBOX = bbox;
                         layer.layerSource.refreshLayer(layer);
-                        if (layer.group && oldStyles) {
-                            oldStyles.forEach((gs) => {
-                                this.saveStyle(layer.group, gs);
-                            });
-                            this.updateGroupFeatures(layer.group);
-                        }
+                        // if (layer.group && oldStyles) {
+                        //     oldStyles.forEach((gs) => {
+                        //         this.saveStyle(layer.group, gs);
+                        //     });
+                        //     this.updateGroupFeatures(layer.group);
+                        // }
                     }
                 }
             });
@@ -726,6 +727,10 @@ module csComp.Services {
             this.expressionService.evalLayer(l, fTypes);
         }
 
+        public evaluateFeatureExpressions(f: Feature) {
+            this.expressionService.evalResourceExpressions(this.findResourceByFeature(f), [f]);
+        }
+
         public saveResource(resource: TypeResource) {
             console.log('saving feature type');
             this.$http.post('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
@@ -1100,10 +1105,10 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false,true);
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
-
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{'RELATED_FEATURES' | translate}}', 'link');
@@ -1809,6 +1814,15 @@ module csComp.Services {
             group.styles.push(style);
         }
 
+        /** checks if there are any filters available, used to show/hide filter tab leftpanel menu */
+        updateFilterAvailability()
+        {
+            this.noFilters = true;
+            this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                if (g.filters.length > 0 && this.noFilters) this.noFilters = false;
+            });
+        }
+
         addFilter(group: ProjectGroup, prop: string) {
             var filter = this.findFilter(group, prop);
             if (filter == null) {
@@ -1989,6 +2003,7 @@ module csComp.Services {
 
         public triggerUpdateFilter(groupId: string) {
             this.mb.publish('filters', 'updated', groupId);
+            this.updateFilterAvailability();
         }
 
         /** remove filter from group */

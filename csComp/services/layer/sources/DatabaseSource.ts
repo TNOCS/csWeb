@@ -9,8 +9,12 @@ module csComp.Services {
         public constructor(public service: LayerService) { }
 
         public refreshLayer(layer: ProjectLayer) {
-            this.service.removeLayer(layer);
-            this.service.addLayer(layer);
+            if (!layer.data || !layer.data.features || layer.data.features.length === 0) {
+                this.service.removeLayer(layer);
+                this.service.addLayer(layer);
+            } else {
+                this.baseAddLayer(layer, () => { }, true);
+            }
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
@@ -31,7 +35,7 @@ module csComp.Services {
             ];
         }
 
-        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, isRefresh = false) {
             this.layer = layer;
             async.series([
                 (cb) => {
@@ -45,7 +49,7 @@ module csComp.Services {
                     }
                     var corners;
                     if (this.service.$mapService.map.getZoom() < minZoom) {
-                        this.service.$messageBusService.notify('Zoom level too low', 'Zoom in to show contours', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info);
+                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
                         return;
@@ -75,11 +79,11 @@ module csComp.Services {
                             statusCode: {
                                 200: (data) => {
                                     console.log('Received bag contours');
-                                    this.initLayer(data.layer, callback);
+                                    (isRefresh) ? this.updateLayer(data.layer, callback) : this.initLayer(data.layer, callback);
                                 },
                                 404: (data) => {
                                     console.log('Could not get bag contours');
-                                    this.initLayer(layer, callback);
+                                    (isRefresh) ? this.updateLayer(data.layer, callback) : this.initLayer(layer, callback);
                                 }
                             },
                             error: () => this.service.$messageBusService.publish('layer', 'error', layer)
@@ -106,6 +110,35 @@ module csComp.Services {
                 var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
                 this.service.evaluateLayerExpressions(projLayer, {featureTypeName: this.service.getFeatureTypeById(featureTypeName)});
             }
+            if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
+            callback(projLayer);
+        }
+        
+        private updateLayer(layer: ProjectLayer, callback: Function) {
+            var projLayer = this.service.findLayer(layer.id);
+            if (!projLayer || !projLayer.data || !projLayer.data.features) {
+                this.initLayer(layer, callback);
+                return;
+            }
+            if (projLayer) {
+                projLayer.isLoading = false;
+                projLayer.enabled   = true;
+            }
+            // Add new features
+            var count = 0;
+            if (layer.data && layer.data.features && layer.data.features.forEach) {
+                layer.data.features.forEach((f) => {
+                    if (!projLayer.data.features.some(pf => {return pf.id === f.id})) {
+                        projLayer.data.features.push(f);
+                        count += 1;
+                        this.service.initFeature(f, projLayer, false, false);
+                        this.service.evaluateFeatureExpressions(f);                        
+                        this.service.calculateFeatureStyle(f);
+                        this.service.activeMapRenderer.addFeature(f);
+                    }
+                });
+            }
+            console.log(`Added ${count} features`);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             callback(projLayer);
         }
