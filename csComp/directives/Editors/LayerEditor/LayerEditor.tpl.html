@@ -13,8 +13,7 @@
                     <div id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
                         when-ready="vm.initDrag(key,vm.layer)">
                         <feature-type featuretype="featureType" />
-                    </div>
-                    {{featureType.style.drawingMode}}
+                    </div>                    
                     <div class="featureType-name" ng-dblclick="vm.editFeatureType(featureType)">{{featureType.name}}</div>
                     <div style="position:absolute;right:10px;top:8px">
                         <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"

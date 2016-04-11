@@ -1,4 +1,4 @@
-<div> 
+<div>
     <div ng-if="vm.state === 'directory'">
         <h3 class="leftpanel-header" style="width: 100%">
             <div class="leftpanel-header-button-container-left">
@@ -9,12 +9,12 @@
         <div style="background:white">
             <div ng-show="vm.selectedLayer == null">
                 <div>
-                    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search Layer"></input>
+                    <input class="addlayer-filter form-control" type="text" id="layerFilter" ng-model="layerFilter" placeholder="Search Layer" >
                 </div>
                 <div ng-repeat="layer in vm.directory | filter: layerFilter" ng-if="vm.mylayers.indexOf(layer.url)==-1" class="addlayer-container"
                     ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400"
                     popover-trigger="mouseenter" popover-append-to-body="true">
-                    <img class="addlayer-image layersIcon"></img>
+                    <img class="addlayer-image layersIcon"/>
                     <div class="addlayer-title">
                         {{layer.title}}
                         <div class="layer-dir-type">{{layer.updated | amCalendar}}</div>
@@ -58,7 +58,7 @@
             <div ng-hide="vm.allCollapsed" class="leftpanel-header-button-container-left">
                 <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>            -->
-            <!--<div class="layer-action" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter">            
+            <!--<div class="layer-action" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter">
                 <span class="fa fa-folder layer-action-icon" ng-click="vm.openDirectory()" />add
             </div>-->
 
@@ -73,7 +73,7 @@
         <!-- ng-hide="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
         <div class="scrolling leftpanel-scroll">
             <div ng-if="!vm.layerfilter || (group.layers| filter: {title:vm.layerfilter}).length > 0" ng-mouseenter="group._gui.mo = true"
-                ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;cursor:pointer">
+                ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups | filter: vm.filterHiddenGroups" style="margin-left: 5px;position:relative;cursor:pointer">
                 <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px;margin-right:5px;cursor:pointer" data-toggle="collapse"
                     data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                 <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
@@ -90,7 +90,7 @@
                                 <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
                                 <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
                                 <label for="cblayer{{layer.id}}">
-                                    {{layer.title}} 
+                                    {{layer.title}}
                                 </label>
 
                                 <div ng-show="layer.isLoading" class="spinner">
@@ -98,7 +98,6 @@
                                     <div class="bounce2"></div>
                                     <div class="bounce3"></div>
                                 </div>
-
 
                                 <!--<div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true"
                                 popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]"
@@ -195,16 +194,16 @@
             <layereditor />            
         </div>
     </div>
-    
+
     <div ng-if="vm.state === 'editfeaturetype'" class="layers-create-form">
         <div class="layer-actions">
            
-            <button ng-click="vm.stopAddingFeatures(vm.layer)" class="layer-action">
+            <button ng-click="vm.saveFeatureType()" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />save
             </button>
         </div>
         <div class="leftpanel-scroll">
-            <feature-type-editor></feature-type-editor>            
+            <feature-type-editor></feature-type-editor>
         </div>
     </div>
 

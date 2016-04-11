@@ -4,14 +4,14 @@ module LayersDirective {
 
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
-        options: Function;      
+        options: Function;
     }
 
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
         private allCollapsed: boolean;
         public editing: boolean;
-        public state: string = "layers";
+        public state: string = 'layers';
         public layer: csComp.Services.ProjectLayer;
         public project: csComp.Services.Project;
         public directory: csComp.Services.ProjectLayer[];
@@ -22,7 +22,7 @@ module LayersDirective {
         public layerResourceType: string;
         public resources: { [key: string]: csComp.Services.TypeResource };
         public layerGroup: any;
-        public layerTitle: string; 
+        public layerTitle: string;
         public newGroup: string;
         public groups: csComp.Services.ProjectGroup[];
         public layerfilter: string;
@@ -67,12 +67,12 @@ module LayersDirective {
                     this.allCollapsed = false;
                 }
             });
-            this.$messageBusService.subscribe('layerdrop',(title: string, layer : csComp.Services.ProjectLayer)=>{
+            this.$messageBusService.subscribe('layerdrop', (title: string, layer: csComp.Services.ProjectLayer) => {
                 this.dropLayer(layer);
             });
-            
-            this.$messageBusService.subscribe('layer',(action: string, layer : csComp.Services.ProjectLayer)=>{
-                if (action === "deactivate" && layer === this.layer) this.stopAddingFeatures(layer);                
+
+            this.$messageBusService.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
+                if (action === 'deactivate' && layer === this.layer) this.stopAddingFeatures(layer);
             });
             
             this.$messageBusService.subscribe('featuretype',(action: string, type : csComp.Services.IFeatureType)=>{
@@ -84,8 +84,7 @@ module LayersDirective {
             });
         }
 
-        public dropLayer(layer : csComp.Services.ProjectLayer)
-        {
+        public dropLayer(layer: csComp.Services.ProjectLayer) {
             this.initGroups();
             this.initResources();
 
@@ -99,12 +98,12 @@ module LayersDirective {
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupsettings', group, 'Group Settings', 'Group Settings','cog',true,true);
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupsettings', group, 'Group Settings', 'Group Settings', 'cog', true, true);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
         public layerSettings(layer: csComp.Services.ProjectLayer) {
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'layersettings', layer, 'Layer Settings', 'Layer Settings','cog',true,true);
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'layersettings', layer, 'Layer Settings', 'Layer Settings', 'cog', true, true);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
@@ -112,73 +111,63 @@ module LayersDirective {
         public addNewType() {
             if (this.layer.typeUrl) {
                 if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                    var tr = this.$layerService.typesResources[this.layer.typeUrl];                    
+                    var tr = this.$layerService.typesResources[this.layer.typeUrl];
                     var st = <csComp.Services.IFeatureTypeStyle>{
-                        drawingMode: 'Point',                        
-                        iconUri:'/images/home.png',
-                        cornerRadius : 50,
-                        fillColor: "yellow",
-                        iconWidth:30,
-                        iconHeight:30                        
+                        drawingMode: 'Point',
+                        iconUri: '/images/home.png',
+                        cornerRadius: 50,
+                        fillColor: 'yellow',
+                        iconWidth: 30,
+                        iconHeight: 30
                     };
                     var nt = <csComp.Services.IFeatureType>{};
                     nt.id = csComp.Helpers.getGuid();
-                    nt.name = "new type";
+                    nt.name = 'new type';
                     nt.style = st;
-                    nt.propertyTypeKeys = "title,notes";
-                    
+                    nt.propertyTypeKeys = 'title,notes';
+
                     var id = nt.id;
                     tr.featureTypes[id] = nt;
-                    this.$layerService.saveResource(tr);                    
+                    this.$layerService.saveResource(tr);
                     this.editLayer(this.layer);
-                    
                 }
-
-
             }
         }
-        
-        public dropdownpos(event)
-        {
-            alert('drop down'); 
-        //     var dropDownTop = button.offset().top + button.outerHeight();
-        // dropdown.css('top', dropDownTop + "px");
-        // dropdown.css('left', button.offset().left + "px");
+
+        public dropdownpos(event) {
+            alert('drop down');
+            //     var dropDownTop = button.offset().top + button.outerHeight();
+            // dropdown.css('top', dropDownTop + 'px');
+            // dropdown.css('left', button.offset().left + 'px');
         }
-        
+
         public deleteFeaturetype(featureType: csComp.Services.IFeatureType) {
-            if (!_.isUndefined(featureType)) {
-                var tr = this.$layerService.findResourceByLayer(this.layer);
-                if (!_.isUndefined(tr)) {
-                    var types = [];
-                    for (var t in tr.featureTypes)
-                    {
-                        if (tr.featureTypes[t].id === featureType.id) types.push(t);
-                    }
-                    if (types.length>0)
-                    {
-                    types.forEach(t=>{
+            if (_.isUndefined(featureType)) return;
+            var tr = this.$layerService.findResourceByLayer(this.layer);
+            if (!_.isUndefined(tr)) {
+                var types = [];
+                for (var t in tr.featureTypes) {
+                    if (tr.featureTypes[t].id === featureType.id) types.push(t);
+                }
+                if (types.length > 0) {
+                    types.forEach(t => {
                         tr.featureTypes[t] = null;
                         delete tr.featureTypes[t];
                     })
-                       this.$layerService.saveResource(tr);
-                    }
-                    
-                    this.editLayer(this.layer);                    
+                    this.$layerService.saveResource(tr);
                 }
+
+                this.editLayer(this.layer);
             }
         }
-        
-        public editFeaturetype(featureType : csComp.Services.IFeatureType)
-        {
+
+        public editFeaturetype(featureType: csComp.Services.IFeatureType) {
             var tr = this.$layerService.typesResources[this.layer.typeUrl];
-            featureType._resource = tr;            
-            this.state = "editfeaturetype";
-              
+            featureType._resource = tr;
+            this.state = 'editfeaturetype';
+
             //var rpt = csComp.Helpers.createRightPanelTab('edit', 'feature-type-editor', featureType, 'Feature type', 'Feature type','cog',true,true);
             //this.$messageBusService.publish('rightpanel', 'activate', rpt);
-            
-            
         }
 
         public initGroups() {
@@ -186,17 +175,17 @@ module LayersDirective {
             if (this.$layerService.project.groups)
                 this.$layerService.project.groups.forEach((g) => this.groups.push(g));
             var g = new csComp.Services.ProjectGroup;
-            g.id = "<new>";
-            g.title = "<new group>";
+            g.id = '<new>';
+            g.title = '<new group>';
             this.groups.push(g);
         }
-        
+
         // public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
         //     var transformProp;
         //     var startx, starty;
 
         //     var i = interact('#layerfeaturetype-' + key)
-        //         .draggable({                
+        //         .draggable({
         //         max: Infinity,
         //         onstart: (event) => {
         //             startx = 0;
@@ -204,7 +193,7 @@ module LayersDirective {
         //             event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
         //             event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
         //              var interaction = event.interaction;
-                    
+
         //             // if the pointer was moved while being held down
         //             // and an interaction hasn't started yet
         //                 var original = event.currentTarget,
@@ -219,13 +208,13 @@ module LayersDirective {
         //                 interaction.start({ name: 'drag' },
         //                                     event.interactable,
         //                                     clone);
-                    
-                    
+
+
         //         },
         //         onmove: (event) => {
-                    
-                   
-                    
+
+
+
         //             event.interaction.x += event.dx;
         //             event.interaction.y += event.dy;
 
@@ -245,7 +234,7 @@ module LayersDirective {
         //                     type: 'Point', coordinates: [pos.lon, pos.lat]
         //                 };
         //                 //f.
-        //                 f.properties = { "featureTypeId": key, "Name": key };
+        //                 f.properties = { 'featureTypeId': key, 'Name': key };
         //                 layer.data.features.push(f);
         //                 this.$layerService.initFeature(f, layer);
         //                 this.$layerService.activeMapRenderer.addFeature(f);
@@ -268,9 +257,7 @@ module LayersDirective {
             var startx, starty;
 
             var i = interact('#layerfeaturetype-' + key).draggable({
-
                 'onmove': (event) => {
-
                     var target = event.target;
 
                     var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
@@ -282,10 +269,8 @@ module LayersDirective {
                     // update the posiion attributes
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
-
                 },
                 'onend': (event) => {
-
                     console.log('Draggable: ', event);
                     setTimeout(() => {
                         var x = event.clientX;
@@ -297,75 +282,64 @@ module LayersDirective {
                         f.geometry = {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
-                        f.properties = { "featureTypeId": key, "Name": fid };
+                        f.properties = { 'featureTypeId': key, 'Name': fid };
                         var tr = this.$layerService.findResourceByLayer(layer);
-                        var fid = "new object"
-                        if (tr.featureTypes.hasOwnProperty(key))
-                        {
+                        var fid = 'new object'
+                        if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
-                            if (!ft._isInitialized)
-                            {
-                                this.$layerService.initFeatureType(ft,tr.propertyTypeData);                                                              
+                            if (!ft._isInitialized) {
+                                this.$layerService.initFeatureType(ft, tr.propertyTypeData);
                             }
-                            if (_.isArray(ft._propertyTypeData))
-                            {
-                                for (var k in ft._propertyTypeData)
-                                {
+                            if (_.isArray(ft._propertyTypeData)) {
+                                for (var k in ft._propertyTypeData) {
                                     var pt = ft._propertyTypeData[k];
-                                    ft._propertyTypeData.forEach(pt=>{
-                                    f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
-                                })
+                                    ft._propertyTypeData.forEach(pt => {
+                                        f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? '' : pt.defaultValue;
+                                    })
                                 }
-                            
-                            }  
+                            }
                             fid = ft.name;
-                            
                         }
 
-                                                                        
                         layer.data.features.push(f);
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
                         this.$layerService.selectFeature(f);
-                        
                     }, 10);
 
                     //this.$dashboardService.mainDashboard.widgets.push(widget);
                     // event.target.setAttribute('data-x', 0);
                     // event.target.setAttribute('data-y', 0);
                     // event.target.style.left = '0px';
-                    // event.target.style.top = '0px';     
-                    $(event.target).remove();                                   
+                    // event.target.style.top = '0px';
+                    $(event.target).remove();
                 }
             }).on('move', (event) => {
-
                 var interaction = event.interaction;
 
                 // if the pointer was moved while being held down
                 // and an interaction hasn't started yet
                 if (interaction.pointerIsDown && !interaction.interacting() && event.currentTarget.classList.contains('drag-element-source')) {
-
                     var original = event.target;
-
-                    var pos = {left:0,top:0}; //$(original).offset();
+                    var pos = { left: 0, top: 0 }; //$(original).offset();
 
                     // create a clone of the currentTarget element
                     var clone = event.currentTarget.cloneNode(true);
 
                     // Remove CSS class using JS only (not jQuery or jQLite) - http://stackoverflow.com/a/2155786/4972844
                     clone.className = clone.className.replace(/\bdrag-element-source\b/, '');
-                    
-                    pos.left = event.clientX-20; //-interaction.startOffset.left;
-                    pos.top = event.clientY-20; //-interaction.startOffset.top;
-                    
+
+                    pos.left = event.clientX - 20; //-interaction.startOffset.left;
+                    pos.top = event.clientY - 20; //-interaction.startOffset.top;
+
 
                     // update the posiion attributes
-                  //  clone.setAttribute('data-x', pos.left);
-                   // clone.setAttribute('data-y', pos.top);
-                    $(clone).css("left", pos.left);
-                    $(clone).css("top", pos.top);
-                    $(clone).css("z-index", 1000);
+                    //  clone.setAttribute('data-x', pos.left);
+                    // clone.setAttribute('data-y', pos.top);
+                    $(clone).css('left', pos.left);
+                    $(clone).css('top', pos.top);
+                    $(clone).css('z-index', 1000);
                     // insert the clone to the page
                     // TODO: position the clone appropriately
                     $(document.body).append(clone);
@@ -374,13 +348,8 @@ module LayersDirective {
                     interaction.start({ name: 'drag' }, event.interactable, clone);
 
                 } else {
-
-                    interaction.start({ name: 'drag' }, event.interactable, event.currentTarget);
-
+                    interaction.start({ name: 'drag' }, event.interacFtable, event.currentTarget);
                 }
-
-
-
             });
         }
 
@@ -390,31 +359,35 @@ module LayersDirective {
 
         public exitDirectory() {
             this.selectedLayer = null;
-            this.layerTitle = "";
+            this.layerTitle = '';
             this.state = 'layers';
+        }
+        
+        public saveFeatureType()
+        {
+            
         }
 
         public addProjectLayer() {
-            
-            if (this.layerResourceType === "<new>") {
-                        this.selectedLayer.typeUrl = "api/resources/" + this.selectedLayer.title;
-                        
-                        var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: { }, propertyTypeData: {} };
-                        r.featureTypes["Default"] = <csComp.Services.IFeatureType>{ name : "Default", style : <csComp.Services.IFeatureTypeStyle>{
-                            drawingMode : "Point", cornerRadius : 50, fillColor : 'yellow', iconHeight : 30, iconWidth : 30
-                        }}; 
-                        r.propertyTypeData["name"] = <IPropertyType>{ label : "name", title : "Naam"};
-                        r.propertyTypeData["notes"] = <IPropertyType>{ label : "notes", notes : "Notes", type : "textarea"};
-                         
-                        this.$layerService.saveResource(r);
-                        
+            if (this.layerResourceType === '<new>') {
+                this.selectedLayer.typeUrl = 'api/resources/' + this.selectedLayer.title;
+
+                var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
+                r.featureTypes['Default'] = <csComp.Services.IFeatureType>{
+                    name: 'Default', style: <csComp.Services.IFeatureTypeStyle>{
+                        drawingMode: 'Point', cornerRadius: 50, fillColor: 'yellow', iconHeight: 30, iconWidth: 30
                     }
-                    else {
-                        this.selectedLayer.typeUrl = this.layerResourceType;
-                    }
-            
+                };
+                r.propertyTypeData['name'] = <IPropertyType>{ label: 'name', title: 'Naam' };
+                r.propertyTypeData['notes'] = <IPropertyType>{ label: 'notes', notes: 'Notes', type: 'textarea' };
+
+                this.$layerService.saveResource(r);
+            } else {
+                this.selectedLayer.typeUrl = this.layerResourceType;
+            }
+
             var group;
-            if (this.layerGroup == "<new>") {
+            if (this.layerGroup == '<new>') {
                 group = new csComp.Services.ProjectGroup;
                 group.title = this.newGroup;
                 this.$layerService.project.groups.push(group);
@@ -423,31 +396,29 @@ module LayersDirective {
             else {
                 group = this.$layerService.findGroupById(this.layerGroup);
             }
-            
+
             if (group) {
                 this.$layerService.initLayer(group, this.selectedLayer);
                 group.layers.push(this.selectedLayer);
             }
             this.selectedLayer = null;
             this.$layerService.updateProject();
-            this.state = "layers";
-            
+            this.state = 'layers';
         }
 
         public editLayer(layer: csComp.Services.ProjectLayer) {
-            this.state = "editlayer";
-            
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
-            this.layer = layer;
-            if (!this.layer.typeUrl) {
+            this.state = 'editlayer';
 
-            }
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
+             this.layer = layer;
+            // if (!this.layer.typeUrl) {
+            // }
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            this.state = "layers";
-            if (layer._gui["featureTypes"]) {
-                for (var key in layer._gui["featureTypes"]) {
+            this.state = 'layers';
+            if (layer._gui['featureTypes']) {
+                for (var key in layer._gui['featureTypes']) {
                     interact('#layerfeaturetype-' + key).onstart = null;
                     interact('#layerfeaturetype-' + key).onmove = null;
                     interact('#layerfeaturetype-' + key).onend = null;
@@ -470,9 +441,7 @@ module LayersDirective {
             this.updateLayerOpacity(layer);
         }
 
-
         public loadAvailableLayers() {
-            
             this.mylayers = [];
 
             if (this.project.groups) {
@@ -493,22 +462,21 @@ module LayersDirective {
             this.initGroups();
             this.loadAvailableLayers();
             this.initResources();
-            
-            this.state = "directory";            
-            
+
+            this.state = 'directory';
         }
 
         private initResources() {
             this.resources = {};
             if (!this.project.groups) return;
-            this.project.groups.forEach((g) => {
-                if (g.layers) g.layers.forEach((l) => {
+            this.project.groups.forEach(g => {
+                if (g.layers) g.layers.forEach(l => {
                     if (l.typeUrl && !this.resources.hasOwnProperty(l.typeUrl))
-                        this.resources[l.typeUrl] = <csComp.Services.TypeResource> { title: l.typeUrl };
-                })
-            })
-            this.resources["<new>"] = <csComp.Services.TypeResource> { title: "<new type file>" };
-            this.layerResourceType = "<new>";
+                        this.resources[l.typeUrl] = <csComp.Services.TypeResource>{ title: l.typeUrl };
+                });
+            });
+            this.resources['<new>'] = <csComp.Services.TypeResource>{ title: '<new type file>' };
+            this.layerResourceType = '<new>';
         }
 
         public createLayer() {
@@ -520,38 +488,33 @@ module LayersDirective {
                 this.layerGroup = this.$layerService.project.groups[0].id;
             } else {
                 this.layerGroup = new csComp.Services.ProjectGroup;
-                this.layerGroup.id = "<new>";
-                this.layerGroup.title = "<new group>";
+                this.layerGroup.id = '<new>';
+                this.layerGroup.title = '<new group>';
                 this.$layerService.project.groups = [];
             }
-            this.state = "createlayer";
+            this.state = 'createlayer';
             this.newLayer = new csComp.Services.ProjectLayer();
-            this.newLayer.type = "dynamicgeojson";
-            this.newLayer.layerSource = this.$layerService.layerSources["dynamicgeojson"];
-            
+            this.newLayer.type = 'dynamicgeojson';
+            this.newLayer.layerSource = this.$layerService.layerSources['dynamicgeojson'];
         }
 
-        /// create new layer 
+        /// create new layer
         public createNewLayer() {
             //this.loadAvailableLayers();
             var group: csComp.Services.ProjectGroup;
-            
+
             // new group was selected
-            if (this.layerGroup === "<new>") {
+            if (this.layerGroup === '<new>') {
                 group = new csComp.Services.ProjectGroup;
                 group.title = this.newGroup;
-                if (this.$layerService.project.groups.some(g=>g.title === this.newGroup))
-                {
-                    this.$messageBusService.notify("Error creating group","Group already exists");
+                if (this.$layerService.project.groups.some(g => g.title === this.newGroup)) {
+                    this.$messageBusService.notify('Error creating group', 'Group already exists');
                     return;
-                }
-                else
-                {
+                } else {
                     this.$layerService.project.groups.push(group);
                     this.$layerService.initGroup(group);
                 }
-            }
-            else {
+            } else {
                 group = this.$layerService.findGroupById(this.layerGroup);
             }
 
@@ -560,54 +523,62 @@ module LayersDirective {
                 group.layers.push(this.newLayer);
 
                 var nl = this.newLayer;
-                var id = nl.title.replace(' ','_').toLowerCase();
+                var id = nl.title.replace(' ', '_').toLowerCase();
                 /// create layer on server
-                if (this.newLayer.type === "dynamicgeojson") {
-                    this.newLayer.url = "api/layers/" + this.newLayer.id;
-                    
-                    if (this.layerResourceType === "<new>") {
-                        this.newLayer.typeUrl = "api/resources/" + id;
+                if (this.newLayer.type === 'dynamicgeojson') {
+                    this.newLayer.url = 'api/layers/' + this.newLayer.id;
+
+                    if (this.layerResourceType === '<new>') {
+                        this.newLayer.typeUrl = 'api/resources/' + id;
                         var r = <csComp.Services.TypeResource>{ id: id, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
-                        if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length>0) 
-                            r.featureTypes["Default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0],r);                                                
-                        this.$http.post("api/resources", r)
+                        if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length > 0)
+                            r.featureTypes['Default'] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0], r);
+                        this.$http.post('api/resources', r)
                             .success((data) => {
-                        })
+                            })
                             .error((e) => {
-                            console.log('error adding resource');
-                        });
-                    }
-                    else {
+                                console.log('error adding resource');
+                            });
+                    } else {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
-                    
-                    var l = { id: this.newLayer.id, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
+
+                    var l = {
+                        id: this.newLayer.id,
+                        title: nl.title,
+                        isDynamic: true,
+                        type: nl.type,
+                        storage: 'file',
+                        description: nl.description,
+                        typeUrl: nl.typeUrl,
+                        tags: nl.tags,
+                        url: nl.url,
+                        features: []
+                    };
                     if (this.newLayer.data) l.features = this.newLayer.data.features;
-                    this.$http.post("/api/layers", l)
+                    this.$http.post('/api/layers', l)
                         .success((data) => {
-                        console.log(data);
-                    })
+                            console.log(data);
+                        })
                         .error(() => {
-                        console.log('error adding layer');
-                        return;
-                    });
+                            console.log('error adding layer');
+                            return;
+                        });
                 }
 
-                if (this.layerResourceType === "<new>") {
+                // if (this.layerResourceType === '<new>') {}
 
-                }
-                
                 this.$layerService.addLayer(this.newLayer);
                 this.$layerService.updateProject();
 
-                //var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
-                //this.$messageBusService.publish("rightpanel", "activate", rpt);
+                //var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', this.newLayer, 'Edit layer');
+                //this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
             this.exitDirectory();
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-            $(".left-menu").on("click", (clickE)=> {
+            $('.left-menu').on('click', (clickE) => {
                 //alert('context menu');
                 (<any>$(this)).contextmenu({ x: clickE.offsetX, y: clickE.offsetY });
             });
@@ -622,36 +593,34 @@ module LayersDirective {
                 this.$scope.$apply();
             }
         }
-        
-        public clickAction(o : IActionOption, layer : csComp.Services.ProjectLayer )
-        {
-            o.callback(layer,this.$layerService);
+
+        public clickAction(o: IActionOption, layer: csComp.Services.ProjectLayer) {
+            o.callback(layer, this.$layerService);
         }
-      
-        public openLayerMenu(event, layer : csComp.Services.ProjectLayer)
-        {
+
+        public openLayerMenu(event, layer: csComp.Services.ProjectLayer) {
             console.log('open layer menu');
             event.stopPropagation();
-            layer._gui["options"] = [];
-            this.$layerService.actionServices.forEach(acs=>{
-                   
+            layer._gui['options'] = [];
+            this.$layerService.actionServices.forEach(acs => {
+
                 if (_.isFunction(acs.getLayerActions)) {
                     var actions = acs.getLayerActions(layer);
-                    if (_.isArray(actions)) actions.forEach(a=>layer._gui["options"].push(a));
+                    if (_.isArray(actions)) actions.forEach(a => layer._gui['options'].push(a));
                 }
             })
-            if (layer.isDynamic && layer.enabled) layer._gui["options"].push({ title : "Edit Layer", callback : (l,ls)=> this.editLayer(l)});      
-            layer._gui["options"].push({ title : "Layer Settings", callback : (l,ls)=> this.layerSettings(l)}); 
-            
-            (<any>$(event.target).next()).dropdown('toggle'); 
-            
-            //$(event.target).next().dropdown('toggle'); 
+            if (layer.isDynamic && layer.enabled) layer._gui['options'].push({ title: 'Edit Layer', callback: (l, ls) => this.editLayer(l) });
+            layer._gui['options'].push({ title: 'Layer Settings', callback: (l, ls) => this.layerSettings(l) });
+
+            (<any>$(event.target).next()).dropdown('toggle');
+
+            //$(event.target).next().dropdown('toggle');
         }
 
         public collapseAll() {
             this.$layerService.collapseAll();
             this.allCollapsed = true;
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }
@@ -659,11 +628,15 @@ module LayersDirective {
         public expandAll() {
             this.$layerService.expandAll();
             this.allCollapsed = false;
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }
 
+        /** Hide groups whose title or id start with an underscore */
+        private filterHiddenGroups(group: csComp.Services.ProjectGroup) {
+            return group.title[0] !== '_' && group.id[0] !== '_';
+        }
 
     }
 }

@@ -49,11 +49,15 @@ module csComp.Services {
             });
 
             $messageBusService.subscribe('map', (action: string, data) => {
-                switch (action) {
+                switch (action.toLowerCase()) {
                     case 'setextent':
                         // console.log(data);
                         // take the navbar and leftpanel into account using padding (50px height, 370px left)
                         this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(370, 50) });
+                        break;
+                    case 'setzoom':
+                        // Zoom to a location on the map.
+                        this.map.setZoomAround(data.loc, data.zoom || 16);
                         break;
                 }
             });

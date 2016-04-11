@@ -1,6 +1,5 @@
 module csComp.Services {
-    
-    
+
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
@@ -69,7 +68,7 @@ module csComp.Services {
                                 layer.count = 0;
                                 layer.isLoading = false;
                                 layer.enabled = true;
-                                this.initLayer(data, layer);                                
+                                this.initLayer(data, layer);
                                 if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
                             })
@@ -465,7 +464,7 @@ module csComp.Services {
             this.service.editing = true;
             this.initAvailableFeatureTypes(layer);
         }
-        
+
         public stopEditing(layer: csComp.Services.ProjectLayer) {
             delete layer._gui['featureTypes'];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
@@ -492,7 +491,7 @@ module csComp.Services {
             }
         }
 
-        
+
     }
 
     export interface IOtpLeg {

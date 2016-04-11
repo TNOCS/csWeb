@@ -92,7 +92,18 @@ module csComp.Helpers {
         static rad2deg(rad: number) {
             return (rad / GeoExtensions.Rad2Deg);
         }
-        
+
+        /** Get the approximate centroid of a polygon by averaging the coordinates of its vertices. */
+        static getCentroid(arr): csComp.Services.IGeoJsonGeometry {
+            if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
+            if (arr[0] instanceof Array) arr = arr[0];
+            // http://stackoverflow.com/questions/22796520/finding-the-center-of-leaflet-polygon
+            var centroid = arr.reduce(function (x, y) {
+                return [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length];
+            }, [0, 0]);
+            return { type: 'Point', coordinates: centroid };
+        }
+
         /**
          * Convert an array of RD (Rijksdriehoek) features to WGS84.
          * @param  {IFeature[]} rd [Array of features in RD]
@@ -408,18 +419,18 @@ module csComp.Helpers {
 
         /** Convert longitude to tile coordinate. */
         private static lon2tile(lon, zoom) {
-            return (Math.floor((lon + 180) / 360 * Math.pow(2 , zoom)));
+            return (Math.floor((lon + 180) / 360 * Math.pow(2, zoom)));
         }
 
         /** Convert latitude to tile coordinate. */
-        private static lat2tile(lat,  zoom) {
+        private static lat2tile(lat, zoom) {
             return (Math.floor((1 - Math.log(Math.tan(lat * GeoExtensions.Rad2Deg) + 1 / Math.cos(lat * GeoExtensions.Rad2Deg)) / Math.PI) / 2 * Math.pow(2, zoom)));
         }
 
         /**
-         * Convert a bounding box to slippy tile coordinates. 
+         * Convert a bounding box to slippy tile coordinates.
          * Returns an object that specifies the top, bottom, left and right tiles, as well as its width and height.
-         * 
+         *
          * See http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#ECMAScript_.28JavaScript.2FActionScript.2C_etc..29
          */
         static slippyMapTiles(zoom: number, bbox: string | L.LatLngBounds) {
@@ -431,20 +442,20 @@ module csComp.Helpers {
             }
             var north_edge = bb.getNorth(),
                 south_edge = bb.getSouth(),
-                west_edge  = bb.getWest(),
-                east_edge  = bb.getEast();
-            var top_tile    = GeoExtensions.lat2tile(north_edge, zoom); // eg.lat2tile(34.422, 9);
-            var left_tile   = GeoExtensions.lon2tile(west_edge, zoom);
+                west_edge = bb.getWest(),
+                east_edge = bb.getEast();
+            var top_tile = GeoExtensions.lat2tile(north_edge, zoom); // eg.lat2tile(34.422, 9);
+            var left_tile = GeoExtensions.lon2tile(west_edge, zoom);
             var bottom_tile = GeoExtensions.lat2tile(south_edge, zoom);
-            var right_tile  = GeoExtensions.lon2tile(east_edge, zoom);
-            var width       = Math.abs(left_tile - right_tile) + 1;
-            var height      = Math.abs(top_tile - bottom_tile) + 1;
+            var right_tile = GeoExtensions.lon2tile(east_edge, zoom);
+            var width = Math.abs(left_tile - right_tile) + 1;
+            var height = Math.abs(top_tile - bottom_tile) + 1;
             return {
-                top:    top_tile,
+                top: top_tile,
                 bottom: bottom_tile,
-                left:   left_tile,
-                right:  right_tile,
-                width:  width,
+                left: left_tile,
+                right: right_tile,
+                width: width,
                 height: height
             };
         }

@@ -6,8 +6,8 @@ module csComp.Services {
         addLayer(layer: ProjectLayer, callback: Function, data: Object);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
-        fitMap?(layer : ProjectLayer) : void;
-        fitTimeline?(layer : ProjectLayer) : void;
+        fitMap?(layer: ProjectLayer): void;
+        fitTimeline?(layer: ProjectLayer): void;
         requiresLayer: boolean;
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
@@ -193,36 +193,34 @@ module csComp.Services {
             }
         }
 
-        public updateLayerKpiLink(layer : ProjectLayer)
-        {
+        public updateLayerKpiLink(layer: ProjectLayer) {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
 
                 var link = layer.sensorLink.kpiUrl;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;                      
+                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
                 }
                 else {
-                    
+
                     if (_.isUndefined(layer.sensorLink.liveInterval)) {
                         link += "?tbox=1h";
                     }
-                    else
-                    {
+                    else {
                         link += "?tbox=" + layer.sensorLink.liveInterval;
-                    }  
+                    }
                 }
-                console.log('kpi:' + link); 
+                console.log('kpi:' + link);
                 layer._gui["loadingKpiLink"] = true;
                 this.$http.get(link)
                     .success((data: ISensorLinkResult) => {
                         layer._gui["loadingKpiLink"] = false;
-                        
+
                         layer.kpiTimestamps = data.timestamps;
                         if (typeof data.kpis !== 'undefined') {
                             layer.sensors = data.kpis;
-                        }                        
+                        }
                         this.$messageBusService.publish("timeline", "sensorLinkUpdated");
                     })
                     .error((e) => {
@@ -240,17 +238,16 @@ module csComp.Services {
                 var link = layer.sensorLink.url;
                 if (!this.project.activeDashboard.isLive) {
                     link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
-                    //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
+                    //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
                 }
                 else {
-                    
+
                     if (_.isUndefined(layer.sensorLink.liveInterval)) {
                         link += "?tbox=15m";
                     }
-                    else
-                    {
+                    else {
                         link += "?tbox=" + layer.sensorLink.liveInterval;
-                    }  
+                    }
                 }
                 layer._gui['lastSensorLink'] = link;
                 console.log('downloading ' + link);
@@ -258,7 +255,7 @@ module csComp.Services {
                 this.$http.get(link)
                     .success((data: ISensorLinkResult) => {
                         layer._gui["loadingSensorLink"] = false;
-                        
+
                         layer.timestamps = data.timestamps;
                         layer.data.features.forEach((f: IFeature) => {
                             f.sensors = {};
@@ -273,7 +270,7 @@ module csComp.Services {
                             //var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
                             //if (index !== -1) featureLookup.push(index);
                             featureLookup.push(p);
-                            p+=1;
+                            p += 1;
                         });
 
                         for (var s in data.data) {
@@ -695,11 +692,11 @@ module csComp.Services {
 
                             this.updateLayerSensorLink(layer);
                             this.updateLayerSensorData(layer, this.project.timeLine.focusDate());
-                            
+
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
-                            this.expressionService.evalLayer(l, this._featureTypes);                            
+                            this.expressionService.evalLayer(l, this._featureTypes);
                         }
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
@@ -716,7 +713,7 @@ module csComp.Services {
             ]);
         }
 
-        /// If a layer has a default legend defined it will lookup the resource and return the legend 
+        /// If a layer has a default legend defined it will lookup the resource and return the legend
         public getLayerLegend(l: ProjectLayer): Legend {
             var tr = this.findResourceByLayer(l);
             if (tr && tr.legends) {
@@ -863,7 +860,7 @@ module csComp.Services {
 
         public getLayerPropertyTypes(layer: ProjectLayer): IPropertyType[] {
             var res: IPropertyType[] = [];
-            // TODO Check this - doesn't seem to do anything        
+            // TODO Check this - doesn't seem to do anything
             // if (layer.typeUrl && layer.defaultFeatureType) {
             //     var t = this.getFeatureTypeById(layer.typeUrl + '#' + layer.defaultFeatureType);
             //     if (t.propertyTypeKeys) { }
@@ -1000,7 +997,7 @@ module csComp.Services {
             });
         }
 
-        /** 
+        /**
          * Recompute the style of the layer features, e.g. after changing the opacity or after
          * zooming to a level outside the layers' range.
          */
@@ -1109,7 +1106,7 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false,true);                
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);    
                 
@@ -1183,7 +1180,7 @@ module csComp.Services {
         public getSensorIndex(d: Number, timestamps: Number[]) {
             for (var i = 1; i < timestamps.length; i++) {
                 if (timestamps[i] > d) {
-                    return i-1;
+                    return i - 1;
                 }
             }
             return timestamps.length - 1;
@@ -1234,7 +1231,7 @@ module csComp.Services {
             delete l._gui["timestampIndex"];
             delete l._gui["timestamp"];
             if ((l.hasSensorData || l.sensorLink) && l.data.features) {
-                
+
                 l.data.features.forEach((f: IFeature) => {
                     this.updateFeatureSensorData(f, date);
                 });
@@ -1305,7 +1302,7 @@ module csComp.Services {
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
 
-                // resolve feature type                
+                // resolve feature type
                 feature.fType = this.getFeatureType(feature);
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
@@ -1428,7 +1425,7 @@ module csComp.Services {
                                         s.fillColor = csComp.Helpers.getColor(v, gs);
                                         feature._gui['style'][gs.property] = s.fillColor;
                                         if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') {
-                                            s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor; 
+                                            s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;
                                         }
                                         break;
                                     case 'strokeWidth':
@@ -2340,7 +2337,7 @@ module csComp.Services {
 
             if (!project) {
                 this.$http.get(solutionProject.url)
-                    .success((prj: Project) => { 
+                    .success((prj: Project) => {
                         this.parseProject(prj, solutionProject, layerIds);
                         //alert('project open ' + this.$location.absUrl());
                     })
@@ -2404,7 +2401,7 @@ module csComp.Services {
                 this.project.dashboards.push(d2);
             } else {
 
-                // initialize dashboards                
+                // initialize dashboards
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
                     if (d.widgets && d.widgets.length > 0)
@@ -2417,7 +2414,7 @@ module csComp.Services {
             async.series([
                 (callback) => {
 
-                    // load extra type resources                    
+                    // load extra type resources
                     if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                         async.eachSeries(this.project.typeUrls, (item, cb) => {
                             this.loadTypeResources(item, false, () => cb(null));
@@ -2578,7 +2575,7 @@ module csComp.Services {
                                     if (project.id === this.project.id) {
                                         this.$messageBusService.notify('New update available for project ', project.title);
                                         // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
-                                        //     this.openProject(solutionProject, null, project);    
+                                        //     this.openProject(solutionProject, null, project);
                                         // });
                                         //this.openProject(solutionProject, null, project);
 
@@ -2692,15 +2689,21 @@ module csComp.Services {
                 this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
 
-            if (this.project.useOfflineSearch) {
-                this.addActionService(new OfflineSearchActions(this.$http, this.project.url));
-            }
-
-            if (this.project.useOnlineSearch && this.project.hasOwnProperty('onlineSearchUrl')) {
-                this.addActionService(new OnlineSearchActions(this.$http, this.project.onlineSearchUrl));
-            }
-
-
+            // Add search providers
+            this.project.searchProviders.forEach(searchProvider => {
+                switch (searchProvider.name.toLowerCase()) {
+                    case 'offline':
+                        this.addActionService(new OfflineSearchActions(this.$http, searchProvider.url));
+                        break;
+                    case 'bag':
+                        this.addActionService(new OnlineSearchActions(this.$http, searchProvider.url));
+                        break;
+                    case 'bing':
+                        if (!searchProvider.key) break;
+                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url));
+                        break;
+                }
+            });
         }
 
         private apply() {
@@ -2710,8 +2713,7 @@ module csComp.Services {
         public toggleLayer(layer: ProjectLayer) {
             if (_.isUndefined(layer.enabled)) {
                 layer.enabled = true;
-            }
-            else {
+            } else {
                 layer.enabled = !layer.enabled;
             }
             this.checkToggleLayer(layer);
@@ -3022,15 +3024,22 @@ module csComp.Services {
 
         private updateProjectReady(data) { }
 
+        /** Create a new feature and save it to the server. */
+        createFeature(feature: Feature, layer: ProjectLayer) {
+            if (!layer.isDynamic) return;
+            layer.data.features.push(feature);
+            this.initFeature(feature, layer);
+            this.activeMapRenderer.addFeature(feature);
+            this.saveFeature(feature);
+        }
+
         /**
-         * Save feature back to the server
+         * Save feature back to the server. Does not create it, use createFeature for that.
          */
         public saveFeature(f: IFeature, logs: boolean = false) {
             f.properties['updated'] = new Date().getTime();
             // check if feature is in dynamic layer
             if (f.layer.isDynamic) {
-
-
                 if (f.layer.useLog) {
                     var l = this.trackFeature(f);
                     var s = new LayerUpdate();
@@ -3049,7 +3058,7 @@ module csComp.Services {
             }
         }
 
-        /** 
+        /**
          * Update the filter status of a feature, i.e. the _gui.included property.
          * When a filter is applied, and the feature is not shown anymore, the feature._gui.included = false.
          * In all other cases, it is true. */
