@@ -106,6 +106,11 @@ module csComp.Helpers {
 
     declare var String; //: StringExt.IStringExt;
 
+    /** Returns the next character. */
+    export function nextChar(c) {
+        return String.fromCharCode(c.charCodeAt(0) + 1);
+    }
+
     export function supportsDataUri() {
         var isOldIE = navigator.appName === 'Microsoft Internet Explorer';
         var isIE11 = !!navigator.userAgent.match(/Trident\/7\./);
@@ -581,63 +586,77 @@ module csComp.Helpers {
         iconPlusBorderWidth: number,
         iconPlusBorderHeight: number
     } {
-        var effectiveStyle = feature.effectiveStyle;
-        var iconUri = effectiveStyle.iconUri; //ft.style.iconUri;
+        var es = feature.effectiveStyle;
+        var iconUri = es.iconUri; //ft.style.iconUri;
 
         // TODO refactor to object
         var iconPlusBorderWidth, iconPlusBorderHeight;
-        if (effectiveStyle.hasOwnProperty('strokeWidth') && effectiveStyle.strokeWidth > 0) {
-            iconPlusBorderWidth = effectiveStyle.iconWidth + (2 * effectiveStyle.strokeWidth);
-            iconPlusBorderHeight = effectiveStyle.iconHeight + (2 * effectiveStyle.strokeWidth);
+        if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
+            iconPlusBorderWidth = es.iconWidth + (2 * es.strokeWidth);
+            iconPlusBorderHeight = es.iconHeight + (2 * es.strokeWidth);
         } else {
-            iconPlusBorderWidth = effectiveStyle.iconWidth;
-            iconPlusBorderHeight = effectiveStyle.iconHeight;
+            iconPlusBorderWidth = es.iconWidth;
+            iconPlusBorderHeight = es.iconHeight;
         }
 
         var html: string,
             content: string,
             closeImageTag: string = '';
 
-        if (effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(effectiveStyle.innerTextProperty)) {
-            var textSize = effectiveStyle.innerTextSize || 12;
-            content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[effectiveStyle.innerTextProperty]}</span>`;
+        if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
+            var textSize = es.innerTextSize || 12;
+            if (es.marker === 'pin') {
+                content = `<div class="pin-inner" style="font-size:${textSize}px;">${feature.properties[es.innerTextProperty]}</div>`;
+            } else {
+                content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[es.innerTextProperty]}</span>`;
+            }
         } else if (iconUri != null) {
             // Must the iconUri be formatted?
             if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-            content = `<img src="${iconUri}" style="width:${effectiveStyle.iconWidth}px;height:${effectiveStyle.iconHeight}px;display:block;`;
-            if (effectiveStyle.rotate && effectiveStyle.rotate > 0) content += `;transform:rotate(${effectiveStyle.rotate}deg)`;
+            content = `<img src="${iconUri}" style="width:${es.iconWidth}px;height:${es.iconHeight}px;display:block;`;
+            if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
             closeImageTag = '" />';
         }
 
-        switch (effectiveStyle.marker) {
+        switch (es.marker) {
             case 'pin':
-                html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                    + `background:${effectiveStyle.fillColor};`
-                    + `width:${iconPlusBorderWidth}px;`
-                    + `height:${iconPlusBorderHeight}px;`
-                    + `opacity:${effectiveStyle.opacity};`
-                    + '"></div>'
-                    + content + `position:absolute;margin:${effectiveStyle.strokeWidth}px" />`;
+                if (es.innerTextProperty) {
+                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                        + `background:${es.fillColor};`
+                        + `width:${iconPlusBorderWidth}px;`
+                        + `height:${iconPlusBorderHeight}px;`
+                        + `opacity:${es.opacity || 1};`
+                        + `">${content}</div>`;
+                } else {
+                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                        + `background:${es.fillColor};`
+                        + `width:${iconPlusBorderWidth}px;`
+                        + `height:${iconPlusBorderHeight}px;`
+                        + `opacity:${es.opacity || 1};`
+                        + '"></div>'
+                        + content
+                        + `position:absolute;margin:${es.strokeWidth}px" />`;
+                }
                 break;
             case 'bubble':
                 html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                    + `background:${effectiveStyle.fillColor};`
+                    + `background:${es.fillColor};`
                     + `width:${iconPlusBorderWidth}px;`
                     + `height:${iconPlusBorderHeight}px;`
-                    + `opacity:${effectiveStyle.opacity};`
+                    + `opacity:${es.opacity || 1};`
                     + '"></div>'
-                    + content + `position:absolute;margin:${effectiveStyle.strokeWidth}px" />`;
+                    + content + `position:absolute;margin:${es.strokeWidth}px" />`;
                 break;
             default:
                 html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                    + `background:${effectiveStyle.fillColor};`
+                    + `background:${es.fillColor};`
                     + `width:${iconPlusBorderWidth}px;`
                     + `height:${iconPlusBorderHeight}px;`
-                    + `border-radius:${effectiveStyle.cornerRadius}%;`
+                    + `border-radius:${es.cornerRadius}%;`
                     + 'border-style:solid;'
-                    + `border-color:${effectiveStyle.strokeColor};`
-                    + `border-width:${effectiveStyle.strokeWidth}px;`
-                    + `opacity:${effectiveStyle.opacity};`
+                    + `border-color:${es.strokeColor};`
+                    + `border-width:${es.strokeWidth}px;`
+                    + `opacity:${es.opacity || 1};`
                     + '">'
                     + content + closeImageTag
                     + '</div>';
