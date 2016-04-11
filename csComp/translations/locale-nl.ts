@@ -7,7 +7,9 @@ module Translations {
             TO: 'tot',
             ZOOM_LEVEL_LOW: 'Zoom niveau te laag',
             ZOOM_IN_FOR_CONTOURS: 'Zoom in om de contouren te tonen',
-            NAVIGATE:'Start',
+            NAVIGATE: {
+                TITLE: 'Zoekresultaten'
+            },
             REMOVE: 'Verwijder',
             CREATE_SCATTER: 'Creeer spreidingsdiagram',
             EXPAND_ALL: 'Alles uitklappen',

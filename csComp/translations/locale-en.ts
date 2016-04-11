@@ -7,7 +7,9 @@ module Translations {
             TO: 'to',
             ZOOM_LEVEL_LOW: 'Zoom level too low',
             ZOOM_IN_FOR_CONTOURS: 'Zoom in to show contours',
-            NAVIGATE: 'Start',
+            NAVIGATE: {
+                TITLE: 'Search results'
+            },
             CREATE_SCATTER: 'Create scatter with',
             EXPAND_ALL: 'Expand all',
             COLLAPSE_ALL: 'Collapse all',

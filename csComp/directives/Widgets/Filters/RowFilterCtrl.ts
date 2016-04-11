@@ -66,10 +66,7 @@ module Filters {
 
                     return res;
                 });
-
-
             }
-
         }
 
         private createScatter(gf: csComp.Services.GroupFilter) {
@@ -103,7 +100,7 @@ module Filters {
                                     r = a + "." + pt.options[a];
                                 } else { r = a + "." + a}
                                 return r;
-                            } else if (pt.type === 'number') {
+                            } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
                                 var label;
                                 pt.legend.legendEntries.some((le) => {
                                     if (a >= le.interval.min && le.interval.max >= a) {
@@ -113,7 +110,7 @@ module Filters {
                                 });
                                 if (!label) label = 'other';
                                 return label;
-                            } else if (pt.type === 'text') {
+                            } else if (pt.type === 'text' || pt.type === 'textarea') {
                                 return a;
                             }
                         }
@@ -135,7 +132,7 @@ module Filters {
                         if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
                         if (!pt.options) {
                             var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
-                            return (arr.length > 0 ? arr[0].color : '#000000');
+                            return (arr.length > 0 ? arr[0].color : '#444444');
                         }
                     }
                     else {

@@ -35,8 +35,8 @@
             <div id="filtergroup_{{group.id}}" class="collapse in">
                 <div data-ng-repeat="filter in group.filters">
                     <txt2 ng-if="filter.filterType == 'text'"></txt2>
-                    <bar-filter ng-if="filter.filterType == 'bar'"></bar-filter>
-                    <row-filter ng-if="filter.filterType == 'row'"></row-filter>
+                    <bar-filter ng-if="filter.filterType == 'bar' && !filter.showInWidget"></bar-filter>
+                    <row-filter ng-if="filter.filterType == 'row' && !filter.showInWidget"></row-filter>
                     <date-filter ng-if="filter.filterType == 'date'"></date-filter>
                     <bool-filter ng-if="filter.filterType == 'boolean'"></bool-filter>
                     <scatter-filter ng-if="filter.filterType == 'scatter'"></scatter-filter>
