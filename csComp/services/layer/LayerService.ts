@@ -2185,12 +2185,8 @@ module csComp.Services {
             // }
 
             // check if there are no more active layers in group and remove filters/styles
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
-                g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
-                g.filters = [];
-                g.styles.forEach(s => { this.removeStyle(s); });
-                g.styles = [];
-            }
+            this.removeAllFilters(g);
+            this.removeAllStyles(g);
 
             this.rebuildFilters(g);
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl !== layer);
@@ -2198,6 +2194,18 @@ module csComp.Services {
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
             if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
+        }
+        
+        public removeAllFilters(g: ProjectGroup) {
+            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
+                g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
+                g.filters.length = 0;
+            }
+        }
+
+        public removeAllStyles(g: ProjectGroup) {
+            g.styles.forEach(s => { this.removeStyle(s); });
+            g.styles.length = 0;
         }
 
         /***

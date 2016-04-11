@@ -28,6 +28,8 @@ export interface IRestDataSourceSettings {
     diffPropertiesBlacklist?: string[];
     /** Properties that should be used for calculating feature diffs (takes precendence of blacklist) */
     diffPropertiesWhitelist?: string[];
+    /** When filename is given, the retrieved data will be written to that file. Otherwise, logging is disabled */
+    logFile?: string;
 }
 
 export interface IConverter {
@@ -56,6 +58,7 @@ export class RestDataSource {
     private converter: IConverter;
     private restDataSourceOpts: IRestDataSourceSettings = <IRestDataSourceSettings>{};
     private counter: number;
+    private enableLogging: boolean = false;
 
     constructor(public server: express.Express, private apiManager: Api.ApiManager, public layerId: string, public url: string = '/restdatasource') {
         this.restDataSourceUrl = url;
@@ -78,6 +81,7 @@ export class RestDataSource {
         this.restDataSourceOpts.diffIgnoreGeometry = (options.hasOwnProperty('diffIgnoreGeometry')) ? false : options['diffIgnoreGeometry'];
         this.restDataSourceOpts.diffPropertiesBlacklist = options.diffPropertiesBlacklist || [];
         this.restDataSourceOpts.diffPropertiesWhitelist = options.diffPropertiesWhitelist || [];
+        this.restDataSourceOpts.logFile = options.logFile || null;
 
         if (this.restDataSourceOpts.diffPropertiesBlacklist.length > 0 && this.restDataSourceOpts.diffPropertiesWhitelist.length > 0) {
             Winston.info('Both whitelist and blacklist properties provided, ignoring the blacklist.');
@@ -93,6 +97,18 @@ export class RestDataSource {
         if (!this.isConverterValid()) {
             callback(`Provided converterfile not valid. (${path.basename(this.restDataSourceOpts.converterFile)})`);
             return;
+        }
+        
+        if (!!this.restDataSourceOpts.logFile) {
+            fs.createFile(this.restDataSourceOpts.logFile, (err) => {
+                if (!err) {
+                    Winston.info('Log Rest data to ' + this.restDataSourceOpts.logFile);
+                    this.enableLogging = true;
+                } else {
+                    Winston.warn('Error creating log ' + this.restDataSourceOpts.logFile);
+                    this.enableLogging = false;               
+                }
+            });
         }
 
         var urlDataParams = this.restDataSourceOpts.urlParams;
@@ -123,8 +139,18 @@ export class RestDataSource {
             } else {
                 this.findFeatureDiff(featureCollection, Date.now());
             }
+            if (this.enableLogging) {
+                var toWrite = 'Time: ' + (new Date()).toISOString() + '\n';
+                toWrite += JSON.stringify(result, null, 2) + '\n';
+                fs.appendFile(this.restDataSourceOpts.logFile, toWrite, 'utf8', (err) => {
+                    if (!err) {
+                        Winston.debug('Logged REST datasource result');
+                    } else {
+                        Winston.warn('Error while logging REST datasource result: ' + err);                        
+                    }
+                });
+            }
         });
-
         setTimeout(() => { this.startRestPolling(dataParameters) }, this.restDataSourceOpts.pollIntervalSeconds * 1000);
     }
 

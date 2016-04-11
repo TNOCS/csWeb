@@ -155,6 +155,7 @@ module csComp.Services {
         to:          number;
         from:        number;
         filterLabel: string;
+        showInWidget:boolean;
     }
 
     /**
