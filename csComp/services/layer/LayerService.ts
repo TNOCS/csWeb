@@ -790,7 +790,7 @@ module csComp.Services {
                             .success((resource: TypeResource | string) => {
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
-                                    this.$messageBusService.notify('Error loading resource type', url);
+                                    this.$messageBusService.notifyError('Error loading resource type', url);
                                 } else {
                                     var r = <TypeResource>resource;
                                     if (r) {
@@ -802,7 +802,7 @@ module csComp.Services {
                                 callback();
                             })
                             .error((err) => {
-                                this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                                this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
                                 console.log(err);
                             });
                         setTimeout(() => {
@@ -838,6 +838,10 @@ module csComp.Services {
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             if (!source.title) source.title = source.url;
+            
+            // if url starts with  'api/' this is a dynamic resource
+            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);                        
+            
             var featureTypes = source.featureTypes;
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {

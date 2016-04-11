@@ -7,7 +7,7 @@
             <span translate="DIRECTORY" />
         </h3>
         <div style="background:white">
-            <div ng-show="vm.selectedLayer == null">
+            <div ng-show="vm.layer == null">
                 <div>
                     <input class="addlayer-filter form-control" type="text" id="layerFilter" ng-model="layerFilter" placeholder="Search Layer" >
                 </div>
@@ -22,10 +22,10 @@
 
                 </div>
             </div>
-            <div ng-hide="vm.selectedLayer == null">
+            <div ng-hide="vm.layer == null">
 
                 <div class="form-group">
-                    <label class="editor-title input-xlarge">Select a group for {{vm.selectedLayer.title}}</label>
+                    <label class="editor-title input-xlarge">Select a group for {{vm.layer.title}}</label>
                     <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input">
                         <!-- <option ng-repeat="g in vm.$layerService.project.groups" ng-value="g.id">{{g.title}}</option> -->
                     </select>
@@ -34,7 +34,7 @@
                     <label class="editor-title input-xlarge">New Group</label>
                     <input type="text" class="form-control" id="layerTitle" ng-model="vm.newGroup" placeholder="Enter group title">
                 </div>
-                <div class="form-group" ng-hide="vm.selectedLayer.typeUrl">
+                <div class="form-group" ng-hide="vm.layer.typeUrl">
                     <label class="editor-title input-xlarge">Types</label>
                     <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
                         required />
@@ -181,7 +181,7 @@
     <div ng-if="vm.state === 'editlayer'" class="layers-create-form">
         <div class="layer-actions">
 
-            <button ng-click="vm.addNewType()" class="layer-action">
+            <button ng-if="vm.resource.isDynamic" ng-click="vm.addNewType()" class="layer-action">
                 <span class="fa fa-plus layer-action-icon" />create type
             </button>
 

@@ -13,10 +13,10 @@ module LayersDirective {
         public editing: boolean;
         public state: string = 'layers';
         public layer: csComp.Services.ProjectLayer;
+        public resource : csComp.Services.TypeResource;
         public project: csComp.Services.Project;
         public directory: csComp.Services.ProjectLayer[];
         public mylayers: string[];
-        public selectedLayer: csComp.Services.ProjectLayer;
         public selectedFeatureType: csComp.Services.IFeatureType;
         public newLayer: csComp.Services.ProjectLayer;
         public layerResourceType: string;
@@ -106,10 +106,9 @@ module LayersDirective {
         }
 
         /** add new type to a resource file */
-        public addNewType() {
-            if (this.layer.typeUrl) {
-                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                    var tr = this.$layerService.typesResources[this.layer.typeUrl];
+        public addNewType() { 
+            if (this.resource)           
+            {                                        
                     var st = <csComp.Services.IFeatureTypeStyle>{
                         drawingMode: 'Point',
                         iconUri: '/images/home.png',
@@ -125,12 +124,14 @@ module LayersDirective {
                     nt.propertyTypeKeys = 'title,notes';
 
                     var id = nt.id;
-                    tr.featureTypes[id] = nt;
-                    this.$layerService.saveResource(tr);
+                    this.resource.featureTypes[id] = nt;
+                    this.$layerService.saveResource(this.resource);
                     this.editLayer(this.layer);
                 }
-            }
+            
         }
+        
+        
 
         public dropdownpos(event) {
             alert('drop down');
@@ -351,11 +352,11 @@ module LayersDirective {
         }
 
         public selectProjectLayer(layer: csComp.Services.ProjectLayer) {
-            this.selectedLayer = layer;
+            this.layer = layer;
         }
 
         public exitDirectory() {
-            this.selectedLayer = null;
+            this.layer = null;
             this.layerTitle = '';
             this.state = 'layers';
         }
@@ -373,9 +374,9 @@ module LayersDirective {
         public addProjectLayer() {
             if (this.layerResourceType === '<new>') {
                 var resourceId = csComp.Helpers.getGuid();
-                this.selectedLayer.typeUrl = 'api/resources/' + resourceId;
+                this.layer.typeUrl = 'api/resources/' + resourceId;
 
-                var r = <csComp.Services.TypeResource>{ id: resourceId, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
+                var r = <csComp.Services.TypeResource>{ id: resourceId, title: this.layer.title, featureTypes: {}, propertyTypeData: {} };
                 r.featureTypes['Default'] = <csComp.Services.IFeatureType>{
                     name: 'Default', style: <csComp.Services.IFeatureTypeStyle>{
                         drawingMode: 'Point', cornerRadius: 50, fillColor: 'yellow', iconHeight: 30, iconWidth: 30
@@ -386,7 +387,7 @@ module LayersDirective {
 
                 this.$layerService.saveResource(r);
             } else {
-                this.selectedLayer.typeUrl = this.layerResourceType;
+                this.layer.typeUrl = this.layerResourceType;
             }
 
             var group;
@@ -401,10 +402,10 @@ module LayersDirective {
             }
 
             if (group) {
-                this.$layerService.initLayer(group, this.selectedLayer);
-                group.layers.push(this.selectedLayer);
+                this.$layerService.initLayer(group, this.layer);
+                group.layers.push(this.layer);
             }
-            this.selectedLayer = null;
+            this.layer = null;
             this.$layerService.saveProject();
             this.state = 'layers';
         }
@@ -415,6 +416,12 @@ module LayersDirective {
 
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
             this.layer = layer;
+            this.resource = null;
+            if (this.layer.typeUrl) {
+                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                    this.resource = this.$layerService.typesResources[this.layer.typeUrl];
+                }
+            }                         
         }
 
         /* stop editing layer */
