@@ -13,6 +13,10 @@ module Navigate {
 
     export class NavigateCtrl {
         private scope: INavigateScope;
+        /** The layer that holds the search results. */
+        private searchResultLayer: csComp.Services.ProjectLayer;
+        /** The group that holds the search results layer. */
+        private searchResultGroup: csComp.Services.ProjectGroup;
 
         public RecentLayers: csComp.Services.ProjectLayer[] = [];
         public mobileLayers: csComp.Services.ProjectLayer[] = [];
@@ -32,6 +36,7 @@ module Navigate {
             'layerService',
             'messageBusService',
             'localStorageService',
+            'dashboardService',
             'geoService'
         ];
 
@@ -42,31 +47,156 @@ module Navigate {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private localStorageService: ng.localStorage.ILocalStorageService,
+            private $dashboardService: csComp.Services.DashboardService,
             private geoService: csComp.Services.GeoService
         ) {
             $scope.vm = this;
 
-
             this.$messageBus.subscribe('project', (a, p) => {
                 if (a === 'loaded') {
+                    this.createSearchResultLayer();
                     this.initRecentLayers();
                     this.initRecentFeatures();
                     if (this.$layerService.isMobile) this.initMobileLayers(p);
                 }
             });
 
-            $scope.$watch('search', _.throttle((search) => {
-                // This code will be invoked after 1 second from the last time 'id' has changed.
-                if (search && search.length > 0) {
-                    this.doSearch(search);
-                } else {
-                    this.searchResults = [];
+            this.$messageBus.subscribe('search', (title, search: csComp.Services.ISearch) => {
+                this.searchResults = [];
+                switch (title) {
+                    case 'update':
+                        this.doSearch(search.query);
+                        break;
+                    case 'reset':
+                        this.clearSearchLayer();
+                        break;
                 }
-                // Code that does something based on $scope.id                
-            }, 500));
+            });
         }
 
-        public selectSearchResult(item : csComp.Services.ISearchResultItem) {
+        /** Create a new layer for the search results. Also create a group, if necessary, and a feature type for the search results. */
+        private createSearchResultLayer() {
+            const searchResultId = '_search';
+            const searchResultGroupId = '_hidden';
+
+            if (this.$layerService.findLayer(searchResultId)) return;
+            this.searchResultGroup = this.$layerService.findGroupById(searchResultGroupId);
+            if (!this.searchResultGroup) {
+                this.searchResultGroup = new csComp.Services.ProjectGroup();
+                this.searchResultGroup.title = searchResultGroupId;
+                this.$layerService.project.groups.push(this.searchResultGroup);
+                this.$layerService.initGroup(this.searchResultGroup);
+
+                this.searchResultLayer = new csComp.Services.ProjectLayer();
+                this.searchResultLayer.title = searchResultId;
+                this.searchResultLayer.fitToMap = true;
+                this.searchResultLayer.data = { features: [] };
+                this.$layerService.initLayer(this.searchResultGroup, this.searchResultLayer);
+                this.searchResultGroup.layers.push(this.searchResultLayer);
+
+                var ft: csComp.Services.IFeatureType = <csComp.Services.IFeatureType>{};
+                ft.id = searchResultId;
+                ft.style = {
+                    drawingMode: 'Point',
+                    fillColor: '#00f',
+                    opacity: 0.8,
+                    //iconUri: 'bower_components/csweb/dist-bower/images/large-marker.png',
+                    innerTextProperty: 'searchIndex',
+                    innerTextSize: 24,
+                    marker: 'pin'
+                };
+                this.$layerService.initFeatureType(ft, null);
+                this.$layerService._featureTypes[`${this.$layerService.project.url}#${ft.id}`] = ft;
+            }
+        }
+
+        /** Remove the search results from the map. */
+        private clearSearchLayer() {
+            if (this.searchResultLayer && this.searchResultLayer.data && this.searchResultLayer.data) {
+                this.searchResultLayer.data.features.forEach(f => {
+                    this.$layerService.activeMapRenderer.removeFeature(f);
+                });
+                this.searchResultLayer.data.features.length = 0;
+            }
+        }
+
+        /**
+         * Update the displayed search results on the map, basically creating a feature from each search result (that has a
+         * location and isn't a feature already).
+         */
+        private updateSearchLayer() {
+            // Clear layer
+            // if (this.searchResultLayer.group) csComp.Services.GeojsonRenderer.remove(this.$layerService, this.searchResultLayer);
+            this.clearSearchLayer();
+            // Add results to the map
+            var mark = 'A';
+            var index = 0;
+            this.searchResults.forEach(sr => {
+                sr.searchIndex = mark;
+                // if (sr.feature) return; // Is already on the map, so we don't need to add it.
+                var feature = new csComp.Services.Feature();
+                if (sr.feature && sr.feature.geometry) {
+                    switch (sr.feature.geometry.type.toLowerCase()) {
+                        case 'point':
+                            feature.geometry = sr.feature.geometry;
+                            break;
+                        default:
+                            feature.geometry = csComp.Helpers.GeoExtensions.getCentroid(sr.feature.geometry.coordinates);
+                            break;
+                    }
+                } else {
+                    feature.geometry = sr.location;
+                }
+                // feature.featureTypeName = '_search';
+                feature.layer = this.searchResultLayer;
+                feature.layerId = this.searchResultLayer.id;
+                feature.index = index++;
+                feature.id = csComp.Helpers.getGuid();
+                feature.properties = {
+                    Name: sr.title,
+                    featureTypeId: '_search',
+                    searchIndex: mark,
+                };
+                feature.fType = this.$layerService.getFeatureType(feature);
+                this.$layerService.calculateFeatureStyle(feature);
+                this.searchResultLayer.data.features.push(feature);
+                // this.$layerService.initFeature(feature, this.searchResultLayer);
+                mark = csComp.Helpers.nextChar(mark);
+            });
+            csComp.Services.GeojsonRenderer.render(this.$layerService, this.searchResultLayer, this.$layerService.activeMapRenderer);
+            this.fitMap(this.searchResultLayer);
+        }
+
+        /** Fit the search results, if any, to the map. */
+        private fitMap(layer: csComp.Services.ProjectLayer) {
+            if (this.searchResults.length === 0) return;
+            var bounds = {
+                xMin: NaN,
+                xMax: NaN,
+                yMin: NaN,
+                yMax: NaN,
+            };
+            var bbox = <csComp.Services.IBoundingBox>{};
+            layer.data.features.forEach(f => {
+                let b = f.geometry.coordinates;
+                bounds.xMin = bounds.xMin < b[0] ? bounds.xMin : b[0];
+                bounds.xMax = bounds.xMax > b[0] ? bounds.xMax : b[0];
+                bounds.yMin = bounds.yMin < b[1] ? bounds.yMin : b[1];
+                bounds.yMax = bounds.yMax > b[1] ? bounds.yMax : b[1];
+            });
+            bbox.southWest = [bounds.yMin, bounds.xMin];
+            bbox.northEast = [bounds.yMax, bounds.xMax];
+
+            // var b = csComp.Helpers.GeoExtensions.getBoundingBox(layer.data);
+            if (this.searchResults.length === 1) {
+                this.$messageBus.publish('map', 'setzoom', { loc: bbox.southWest, zoom: 16 });
+            } else {
+                this.$messageBus.publish('map', 'setextent', bbox);
+            }
+        }
+
+
+        public selectSearchResult(item: csComp.Services.ISearchResultItem) {
             if (item.click) item.click(item);
         }
 
@@ -76,6 +206,7 @@ module Navigate {
                 as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
                     this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
                     this.searchResults = this.searchResults.concat(result).sort((a, b) => { return ((b.score - a.score) || -1); });
+                    this.updateSearchLayer();
                     if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
                 });
             });
@@ -116,7 +247,6 @@ module Navigate {
                 this.$layerService.saveFeature(f);
                 this.MyFeature = f;
             }]);
-
         }
 
         private initMobileLayers(p: csComp.Services.Project) {
