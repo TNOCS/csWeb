@@ -12,6 +12,14 @@ module csComp.Services {
         public canClose: boolean = true;
     }
 
+    /** When searching, specify the search query */
+    export interface ISearch {
+        /** If true, the search is active. */
+        isActive?: boolean;
+        /** Query string to search for */
+        query: string;
+    }
+
     /** service for managing dashboards */
     export class DashboardService {
         public maxBounds: IBoundingBox;
@@ -25,6 +33,7 @@ module csComp.Services {
         public chartGenerators: { [key: string]: Function } = {};
         public socket;
         public editWidgetMode: boolean;
+        private _search: ISearch = { isActive: false, query: '' };
 
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};
 
@@ -70,8 +79,8 @@ module csComp.Services {
             // });
             this.$messageBusService.subscribe('rightpanel', (event: string, tab: RightPanelTab | string) => {
                 switch (event) {
-                    case 'activate':                       
-                            this.activateTab(tab);                       
+                    case 'activate':
+                            this.activateTab(tab);
                         break;
                     case 'deactivate':
                         this.deactivateTab(<RightPanelTab>tab);
@@ -159,6 +168,20 @@ module csComp.Services {
             };
         }
 
+        public get search(): ISearch { return this._search; };
+        public set search(s: ISearch) {
+            this._search = s;
+            if (s.query && s.query.length > 0) {
+                $('#navigate_header').trigger('click');
+                this._search.isActive = s.isActive = this.$layerService.visual.leftPanelVisible = true;
+                this.$messageBusService.publish('search', 'update', s);
+            } else {
+                if ($('#navigate_header').is(':visible')) $('#left_menu_headers li:visible:first').next().trigger('click');
+                this._search.isActive = s.isActive = false;
+                this.$messageBusService.publish('search', 'reset');
+            }
+        }
+
         public leftMenuVisible(id: string): boolean {
             var d = this.$layerService.project.activeDashboard;
             if (!d.visibleLeftMenuItems) return true;
@@ -169,12 +192,10 @@ module csComp.Services {
             this.$location.search('dashboard', dashboard.id);
             if (!_.isUndefined(dashboard.refreshPage) && dashboard.refreshPage) {
                 location.reload();
-            }
-            else {
+            } else {
                 this.$messageBusService.publish('updatelegend', 'removelegend');
                 //this.$layerService.project.activeDashboard = dashboard;
                 this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
-
             }
         }
 
@@ -183,7 +204,7 @@ module csComp.Services {
         }
 
         public activateTab(t: any)
-        {        
+        {
             if (typeof t === "string") {
                  (<any>$('#rightpanelTabs a[data-target="#' + t + '-content"]')).tab('show');
                 this.$layerService.visual.rightPanelVisible = true;
@@ -195,7 +216,7 @@ module csComp.Services {
                 if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
                     (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
                     return;
-                } 
+                }
 
                 $('#' + tab.container + '-tab').remove();
                 var c = $('#' + content);
@@ -237,7 +258,7 @@ module csComp.Services {
                 }
                 this.rightPanelTabs[tab.container] = tab;
             }
-          
+
 
         }
 
