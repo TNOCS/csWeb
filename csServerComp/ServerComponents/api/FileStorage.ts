@@ -379,7 +379,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     res._localFile = fileName;
                     res.id = id;
                     this.resources[id] = res;
-                    this.manager.addResource(res, <ApiMeta>{ source: this.id }, () => { });
+                    this.manager.addResource(res, false, <ApiMeta>{ source: this.id }, () => { });
                     this.saveResourceFile(res);
                 }
             });
