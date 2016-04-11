@@ -17,7 +17,7 @@ module LayersDirective {
         public directory: csComp.Services.ProjectLayer[];
         public mylayers: string[];
         public selectedLayer: csComp.Services.ProjectLayer;
-        public selectedFeatureType : csComp.Services.IFeatureType;
+        public selectedFeatureType: csComp.Services.IFeatureType;
         public newLayer: csComp.Services.ProjectLayer;
         public layerResourceType: string;
         public resources: { [key: string]: csComp.Services.TypeResource };
@@ -74,11 +74,11 @@ module LayersDirective {
             this.$messageBusService.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
                 if (action === 'deactivate' && layer === this.layer) this.stopEditingLayer(layer);
             });
-            
-            this.$messageBusService.subscribe('featuretype',(action: string, type : csComp.Services.IFeatureType)=>{
+
+            this.$messageBusService.subscribe('featuretype', (action: string, type: csComp.Services.IFeatureType) => {
                 if (action === "startEditing") {
-                    this.editFeaturetype(type);                    
-                }                
+                    this.editFeaturetype(type);
+                }
             });
         }
 
@@ -359,13 +359,12 @@ module LayersDirective {
             this.layerTitle = '';
             this.state = 'layers';
         }
-        
+
         /** save a resource (back to api and update features) */
-        public saveFeatureType()
-        {                        
-            if (!_.isUndefined(this.selectedFeatureType._resource)){
-                this.$layerService.saveResource(this.selectedFeatureType._resource);                                     
-            }            
+        public saveFeatureType() {
+            if (!_.isUndefined(this.selectedFeatureType._resource)) {
+                this.$layerService.saveResource(this.selectedFeatureType._resource);
+            }
             this.$layerService.updateFeatureTypes(this.selectedFeatureType);
             this.state = 'editlayer';
         }
@@ -406,7 +405,7 @@ module LayersDirective {
                 group.layers.push(this.selectedLayer);
             }
             this.selectedLayer = null;
-            this.$layerService.updateProject();
+            this.$layerService.saveProject();
             this.state = 'layers';
         }
 
@@ -523,62 +522,95 @@ module LayersDirective {
             }
 
             if (group) {
-                this.$layerService.initLayer(group, this.newLayer);
-                group.layers.push(this.newLayer);
+                this.newLayer.id = this.newLayer.title;
 
                 var nl = this.newLayer;
+
+                // make a sensible id
                 var id = nl.title.replace(' ', '_').toLowerCase();
                 /// create layer on server
                 if (this.newLayer.type === 'dynamicgeojson') {
-                    this.newLayer.url = 'api/layers/' + this.newLayer.id;
+                    this.newLayer.url = 'api/layers/' + id;
 
-                    if (this.layerResourceType === '<new>') {
-                        this.newLayer.typeUrl = 'api/resources/' + id;
-                        var r = <csComp.Services.TypeResource>{ id: id, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
-                        if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length > 0)
-                            r.featureTypes['Default'] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0], r);
-                        this.$http.post('api/resources', r)
-                            .success((data) => {
-                            })
-                            .error((e) => {
-                                console.log('error adding resource');
-                            });
-                    } else {
-                        this.newLayer.typeUrl = this.layerResourceType;
-                    }
+                    async.series([
+                        // save or find resource
+                        (cb) => {
+                            if (this.layerResourceType === '<new>') {
+                                // use layer id as a resource id
+                                this.newLayer.typeUrl = 'api/resources/' + id;
 
-                    var l = {
-                        id: this.newLayer.id,
-                        title: nl.title,
-                        isDynamic: true,
-                        type: nl.type,
-                        storage: 'file',
-                        description: nl.description,
-                        typeUrl: nl.typeUrl,
-                        tags: nl.tags,
-                        url: nl.url,
-                        features: []
-                    };
-                    if (this.newLayer.data) l.features = this.newLayer.data.features;
-                    this.$http.post('/api/layers', l)
-                        .success((data) => {
-                            console.log(data);
-                        })
-                        .error(() => {
-                            console.log('error adding layer');
-                            return;
-                        });
+                                // create empty resource
+                                var r = <csComp.Services.TypeResource>{ id: id, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
+
+                                if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length > 0)
+                                    r.featureTypes['Default'] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0], r);
+
+                                // call api
+                                this.$http.post('api/resources', r)
+                                    .success((data) => {
+                                        // resource sucessfully added, continu
+                                        cb(null);
+                                    })
+                                    .error((e) => {
+                                        // error adding resource, stop
+                                        this.$messageBusService.notifyError("Creating layer", "Error creating new layer, resource already exists");
+                                        cb(e);                                        
+                                    });
+                            } else {
+                                this.newLayer.typeUrl = this.layerResourceType;
+                                cb(null);
+                            }
+                        },
+                        (cb) => {
+                            var l = {
+                                id: id,
+                                title: nl.title,
+                                isDynamic: true,
+                                type: nl.type,
+                                storage: 'file',
+                                description: nl.description,
+                                typeUrl: nl.typeUrl,
+                                tags: nl.tags,
+                                url: nl.url,
+                                features: []
+                            };
+                            if (this.newLayer.data) l.features = this.newLayer.data.features;
+                            // post layer to api
+                            this.$http.post('/api/layers/' + l.id, l)
+                                .success((data) => {
+                                    // init layer
+                                    this.$layerService.initLayer(group, this.newLayer);
+                                    
+                                    // add to group
+                                    group.layers.push(this.newLayer);
+                                                                        
+                                    this.$layerService.addLayer(this.newLayer);
+                                    this.$layerService.saveProject();
+                                    // layer sucessfully added, continu
+                                    cb(null);
+                                })
+                                .error((e) => {
+                                    this.$messageBusService.notifyError("Creating layer", "Error creating new layer");
+                                    console.log('error adding layer');
+                                    cb(e);
+                                });
+                        }
+                    ], (e) => {
+                        if (!e) {
+                            this.$messageBusService.notifyError("Creating layer", "Layer created");
+                            this.exitDirectory();
+                        }
+                    });
                 }
-
-                // if (this.layerResourceType === '<new>') {}
-
-                this.$layerService.addLayer(this.newLayer);
-                this.$layerService.updateProject();
-
-                //var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', this.newLayer, 'Edit layer');
-                //this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                else // not a dynamic project, only save it locally
+                {
+                    this.$layerService.initLayer(group, this.newLayer);
+                    group.layers.push(this.newLayer);
+                    this.$layerService.addLayer(this.newLayer);
+                    this.exitDirectory();
+                }
             }
-            this.exitDirectory();
+
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {

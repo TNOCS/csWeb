@@ -39,7 +39,7 @@
                     <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
                         required />
                 </div>
-                <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
+                <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Create layer</button>
             </div>
         </div>
     </div>
@@ -64,7 +64,7 @@
 
             <button ng-show="vm.$mapService.isAdminExpert" class="layer-action" popover="{{'CREATELAYER' | translate}}" ng-click="vm.createLayer()"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
-                <span class="fa fa-plus layer-action-icon" />add layer
+                <span class="fa fa-plus layer-action-icon" />create layer
             </button>
 
         </div>

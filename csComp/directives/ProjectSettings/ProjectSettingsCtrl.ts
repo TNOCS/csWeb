@@ -73,7 +73,7 @@ module ProjectSettings {
         }
 
         updateProject() {
-            this.$layerService.updateProject();
+            this.$layerService.saveProject();
         }
 
         private updateProjectReady(data) {

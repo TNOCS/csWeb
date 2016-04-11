@@ -294,7 +294,11 @@ module csComp.Services {
                 });
             });
         }
-
+        
+        public notifyError(title : string, text : string)
+        {
+            this.notify(title, text,  NotifyLocation.TopBar, NotifyType.Error);
+        }
 
 
 		/**

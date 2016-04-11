@@ -43,7 +43,7 @@ module LayerSettings {
         // }
 
         public saveLayer() {
-            this.$layerService.updateProject();
+            this.$layerService.saveProject();
         }
 
         public removeLayer() {
