@@ -396,9 +396,7 @@ module LayersDirective {
             this.state = 'editlayer';
 
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
-            // this.layer = layer;
-            // if (!this.layer.typeUrl) {
-            // }
+            this.layer = layer;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
