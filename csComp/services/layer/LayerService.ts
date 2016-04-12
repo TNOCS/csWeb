@@ -3017,7 +3017,6 @@ module csComp.Services {
             if (!this.project.isDynamic) return;
             console.log('saving project');
             setTimeout(() => {
-
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 
