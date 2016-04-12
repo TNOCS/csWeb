@@ -148,16 +148,17 @@ module ButtonWidget {
             b._active = this.layerService.$mapService.activeBaseLayerId === b.layer;
         }
 
-        public toggleEditLayer(b: IButton) {
-            console.log('edit layer');
+        /** start or stop editing, when starting all features are editable */
+        public toggleEditLayer(b: IButton) {            
             if (!_.isUndefined(b._layer)) {
                 var layer = b._layer;
 
                 if (layer._gui.hasOwnProperty('editing') && layer._gui['editing'] === true) {
                     (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
                     layer.data.features.forEach(f=>{
-                        delete f._gui['editMode'];
+                        delete f._gui['editMode'];                        
                         this.layerService.updateFeature(f);
+                        this.layerService.saveFeature(f); 
                     })
                 }
                 else {
