@@ -1,9 +1,13 @@
 <div>
 
     <div class="layer-actions">
-
-        <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+        
+            <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />save
+            </button>
+            
+            <button ng-if="featureType._isInitialized" ng-click="vm.apply()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+                <span class="fa fa-save layer-action-icon" />apply
             </button>
     </div>
     <div class="leftpanel-scroll">
