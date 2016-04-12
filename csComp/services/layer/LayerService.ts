@@ -168,6 +168,7 @@ module csComp.Services {
 
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
+            this.addActionService(new RelationAction.RelationActionModel());
 
             // var delayFocusChange = _.debounce((date) => {
             //     this.refreshActiveLayers();
