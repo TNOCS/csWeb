@@ -839,10 +839,10 @@ module csComp.Services {
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             if (!source.title) source.title = source.url;
-            
+
             // if url starts with  'api/' this is a dynamic resource
-            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);                        
-            
+            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
+
             var featureTypes = source.featureTypes;
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
@@ -1342,7 +1342,7 @@ module csComp.Services {
             feature.layer.group.ndx.remove([feature]);
             this.activeMapRenderer.removeFeature(feature);
 
-            this.$messageBusService.publish("feature", "onFeatureRemoved", feature);
+            this.$messageBusService.publish('feature', 'onFeatureRemoved', feature);
 
             if (dynamic) {
                 var s = new LayerUpdate();
@@ -1477,7 +1477,7 @@ module csComp.Services {
         */
         public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
-            ft._isInitialized = true;            
+            ft._isInitialized = true;
             this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
