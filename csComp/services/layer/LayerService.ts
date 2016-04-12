@@ -2725,23 +2725,16 @@ module csComp.Services {
             if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') this.$rootScope.$apply();
         }
 
-        public toggleLayer(layer: ProjectLayer) {
+        /** toggle layer enabled/disabled */
+        public toggleLayer(layer: ProjectLayer, loaded? : Function) {
             if (_.isUndefined(layer.enabled)) {
                 layer.enabled = true;
+                this.addLayer(layer,()=>{if (loaded) loaded()});
             } else {
                 layer.enabled = !layer.enabled;
-            }
-            this.checkToggleLayer(layer);
-            //if (!_.isUndefined(layer.group.oneLayerActive) && this.findLoadedLayer(layer.id)) layer.enabled = false;
-
-        }
-
-        public checkToggleLayer(layer: ProjectLayer) {
-            if (layer.enabled) {
-                this.addLayer(layer);
-            } else {
                 this.removeLayer(layer);
-            }
+                if (loaded) loaded();
+            }                                    
         }
 
         public removeGroup(group: ProjectGroup) {
