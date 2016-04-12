@@ -85,8 +85,6 @@ module DataTable {
             $translate('SELECT_ALL').then(translation => {
                 this.selectAllText = translation;
             });
-
-            $messageBusService.publish('timeline', 'isEnabled', 'false');
         }
 
         /**
