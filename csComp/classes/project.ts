@@ -274,13 +274,10 @@ module csComp.Services {
                 baselayers:        project.baselayers,
                 featureTypes:      project.featureTypes, //reset
                 propertyTypeData:  project.propertyTypeData,
-                groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
+                groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData, true),
                 layerDirectory:    project.layerDirectory,
                 eventTab:          project.eventTab,
                 searchProviders:   project.searchProviders
-                // useOfflineSearch:  project.useOnlineSearch,
-                // useOnlineSearch:   project.useOnlineSearch,
-                // onlineSearchUrl:   project.onlineSearchUrl
             };
         }
 
