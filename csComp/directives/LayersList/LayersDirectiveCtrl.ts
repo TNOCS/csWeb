@@ -578,20 +578,17 @@ module LayersDirective {
 
         }
 
-        public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-            $('.left-menu').on('click', (clickE) => {
-                //alert('context menu');
-                (<any>$(this)).contextmenu({ x: clickE.offsetX, y: clickE.offsetY });
-            });
-            //layer.enabled = !layer.enabled;
-            //if (this.$layerService.loadedLayers.containsKey(layer.id)) {
-            // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            this.$layerService.toggleLayer(layer);
-
-            // NOTE EV: You need to call apply only when an event is received outside the angular scope.
-            // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                this.$scope.$apply();
+        /** toggle layer (use shift key to start editing) */
+        public toggleLayer(layer: csComp.Services.ProjectLayer, event: any): void {
+            // if shift key pressed go to edit mode
+            if (event.shiftKey) {
+                if (!layer.enabled) this.$layerService.toggleLayer(layer,()=>{ this.editLayer(layer);});                
+            }
+            else {
+                this.$layerService.toggleLayer(layer);
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.$scope.$apply();
+                }
             }
         }
 
