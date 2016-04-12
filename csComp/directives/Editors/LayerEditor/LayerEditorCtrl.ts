@@ -100,9 +100,10 @@ module LayerEditor {
                             }
                             fid = ft.name;
                         }
-
-
                         layer.data.features.push(f);
+                        
+                        this.$messageBusService.publish("feature","dropped",f);
+                        
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
