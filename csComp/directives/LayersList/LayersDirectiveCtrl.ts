@@ -13,7 +13,7 @@ module LayersDirective {
         public editing: boolean;
         public state: string = 'layers';
         public layer: csComp.Services.ProjectLayer;
-        public resource : csComp.Services.TypeResource;
+        public resource: csComp.Services.TypeResource;
         public project: csComp.Services.Project;
         public directory: csComp.Services.ProjectLayer[];
         public mylayers: string[];
@@ -79,6 +79,9 @@ module LayersDirective {
                 if (action === "startEditing") {
                     this.editFeaturetype(type);
                 }
+                if (action === "stopEditing") {
+                    this.editLayer(this.layer);                    
+                }
             });
         }
 
@@ -106,33 +109,30 @@ module LayersDirective {
         }
 
         /** add new type to a resource file */
-        public addNewType() { 
-            if (this.resource)           
-            {                                        
-                    var st = <csComp.Services.IFeatureTypeStyle>{
-                        drawingMode: 'Point',
-                        iconUri: '/images/home.png',
-                        cornerRadius: 50,
-                        fillColor: 'yellow',
-                        iconWidth: 30,
-                        iconHeight: 30
-                    };
-                    var nt = <csComp.Services.IFeatureType>{};
-                    nt.id = csComp.Helpers.getGuid();
-                    nt.name = 'new type';
-                    nt.style = st;
-                    nt.propertyTypeKeys = 'title,notes';
+        public addNewType() {
+            if (this.resource) {
+                var st = <csComp.Services.IFeatureTypeStyle>{
+                    drawingMode: 'Point',
+                    iconUri: '/images/home.png',
+                    cornerRadius: 50,
+                    fillColor: 'yellow',
+                    iconWidth: 30,
+                    iconHeight: 30
+                };
+                var newType = <csComp.Services.IFeatureType>{};
+                newType.id = 'new type';
+                newType.name = 'new type';
+                newType.style = st;
+                newType.propertyTypeKeys = 'title,notes';
 
-                    var id = nt.id;
-                    this.resource.featureTypes[id] = nt;
-                    this.$layerService.saveResource(this.resource);
-                    this.editLayer(this.layer);
-                }
-            
+                var id = newType.id;
+                //this.resource.featureTypes[id] = newType;
+                //this.$layerService.saveResource(this.resource);
+                this.editFeaturetype(newType);
+                //this.editLayer(this.layer);
+            }
         }
-        
-        
-
+       
         public dropdownpos(event) {
             alert('drop down');
             //     var dropDownTop = button.offset().top + button.outerHeight();
@@ -162,10 +162,11 @@ module LayersDirective {
 
         /** start editing feature type */
         public editFeaturetype(featureType: csComp.Services.IFeatureType) {
-            var tr = this.$layerService.typesResources[this.layer.typeUrl];
-            featureType._resource = tr;
-            this.selectedFeatureType = featureType;
-            this.state = 'editfeaturetype';
+            if (this.resource && this.resource.isDynamic) {
+                featureType._resource = this.resource;
+                this.selectedFeatureType = featureType;
+                this.state = 'editfeaturetype';
+            }
         }
 
         public initGroups() {
@@ -361,54 +362,8 @@ module LayersDirective {
             this.state = 'layers';
         }
 
-        /** save a resource (back to api and update features) */
-        public saveFeatureType() {
-            if (!_.isUndefined(this.selectedFeatureType._resource)) {
-                this.$layerService.saveResource(this.selectedFeatureType._resource);
-            }
-            this.$layerService.updateFeatureTypes(this.selectedFeatureType);
-            this.state = 'editlayer';
-        }
 
-        /** create a project layer, check if a new resource and/or group needs to be created */
-        public addProjectLayer() {
-            if (this.layerResourceType === '<new>') {
-                var resourceId = csComp.Helpers.getGuid();
-                this.layer.typeUrl = 'api/resources/' + resourceId;
 
-                var r = <csComp.Services.TypeResource>{ id: resourceId, title: this.layer.title, featureTypes: {}, propertyTypeData: {} };
-                r.featureTypes['Default'] = <csComp.Services.IFeatureType>{
-                    name: 'Default', style: <csComp.Services.IFeatureTypeStyle>{
-                        drawingMode: 'Point', cornerRadius: 50, fillColor: 'yellow', iconHeight: 30, iconWidth: 30
-                    }
-                };
-                r.propertyTypeData['name'] = <IPropertyType>{ label: 'name', title: 'Naam' };
-                r.propertyTypeData['notes'] = <IPropertyType>{ label: 'notes', notes: 'Notes', type: 'textarea' };
-
-                this.$layerService.saveResource(r);
-            } else {
-                this.layer.typeUrl = this.layerResourceType;
-            }
-
-            var group;
-            if (this.layerGroup == '<new>') {
-                group = new csComp.Services.ProjectGroup;
-                group.title = this.newGroup;
-                this.$layerService.project.groups.push(group);
-                this.$layerService.initGroup(group);
-            }
-            else {
-                group = this.$layerService.findGroupById(this.layerGroup);
-            }
-
-            if (group) {
-                this.$layerService.initLayer(group, this.layer);
-                group.layers.push(this.layer);
-            }
-            this.layer = null;
-            this.$layerService.saveProject();
-            this.state = 'layers';
-        }
 
         /* start editing layer */
         public editLayer(layer: csComp.Services.ProjectLayer) {
@@ -421,7 +376,7 @@ module LayersDirective {
                 if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
                     this.resource = this.$layerService.typesResources[this.layer.typeUrl];
                 }
-            }                         
+            }
         }
 
         /* stop editing layer */
@@ -437,6 +392,7 @@ module LayersDirective {
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
         }
 
+        /** change layer opacity */
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
             console.log('update opacity');
             if (!layer) return;
@@ -451,6 +407,7 @@ module LayersDirective {
             this.updateLayerOpacity(layer);
         }
 
+        /** get a list of available layers from the server */
         public loadAvailableLayers() {
             this.mylayers = [];
 
@@ -472,10 +429,10 @@ module LayersDirective {
             this.initGroups();
             this.loadAvailableLayers();
             this.initResources();
-
             this.state = 'directory';
         }
 
+        /** get a list of resources for the forms */
         private initResources() {
             this.resources = {};
             if (!this.project.groups) return;
@@ -489,6 +446,7 @@ module LayersDirective {
             this.layerResourceType = '<new>';
         }
 
+        /** go to create layer state */
         public createLayer() {
             this.initGroups();
             this.loadAvailableLayers();
@@ -508,7 +466,7 @@ module LayersDirective {
             this.newLayer.layerSource = this.$layerService.layerSources['dynamicgeojson'];
         }
 
-        /// create new layer
+        /** actually create new layer */
         public createNewLayer() {
             //this.loadAvailableLayers();
             var group: csComp.Services.ProjectGroup;
@@ -561,7 +519,7 @@ module LayersDirective {
                                     .error((e) => {
                                         // error adding resource, stop
                                         this.$messageBusService.notifyError("Creating layer", "Error creating new layer, resource already exists");
-                                        cb(e);                                        
+                                        cb(e);
                                     });
                             } else {
                                 this.newLayer.typeUrl = this.layerResourceType;
@@ -587,10 +545,10 @@ module LayersDirective {
                                 .success((data) => {
                                     // init layer
                                     this.$layerService.initLayer(group, this.newLayer);
-                                    
+
                                     // add to group
                                     group.layers.push(this.newLayer);
-                                                                        
+
                                     this.$layerService.addLayer(this.newLayer);
                                     this.$layerService.saveProject();
                                     // layer sucessfully added, continu
@@ -637,16 +595,17 @@ module LayersDirective {
             }
         }
 
+        /** execute layer action */
         public clickAction(o: IActionOption, layer: csComp.Services.ProjectLayer) {
             o.callback(layer, this.$layerService);
         }
 
+        /** triggered when layer was created, make a list of layer actions */
         public openLayerMenu(event, layer: csComp.Services.ProjectLayer) {
             console.log('open layer menu');
             event.stopPropagation();
             layer._gui['options'] = [];
             this.$layerService.actionServices.forEach(acs => {
-
                 if (_.isFunction(acs.getLayerActions)) {
                     var actions = acs.getLayerActions(layer);
                     if (_.isArray(actions)) actions.forEach(a => layer._gui['options'].push(a));

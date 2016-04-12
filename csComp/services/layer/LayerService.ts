@@ -1476,7 +1476,7 @@ module csComp.Services {
         */
         public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
-            ft._isInitialized = true;
+            ft._isInitialized = true;            
             this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
@@ -1486,7 +1486,7 @@ module csComp.Services {
                 ft._propertyTypeData = [];
                 if (ft.propertyTypeKeys && ft.propertyTypeKeys.length > 0) {
                     ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
-                        if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
+                        if (propertyTypes && propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
                     });
                 }
             }

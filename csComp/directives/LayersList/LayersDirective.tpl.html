@@ -195,16 +195,8 @@
         </div>
     </div>
 
-    <div ng-if="vm.state === 'editfeaturetype'" class="layers-create-form">
-        <div class="layer-actions">
-           
-            <button ng-click="vm.saveFeatureType()" class="layer-action">
-                <span class="fa fa-save layer-action-icon" />save
-            </button>
-        </div>
-        <div class="leftpanel-scroll">
-            <feature-type-editor></feature-type-editor>
-        </div>
+    <div ng-if="vm.state === 'editfeaturetype'" class="layers-create-form">      
+            <feature-type-editor></feature-type-editor>        
     </div>
 
 
