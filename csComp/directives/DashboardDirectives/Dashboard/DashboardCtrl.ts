@@ -61,7 +61,7 @@ module Dashboard {
             $scope.initDashboard = () => {
                 //if (!$scope.container) $scope.container = 'main';
                 //$messageBusService.subscribe('dashboard-' + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
-                // In LayerService, you expect the name to be dashboard-main too. 
+                // In LayerService, you expect the name to be dashboard-main too.
                 $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     if (this.project.activeDashboard) {
@@ -211,17 +211,13 @@ module Dashboard {
         }
 
         public checkTimeline() {
-            if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
-                if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
-                    this.$mapService.timelineVisible = true;
-                } else {
-                    this.$mapService.timelineVisible = false;
-                }
+            var d = this.$scope.dashboard;
+            if (d.showTimeline !== this.$mapService.timelineVisible) {
+                this.$mapService.timelineVisible = (d.showTimeline && this.$mapService.isIntermediate);
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                     this.$scope.$root.$apply();
                 }
             }
-            var d = this.$scope.dashboard;     // RS mod January 2016
             if (d.showTimeline && d.timeline) {
                 //console.log('checkTimeline: dashboard has timeline');
 
@@ -240,7 +236,7 @@ module Dashboard {
                 if (d.timeline.focus && d.timeline.start && d.timeline.end &&
                     (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
                     var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
-                    //var w = $('#timeline').width();           // unfortunately, on the first call, 
+                    //var w = $('#timeline').width();           // unfortunately, on the first call,
                     //the timeline has a width of 100 (not resized yet)
                     //var w = $('#timeline').parent().width();  // does not help: = 0 on first call
                     var w = $('#map').width();                  // this works but might be dangerous
@@ -264,10 +260,8 @@ module Dashboard {
         }
 
         public isReady(widget: csComp.Services.IWidget) {
-            //this.updateWidget(widget); 
-            
-            setTimeout(() => {               
-
+            //this.updateWidget(widget);
+            setTimeout(() => {
                 if (!widget._ijs)
                     widget._ijs = interact('#' + widget.elementId + '-parent')
                         .resizable({ inertia: true })
@@ -397,7 +391,6 @@ module Dashboard {
                     });
                 }, 300);
                 d._initialized = true;
-
             }, 500);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;

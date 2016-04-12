@@ -197,6 +197,7 @@ module csComp.Services {
             } else {
                 this.$messageBusService.publish('updatelegend', 'removelegend');
                 //this.$layerService.project.activeDashboard = dashboard;
+                dashboard._initialized = false;
                 this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             }
         }
@@ -205,13 +206,11 @@ module csComp.Services {
             alert('close container');
         }
 
-        public activateTab(t: any)
-        {
-            if (typeof t === "string") {
+        public activateTab(t: any) {
+            if (typeof t === 'string') {
                  (<any>$('#rightpanelTabs a[data-target="#' + t + '-content"]')).tab('show');
                 this.$layerService.visual.rightPanelVisible = true;
-            }
-            else{
+            } else {
                 var tab = t as RightPanelTab;
                 if (!tab.hasOwnProperty('container')) return;
                 var content = tab.container + '-content';
