@@ -22,7 +22,7 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
-        
+
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
         solution: Solution;
@@ -36,7 +36,7 @@ module csComp.Services {
         _activeContextMenu: IActionOption[];
         editing: boolean;
         directoryHandle: MessageBusHandle;
-        
+
         /** true if no filters are active */
         noFilters = true;
 
@@ -731,15 +731,18 @@ module csComp.Services {
             this.expressionService.evalResourceExpressions(this.findResourceByFeature(f), [f]);
         }
 
+        /** save a resource back to the api */
         public saveResource(resource: TypeResource) {
             console.log('saving feature type');
-            this.$http.post('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
-                .success((data) => {
-                    console.log('resource saved');
-                })
-                .error((e) => {
-                    console.log('error saving resource');
-                });
+            if (resource.url) {
+                this.$http.put('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
+                    .success((data) => {
+                        console.log('resource saved');
+                    })
+                    .error((e) => {
+                        console.log('error saving resource');
+                    });
+            }
         }
 
         public expandGroup(layer: ProjectLayer) {
@@ -787,7 +790,7 @@ module csComp.Services {
                             .success((resource: TypeResource | string) => {
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
-                                    this.$messageBusService.notify('Error loading resource type', url);
+                                    this.$messageBusService.notifyError('Error loading resource type', url);
                                 } else {
                                     var r = <TypeResource>resource;
                                     if (r) {
@@ -799,7 +802,7 @@ module csComp.Services {
                                 callback();
                             })
                             .error((err) => {
-                                this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                                this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
                                 console.log(err);
                             });
                         setTimeout(() => {
@@ -835,6 +838,10 @@ module csComp.Services {
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             if (!source.title) source.title = source.url;
+            
+            // if url starts with  'api/' this is a dynamic resource
+            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);                        
+            
             var featureTypes = source.featureTypes;
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
@@ -1107,9 +1114,9 @@ module csComp.Services {
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false,true);                
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);    
-                
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{'RELATED_FEATURES' | translate}}', 'link');
@@ -1469,7 +1476,7 @@ module csComp.Services {
         */
         public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
-            ft._isInitialized = true;
+            ft._isInitialized = true;            
             this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
@@ -1479,7 +1486,7 @@ module csComp.Services {
                 ft._propertyTypeData = [];
                 if (ft.propertyTypeKeys && ft.propertyTypeKeys.length > 0) {
                     ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
-                        if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
+                        if (propertyTypes && propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
                     });
                 }
             }
@@ -1814,10 +1821,9 @@ module csComp.Services {
             }
             group.styles.push(style);
         }
-        
+
         /** checks if there are any filters available, used to show/hide filter tab leftpanel menu */
-        updateFilterAvailability()
-        {
+        updateFilterAvailability() {
             this.noFilters = true;
             this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 if (g.filters.length > 0 && this.noFilters) this.noFilters = false;
@@ -2195,8 +2201,9 @@ module csComp.Services {
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
             if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
+            this.saveProject();
         }
-        
+
         public removeAllFilters(g: ProjectGroup) {
             if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
@@ -3004,9 +3011,13 @@ module csComp.Services {
         }
 
 
-        public updateProject() {
+        /* save project back to api */
+        public saveProject() {
+            // if project is not dynamic, don't save it
+            if (!this.project.isDynamic) return;
             console.log('saving project');
             setTimeout(() => {
+
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 

@@ -1,83 +1,95 @@
-<div style="padding:5px">
+<div>
+
+    <div class="layer-actions">
+
+        <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+                <span class="fa fa-save layer-action-icon" />save
+            </button>
+    </div>
+    <div class="leftpanel-scroll">
 
 
-    <div>
-        <form name="featureTypeForm">
-            <!-- <div data-ng-click="enabled=!enabled" data-ng-class="enabled ? 'bold' : ''">Verander naam {{ featureType.name }}</div> -->
+        <div style="padding:5px">
+            <form name="featureTypeForm">
+                <!-- <div data-ng-click="enabled=!enabled" data-ng-class="enabled ? 'bold' : ''">Verander naam {{ featureType.name }}</div> -->
 
-            <!-- <div class="rightpanel-label">Feature id</div>
+                <!-- <div class="rightpanel-label">Feature id</div>
             <input type="text" data-ng-model="featureType.id" class="form-control" /> -->
 
-            <div class="rightpanel-label">Feature title</div>
-            <input type="text" data-ng-model="featureType.name" class="form-control" />
-            
-            <!--<div class="rightpanel-label">Title property (used to display name)</div>
+                <div class="rightpanel-label">Feature title</div>
+                <input type="text" ng-disabled="featureType._isInitialized" id="featureTypeName" data-ng-model="featureType.name" validfeaturetypeid class="form-control" />
+                <span class="help-block" ng-show="featureTypeForm.featureTypeName.$error">Not a valid title</span>
+
+                <!--<div class="rightpanel-label">Title property (used to display name)</div>
             <input type="text" data-ng-model="featureType.style.nameLabel" class="form-control" />-->
 
-            <div class="rightpanel-label">Icon Image</div>
-            <div class="row">
-                <div class="col-md-2">
-                    <img ng-src="{{ featureType.style['iconUri'] }}" err-src="images/error.png" width="32" height="32" class="img-responsive" />
-                </div>
-                <div class="col-md-10">
-                    <input type="text" data-ng-model="featureType.style['iconUri']" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 checkbox dashboard-edit-checkbox">
-                    <div class="rightpanel-label">Type</div>
-                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
-                </div>
-            </div>
-            <div ng-show="featureType.style['drawingMode'] == 'Point'">
+                <div class="rightpanel-label">Icon Image</div>
                 <div class="row">
-                    <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconHeight.$invalid }">
-                        <div class="rightpanel-label">Icon height</div>
-                        <input type="number" name="iconHeight" data-ng-model="featureType.style['iconHeight']" min="0" class="form-control" required>
+                    <div class="col-md-2">
+                        <img ng-src="{{ featureType.style['iconUri'] }}" err-src="images/error.png" width="32" height="32" class="img-responsive"
+                        />
                     </div>
-
-                    <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconWidth.$invalid }">
-                        <div class="rightpanel-label">Icon width</div>
-                        <input type="number" name="iconWidth" data-ng-model="featureType.style['iconWidth']" min="0" class="form-control" required>
+                    <div class="col-md-10">
+                        <input type="text" data-ng-model="featureType.style['iconUri']" class="form-control">
                     </div>
                 </div>
-            </div>
+                <div class="row">
+                    <div class="col-md-6 checkbox dashboard-edit-checkbox">
+                        <div class="rightpanel-label">Type</div>
+                        <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
+                    </div>
+                </div>
+                <div ng-show="featureType.style['drawingMode'] == 'Point'">
+                    <div class="row">
+                        <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconHeight.$invalid }">
+                            <div class="rightpanel-label">Icon height</div>
+                            <input type="number" name="iconHeight" data-ng-model="featureType.style['iconHeight']" min="0" class="form-control" required>
+                        </div>
 
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="rightpanel-label">Fill color</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
+                        <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconWidth.$invalid }">
+                            <div class="rightpanel-label">Icon width</div>
+                            <input type="number" name="iconWidth" data-ng-model="featureType.style['iconWidth']" min="0" class="form-control" required>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="rightpanel-label">Stroke</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
-                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="rightpanel-label">Fill color</div>
+                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
+                    </div>
 
-                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
-                    <div class="rightpanel-label">Stroke width</div>
-                    <input type="number" name="stroke" data-ng-model="featureType.style['strokeWidth']" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div ng-show="featureType.style['drawingMode'] == 'Point'" class="col-md-6" ng-class="{ 'has-error': featureTypeForm.cornerRadius.$invalid }">
-                    <div class="rightpanel-label">Corner radius (%)</div>
-                    <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
-                </div>
-                <div class="col-md-6"> <!--ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }"-->
-                    <div class="rightpanel-label">Opacity</div>
-                    <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                    <input ng-disabled="vm.noLayerSelected" type="checkbox" id="showAllProperties-{{featureType.id}}" ng-model="featureType.showAllProperties">
-                    <label for="showAllProperties-{{featureType.id}}">Show all properties</label>
-                </div>
-            </div>
+                    <div class="col-md-3">
+                        <div class="rightpanel-label">Stroke</div>
+                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
+                    </div>
 
-            <button class="btn btn-primary rightpanel-button" data-ng-click="vm.updateFeatureTypes(featureType)">{{'APPLY' | translate}}</button>
-        </form>
+                    <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
+                        <div class="rightpanel-label">Stroke width</div>
+                        <input type="number" name="stroke" data-ng-model="featureType.style['strokeWidth']" class="form-control">
+                    </div>
+                </div>
+                <div class="row">
+                    <div ng-show="featureType.style['drawingMode'] == 'Point'" class="col-md-6" ng-class="{ 'has-error': featureTypeForm.cornerRadius.$invalid }">
+                        <div class="rightpanel-label">Corner radius (%)</div>
+                        <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <!--ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }"-->
+                        <div class="rightpanel-label">Opacity</div>
+                        <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
+                    </div>
+                </div>
+                <!--<div class="row">
+                    <div class="col-md-6 checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                        <input ng-disabled="vm.noLayerSelected" type="checkbox" id="showAllProperties-{{featureType.id}}" ng-model="featureType.showAllProperties">
+                        <label for="showAllProperties-{{featureType.id}}">Show all properties</label>
+                    </div>
+                </div>-->
+
+                <!--<button class="btn btn-primary rightpanel-button" data-ng-click="vm.updateFeatureTypes(featureType)">{{'APPLY' | translate}}</button>-->
+            </form>
+        </div>
+
     </div>
-
 </div>

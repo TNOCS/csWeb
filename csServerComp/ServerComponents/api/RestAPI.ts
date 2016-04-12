@@ -1,19 +1,19 @@
-import ApiManager     = require('./ApiManager');
-import express        = require('express');
-import cors           = require('cors');
-import Project        = ApiManager.Project;
-import Group          = ApiManager.Group;
-import Layer          = ApiManager.Layer;
-import Feature        = ApiManager.Feature;
-import Logs           = ApiManager.Log;
-import ResourceFile   = ApiManager.ResourceFile;
-import BaseConnector  = require('./BaseConnector');
+import ApiManager = require('./ApiManager');
+import express = require('express');
+import cors = require('cors');
+import Project = ApiManager.Project;
+import Group = ApiManager.Group;
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import Logs = ApiManager.Log;
+import ResourceFile = ApiManager.ResourceFile;
+import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
-import ApiResult      = ApiManager.ApiResult;
-import ApiMeta        = ApiManager.ApiMeta;
-import Winston        = require('winston');
-import request        = require('request');
-import fs             = require('fs');
+import ApiResult = ApiManager.ApiResult;
+import ApiMeta = ApiManager.ApiMeta;
+import Winston = require('winston');
+import request = require('request');
+import fs = require('fs');
 
 export class RestAPI extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager;
@@ -30,13 +30,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
         super();
         this.isInterface = true;
         this.resourceUrl = baseUrl + '/resources/';
-        this.layersUrl   = baseUrl + '/layers/';
-        this.searchUrl   = baseUrl + '/search/';
-        this.filesUrl    = baseUrl + '/files/';
-        this.keysUrl     = baseUrl + '/keys/';
+        this.layersUrl = baseUrl + '/layers/';
+        this.searchUrl = baseUrl + '/search/';
+        this.filesUrl = baseUrl + '/files/';
+        this.keysUrl = baseUrl + '/keys/';
         this.projectsUrl = baseUrl + '/projects/';
-        this.proxyUrl    = baseUrl + '/proxy';
-        this.tilesUrl    = baseUrl + '/tiles/';
+        this.proxyUrl = baseUrl + '/proxy';
+        this.tilesUrl = baseUrl + '/tiles/';
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
@@ -48,21 +48,38 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // get all resource types
         this.server.get(this.resourceUrl, (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.resources));
+            res.send(JSON.stringify(this.cloneWithoutUnderscore(this.manager.resources)));
         });
 
-        // add a new resource type file
+        /** add a new resource type file, returns an error if it already exists */
         this.server.post(this.resourceUrl, (req: express.Request, res: express.Response) => {
             var resource = new ResourceFile();
             resource = req.body;
-            this.manager.addResource(resource, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            this.manager.addResource(resource, false, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.sendStatus(result.result);
+            });
+        });
+
+        /** update/add a resource type file, overwrites if it already exists */
+        this.server.put(this.resourceUrl, (req: express.Request, res: express.Response) => {
+            var resource = new ResourceFile();
+            resource = req.body;
+            this.manager.addResource(resource, true, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 res.sendStatus(result.result);
             });
         });
 
         // get an existing resource type file
         this.server.get(this.resourceUrl + ':resourceId', (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
+            this.manager.getResource(req.params.resourceId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                if (result.result === ApiResult.OK) {
+                    res.send(this.cloneWithoutUnderscore(result.resource));
+                }
+                else {
+                    res.sendStatus(result.result);
+                }
+            });
+            //res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
         });
 
         // get all available public layers
@@ -163,7 +180,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.post(this.layersUrl, (req: express.Request, res: express.Response) => {
             var layer = new Layer();
             //layer.features = req.body.features;
-            layer = req.body;
+            layer = <Layer>req.body;
             this.manager.addUpdateLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 res.sendStatus(result.result);
             });
@@ -189,6 +206,20 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 //todo: check error
                 res.sendStatus(result.result);
             });
+        });
+
+        /** creates a new layer, returns an error if it already exists */
+        this.server.post(this.layersUrl + ':layerId', (req: any, res: any) => {
+            req.layerId = req.params.layerId;
+            if (this.manager.layers.hasOwnProperty(req.layerId)) {
+                res.sendStatus(ApiResult.LayerAlreadyExists);
+            }
+            else {
+                this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                    //todo: check error
+                    res.sendStatus(result.result);
+                });
+            }
         });
 
         // gets the entire layer, which is stored as a single collection
@@ -369,19 +400,19 @@ export class RestAPI extends BaseConnector.BaseConnector {
         Winston.info('proxy request 2: ' + feedUrl);
         //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
         var options = {
-                method: 'get',
-                headers: req.headers
-            };
+            method: 'get',
+            headers: req.headers
+        };
 
 
-        var parseNumbers = function(str) {
+        var parseNumbers = function (str) {
             if (!isNaN(str)) {
                 str = str % 1 === 0 ? parseInt(str, 10) : parseFloat(str);
             }
             return str;
         };
 
-        request(feedUrl, options, function(error, response, xml) {
+        request(feedUrl, options, function (error, response, xml) {
             if (!error && response.statusCode === 200) {
                 res.send(xml);
 
@@ -391,4 +422,23 @@ export class RestAPI extends BaseConnector.BaseConnector {
             }
         });
     }
+
+    private cloneWithoutUnderscore(v: any): any {
+        if (typeof v !== 'object') return v;
+        if (v instanceof Array) {
+            var a = [];
+            v.forEach((i) => {
+                a.push(this.cloneWithoutUnderscore(i));
+            });
+            return a;
+        } else {
+            var c = {};
+            for (var k in v) {
+                if (k[0] !== '_') c[k] = this.cloneWithoutUnderscore(v[k]);
+            }
+            return c;
+        }
+    }
+
+
 }

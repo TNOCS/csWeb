@@ -54,6 +54,7 @@ export class CallbackResult {
     public groups: string[];
     public feature: Feature;
     public features: Feature[];
+    public resource: ResourceFile;
     public keys: { [keyId: string]: Key };
     public key: Key;
 }
@@ -116,6 +117,8 @@ export interface IConnector {
 
     /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+    /** Get a resource file  */
+    getResource(resourceId: string, meta: ApiMeta, callback: Function);
     /** Add a file to the store, e.g. an icon or other media. */
     addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
 
@@ -213,7 +216,7 @@ export interface ILayer extends StorageObject {
     data?: any;
     timestamps?: number[];
     [key: string]: any;
-    hasSensorData? : boolean;
+    hasSensorData?: boolean;
 }
 
 /**
@@ -244,7 +247,7 @@ export class Layer implements StorageObject, ILayer {
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
-    public hasSensorData : boolean;
+    public hasSensorData: boolean;
 }
 
 /**
@@ -272,8 +275,8 @@ export class Feature {
     public properties: { [key: string]: any };
     public logs: { [key: string]: Log[] };
     public coordinates: any[];          // used for temporal data
-    public sensors : { [ key : string] : any[] };
-    public timestamps : number[];
+    public sensors: { [key: string]: any[] };
+    public timestamps: number[];
 }
 
 /**
@@ -305,10 +308,11 @@ export class PropertyType {
 }
 
 export class ResourceFile implements StorageObject {
-    _localFile : string;
+    _localFile: string;
     featureTypes: { [key: string]: FeatureType };
-    propertyTypes: { [key: string]: PropertyType };
+    propertyTypeData: { [key: string]: PropertyType };
     id: string;
+    title: string;
     storage: string;
 }
 
@@ -387,24 +391,22 @@ export class ApiManager extends events.EventEmitter {
         if (!fs.existsSync(rootPath)) {
             fs.mkdirSync(rootPath);
         }
-        this.initResources(path.join(this.rootPath, '/resourceTypes/'));
+        //this.initResources(path.join(this.rootPath, '/resourceTypes/'));
         this.loadLayerConfig(() => {
             this.loadProjectConfig(() => {
                 callback();
             });
         });
     }
-    
+
     /** Sends a message (json) to a specific project, only works with socket io for now */
-    public sendClientMessage(project : string, message : Object)
-    {
-        if (this.connectors.hasOwnProperty('socketio'))
-        {
+    public sendClientMessage(project: string, message: Object) {
+        if (this.connectors.hasOwnProperty('socketio')) {
             var c = <socketio.SocketIOAPI>this.connectors['socketio'];
-            c.sendClientMessage(project,message);    
+            c.sendClientMessage(project, message);
         }
-        
-        
+
+
     }
 
     /** Open layer config file*/
@@ -544,32 +546,52 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Update/add a resource and save it to file
      */
-    public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
-        if (this.resources.hasOwnProperty(resource.id))
-        {
-            resource._localFile = this.resources[resource.id]._localFile;
+    public addResource(resource: ResourceFile, replace: boolean, meta: ApiMeta, callback: Function) {
+        if (this.resources.hasOwnProperty(resource.id) && !replace) {
+            callback(<CallbackResult>{ result: ApiResult.ResourceAlreadyExists, error: 'Resource already exists' });
         }
-        this.resources[resource.id] = resource;
-        var s = this.findStorage(resource);
-        this.getInterfaces(meta).forEach((i: IConnector) => {
-            i.addResource(resource, meta, () => { });
-        });
-        // store resource
-        if (s) {
-            s.addResource(resource, meta, (r: CallbackResult) => {
-                callback(<CallbackResult>{ result: ApiResult.OK, error: 'Resource added' });
-            });
-        } else {
-            callback(<CallbackResult>{ result: ApiResult.OK });
+        else {
+            // reuse existing local file location
+            if (this.resources.hasOwnProperty(resource.id)) {
+                resource._localFile = this.resources[resource.id]._localFile;
+            }
+
+            // create new resource defintion (without actual content)
+            this.resources[resource.id] = <ResourceFile>{ _localFile: resource._localFile, id: resource.id, title: resource.title, storage: resource.storage };
+
+            // don't actually save it, if this method is called from the storage connector it self
+            if (resource.storage != meta.source) {
+                var s = this.findStorage(resource);
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.addResource(resource, meta, () => { });
+                });
+                // store resource
+                if (s) {
+                    s.addResource(resource, meta, (r: CallbackResult) => {
+                        callback(<CallbackResult>{ result: ApiResult.OK, error: 'Resource added' });
+                    });
+                } else {
+                    callback(<CallbackResult>{ result: ApiResult.OK });
+                }
+            }
         }
     }
 
-    public getResource(id: string): ResourceFile {
+    public getResource(id: string, meta: ApiMeta, callback: Function) {
         if (this.resources.hasOwnProperty(id)) {
-            return this.resources[id];
+            var s = this.findStorage(this.resources[id]);
+            if (s) {
+                s.getResource(id, meta, (r: CallbackResult) => {
+                    callback(r);
+                });
+            }
+            else {
+                callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
+            }
         }
-        return null;
-        //TODO implement
+        else {
+            callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
+        }
     }
 
     public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
@@ -911,7 +933,7 @@ export class ApiManager extends events.EventEmitter {
             if (storage != null) {
                 storage.searchLayer(lId, keyword, meta, (r) => {
                     if (r.result === ApiResult.OK) {
-                        r.features.forEach(f=> result.push(f));
+                        r.features.forEach(f => result.push(f));
                     }
                     callback();
                 });
@@ -1033,12 +1055,12 @@ export class ApiManager extends events.EventEmitter {
             // update project
             (cb: Function) => {
                 var file = this.projects[project.id]._localFile;
-                if (file && !project._localFile) project._localFile = file;                
+                if (file && !project._localFile) project._localFile = file;
 
                 var p = this.getProjectDefinition(project);
 
                 this.projects[p.id] = p;
-                
+
 
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.updateProject(project, meta, () => { });
@@ -1116,7 +1138,7 @@ export class ApiManager extends events.EventEmitter {
                 this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
                 callback(<CallbackResult>{ result: ApiResult.OK });
             });
-        } 
+        }
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
@@ -1273,7 +1295,7 @@ export class ApiManager extends events.EventEmitter {
             this.addKey(k, meta, () => { });
         }
 
-        if (typeof value === 'object' &&  !value.hasOwnProperty('time')) value['time'] = new Date().getTime();
+        if (typeof value === 'object' && !value.hasOwnProperty('time')) value['time'] = new Date().getTime();
         var s = this.findStorageForKeyId(keyId);
         if (s) s.updateKey(keyId, value, meta, () => callback());
 
@@ -1309,18 +1331,18 @@ export class ApiManager extends events.EventEmitter {
         process.on('cleanup', callback);
 
         // do app specific cleaning before exiting
-        process.on('exit', function() {
+        process.on('exit', function () {
             process.emit('cleanup');
         });
 
         // catch ctrl+c event and exit normally
-        process.on('SIGINT', function() {
+        process.on('SIGINT', function () {
             console.log('Ctrl-C...');
             process.exit(2);
         });
 
         //catch uncaught exceptions, trace, then exit normally
-        process.on('uncaughtException', function(e) {
+        process.on('uncaughtException', function (e) {
             console.log('Uncaught Exception...');
             console.log(e.stack);
             process.exit(99);

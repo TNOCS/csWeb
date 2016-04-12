@@ -162,6 +162,24 @@ module LayerEditor {
 
             });
         }
+        
+        deleteFeaturetype(type : csComp.Services.IFeatureType)
+        {
+            var r = this.$layerService.findResourceByLayer(this.layer);                                    
+            if (r)
+            {                
+                for (var ft in r.featureTypes)
+                {
+                    if (r.featureTypes[ft].id === r.url + "#" + type.id || r.featureTypes[ft].id === type.id)
+                    {
+                        delete r.featureTypes[ft];                        
+                    }
+                    
+                }                
+                this.$layerService.saveResource(r);
+                this.$messageBusService.publish('featuretype','stopEditing',type);
+            }            
+        }
 
         editFeaturetype(type: csComp.Services.IFeatureType) {
             this.$messageBusService.publish('featuretype','startEditing',type);

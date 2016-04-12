@@ -223,9 +223,7 @@ export class MapLayerFactory {
 
     public sendResourceThroughApiManager(data: any, resourceId: string) {
         data.id = resourceId;
-        this.apiManager.addResource(data, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
-            console.log(result);
-        });
+        this.apiManager.addResource(data, true, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => { console.log(result); });
     }
 
     public sendLayerThroughApiManager(data: any) {
