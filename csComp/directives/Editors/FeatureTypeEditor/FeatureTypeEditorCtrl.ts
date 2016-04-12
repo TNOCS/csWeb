@@ -42,8 +42,6 @@ module FeatureTypeEditor {
             else {
                 console.log('no feature type');
             }
-
-
         }
 
         //** force features to be updated */
@@ -54,6 +52,18 @@ module FeatureTypeEditor {
             this.$layerService.updateFeatureTypes(ft);
             
         };
+        
+         /** save a resource (back to api and update features) */
+        public saveFeatureType() {
+            if (!this.$scope.featureType._isInitialized) {
+                this.$scope.featureType.id = this.$scope.featureType.name;
+                this.$layerService.initFeatureType(this.$scope.featureType, null);
+                this.$scope.featureType._resource.featureTypes[this.$scope.featureType.id] = this.$scope.featureType;
+            }
+            this.$layerService.saveResource(this.$scope.featureType._resource);
+            this.$layerService.updateFeatureTypes(this.$scope.featureType);
+            this.$messageBusService.publish("featuretype","stopEditing");            
+        }
 
 
     }
