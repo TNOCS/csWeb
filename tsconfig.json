@@ -193,6 +193,7 @@
         "csComp/services/layer/LayerActions.ts",
         "csComp/services/layer/LayerService.ts",
         "csComp/services/layer/MatrixAction.ts",
+        "csComp/services/layer/RelationAction.ts",
         "csComp/services/layer/sources/DatabaseSource.ts",
         "csComp/services/layer/sources/GeoJsonSource.ts",
         "csComp/services/layer/sources/GridDataSource.ts",
