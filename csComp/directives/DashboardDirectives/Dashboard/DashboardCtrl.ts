@@ -383,13 +383,13 @@ module Dashboard {
                     this.updateWidget(w);
                 });
 
-                this.$timeout(() => {
-                    this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                        this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                            this.updateWidget(w);
-                        });
-                    });
-                }, 300);
+                // this.$timeout(() => {
+                //     this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                //         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                //             this.updateWidget(w);
+                //         });
+                //     });
+                // }, 300);
                 d._initialized = true;
             }, 500);
 
