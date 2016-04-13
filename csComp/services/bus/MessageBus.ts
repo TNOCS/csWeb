@@ -307,8 +307,7 @@ module csComp.Services {
          * @location:    the location on the screen where the notification is shown (default bottom right)
          * @notifyType:  the type of notification
 		 */
-        public notify(title: string, text: string, location = NotifyLocation.TopBar, notifyType = NotifyType.Normal) {
-            console.log('notify : ' + title);
+        public notify(title: string, text: string, location = NotifyLocation.TopBar, notifyType = NotifyType.Normal) {           
 
             //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
             if (this.notifications) {
@@ -346,82 +345,7 @@ module csComp.Services {
                 }
             }
 
-            var cssLocation: string;
-            var cornerglass: string = 'ui-pnotify-sharp';
-            var myStack: { dir1: string, dir2: string, push: string, spacing1: number, spacing2: number } = { dir1: '', dir2: '', push: '', spacing1: 0, spacing2: 0 };
-            switch (location) {
-                case NotifyLocation.BottomLeft:
-                    cssLocation = 'stack-bottomleft';
-                    myStack.dir1 = 'up';
-                    myStack.dir2 = 'right';
-                    break;
-                case NotifyLocation.TopLeft:
-                    cssLocation = 'stack-topleft';
-                    myStack.dir1 = 'down';
-                    myStack.dir2 = 'right';
-                    break;
-                case NotifyLocation.TopBar:
-                    cssLocation = 'stack-bottomleft';
-                    myStack.dir1 = 'down';
-                    myStack.dir2 = 'left';
-                    myStack.push = 'top';
-                    break;
-                default:
-                    //case NotifyLocation.TopRight:
-                    cssLocation = 'stack-topright';
-                    myStack.dir1 = 'down';
-                    myStack.dir2 = 'left';
-                    break;
-                // default:
-                //     cssLocation = 'stack-bar-top';
-                //     myStack.dir1 = 'down';
-                //     myStack.dir2 = 'left';
-                //     break;
-            }
-
-            var options: pnotifyDefaults = {
-                title: title,
-                text: text,
-                cornerclass: cornerglass,
-                addclass: cssLocation,
-                stack: myStack
-            };
-
-            switch (notifyType) {
-                default:
-                    options.icon = 'fa fa-info';
-                    break;
-                case NotifyType.Info:
-                    options.icon = 'fa fa-info-circle';
-                    options.type = 'info';
-                    break;
-                case NotifyType.Error:
-                    options.icon = 'fa fa-exclamation-triangle';
-                    options.type = 'error';
-                    break;
-                case NotifyType.Success:
-                    options.icon = 'fa fa-thumbs-o-up';
-                    options.type = 'success';
-                    break;
-            }
-            //var pn = new PNotify(options);
-
-
-
-            // var s = new PNotify({
-            //     title: 'Non-Blocking Notice',
-            //     text: 'I\'m a non-blocking notice with buttons.',
-            //
-            //     buttons: {
-            //         show_on_nonblock: true
-            //     }
-            // });
-
-            //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'width': '500px', 'spacing1': 0, 'spacing2': 0 };
-            //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 0, 'firstpos2': ($(window).width() / 2 - 500) }
-            var stack_bar_bottom = { 'dir1': 'up', 'dir2': 'right', 'spacing1': 0, 'spacing2': 0 };
-            var stack_bar_top = { "dir1": "down", "dir2": "right", "spacing1": 0, "spacing2": 0 };
-
+            
             var opts = {
                 title: title,
                 text: text,
@@ -437,33 +361,6 @@ module csComp.Services {
                     nonblock: true,
                     nonblock_opacity: .2
                 },
-
-                // confirm: {
-                //     confirm: true,
-                //     buttons: [{
-                //         buttons: [{
-                //             text: 'Fries',
-                //             addClass: 'btn-primary',
-                //             click: (notice) => {
-                //                 notice.update({
-                //                     title: 'You\'ve Chosen a Side',
-                //                     text: 'You want fries.',
-                //                     icon: true,
-                //                     type: 'info',
-                //                     hide: true,
-                //                     confirm: {
-                //                         confirm: false
-                //                     },
-                //                     buttons: {
-                //                         show_on_nonblock: true,
-                //                         closer: true,
-                //                         sticker: true
-                //                     }
-                //                 });
-                //             }
-                //         }]
-                //     }]
-                // },
                 buttons: {
                     closer: true,
                     sticker: false
@@ -485,6 +382,9 @@ module csComp.Services {
             var options = {
                 title: title,
                 text: text,
+                addclass: "csNotify",
+                width: "500px",
+                animation: "fade",
                 hide: false,
                 confirm: {
                     confirm: true
@@ -497,9 +397,8 @@ module csComp.Services {
                     history: false
                 },
                 icon: 'fa fa-question-circle',
-                cornerclass: 'ui-pnotify-sharp',
-                addclass: 'stack-topright',
-                stack: { 'dir1': 'down', 'dir2': 'left', 'firstpos1': 25, 'firstpos2': 25 }
+                cornerclass: 'ui-pnotify-sharp'                
+                
             };
 
             var pn = new PNotify(options).get()
