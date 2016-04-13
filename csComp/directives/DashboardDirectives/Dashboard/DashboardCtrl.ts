@@ -100,7 +100,20 @@ module Dashboard {
 
         public closeDashboard() {
             this.project.activeDashboard.widgets.forEach(w => {
-                if (w.stop) w.stop();
+                if (w.stop) {
+                    w.stop();
+                } else if (w.elementId) {
+                    // The stop() function of a widget sits in the controller. We can reach the controller through the 
+                    // scope of the widget element. 
+                    try {
+                        var wElm = document.getElementById(w.elementId);
+                        var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
+                        if (wScope && wScope.vm && wScope.vm.stop) {
+                            wScope.vm.stop();
+                        }
+                    } 
+                    catch (e) { }
+                }
             });
         }
 
