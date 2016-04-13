@@ -448,6 +448,7 @@ module csComp.Services {
             return result;
         }
 
+        /** enable edit mode for @layer and disable it for the others */
         public startEditing(layer: csComp.Services.ProjectLayer) {
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 var v = false;
@@ -462,7 +463,7 @@ module csComp.Services {
                 g._gui.editing = v;
             });
             this.service.editing = true;
-            this.initAvailableFeatureTypes(layer);
+            this.initAvailableFeatureTypesEditing(layer);
         }
 
         public stopEditing(layer: csComp.Services.ProjectLayer) {
@@ -476,18 +477,17 @@ module csComp.Services {
             this.service.editing = false;
         }
 
-        public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
+        /** prepare layer for editing, add featuretypes to temp. _gui object */
+        public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
             var featureTypes = {};
             layer._gui['featureTypes'] = featureTypes;
 
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
             for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
-                if (t.style.drawingMode.toLowerCase() === 'point') {
-                    featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                    featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
-                }
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);                
             }
         }
 

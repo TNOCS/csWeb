@@ -1,6 +1,7 @@
 module LayerEditor {
 
     declare var interact;
+    declare var L;
 
 
     export interface ILayerEditorScope extends ng.IScope {
@@ -10,7 +11,7 @@ module LayerEditor {
     export class LayerEditorCtrl {
         private scope: ILayerEditorScope;
         public layer: csComp.Services.ProjectLayer;
-        public availabeTypes: { (key: string): csComp.Services.IFeatureType };
+        public availabeTypes: { (key: string): csComp.Services.IFeatureType };        
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -44,8 +45,13 @@ module LayerEditor {
 
 
             var ft = <csComp.Services.IFeatureType>{};
-           // ft.style.drawingMode
+
+
+            
+
+            // ft.style.drawingMode
         }
+
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
             var transformProp;
@@ -101,9 +107,9 @@ module LayerEditor {
                             fid = ft.name;
                         }
                         layer.data.features.push(f);
-                        
-                        this.$messageBusService.publish("feature","dropped",f);
-                        
+
+                        this.$messageBusService.publish("feature", "dropped", f);
+
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
@@ -163,27 +169,23 @@ module LayerEditor {
 
             });
         }
-        
-        deleteFeaturetype(type : csComp.Services.IFeatureType)
-        {
-            var r = this.$layerService.findResourceByLayer(this.layer);                                    
-            if (r)
-            {                
-                for (var ft in r.featureTypes)
-                {
-                    if (r.featureTypes[ft].id === r.url + "#" + type.id || r.featureTypes[ft].id === type.id)
-                    {
-                        delete r.featureTypes[ft];                        
+
+        deleteFeaturetype(type: csComp.Services.IFeatureType) {
+            var r = this.$layerService.findResourceByLayer(this.layer);
+            if (r) {
+                for (var ft in r.featureTypes) {
+                    if (r.featureTypes[ft].id === r.url + "#" + type.id || r.featureTypes[ft].id === type.id) {
+                        delete r.featureTypes[ft];
                     }
-                    
-                }                
+
+                }
                 this.$layerService.saveResource(r);
-                this.$messageBusService.publish('featuretype','stopEditing',type);
-            }            
+                this.$messageBusService.publish('featuretype', 'stopEditing', type);
+            }
         }
 
         editFeaturetype(type: csComp.Services.IFeatureType) {
-            this.$messageBusService.publish('featuretype','startEditing',type);
+            this.$messageBusService.publish('featuretype', 'startEditing', type);
         }
 
 

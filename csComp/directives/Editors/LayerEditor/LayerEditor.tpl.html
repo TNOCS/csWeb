@@ -1,32 +1,41 @@
 <div>
     <div style="padding:0px">
+
         <span ng-repeat="(key,featureType) in vm.layer._gui.featureTypes" class="featureType-item">
 
-            <span ng-switch="view">
-                <span ng-switch-when="icons" style="margin-top:5px;margin-bottom:5px">
+            <span ng-switch="view" >
+                <span ng-switch-when="icons" ng-if="featureType.style.drawingMode === 'Point'" style="margin-top:5px;margin-bottom:5px">
                     <div id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;margin-right:10px;float:left;border:none;background:transparent"
                         when-ready="vm.initDrag(key,vm.layer)">
                         <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
                     </div>
                 </span>
-                <div ng-switch-default style="clear:both;position:relative">
-                    <div id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
+        <div ng-switch-default style="clear:both;position:relative">
+            <span ng-switch="featureType.style.drawingMode">
+                    <div ng-switch-when="Point" id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
                         when-ready="vm.initDrag(key,vm.layer)">
                         <feature-type featuretype="featureType" />
-                    </div>                    
-                    <div class="featureType-name" ng-dblclick="vm.editFeatureType(featureType)">{{featureType.name}}</div>
-                    <div style="position:absolute;right:10px;top:8px">
-                        <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
-                            aria-expanded="false">
-                        </div>
-                        <ul class="dropdown-menu pull-right">
-                            <li ng-click="vm.editFeaturetype(featureType)" class="dropdown-item"><a>Edit</a><span class="fa fa-pencil dropdown-item-icon" /></li>
-                            <li ng-click="vm.deleteFeaturetype(featureType)" class="dropdown-item"><a>Delete</a><span class="fa fa-trash dropdown-item-icon" /></li>
-                            <!--<li ng-click="vm.makeDefaultFeaturetype(featureType)" class="dropdown-item"><a>Make default</a><span class="fa fa-trash dropdown-item-icon" /></li>-->
-                        </ul>
                     </div>
+                    <div ng-switch-when="Line">
+                        <button ng-click="vm.startDraw(featureType)">Line</button>
+                        </div>
+                        <div ng-switch-when="Polygon">
+                        <button>Polygon</button>
+                        </div>
+                    </span>
+            <div class="featureType-name" ng-dblclick="vm.editFeatureType(featureType)">{{featureType.name}}</div>
+            <div style="position:absolute;right:10px;top:8px">
+                <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
+                    aria-expanded="false">
                 </div>
-            </span>
+                <ul class="dropdown-menu pull-right">
+                    <li ng-click="vm.editFeaturetype(featureType)" class="dropdown-item"><a>Edit</a><span class="fa fa-pencil dropdown-item-icon" /></li>
+                    <li ng-click="vm.deleteFeaturetype(featureType)" class="dropdown-item"><a>Delete</a><span class="fa fa-trash dropdown-item-icon" /></li>
+                    <!--<li ng-click="vm.makeDefaultFeaturetype(featureType)" class="dropdown-item"><a>Make default</a><span class="fa fa-trash dropdown-item-icon" /></li>-->
+                </ul>
+            </div>
+        </div>
+        </span>
         </span>
     </div>
 </div>

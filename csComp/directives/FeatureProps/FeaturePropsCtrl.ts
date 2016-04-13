@@ -204,13 +204,15 @@ module FeatureProps {
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
             var text = feature.properties[mi.label];
-            if (mi.type === 'relation' && mi.visibleInCallOut) {
-                var results = this.getLinkedFeatures(mi, feature, this.propertyTypeData, this.layerservice);
-                var fPropType = <IPropertyType>{type: 'feature', label: 'relatedfeature'};
-                results.forEach((res: IFeature) => {
-                    fPropType.title = mi.title;
-                    linkCallOutSection.addProperty(res.id, csComp.Helpers.getFeatureTitle(res), fPropType.label, false, false, false, res, false, mi.description, fPropType);
-                });
+            if (mi.type === 'relation' && mi.visibleInCallOut && feature._gui && feature._gui['relations']) {
+                if (feature._gui['relations'].hasOwnProperty(mi.label)) {
+                    var results = feature._gui['relations'][mi.label];
+                    var fPropType = <IPropertyType>{type: 'feature', label: 'relatedfeature'};
+                    results.forEach((res: IFeature) => {
+                        fPropType.title = mi.title;
+                        linkCallOutSection.addProperty(res.id, csComp.Helpers.getFeatureTitle(res), fPropType.label, false, false, false, res, false, mi.description, fPropType);
+                    });
+                }
             }
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
             // Skip empty, non-editable values
@@ -226,42 +228,6 @@ module FeatureProps {
             }
             
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
-        }
-
-        private getLinkedFeatures(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): IFeature[] {
-            var results = [];
-            var useTargetID = (!mi.target) ?  true : false; 
-            var useSubjectID = (!mi.subject) ? true : false;
-            // Search for the property when it is defined as subject, otherwise search for id.
-            var searchValue = (useSubjectID) ? feature.id : feature.properties[mi.subject];
-            var searchFeatures = [];
-            if (!mi.targetlayers) {
-                searchFeatures = feature.layer.data.features || [];
-            } else if (mi.targetlayers.length > 0 && mi.targetlayers[0] === '*') {
-                searchFeatures = layerservice.project.features;
-            } else {
-                mi.targetlayers.forEach((layerID) => {
-                    let l = layerservice.findLayer(layerID);
-                    if (l && l.data && l.data.features) {
-                        searchFeatures = searchFeatures.concat(l.data.features);
-                    }
-                });
-            }
-            results = searchFeatures.filter((f) => {
-                if (useTargetID) {
-                    if (f.id === searchValue && f.id !== feature.id) {
-                        return true;
-                    }
-                } else {
-                    if (f.properties && f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === searchValue) {
-                        if (f.id !== feature.id) { // Do not return self
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            });
-            return results;
         }
 
         public sectionCount(): number {

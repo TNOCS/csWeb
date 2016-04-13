@@ -1,9 +1,13 @@
 <div>
 
     <div class="layer-actions">
-
-        <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+        
+            <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />save
+            </button>
+            
+            <button ng-if="featureType._isInitialized" ng-click="vm.apply()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+                <span class="fa fa-save layer-action-icon" />apply
             </button>
     </div>
     <div class="leftpanel-scroll">
@@ -56,12 +60,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Fill color</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', showAlpha: true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                     </div>
 
                     <div class="col-md-3">
                         <div class="rightpanel-label">Stroke</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', showAlpha: true, chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
                     </div>
 
                     <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">

@@ -168,6 +168,7 @@ module csComp.Services {
 
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
+            this.addActionService(new RelationAction.RelationActionModel());
 
             // var delayFocusChange = _.debounce((date) => {
             //     this.refreshActiveLayers();
@@ -838,10 +839,10 @@ module csComp.Services {
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             if (!source.title) source.title = source.url;
-            
+
             // if url starts with  'api/' this is a dynamic resource
-            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);                        
-            
+            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
+
             var featureTypes = source.featureTypes;
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
@@ -1341,7 +1342,7 @@ module csComp.Services {
             feature.layer.group.ndx.remove([feature]);
             this.activeMapRenderer.removeFeature(feature);
 
-            this.$messageBusService.publish("feature", "onFeatureRemoved", feature);
+            this.$messageBusService.publish('feature', 'onFeatureRemoved', feature);
 
             if (dynamic) {
                 var s = new LayerUpdate();
@@ -1476,7 +1477,7 @@ module csComp.Services {
         */
         public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
-            ft._isInitialized = true;            
+            ft._isInitialized = true;
             this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
@@ -2226,6 +2227,8 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers = {};
 
+
+
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
                 url = this.emptySolutionUrl;
@@ -2367,6 +2370,8 @@ module csComp.Services {
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+
+            this.$mapService.initDraw();
 
             if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
@@ -2725,22 +2730,15 @@ module csComp.Services {
             if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') this.$rootScope.$apply();
         }
 
-        public toggleLayer(layer: ProjectLayer) {
-            if (_.isUndefined(layer.enabled)) {
+        /** toggle layer enabled/disabled */
+        public toggleLayer(layer: ProjectLayer, loaded?: Function) {
+            if (_.isUndefined(layer.enabled) || layer.enabled === false) {
                 layer.enabled = true;
+                this.addLayer(layer, () => { if (loaded) loaded() });
             } else {
                 layer.enabled = !layer.enabled;
-            }
-            this.checkToggleLayer(layer);
-            //if (!_.isUndefined(layer.group.oneLayerActive) && this.findLoadedLayer(layer.id)) layer.enabled = false;
-
-        }
-
-        public checkToggleLayer(layer: ProjectLayer) {
-            if (layer.enabled) {
-                this.addLayer(layer);
-            } else {
                 this.removeLayer(layer);
+                if (loaded) loaded();
             }
         }
 
@@ -3017,7 +3015,6 @@ module csComp.Services {
             if (!this.project.isDynamic) return;
             console.log('saving project');
             setTimeout(() => {
-
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 
