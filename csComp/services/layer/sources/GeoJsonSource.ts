@@ -266,7 +266,7 @@ module csComp.Services {
             // subscribe
         }
 
-        private updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
+        public updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
             var configSettings = {};
             if (layer.id === 'newsfeed') {
                 configSettings = { titleKey: 'Name', descriptionKey: 'news_title', dateKey: 'news_date' };
@@ -321,7 +321,7 @@ module csComp.Services {
             }
         }
 
-        private deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
+        public deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
             try {
                 var feature = this.service.findFeature(layer, id);
                 if (feature) {
@@ -333,6 +333,99 @@ module csComp.Services {
             }
         }
 
+
+
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            layer.isEditable = true;
+            this.baseAddLayer(layer, (layer: ProjectLayer) => {
+                callback(layer);
+
+            }, data);
+        }
+
+        removeLayer(layer: ProjectLayer) {
+            layer.isConnected = false;
+            if (layer._gui['editing']) this.stopEditing(layer);            
+        }
+
+        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+            var result: [[string, Function]] = [
+                ['Fit map', (($itemScope) => this.fitMap(layer))]];
+            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
+            result.push(null);
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            return result;
+        }
+
+        /** enable edit mode for @layer and disable it for the others */
+        public startEditing(layer: csComp.Services.ProjectLayer) {
+            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                var v = false;
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    if (l === layer) {
+                        v = true;
+                        l._gui['editing'] = true;
+                    } else {
+                        delete l._gui['editing'];
+                    }
+                });
+                g._gui.editing = v;
+            });
+            this.service.editing = true;
+            this.initAvailableFeatureTypesEditing(layer);
+        }
+
+        public stopEditing(layer: csComp.Services.ProjectLayer) {
+            delete layer._gui['featureTypes'];
+            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                delete g._gui['editing'];
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    delete l._gui['editing'];
+                });
+            });
+            this.service.editing = false;
+        }
+
+        /** prepare layer for editing, add featuretypes to temp. _gui object */
+        public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
+            var featureTypes = {};
+            layer._gui['featureTypes'] = featureTypes;
+
+            if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
+            for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
+                var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
+
+                featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                featureTypes[ft]._guid = csComp.Helpers.getGuid();
+            }
+        }
+
+    }
+
+    export class DynamicGeoJsonSource extends EditableGeoJsonSource {
+        title: "dynamicgeojson";
+        connection: Connection;
+
+        constructor(public service: LayerService, $http: ng.IHttpService) {
+            super(service, $http);
+        }
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            layer.isDynamic = true;
+            super.addLayer(layer, callback, data);
+            if (layer.enabled) {
+                this.initSubscriptions(layer);
+            }
+        }
+        
+        removeLayer(layer: ProjectLayer) {
+            super.removeLayer(layer);
+            this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
+        }
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, 'layer', (topic: string, msg: ClientMessage) => {
@@ -427,92 +520,6 @@ module csComp.Services {
 
                 }
             });
-        }
-
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
-            layer.isEditable = true;
-            this.baseAddLayer(layer, (layer: ProjectLayer) => {
-                callback(layer);
-                if (layer.enabled) {
-                    this.initSubscriptions(layer);
-                }
-            }, data);
-        }
-
-        removeLayer(layer: ProjectLayer) {
-            layer.isConnected = false;
-            if (layer._gui['editing']) this.stopEditing(layer);
-            this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
-        }
-
-        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            var result: [[string, Function]] = [
-                ['Fit map', (($itemScope) => this.fitMap(layer))]];
-            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
-            result.push(null);
-            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
-            return result;
-        }
-
-        /** enable edit mode for @layer and disable it for the others */
-        public startEditing(layer: csComp.Services.ProjectLayer) {
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                var v = false;
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    if (l === layer) {
-                        v = true;
-                        l._gui['editing'] = true;
-                    } else {
-                        delete l._gui['editing'];
-                    }
-                });
-                g._gui.editing = v;
-            });
-            this.service.editing = true;
-            this.initAvailableFeatureTypesEditing(layer);
-        }
-
-        public stopEditing(layer: csComp.Services.ProjectLayer) {
-            delete layer._gui['featureTypes'];
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g._gui['editing'];
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    delete l._gui['editing'];
-                });
-            });
-            this.service.editing = false;
-        }
-
-        /** prepare layer for editing, add featuretypes to temp. _gui object */
-        public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
-            var featureTypes = {};
-            layer._gui['featureTypes'] = featureTypes;
-
-            if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
-            for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
-
-                featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
-                featureTypes[ft]._guid = csComp.Helpers.getGuid();                
-            }
-        }
-
-    }
-
-    export class DynamicGeoJsonSource extends EditableGeoJsonSource {
-        title: "dynamicgeojson";
-        connection: Connection;
-
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
-        }
-
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
-            layer.isDynamic = true;
-            super.addLayer(layer, callback, data);
         }
     }
 
