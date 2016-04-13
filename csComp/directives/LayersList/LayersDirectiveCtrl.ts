@@ -80,7 +80,7 @@ module LayersDirective {
                     this.editFeaturetype(type);
                 }
                 if (action === "stopEditing") {
-                    this.editLayer(this.layer);                    
+                    this.editLayer(this.layer);
                 }
             });
         }
@@ -132,7 +132,7 @@ module LayersDirective {
                 //this.editLayer(this.layer);
             }
         }
-       
+
         public dropdownpos(event) {
             alert('drop down');
             //     var dropDownTop = button.offset().top + button.outerHeight();
@@ -580,15 +580,22 @@ module LayersDirective {
 
         /** toggle layer (use shift key to start editing) */
         public toggleLayer(layer: csComp.Services.ProjectLayer, event: any): void {
+
             // if shift key pressed go to edit mode
-            if (event.shiftKey) {
-                if (!layer.enabled) this.$layerService.toggleLayer(layer,()=>{ this.editLayer(layer);});                
-            }
-            else {
-                this.$layerService.toggleLayer(layer);
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                    this.$scope.$apply();
+            if (event.altKey) {
+                if (!layer.enabled) {
+                    this.$layerService.addLayer(layer, () => { this.editLayer(layer); });
                 }
+                else {
+                    this.editLayer(layer);
+                }
+            }
+            else 
+            {
+                this.$layerService.toggleLayer(layer);
+            }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
             }
         }
 

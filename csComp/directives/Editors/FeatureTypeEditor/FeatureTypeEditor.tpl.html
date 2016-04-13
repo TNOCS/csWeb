@@ -60,12 +60,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Fill color</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', showAlpha: true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                     </div>
 
                     <div class="col-md-3">
                         <div class="rightpanel-label">Stroke</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', showAlpha: true, chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
                     </div>
 
                     <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">

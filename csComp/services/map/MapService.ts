@@ -1,5 +1,7 @@
 module csComp.Services {
     'use strict';
+    
+    declare var L;
 
     /*
      * Singleton service that holds a reference to the map.
@@ -17,12 +19,15 @@ module csComp.Services {
 
         public map: L.Map;
         public baseLayers: any;
+        public layer : ProjectLayer;
         public activeBaseLayer: BaseLayer;
         public activeBaseLayerId: string;
         public mapVisible: boolean = true;
         public timelineVisible: boolean = false;
         public rightMenuVisible: boolean = true;
         public maxBounds: IBoundingBox;
+        public drawInstance: any;
+        public featureGroup : L.ILayer;
 
         expertMode: Expertise;
 
@@ -176,6 +181,57 @@ module csComp.Services {
         }
 
         getMap(): L.Map { return this.map; }
+        
+                
+        public initDraw()
+        {
+            this.map.on('draw:created', (e: any) => {
+
+                if (this.layer) {
+
+                    console.log(e.layer);
+
+                    var c = [];
+                    e.layer.editing.latlngs[0].forEach(ll => {
+                        c.push([ll.lng, ll.lat]);
+                    });
+
+                    var f = <csComp.Services.Feature>{
+                        type: "Feature",
+                        geometry: { type: "LineString", "coordinates": c }
+                    };
+                    f.type = "Feature";
+                    var l = this.layer;
+                    if (!l.data) l.data = {};
+                    if (!l.data.features) l.data.features = [];
+                    l.data.features.push(f);
+                    // this.$layerService.initFeature(f, l);
+                    // this.$layerService.calculateFeatureStyle(f);
+                    // this.$layerService.updateFeature(f);
+                    // f.type = "Feature";
+                    // this.$layerService.saveFeature(f);
+                    console.log(f);
+                }
+                
+           //     this.$mapService.drawInstance.removeHooks();
+                
+            });
+        }
+
+        public startDraw(layer : csComp.Services.ProjectLayer,featureType: csComp.Services.IFeatureType) {
+            this.layer = layer;
+            
+            this.drawInstance = new L.Draw.Polyline(this.map, {
+                stroke: true,
+                color: '#f06eaa',
+                weight: 4,
+                opacity: 0.5,
+                fill: false,
+                clickable: true
+            });            
+            this.drawInstance.addHooks();
+            this.drawInstance = null;
+        }
     }
 
     /**

@@ -2226,6 +2226,8 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers = {};
 
+
+
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
                 url = this.emptySolutionUrl;
@@ -2367,6 +2369,8 @@ module csComp.Services {
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+
+            this.$mapService.initDraw();
 
             if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
@@ -2726,15 +2730,15 @@ module csComp.Services {
         }
 
         /** toggle layer enabled/disabled */
-        public toggleLayer(layer: ProjectLayer, loaded? : Function) {
-            if (_.isUndefined(layer.enabled)) {
+        public toggleLayer(layer: ProjectLayer, loaded?: Function) {
+            if (_.isUndefined(layer.enabled) || layer.enabled === false) {
                 layer.enabled = true;
-                this.addLayer(layer,()=>{if (loaded) loaded()});
+                this.addLayer(layer, () => { if (loaded) loaded() });
             } else {
                 layer.enabled = !layer.enabled;
                 this.removeLayer(layer);
                 if (loaded) loaded();
-            }                                    
+            }
         }
 
         public removeGroup(group: ProjectGroup) {
