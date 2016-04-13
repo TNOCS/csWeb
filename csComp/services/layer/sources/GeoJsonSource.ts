@@ -485,9 +485,11 @@ module csComp.Services {
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
             for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point'; 
+                               
                 featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);                
+                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                featureTypes[ft]._guid = csComp.Helpers.getGuid();                
             }
         }
 

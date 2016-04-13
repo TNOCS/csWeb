@@ -56,8 +56,10 @@ module LayerEditor {
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
             var transformProp;
             var startx, starty;
+            
+            var tr = this.$layerService.findResourceByLayer(layer);
 
-            var i = interact('#layerfeaturetype-' + key).draggable({
+            var i = interact('#layerfeaturetype-' + (<any>tr.featureTypes[key])._guid).draggable({
 
                 'onmove': (event) => {
 
@@ -88,7 +90,7 @@ module LayerEditor {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
                         f.properties = { "featureTypeId": key, "Name": fid };
-                        var tr = this.$layerService.findResourceByLayer(layer);
+                        
                         var fid = "new object"
                         if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
