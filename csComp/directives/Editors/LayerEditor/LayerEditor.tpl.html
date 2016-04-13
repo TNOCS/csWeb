@@ -5,14 +5,14 @@
 
             <span ng-switch="view" >
                 <span ng-switch-when="icons" ng-if="featureType.style.drawingMode === 'Point'" style="margin-top:5px;margin-bottom:5px">
-                    <div id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;margin-right:10px;float:left;border:none;background:transparent"
+                    <div id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="width:30px;height:30px;margin-right:10px;float:left;border:none;background:transparent"
                         when-ready="vm.initDrag(key,vm.layer)">
                         <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
                     </div>
                 </span>
         <div ng-switch-default style="clear:both;position:relative">
             <span ng-switch="featureType.style.drawingMode">
-                    <div ng-switch-when="Point" id="layerfeaturetype-{{key}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
+                    <div ng-switch-when="Point" id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="width:30px;height:30px;border:none;float:left;background:transparent"
                         when-ready="vm.initDrag(key,vm.layer)">
                         <feature-type featuretype="featureType" />
                     </div>
