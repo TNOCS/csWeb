@@ -51,6 +51,11 @@ module LayerEditor {
 
             // ft.style.drawingMode
         }
+        
+        public startDraw(featureType : csComp.Services.IFeatureType)
+        {
+            this.$mapService.startDraw(this.layer,featureType);             
+        }
 
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {

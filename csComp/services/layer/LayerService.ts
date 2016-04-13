@@ -2371,7 +2371,7 @@ module csComp.Services {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
 
-            this.$mapService.initDraw();
+            this.$mapService.initDraw(this);
 
             if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 

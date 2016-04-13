@@ -19,7 +19,8 @@ module csComp.Services {
 
         public map: L.Map;
         public baseLayers: any;
-        public layer : ProjectLayer;
+        public drawingLayer : ProjectLayer;
+        public drawingFeatureType: csComp.Services.IFeatureType
         public activeBaseLayer: BaseLayer;
         public activeBaseLayerId: string;
         public mapVisible: boolean = true;
@@ -183,11 +184,11 @@ module csComp.Services {
         getMap(): L.Map { return this.map; }
         
                 
-        public initDraw()
+        public initDraw(layerService : csComp.Services.LayerService)
         {
             this.map.on('draw:created', (e: any) => {
 
-                if (this.layer) {
+                if (this.drawingLayer) {
 
                     console.log(e.layer);
 
@@ -198,28 +199,32 @@ module csComp.Services {
 
                     var f = <csComp.Services.Feature>{
                         type: "Feature",
-                        geometry: { type: "LineString", "coordinates": c }
-                    };
-                    f.type = "Feature";
-                    var l = this.layer;
+                        geometry: { type: "LineString", "coordinates": c },
+                        fType : this.drawingFeatureType,
+                        properties : {}                        
+                    };                    
+                    f.properties["featureTypeId"] =  this.drawingFeatureType.id;
+                                        
+                    var l = this.drawingLayer;
                     if (!l.data) l.data = {};
                     if (!l.data.features) l.data.features = [];
                     l.data.features.push(f);
-                    // this.$layerService.initFeature(f, l);
-                    // this.$layerService.calculateFeatureStyle(f);
-                    // this.$layerService.updateFeature(f);
-                    // f.type = "Feature";
-                    // this.$layerService.saveFeature(f);
+                    layerService.initFeature(f, l);
+                    layerService.calculateFeatureStyle(f);
+                    layerService.updateFeature(f);
+                    f.type = "Feature";
+                    layerService.saveFeature(f);
                     console.log(f);
                 }
                 
-           //     this.$mapService.drawInstance.removeHooks();
+                this.drawInstance.removeHooks();
                 
             });
         }
 
         public startDraw(layer : csComp.Services.ProjectLayer,featureType: csComp.Services.IFeatureType) {
-            this.layer = layer;
+            this.drawingLayer = layer;
+            this.drawingFeatureType = featureType;
             
             this.drawInstance = new L.Draw.Polyline(this.map, {
                 stroke: true,
@@ -229,8 +234,7 @@ module csComp.Services {
                 fill: false,
                 clickable: true
             });            
-            this.drawInstance.addHooks();
-            this.drawInstance = null;
+            this.drawInstance.addHooks();            
         }
     }
 
