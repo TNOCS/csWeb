@@ -203,7 +203,7 @@ module csComp.Services {
                         fType : this.drawingFeatureType,
                         properties : {}                        
                     };                    
-                    f.properties["featureTypeId"] =  this.drawingFeatureType.id;
+                    f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
                                         
                     var l = this.drawingLayer;
                     if (!l.data) l.data = {};
@@ -211,7 +211,7 @@ module csComp.Services {
                     l.data.features.push(f);
                     layerService.initFeature(f, l);
                     layerService.calculateFeatureStyle(f);
-                    layerService.updateFeature(f);
+                    layerService.activeMapRenderer.addFeature(f);                    
                     f.type = "Feature";
                     layerService.saveFeature(f);
                     console.log(f);

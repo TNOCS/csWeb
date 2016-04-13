@@ -22,6 +22,7 @@ module csComp.Helpers {
         });
         return result;
     }
+    
 
     export function cloneWithoutUnderscore(v: any): any {
         if (typeof v !== 'object') return v;
@@ -38,6 +39,16 @@ module csComp.Helpers {
             }
             return c;
         }
+    }
+    
+    /** get the name part of a featureid (strips resource uri part if needed) */
+    export function getFeatureTypeName(id : string)
+    {
+        if (id.indexOf('#')>=0)
+        {
+            return id.split('#')[1];
+        }
+        else return id;
     }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
