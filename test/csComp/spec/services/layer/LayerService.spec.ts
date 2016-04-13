@@ -50,8 +50,8 @@ describe('csComp.Services.LayerService', function() {
         it('should have layersource geojson', () => {
             expect(layerService.layerSources.hasOwnProperty('geojson')).toBeTruthy();
         });
-        it('should have layersource geojson', () => {
-            expect(layerService.layerSources.hasOwnProperty('geojson')).toBeTruthy();
+        it('should have layersource editablegeojson', () => {
+            expect(layerService.layerSources.hasOwnProperty('editablegeojson')).toBeTruthy();
         });
         it('should have layersource topojson', () => {
             expect(layerService.layerSources.hasOwnProperty('topojson')).toBeTruthy();

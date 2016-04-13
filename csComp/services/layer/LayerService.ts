@@ -486,6 +486,7 @@ module csComp.Services {
 
             this.layerSources['geojson'] = geojsonsource;
             this.layerSources['topojson'] = geojsonsource;
+            this.layerSources['editablegeojson'] = new EditableGeoJsonSource(this, this.$http);
             this.layerSources['dynamicgeojson'] = new DynamicGeoJsonSource(this, this.$http);
             this.layerSources['esrijson'] = new EsriJsonSource(this, this.$http);
 
@@ -841,7 +842,9 @@ module csComp.Services {
             if (!source.title) source.title = source.url;
 
             // if url starts with  'api/' this is a dynamic resource
-            source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
+            if (typeof(source.isDynamic) === "undefined") {
+                source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
+            }
 
             var featureTypes = source.featureTypes;
             if (source.propertyTypeData) {
@@ -2793,6 +2796,7 @@ module csComp.Services {
             layer._gui = {};
             layer.renderType = (layer.renderType) ? layer.renderType.toLowerCase() : layer.type;
             if (layer.type === 'dynamicgeojson') layer.isDynamic = true;
+            if (layer.type === 'editablegeojson' || layer.isDynamic) layer.isEditable = true;
             if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
             if (layer.title == null) layer.title = layer.id;
             if (layer.languages != null && this.currentLocale in layer.languages) {

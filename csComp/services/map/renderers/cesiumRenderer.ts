@@ -326,6 +326,7 @@ module csComp.Services {
             var dfd = jQuery.Deferred();
             switch (layer.type.toUpperCase()) {
                 case 'GEOJSON':
+                case 'EDITABLEGEOJSON':
                 case 'DYNAMICGEOJSON':
                 case 'TOPOJSON':
                     setTimeout(() => {
