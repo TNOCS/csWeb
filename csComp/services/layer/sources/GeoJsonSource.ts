@@ -55,6 +55,13 @@ module csComp.Services {
                         layer.enabled = true;
                         this.initLayer(data, layer);
                         cb(null, null);
+                    } else if (!layer.url && layer.data && layer.data.type) {
+                        if (!layer.count) layer.count = 0;
+                        layer.enabled = true;
+                        layer.isLoading = false;
+                        layer.isConnected = false;
+                        this.initLayer(layer.data, layer);
+                        cb(null, null);
                     } else {
                         // Open a layer URL
                         layer.isLoading = true;
@@ -251,9 +258,8 @@ module csComp.Services {
         }
     }
 
-    export class DynamicGeoJsonSource extends GeoJsonSource {
-        title = 'dynamicgeojson';
-        connection: Connection;
+    export class EditableGeoJsonSource extends GeoJsonSource {
+        title = 'editablegeojson';
 
         constructor(public service: LayerService, $http: ng.IHttpService) {
             super(service, $http);
@@ -424,7 +430,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
-            layer.isDynamic = true;
+            layer.isEditable = true;
             this.baseAddLayer(layer, (layer: ProjectLayer) => {
                 callback(layer);
                 if (layer.enabled) {
@@ -485,13 +491,26 @@ module csComp.Services {
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
             for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
                 featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);                
+                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
             }
         }
 
+    }
 
+    export class DynamicGeoJsonSource extends EditableGeoJsonSource {
+        title: "dynamicgeojson";
+        connection: Connection;
+
+        constructor(public service: LayerService, $http: ng.IHttpService) {
+            super(service, $http);
+        }
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            layer.isDynamic = true;
+            super.addLayer(layer, callback, data);
+        }
     }
 
     export interface IOtpLeg {

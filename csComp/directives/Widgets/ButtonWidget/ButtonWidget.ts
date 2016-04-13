@@ -149,20 +149,20 @@ module ButtonWidget {
         }
 
         /** start or stop editing, when starting all features are editable */
-        public toggleEditLayer(b: IButton) {            
+        public toggleEditLayer(b: IButton) {
             if (!_.isUndefined(b._layer)) {
                 var layer = b._layer;
 
                 if (layer._gui.hasOwnProperty('editing') && layer._gui['editing'] === true) {
-                    (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
+                    (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
                     layer.data.features.forEach(f=>{
-                        delete f._gui['editMode'];                        
+                        delete f._gui['editMode'];
                         this.layerService.updateFeature(f);
-                        this.layerService.saveFeature(f); 
+                        this.layerService.saveFeature(f);
                     })
                 }
                 else {
-                    (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
+                    (<csComp.Services.EditableGeoJsonSource>layer.layerSource).startEditing(layer);
                     layer.data.features.forEach(f=>{
                         this.layerService.editFeature(f,false);
                     })
@@ -187,7 +187,7 @@ module ButtonWidget {
             if (!_.isUndefined(b._layer)) {
                 b._disabled = false;
                 b._active = b._layer.enabled;
-                b._canEdit = b._layer.enabled && b._layer.isDynamic;
+                b._canEdit = b._layer.enabled && b._layer.isEditable;
             }
             else {
                 b._disabled = true;
