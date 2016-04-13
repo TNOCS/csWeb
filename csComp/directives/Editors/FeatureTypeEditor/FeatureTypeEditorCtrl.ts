@@ -44,14 +44,19 @@ module FeatureTypeEditor {
             }
         }
 
-        //** force features to be updated */
+        /** force features to be updated */
         public updateFeatureTypes(ft: csComp.Services.IFeatureType) {
             if (!_.isUndefined(ft._resource)) this.$layerService.saveResource(ft._resource);
                         
             console.log('updating ..'); 
-            this.$layerService.updateFeatureTypes(ft);
-            
+            this.$layerService.updateFeatureTypes(ft);            
         };
+        
+        /** apply updates to features, don't return or save back to api */ 
+        public apply()
+        {
+            this.$layerService.updateFeatureTypes(this.$scope.featureType);            
+        }
         
          /** save a resource (back to api and update features) */
         public saveFeatureType() {

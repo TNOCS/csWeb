@@ -1385,7 +1385,14 @@ body,
 
 .leftpanel-scroll
 {
- overflow-y: scroll !important; ;position: absolute;overflow-y: scroll !important;overflow-x: visible !important;top: 40px;bottom: 0;left: 0;right: 0;
+ overflow-y: scroll !important;
+ position: absolute;
+ overflow-y: scroll !important;
+ overflow-x: hidden;
+ top: 40px;
+ bottom: 0;
+ left: 0;
+ right: 0;
 }
 
 .leftpanel-entrance {

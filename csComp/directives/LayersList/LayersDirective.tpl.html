@@ -87,8 +87,8 @@
                         <div class="layer" context-menu="options(layer)" style="list-style-type: none;" data-ng-class="{indent: layer.isSublayer}">
                             <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
                             <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
-                                <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
-                                <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                                <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer,$event);">
+                                <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer,$event);">
                                 <label for="cblayer{{layer.id}}">
                                     {{layer.title}}
                                 </label>

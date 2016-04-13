@@ -2227,6 +2227,8 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers = {};
 
+
+
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
                 url = this.emptySolutionUrl;
@@ -2368,6 +2370,8 @@ module csComp.Services {
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+
+            this.$mapService.initDraw();
 
             if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
@@ -2726,22 +2730,15 @@ module csComp.Services {
             if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') this.$rootScope.$apply();
         }
 
-        public toggleLayer(layer: ProjectLayer) {
-            if (_.isUndefined(layer.enabled)) {
+        /** toggle layer enabled/disabled */
+        public toggleLayer(layer: ProjectLayer, loaded?: Function) {
+            if (_.isUndefined(layer.enabled) || layer.enabled === false) {
                 layer.enabled = true;
+                this.addLayer(layer, () => { if (loaded) loaded() });
             } else {
                 layer.enabled = !layer.enabled;
-            }
-            this.checkToggleLayer(layer);
-            //if (!_.isUndefined(layer.group.oneLayerActive) && this.findLoadedLayer(layer.id)) layer.enabled = false;
-
-        }
-
-        public checkToggleLayer(layer: ProjectLayer) {
-            if (layer.enabled) {
-                this.addLayer(layer);
-            } else {
                 this.removeLayer(layer);
+                if (loaded) loaded();
             }
         }
 
@@ -3018,7 +3015,6 @@ module csComp.Services {
             if (!this.project.isDynamic) return;
             console.log('saving project');
             setTimeout(() => {
-
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 

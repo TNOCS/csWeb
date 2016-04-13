@@ -11,10 +11,13 @@ module csComp.Helpers {
     /**
      * Serialize an array of type T to a JSON string, by calling the callback on each array element.
      */
-    export function serialize<T>(arr: Array<T>, callback: (T) => Object) {
+    export function serialize<T>(arr: Array<T>, callback: (T) => Object, skipTitlesOrIdStartingWithUnderscore = false) {
         if (typeof arr === 'undefined' || arr === null || arr.length === 0) return null;
         var result: Object[] = [];
         arr.forEach(a => {
+            if (skipTitlesOrIdStartingWithUnderscore
+                && ((a.hasOwnProperty('title') && a['title'][0] === '_')
+                ||  (a.hasOwnProperty('id') && a['id'][0] === '_'))) return;
             result.push(callback(a));
         });
         return result;

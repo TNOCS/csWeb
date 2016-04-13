@@ -245,7 +245,7 @@ module csComp.Services {
         fillOpacity?:           number;
         /** Default true, draw an outline around the feature (sometimes, you wish to turn it off when dealing with a grid) */
         stroke?:                boolean;
-        drawingMode?:           string;
+        drawingMode?:           "Point" | "Line" | "Polygon" | "Image";
         /** The width of the icon on the map in pixels */
         iconWidth?:             number;
         /** The height of the icon on the map in pixels */
