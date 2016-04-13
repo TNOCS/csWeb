@@ -369,7 +369,7 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'editlayer';
 
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
+            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).startEditing(layer);
             this.layer = layer;
             this.resource = null;
             if (this.layer.typeUrl) {
@@ -389,7 +389,7 @@ module LayersDirective {
                     interact('#layerfeaturetype-' + key).onend = null;
                 };
             }
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
+            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
         }
 
         /** change layer opacity */
@@ -590,7 +590,7 @@ module LayersDirective {
                     this.editLayer(layer);
                 }
             }
-            else 
+            else
             {
                 this.$layerService.toggleLayer(layer);
             }

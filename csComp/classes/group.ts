@@ -30,9 +30,9 @@ module csComp.Services {
         clustering: boolean;
         /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */
         clusterLevel: number;
-        /**  
-         * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. 
-         * Decreasing will make more smaller clusters. You can also use a function that accepts the current map 
+        /**
+         * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80.
+         * Decreasing will make more smaller clusters. You can also use a function that accepts the current map
          * zoom and returns the maximum cluster radius in pixels. */
         maxClusterRadius: number;
         clusterFunction: Function;
@@ -106,9 +106,23 @@ module csComp.Services {
                 var layerName = $(this).children('Name').text();
                 if (layerName != null && layerName !== '') {
                     var title = $(this).children('Title').text();
+
+                    // If <KeywordList> element has an element <keyword vocabulary="defaultFeatureType">featureType</keyword>
+                    // use featureType as defaultFeatureType
+                    var featureType = $(this).children('KeywordList').children('[vocabulary="defaultFeatureType"]').text();
+                    var resourceURL = $(this).children('KeywordList').children('[vocabulary="typeResourceURL"]').text();
+
                     // TODO: should be using layerService.initLayer(theGroup, layer);
                     // But I don't know how to 'inject' layerService :(
                     var layer = theGroup.buildLayer(baseurl, title, layerName);
+                    if(featureType!='') {
+                        layer.defaultFeatureType = featureType;
+                        layer.typeUrl = 'data/resourceTypes/resources.json';
+                    }
+                    if(resourceURL!='') {
+                        layer.typeUrl = resourceURL;
+                    }
+
                     theGroup.layers.push(layer);
                 }
             });
