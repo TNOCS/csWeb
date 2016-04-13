@@ -107,9 +107,7 @@
                                         aria-haspopup="true" style="width:18px;cursor:pointer" aria-expanded="false">
                                     </div>
                                     <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;">
-                                        <li ng-repeat="o in layer._gui.options" class="dropdown-item"><a ng-click="vm.clickAction(o,layer)">{{o.title}}</a></li>
-                                        <!--<li ng-click="vm.editLayer(layer)" class="dropdown-item" ng-show="layer.isDynamic && layer.enabled"><a>Edit Layer</a><span class="fa fa-plus dropdown-item-icon" /></li>
-                                        <li ng-click="vm.layerSettings(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>-->
+                                        <li ng-repeat="o in layer._gui.options" class="dropdown-item"><a ng-click="vm.clickAction(o,layer)">{{o.title}}</a><fa name="{{o.icon}}" class="dropdown-item-icon" /></li>                                        
                                     </ul>
                                 </div>
                                 <!-- Extra small button group -->
@@ -181,7 +179,7 @@
     <div ng-if="vm.state === 'editlayer'" class="layers-create-form">
         <div class="layer-actions">
 
-            <button ng-if="vm.resource.isDynamic" ng-click="vm.addNewType()" class="layer-action">
+            <button ng-if="vm.resource.isDynamic && vm.$mapService.isAdminExpert" ng-click="vm.addNewType()" class="layer-action">
                 <span class="fa fa-plus layer-action-icon" />create type
             </button>
 
