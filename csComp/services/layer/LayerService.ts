@@ -168,6 +168,7 @@ module csComp.Services {
 
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
+            this.addActionService(new RelationAction.RelationActionModel());
 
             // var delayFocusChange = _.debounce((date) => {
             //     this.refreshActiveLayers();
@@ -3014,7 +3015,6 @@ module csComp.Services {
             if (!this.project.isDynamic) return;
             console.log('saving project');
             setTimeout(() => {
-
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
 

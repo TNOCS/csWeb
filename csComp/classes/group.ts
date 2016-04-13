@@ -55,17 +55,17 @@ module csComp.Services {
          */
         public static serializeableData(projectGroup: ProjectGroup): Object {
             return {
-                id: projectGroup.id,
-                title: projectGroup.title,
-                description: projectGroup.description,
-                showTitle: projectGroup.showTitle,
-                clustering: projectGroup.clustering,
-                clusterLevel: projectGroup.clusterLevel,
+                id:               projectGroup.id,
+                title:            projectGroup.title,
+                description:      projectGroup.description,
+                showTitle:        projectGroup.showTitle,
+                clustering:       projectGroup.clustering,
+                clusterLevel:     projectGroup.clusterLevel,
                 maxClusterRadius: projectGroup.maxClusterRadius,
-                oneLayerActive: projectGroup.oneLayerActive,
-                styleProperty: projectGroup.styleProperty,
-                languages: projectGroup.languages,
-                layers: csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
+                oneLayerActive:   projectGroup.oneLayerActive,
+                styleProperty:    projectGroup.styleProperty,
+                languages:        projectGroup.languages,
+                layers:           csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
             };
         }
 
