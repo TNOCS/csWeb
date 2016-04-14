@@ -22,7 +22,7 @@ module csComp.Helpers {
         });
         return result;
     }
-    
+
 
     export function cloneWithoutUnderscore(v: any): any {
         if (typeof v !== 'object') return v;
@@ -40,7 +40,7 @@ module csComp.Helpers {
             return c;
         }
     }
-    
+
     /** get the name part of a featureid (strips resource uri part if needed) */
     export function getFeatureTypeName(id : string)
     {
@@ -392,13 +392,15 @@ module csComp.Helpers {
                 displayValue = count.toString();
                 break;
             case 'date':
-                var d;
+                var d: Date;
                 if ($.isNumeric(text)) {
                     d = new Date(text);
                 } else {
                     d = new Date(Date.parse(text));
                 }
-                displayValue = d.toLocaleString();
+                displayValue = pt.stringFormat
+                    ? String.format(pt.stringFormat, d)
+                    : d.toLocaleString();
                 break;
             case 'duration': //in ms
                 if (!$.isNumeric(text)) {
