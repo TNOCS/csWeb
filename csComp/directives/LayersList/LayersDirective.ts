@@ -40,9 +40,19 @@ module LayersDirective {
             f.fType = type;
             f.featureTypeName = f.fType.name;
             f._gui = <csComp.Services.IGuiObject>{};
-                layerService.calculateFeatureStyle(f);
-            var html = csComp.Helpers.createIconHtml(f);
-            return html.html;                         
+            layerService.calculateFeatureStyle(f);
+            switch (f.fType.style.drawingMode)
+            {
+                case "Point":
+                    var html = csComp.Helpers.createIconHtml(f);
+                    return html.html;
+                case "Line":
+                    return "<span>line</span>" 
+                case "Polygon":
+                    return "<span>polygon</span>"                                         
+            }
+            
+                                     
         });
         
         return {
