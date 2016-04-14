@@ -285,6 +285,19 @@ module csComp.Services {
         _isInitialized?: boolean;
     }
 
+    /**
+     * Interface to specify the event properties, i.e. the begin and end time of an event,
+     * the title and its description, and its location.
+     */
+    export interface IEventStyleProperties {
+        featureTypeName: string;
+        startTime: string;
+        endTime: string;
+        title: string;
+        description: string;
+        locationText: string;
+    }
+
     export interface IFeatureType {
         id?: string;
         name?: string;
@@ -303,6 +316,7 @@ module csComp.Services {
          */
         propertyTypeKeys?: string;
         languages?: ILanguageData;
+        eventStyle?: IEventStyleProperties;
         /** Action after selection, not set: open Feature Properties */
         selectAction?: string;
         _isInitialized?: boolean;
