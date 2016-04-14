@@ -307,7 +307,7 @@ module csComp.Services {
          * @location:    the location on the screen where the notification is shown (default bottom right)
          * @notifyType:  the type of notification
 		 */
-        public notify(title: string, text: string, location = NotifyLocation.TopBar, notifyType = NotifyType.Normal) {           
+        public notify(title: string, text: string, location = NotifyLocation.TopBar, notifyType = NotifyType.Normal, duration = 4000): any {
 
             //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
             if (this.notifications) {
@@ -345,7 +345,7 @@ module csComp.Services {
                 }
             }
 
-            
+
             var opts = {
                 title: title,
                 text: text,
@@ -356,7 +356,6 @@ module csComp.Services {
                 animation: "fade",
                 mouse_reset: true,
                 animate_speed: "slow",
-                delay: 4000,
                 nonblock: {
                     nonblock: true,
                     nonblock_opacity: .2
@@ -367,9 +366,49 @@ module csComp.Services {
                 },
                 hide: true
             };
+            if (typeof duration != 'undefined') opts[duration] = duration;
 
             var PNot = new PNotify(opts);
             this.notifications.push(PNot);
+            return PNot;
+        }
+
+        public confirmButtons(title: string, text: string, buttons: string[], callback: (result: string) => any) : any {
+            var c = [];
+            // buttons.forEach(b=>{
+            //     c.push({ text: c, addClass: "", promptTrigger: true, click: (notice, value) =>{ notice.remove(); notice.get().trigger("pnotify.confirm", [notice, value]); } })
+            // })            
+            var options = {
+                title: title,
+                text: text,
+                addclass: "csNotify",
+                width: "500px",
+                animation: "fade",
+                hide: false,
+                confirm: {
+                    confirm: true,
+                    buttons : c
+                },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                history: {
+                    history: false
+                },
+                icon: 'fa fa-question-circle',
+                cornerclass: 'ui-pnotify-sharp'
+
+            };
+
+            var pn = new PNotify(options).get()
+                .on('pnotify.confirm', (notice,value) => { 
+                    callback("ok"); })
+                .on('pnotify.cancel', () => { callback(null); });
+            return pn;
+            
+            
+            
         }
 
 		/**
@@ -378,7 +417,7 @@ module csComp.Services {
          * @text            : the contents of the notification
          * @callback        : the callback that will be called after the confirmation has been answered.
 		 */
-        public confirm(title: string, text: string, callback: (result: boolean) => any) {
+        public confirm(title: string, text: string, callback: (result: boolean) => any) : any {
             var options = {
                 title: title,
                 text: text,
@@ -390,21 +429,24 @@ module csComp.Services {
                     confirm: true
                 },
                 buttons: {
-                    closer: false,
-                    sticker: false
+                    closer: true,
+                    sticker: true
                 },
                 history: {
                     history: false
                 },
                 icon: 'fa fa-question-circle',
-                cornerclass: 'ui-pnotify-sharp'                
-                
+                cornerclass: 'ui-pnotify-sharp'
+
             };
 
             var pn = new PNotify(options).get()
                 .on('pnotify.confirm', () => { callback(true); })
                 .on('pnotify.cancel', () => { callback(false); });
+            return pn;
         }
+
+
 
         public notifyBottom(title: string, text: string) {
             var stack_bar_bottom = { 'dir1': 'up', 'dir2': 'right', 'spacing1': 0, 'spacing2': 0 };
