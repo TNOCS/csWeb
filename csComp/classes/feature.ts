@@ -1,7 +1,7 @@
 module csComp.Services {
 
     export class Section {
-        public properties: { [key : string] : csComp.Services.IPropertyType} = {};
+        public properties: { [key: string]: csComp.Services.IPropertyType } = {};
     }
 
     export class Log {
@@ -12,9 +12,9 @@ module csComp.Services {
         /**
          * property
          */
-        prop:  string;
+        prop: string;
         value: any;
-        user:  string;
+        user: string;
     }
 
     export interface IGuiObject {
@@ -24,30 +24,30 @@ module csComp.Services {
     }
 
     export interface IFeature {
-        id?:              string;
-        index:            number;
-        layerId:          string;
-        layer:            csComp.Services.ProjectLayer;
-        type?:            string;
-        geometry:         IGeoJsonGeometry;
-        properties?:      IProperty;
-        propertiesOld?:   IProperty;
-        isSelected?:      boolean;
-        htmlStyle?:       string;
+        id?: string;
+        index: number;
+        layerId: string;
+        layer: csComp.Services.ProjectLayer;
+        type?: string;
+        geometry: IGeoJsonGeometry;
+        properties?: IProperty;
+        propertiesOld?: IProperty;
+        isSelected?: boolean;
+        htmlStyle?: string;
         featureTypeName?: string;
-        fType?:           IFeatureType;
-        effectiveStyle:   IFeatureTypeStyle;
-        _isInitialized?:  boolean;
-        lastUpdated:      number;
-        _gui:             IGuiObject;
-        sensors?:         { [id: string]: any[] };
-        logs?:            { [id: string]: Log[] };
-        timestamps:       number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        fType?: IFeatureType;
+        effectiveStyle: IFeatureTypeStyle;
+        _isInitialized?: boolean;
+        lastUpdated: number;
+        _gui: IGuiObject;
+        sensors?: { [id: string]: any[] };
+        logs?: { [id: string]: Log[] };
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         /**
          * Temperal list of geometries used e.g. to move a point over time (bound to timestamps, same as sensors)
          */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
-        languages?:   { [key: string]: ILocalisedData };
+        languages?: { [key: string]: ILocalisedData };
     }
 
     /**
@@ -56,28 +56,28 @@ module csComp.Services {
      *
      */
     export class Feature implements IFeature {
-        id:              string;
-        index:           number;
-        layerId:         string;
-        layer:           ProjectLayer;
-        type:            string;
-        geometry:        IGeoJsonGeometry;
-        properties:      IProperty;
-        propertiesOld:   IProperty;
-        isSelected:      boolean;
-        htmlStyle:       string;
+        id: string;
+        index: number;
+        layerId: string;
+        layer: ProjectLayer;
+        type: string;
+        geometry: IGeoJsonGeometry;
+        properties: IProperty;
+        propertiesOld: IProperty;
+        isSelected: boolean;
+        htmlStyle: string;
         featureTypeName: string;
-        lastUpdated:     number;
-        _gui:            IGuiObject = { included: true };
+        lastUpdated: number;
+        _gui: IGuiObject = { included: true };
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized: boolean;
-        sensors:        { [id: string]: any[] };
-        timestamps:     number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
-        coordinates:    IGeoJsonGeometry[];          // used for temporal data
-        logs:           { [id: string]: Log[] } = {};
+        sensors: { [id: string]: any[] };
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates: IGeoJsonGeometry[];          // used for temporal data
+        logs: { [id: string]: Log[] } = {};
 
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};
@@ -142,11 +142,11 @@ module csComp.Services {
     }
 
     export interface ILocalisedData {
-        name?:        string;
-        title?:       string;
+        name?: string;
+        title?: string;
         description?: string;
-        section?:     string;
-        options?:     string[];
+        section?: string;
+        options?: string[];
     }
 
     export interface ILanguageData {
@@ -159,63 +159,63 @@ module csComp.Services {
     }
 
     export interface ILayerPropertyDetails {
-        activation?:         string;
-        groupId?:            string;
+        activation?: string;
+        groupId?: string;
         defaultFeatureType?: string;
-        defaultLegendProperty? : string;
-        typeUrl?:            string;
-        dashboard? : string;
+        defaultLegendProperty?: string;
+        typeUrl?: string;
+        dashboard?: string;
     }
 
     export interface IPropertyType {
-        id?:               string;
-        label?:            string;
-        title?:            string;
-        description?:      string;
-        type?:             string;
-        section?:          string;
-        stringFormat?:     string;
+        id?: string;
+        label?: string;
+        title?: string;
+        description?: string;
+        type?: string;
+        section?: string;
+        stringFormat?: string;
         visibleInCallOut?: boolean;
-        canEdit?:          boolean;
+        canEdit?: boolean;
         /** If set to false, don't show the statistical information (for numbers) */
-        canShowStats?:     boolean;
+        canShowStats?: boolean;
         /** Type of filter: none if you don't want to allow filtering */
-        filterType?:       string;
+        filterType?: string;
         /** Type of style: none if you don't want to allow styling */
-        styleType?:        string;
-        isSearchable?:     boolean;
-        minValue?:         number;
-        maxValue?:         number;
-        defaultValue?:     number;
-        count?:            number;
-        calculation?:      string;
+        styleType?: string;
+        isSearchable?: boolean;
+        minValue?: number;
+        maxValue?: number;
+        defaultValue?: number;
+        count?: number;
+        calculation?: string;
         /** For a type 'relation', subject defines which property key to use for the search value (e.g, search for the feature's name
          * when the subject is 'Name'. When undefined, search for the feature id.
          */
-        subject?:          string;
+        subject?: string;
         /** For a type 'relation', target defines in which property key the subject should be searched for. When undefined, search the feature id. */
-        target?:           string;
-        /** For a type 'relation', targetlayers is an array of layer ID's that should be included in the search. 
+        target?: string;
+        /** For a type 'relation', targetlayers is an array of layer ID's that should be included in the search.
          * When undefined : search through the current layer.
          * When ['*']     : search through all (enabled) layers of the project
          */
-        targetlayers?:     string[];
-        targetproperty?:   string;
-        options?:          Object;
-        categories?:       string[];
-        languages?:        ILanguageData;
-        legend?:           Legend;
+        targetlayers?: string[];
+        targetproperty?: string;
+        options?: Object;
+        categories?: string[];
+        languages?: ILanguageData;
+        legend?: Legend;
         /** if defined, this sensor value will be removed. this can be usefull for sensor data that uses -1 or -999999 as empty sensor data */
-        sensorNull? : Object;
-        hideValue? : boolean;
-        layerProps?:       ILayerPropertyDetails;
+        sensorNull?: Object;
+        hideValue?: boolean;
+        layerProps?: ILayerPropertyDetails;
         /** User defined minimum value */
-        min?:              number;
+        min?: number;
         /** User defined maximum value */
-        max?:              number;
-        targetid?:         string;
+        max?: number;
+        targetid?: string;
         /** Angular expression */
-        expression?:       string;
+        expression?: string;
     }
 
     export interface IPropertyTypeData {
@@ -224,95 +224,95 @@ module csComp.Services {
 
     export interface IFeatureTypeStyle {
         /** Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature. */
-        nameLabel?:             string;
+        nameLabel?: string;
         /** Default marker type, e.g. default is a circle, other types include pin and bubble */
-        marker?:                string;
+        marker?: string;
         /** The background fill color */
-        fillColor?:             string;
+        fillColor?: string;
         /** The stroke/outline color */
-        strokeColor?:           string;
+        strokeColor?: string;
         /** The stroke/outline width */
-        strokeWidth?:           number;
+        strokeWidth?: number;
         /** The background fill color when selected */
-        selectedFillColor?:     string;
+        selectedFillColor?: string;
         /** The stroke/outline color when selected */
-        selectedStrokeColor?:   string;
+        selectedStrokeColor?: string;
         /** The stroke/outline width when selected */
-        selectedStrokeWidth?:   number;
+        selectedStrokeWidth?: number;
         /** Height of the property, e.g. when styling a property in Cesium */
-        height?:                number;
-        opacity?:               number;
-        fillOpacity?:           number;
+        height?: number;
+        opacity?: number;
+        fillOpacity?: number;
         /** Default true, draw an outline around the feature (sometimes, you wish to turn it off when dealing with a grid) */
-        stroke?:                boolean;
-        drawingMode?:           "Point" | "Line" | "Polygon" | "Image";
+        stroke?: boolean;
+        drawingMode?: "Point" | "Line" | "Polygon" | "Image";
         /** The width of the icon on the map in pixels */
-        iconWidth?:             number;
+        iconWidth?: number;
         /** The height of the icon on the map in pixels */
-        iconHeight?:            number;
+        iconHeight?: number;
         /** The URL of the icon on the map */
-        iconUri?:               string;
+        iconUri?: string;
         /** The property that specifies the height above the sea (in Cesium) */
-        heightAboveSeaProperty?:string;
+        heightAboveSeaProperty?: string;
         /** The URL of the model on the map (for Cesium) */
-        modelUri?:              string;
+        modelUri?: string;
         /** The name of the property that contains the model URI on the map (for Cesium) */
-        modelUriProperty?:      string;
+        modelUriProperty?: string;
         /** The scale of the model on the map (for Cesium) */
-        modelScale?:            number;
+        modelScale?: number;
         /** The name of the property that contains the scale of the model (for Cesium, default 1) */
-        modelScaleProperty?:    string;
+        modelScaleProperty?: string;
         /** The minimum pixel size of the model on the map (for Cesium, default 32) */
         modelMinimumPixelSize?: number;
         /** The name of the property that contains the minimum size of the model (for Cesium) */
         modelMinimumPixelSizeProperty?: string;
         /** The rounding of the icon's background */
-        cornerRadius?:          number;
+        cornerRadius?: number;
         /** At what map resolution should we stop displaying the title. */
-        maxTitleResolution?:    string;
+        maxTitleResolution?: string;
         /** When true, set the rotation of the icon, e.g. when simulating moving objects */
-        rotate?:                number;
+        rotate?: number;
         /** The property that specifies the rotation angle */
-        rotateProperty?:        string;
+        rotateProperty?: string;
         /** The property that specifies the height (in Cesium) */
-        heightProperty?:        string;
+        heightProperty?: string;
         /** The property's text that should be displayed on top of the icon */
-        innerTextProperty?:     string;
+        innerTextProperty?: string;
         /** The size of the property's text on top of the icon */
-        innerTextSize?:         number;
-        analysispropertyType?:  any;
+        innerTextSize?: number;
+        analysispropertyType?: any;
         /** Internal (private) property, indicating that the feature has been initialized (initFeatureType has been called) */
-        _isInitialized?:        boolean;        
+        _isInitialized?: boolean;
     }
 
     export interface IFeatureType {
-        id?:                string;
-        name?:              string;
-        style?:             IFeatureTypeStyle;
-        legendItems?:       LegendList.ILegendItem[];
+        id?: string;
+        name?: string;
+        style?: IFeatureTypeStyle;
+        legendItems?: LegendList.ILegendItem[];
         /** Optional expressions that are shown in the legend list. */
-        legendExpr?:        IPropertyType[];
-        properties?:        {};
+        legendExpr?: IPropertyType[];
+        properties?: {};
         _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
-        contourProperty?:  string;
+        contourProperty?: string;
         /**
          * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
-        propertyTypeKeys?:  string;
-        languages?:         ILanguageData;
+        propertyTypeKeys?: string;
+        languages?: ILanguageData;
         /** Action after selection, not set: open Feature Properties */
-        selectAction?:          string;
-        _isInitialized?:    boolean; 
-        _resource? : ITypesResource;
+        selectAction?: string;
+        _isInitialized?: boolean;
+        _resource?: ITypesResource;
     }
 
     export interface IGeoJsonFile {
         featureTypes?: { [key: string]: IFeatureType };
-        type:          string;
-        features:      Array<IFeature>;
+        type: string;
+        features: Array<IFeature>;
     }
 
     export interface IGeoJsonCollection {
@@ -320,12 +320,12 @@ module csComp.Services {
     }
 
     export interface PropertyInfo {
-        max:      number;
-        min:      number;
-        count:    number;
-        mean:     number;
+        max: number;
+        min: number;
+        count: number;
+        mean: number;
         varience: number;
-        sd:       number;
+        sd: number;
         userMin?: number;
         userMax?: number;
     }
