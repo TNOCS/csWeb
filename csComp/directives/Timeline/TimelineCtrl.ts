@@ -64,8 +64,8 @@ module Timeline {
                 'editable': false,
                 'margin': 0,
                 'height': '54px',
-                'zoomMax' : 172800000,
-                'zoomMin' : 3600000
+                'zoomMax': 172800000,
+                'zoomMin': 3600000
                 //'layout': 'box'
             };
 
@@ -77,19 +77,16 @@ module Timeline {
 
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
                 setTimeout(() => {
-                    //    this.initTimeline();
-                    
-                    
                     // set min/max zoom levels if available
                     if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
                         if (!_.isUndefined(this.$layerService.project.timeLine.zoomMax)) this.$scope.timeline.options["zoomMax"] = this.$layerService.project.timeLine.zoomMax;
                         if (!_.isUndefined(this.$layerService.project.timeLine.zoomMin)) this.$scope.timeline.options["zoomMin"] = this.$layerService.project.timeLine.zoomMin;
                     }
-                    
+
                     this.updateFocusTime();
                     this.updateDragging();
                     this.myTimer();
-                    
+
                     if (this.$layerService.project.timeLine.isLive) this.goLive();
                 }, 0);
             });
@@ -200,18 +197,12 @@ module Timeline {
         }
 
         private initTimeline() {
-
             var container = document.getElementById('timeline');
 
             // Remove old timeline before initializing a new one
             while (container.firstChild) {
                 container.removeChild(container.firstChild);
             }
-
-
-            
-            
-            
 
             this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
@@ -354,7 +345,6 @@ module Timeline {
         public stop() {
             this.isPlaying = false;
             if (this.timer) clearInterval(this.timer);
-
         }
 
         public updateFocusTimeContainer(time: Date) {
