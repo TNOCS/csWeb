@@ -36,7 +36,7 @@ module csComp.Services {
         /** Search status: if isActive is true, show the Navigate directive. */
         private _search: ISearch = { isActive: false, query: '' };
         /** website is running in touch mode */
-        public touchMode: boolean = false;
+        public touchMode: boolean;
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};
 
         public static $inject = [
@@ -49,6 +49,7 @@ module csComp.Services {
             'messageBusService',
             'layerService',
             'mapService',
+            'localStorageService'
         ];
 
         constructor(
@@ -60,7 +61,8 @@ module csComp.Services {
             private $translate: ng.translate.ITranslateService,
             private $messageBusService: Services.MessageBusService,
             private $layerService: Services.LayerService,
-            private $mapService: Services.MapService
+            private $mapService: Services.MapService,
+            private $localStorageService: ng.localStorage.ILocalStorageService
         ) {
 
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
@@ -70,6 +72,7 @@ module csComp.Services {
             this.mainDashboard = new csComp.Services.Dashboard();
             this.dashboards = [];
             this.dashboards['main'] = this.mainDashboard;
+            this.touchMode = $localStorageService.get("touchmode");
 
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
             this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService, this); }

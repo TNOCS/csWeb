@@ -58,6 +58,8 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        /** indicates that the contents layer of this layer can be changed */
+        isEditable?: boolean;
         /** this layer contains sensor data, updated when focusTime changes */
         hasSensorData? : boolean;
         /**
@@ -258,6 +260,9 @@ module csComp.Services {
         feature geometry and property values. changes are distributed to all active clients in realtime */
         isDynamic: boolean;
 
+        /** indicates that the contents layer of this layer can be changed */
+        isEditable: boolean;
+
         /**
          * Logging mechanism allows you to specify specific property values and geometries in time,
          * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers
@@ -342,6 +347,7 @@ module csComp.Services {
                 defaultLegend:         pl.defaultLegend,
                 useProxy:              pl.useProxy,
                 isDynamic:             pl.isDynamic,
+                isEditable:            pl.isEditable,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
                 hasSensorData:         pl.hasSensorData,

@@ -73,6 +73,7 @@ module LayersDirective {
 
             this.$messageBusService.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
                 if (action === 'deactivate' && layer === this.layer) this.stopEditingLayer(layer);
+                if (action === 'startEditing') this.editLayer(layer);
             });
 
             this.$messageBusService.subscribe('featuretype', (action: string, type: csComp.Services.IFeatureType) => {
@@ -369,7 +370,7 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'editlayer';
 
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startEditing(layer);
+            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).startEditing(layer);
             this.layer = layer;
             this.resource = null;
             if (this.layer.typeUrl) {
@@ -389,7 +390,7 @@ module LayersDirective {
                     interact('#layerfeaturetype-' + key).onend = null;
                 };
             }
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopEditing(layer);
+            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
         }
 
         /** change layer opacity */
@@ -590,7 +591,7 @@ module LayersDirective {
                     this.editLayer(layer);
                 }
             }
-            else 
+            else
             {
                 this.$layerService.toggleLayer(layer);
             }
@@ -615,7 +616,7 @@ module LayersDirective {
                     if (_.isArray(actions)) actions.forEach(a => layer._gui['options'].push(a));
                 }
             })
-            if (layer.isDynamic && layer.enabled) layer._gui['options'].push({ title: 'Edit Layer', callback: (l, ls) => this.editLayer(l) });
+           
             layer._gui['options'].push({ title: 'Layer Settings', callback: (l, ls) => this.layerSettings(l) });
 
             (<any>$(event.target).next()).dropdown('toggle');

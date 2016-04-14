@@ -1,6 +1,6 @@
 module csComp.Services {
     'use strict';
-    
+
     declare var L;
 
     /*
@@ -19,7 +19,8 @@ module csComp.Services {
 
         public map: L.Map;
         public baseLayers: any;
-        public layer : ProjectLayer;
+        public drawingLayer: ProjectLayer;
+        public drawingFeatureType: csComp.Services.IFeatureType
         public activeBaseLayer: BaseLayer;
         public activeBaseLayerId: string;
         public mapVisible: boolean = true;
@@ -27,7 +28,8 @@ module csComp.Services {
         public rightMenuVisible: boolean = true;
         public maxBounds: IBoundingBox;
         public drawInstance: any;
-        public featureGroup : L.ILayer;
+        public featureGroup: L.ILayer;
+        public drawingNotification : any;
 
         expertMode: Expertise;
 
@@ -121,7 +123,7 @@ module csComp.Services {
             var layerObj: BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
             this.activeBaseLayerId = layer;
-            this.$messageBusService.publish("baselayer","activated",layer);
+            this.$messageBusService.publish("baselayer", "activated", layer);
         }
 
         public invalidate() {
@@ -181,56 +183,104 @@ module csComp.Services {
         }
 
         getMap(): L.Map { return this.map; }
-        
-                
-        public initDraw()
-        {
+
+
+        public initDraw(layerService: csComp.Services.LayerService) {
             this.map.on('draw:created', (e: any) => {
 
-                if (this.layer) {
-
-                    console.log(e.layer);
-
+                if (this.drawingLayer) {
+                    if (this.drawingNotification) this.drawingNotification.remove();
+                    var geometryType = "Point";
+                    
                     var c = [];
-                    e.layer.editing.latlngs[0].forEach(ll => {
-                        c.push([ll.lng, ll.lat]);
-                    });
+                    
+                     switch (this.drawingFeatureType.style.drawingMode)
+                    {
+                        case "Line":
+                            geometryType = "LineString";
+                            e.layer._latlngs.forEach(ll => {
+                                 c.push([ll.lng, ll.lat]);
+                            });
+                            break;
+                        case "Polygon":
+                            geometryType = "Polygon";
+                            
+                            
+                            e.layer._latlngs.forEach(g => {
+                                var inner = [];
+                                g.forEach(ll=>{
+                                    inner.push([ll.lng, ll.lat]);}
+                                );
+                                c.push(inner);
+                            });
+                            break;
+                    }
 
                     var f = <csComp.Services.Feature>{
                         type: "Feature",
-                        geometry: { type: "LineString", "coordinates": c }
+                        geometry: { type: geometryType, "coordinates": c },
+                        fType: this.drawingFeatureType,
+                        properties: {}
                     };
-                    f.type = "Feature";
-                    var l = this.layer;
+                   
+                    f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
+
+                    var l = this.drawingLayer;
                     if (!l.data) l.data = {};
                     if (!l.data.features) l.data.features = [];
                     l.data.features.push(f);
-                    // this.$layerService.initFeature(f, l);
-                    // this.$layerService.calculateFeatureStyle(f);
-                    // this.$layerService.updateFeature(f);
-                    // f.type = "Feature";
-                    // this.$layerService.saveFeature(f);
+                    layerService.initFeature(f, l);
+                    layerService.calculateFeatureStyle(f);
+                    layerService.activeMapRenderer.addFeature(f);
+                    f.type = "Feature";
+                    layerService.saveFeature(f);
                     console.log(f);
                 }
-                
-           //     this.$mapService.drawInstance.removeHooks();
-                
+
+                this.drawInstance.removeHooks();
+                this.drawingFeatureType = null;
+
             });
         }
 
-        public startDraw(layer : csComp.Services.ProjectLayer,featureType: csComp.Services.IFeatureType) {
-            this.layer = layer;
-            
-            this.drawInstance = new L.Draw.Polyline(this.map, {
+        /** start drawing line/polygon */
+        public startDraw(layer: csComp.Services.ProjectLayer, featureType: csComp.Services.IFeatureType) {
+            if (this.drawingFeatureType) return;
+            this.drawingLayer = layer;
+            this.drawingFeatureType = featureType;
+
+            var opts = <any>{
                 stroke: true,
-                color: '#f06eaa',
-                weight: 4,
+                color: this.drawingFeatureType.style.strokeColor,
+                weight: 4,                
                 opacity: 0.5,
                 fill: false,
                 clickable: true
-            });            
+            };
+            switch (featureType.style.drawingMode)
+            {
+                case "Line":
+                    this.drawInstance = new L.Draw.Polyline(this.map, opts);
+                    break;
+                case "Polygon":
+                    opts.showArea = true;
+                    this.drawInstance = new L.Draw.Polygon(this.map, opts);
+                    opts.fill = true;
+                    break;
+            }
+                            
             this.drawInstance.addHooks();
-            this.drawInstance = null;
+            this.drawingNotification = this.$messageBusService.confirm("Drawing started","Use double-click or one of these options to end your drawing",(r)=>{
+                if (r)
+                {
+                    this.drawInstance.completeShape();
+                }
+                else
+                {
+                    this.drawInstance.removeHooks();
+                    this.drawingFeatureType = null;
+                }                
+            });
         }
     }
 

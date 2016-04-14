@@ -1,13 +1,16 @@
 <div>
 
     <div class="layer-actions">
-        
-            <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+        <button ng-click="vm.saveFeatureType()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />save
             </button>
-            
-            <button ng-if="featureType._isInitialized" ng-click="vm.apply()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
+
+        <button ng-if="featureType._isInitialized" ng-click="vm.apply()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />apply
+            </button>
+            
+        <button ng-click="vm.cancel()" ng-if="!featureType._isInitialized" class="layer-action">
+                <span class="fa fa-save layer-action-icon" />cancel
             </button>
     </div>
     <div class="leftpanel-scroll">
@@ -21,12 +24,19 @@
             <input type="text" data-ng-model="featureType.id" class="form-control" /> -->
 
                 <div class="rightpanel-label">Feature title</div>
-                <input type="text" ng-disabled="featureType._isInitialized" id="featureTypeName" data-ng-model="featureType.name" validfeaturetypeid class="form-control" />
-                <span class="help-block" ng-show="featureTypeForm.featureTypeName.$error">Not a valid title</span>
+                <input type="text" ng-disabled="featureType._isInitialized" id="featureTypeName" name="featureTypeName" data-ng-model="featureType.name"
+                    validfeaturetypeid class="form-control" />
+                <span class="help-block" ng-show="featureTypeForm.$valid">Not a valid title</span>
 
                 <!--<div class="rightpanel-label">Title property (used to display name)</div>
             <input type="text" data-ng-model="featureType.style.nameLabel" class="form-control" />-->
-
+                <div class="row">
+                    <div class="col-md-6 checkbox dashboard-edit-checkbox">
+                        <div class="rightpanel-label">Type</div>
+                        <select ng-disabled="featureType._isInitialized" data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']"
+                            class="form-control"></select>
+                    </div>
+                </div>
                 <div class="rightpanel-label">Icon Image</div>
                 <div class="row">
                     <div class="col-md-2">
@@ -37,12 +47,7 @@
                         <input type="text" data-ng-model="featureType.style['iconUri']" class="form-control">
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 checkbox dashboard-edit-checkbox">
-                        <div class="rightpanel-label">Type</div>
-                        <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
-                    </div>
-                </div>
+
                 <div ng-show="featureType.style['drawingMode'] == 'Point'">
                     <div class="row">
                         <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconHeight.$invalid }">
