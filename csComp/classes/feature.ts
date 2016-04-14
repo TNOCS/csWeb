@@ -290,7 +290,8 @@ module csComp.Services {
      * the title and its description, and its location.
      */
     export interface IEventStyleProperties {
-        featureTypeName: string;
+        /** Name of the relation that contains the event data. */
+        relationName: string;
         startTime: string;
         endTime: string;
         title: string;
