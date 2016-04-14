@@ -124,8 +124,16 @@ module csComp.Services {
                     res.push(fit);
                 }
             }
-
             
+            if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
+            var reset = <IActionOption> { title: 'Reset Layer', icon: 'reset' };
+                reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        console.log("Resetting layer: "+layer.title);
+                        layer.data.features = [];
+                        layer.layerSource.refreshLayer(layer);
+                };
+                res.push(reset);
+            }
 
             if (this.layerService.$mapService.isAdminExpert) {
                 var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
