@@ -153,7 +153,7 @@ module FeatureProps {
                 //var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 //if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
                 // if (type.showAllProperties || this.mapservice.isAdminExpert) {
-                //     missing = csComp.Helpers.getMissingPropertyTypes(feature);                    
+                //     missing = csComp.Helpers.getMissingPropertyTypes(feature);
                 //     // missing.forEach((pt: csComp.Services.IPropertyType) => {
                 //     //     if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
                 //     //         propertyTypes.push(pt);
@@ -161,7 +161,7 @@ module FeatureProps {
                 //     // });
                 // }
 
-                // if feature type has propertyTypeKeys defined use these to show the order of the properties 
+                // if feature type has propertyTypeKeys defined use these to show the order of the properties
                 if (feature.fType.propertyTypeKeys) {
                     feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {
                         if (feature.properties.hasOwnProperty(mi.label) || mi.type === 'relation') {
@@ -174,7 +174,7 @@ module FeatureProps {
                             this.addProperty(mi, feature, infoCallOutSection, linkCallOutSection, true);
                         }
                     }
-                } else { // if not go through all properties and find a propertyType 
+                } else { // if not go through all properties and find a propertyType
                     for (var key in feature.properties) {
                         var mi = layerservice.getPropertyType(feature, key);
 
@@ -226,7 +226,7 @@ module FeatureProps {
             if (mi.visibleInCallOut) {
                 callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, canShowStats, feature, false, mi.description, mi, isDraft);
             }
-            
+
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
         }
 
@@ -395,7 +395,7 @@ module FeatureProps {
                 resource.propertyTypeData[key] = propType;
                 item.feature.fType.propertyTypeKeys += ';' + key;
                 item.isDraft = false;
-                this.$layerService.propertyTypeData[key] = propType;       
+                this.$layerService.propertyTypeData[key] = propType;
                 //alert('saving draft');
             }
 
@@ -491,7 +491,7 @@ module FeatureProps {
                     this.displayFeature(feature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
-                    this.updateAllStats(); 
+                    this.updateAllStats();
                     if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                         this.$scope.$root.$apply();
                     }
@@ -540,7 +540,7 @@ module FeatureProps {
             var ns = <any>this.$scope;
             ns.item = item;
 
-            // create sparkline   
+            // create sparkline
             try {
                 var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
                 ch.append(chartElement);
@@ -690,7 +690,7 @@ module FeatureProps {
             this.$layerService.project.timeLine.setFocus(d);
             this.$messageBusService.publish('timeline', 'setFocus', d);
         }
-        
+
         public selectFeature(feature: IFeature) {
             if (!feature) return;
             this.$layerService.selectFeature(feature);
