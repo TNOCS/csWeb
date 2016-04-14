@@ -301,7 +301,7 @@ module csComp.Services {
                     }
                 }
             }
-            if (feature.layer.isDynamic && marker.dragging) {
+            if (feature.layer.isEditable && marker.dragging) {
                 if (this.canDrag(feature)) {
                     marker.dragging.enable();
                 } else {
