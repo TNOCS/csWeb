@@ -89,7 +89,7 @@
                             <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
                                 <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer,$event);">
                                 <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-checked="layer.enabled" data-ng-click="vm.toggleLayer(layer,$event);">
-                                <label for="cblayer{{layer.id}}">
+                                <label class ="layer-list-title" for="cblayer{{layer.id}}">
                                     {{layer.title}}
                                 </label>
 
@@ -103,10 +103,10 @@
                                 popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]"
                                 style="position:absolute;right:20px;top:3px"></div>-->
                                 <div ng-show="group._gui.mo || vm.$dashboardService.touchMode" class="" style="position:absolute;right:10px;top:3px">
-                                    <div class="fa fa-ellipsis-v dropdown-toggle pull-right" ng-click="vm.openLayerMenu($event,layer)" data-toggle="dropdown"
+                                    <div class="fa fa-ellipsis-v dropdown-toggle pull-right" style="width:30px;height:25px;padding:5px" ng-click="vm.openLayerMenu($event,layer)" data-toggle="dropdown"
                                         aria-haspopup="true" style="width:18px;cursor:pointer" aria-expanded="false">
                                     </div>
-                                    <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;">
+                                    <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;margin-top:-5px">
                                         <li ng-repeat="o in layer._gui.options" class="dropdown-item"><a ng-click="vm.clickAction(o,layer)">{{o.title}}</a><fa name="{{o.icon}}" class="dropdown-item-icon" /></li>                                        
                                     </ul>
                                 </div>
