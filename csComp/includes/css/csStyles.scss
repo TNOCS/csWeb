@@ -705,9 +705,18 @@ body,
     height: 50px;
 }
 .dashboardselectionactive {
-    border-bottom: white;
+        border-bottom: gold;
     border-bottom-style: solid;
+    border-bottom-width: 5px;
 }
+
+.project-logo
+{
+    height: 40px;
+    float: left;
+    margin: 5px;
+}
+
 .dashboard-base {
     position: absolute;
     width: 100%;
