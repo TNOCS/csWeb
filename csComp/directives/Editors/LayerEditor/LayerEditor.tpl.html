@@ -26,7 +26,7 @@
             </span>
             <div ng-if="featureType.style.drawingMode=='Point'" class="featureType-name">{{featureType.name}}</div>
             <div ng-if="featureType.style.drawingMode!='Point'" class="featureType-name" style="cursor:pointer" ng-click="vm.startDraw(featureType)">{{featureType.name}}</div>
-            <div style="position:absolute;right:10px;top:8px">
+            <div style="position:absolute;right:10px;top:8px" ng-if="vm.$mapService.isAdminExpert">
                 <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
                     aria-expanded="false">
                 </div>
