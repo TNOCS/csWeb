@@ -1700,19 +1700,36 @@ body,
     height:150px;position:absolute;bottom:0;width:100%;pointer-events:none
 }
 
-.timeline-expand-button {
-    border-style: solid;
-    /* border: black; */
-    background: white;
-    border-width: 1px;
-    border-color: gray;
-    border-bottom-style: none;
-    pointer-events: auto;
-    cursor: pointer;
-    width: 75px;
-    right: 110px;
-    height: 20px;
+.vis-timeline
+{
+    border-style: none;
+          box-shadow: 0px -2px 7px 0px rgba(0, 0, 0, 0.4);    
 }
+
+.vis-panel.vis-center
+{
+    border-style:none;
+  
+}
+
+.timeline-expand-button {      
+   pointer-events: auto;
+    cursor: pointer;
+    width: 65px;
+    background: white;
+    right: 400px;
+    height: 55px;
+    font-size: 20px;
+    padding: 5px;
+    padding-left: 23px;
+    opacity: 0.8;
+}
+
+.timeline-expand-button ::hover
+{
+    opacity:1;
+}
+
 .callout.top::before {
     left: 45%;
     bottom: -20px;
@@ -1734,16 +1751,17 @@ body,
     cursor: pointer;
 }
 #focustimeContainer {
-    width: 130px;
+        width: 130px;
     cursor: e-resize;
     height: 67px;
     right: 200px;
-    /*bottom: 105px;*/
+    /* bottom: 105px; */
     bottom: 45px;
     color: white;
     position: absolute;
     z-index: 1000;
     display: block;
+    margin-bottom: 2px;
 }
 .timelineControl {
     background: black;
