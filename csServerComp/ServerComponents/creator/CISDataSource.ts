@@ -120,6 +120,19 @@ export class CISDataSource {
             });
             // Add geometry
             if (cisMsg.msg.hasOwnProperty('info') && cisMsg.msg['info'].hasOwnProperty('area')) {
+                // Fake a Point-feature to be a Polygon for now, as it is better supported by the other teams.
+                if (feature.geometry.type.toLowerCase() === 'point') {
+                    var coords = feature.geometry.coordinates;
+                    var polCoords = [[
+                        [coords[0] - 0.05, coords[1] + 0.05],
+                        [coords[0] - 0.05, coords[1] - 0.05],
+                        [coords[0] + 0.05, coords[1] - 0.05],
+                        [coords[0] + 0.05, coords[1] + 0.05],
+                        [coords[0] - 0.05, coords[1] + 0.05]
+                    ]];
+                    feature.geometry.type = 'Polygon';
+                    feature.geometry.coordinates = polCoords;
+                }
                 var keyVal = CISDataSource.convertGeoJSONToCAPGeometry(feature.geometry, 20);
                 cisMsg.msg['info']['area'][keyVal.key] = keyVal.val;
             }
@@ -277,7 +290,7 @@ export class CISDataSource {
         var coords = geo.coordinates;
         if (geo.type.toLowerCase() === 'polygon') {
             for (let i = 0; i < coords[0].length; i++) {
-                let cc = coords[i];
+                let cc = coords[0][i];
                 capCoords += cc[1] + ',' + cc[0] + ' ';
             }
             capCoords = capCoords.substr(0, capCoords.length - 1); //Remove last space
