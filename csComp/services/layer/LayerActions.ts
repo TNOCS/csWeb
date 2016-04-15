@@ -5,26 +5,26 @@ module csComp.Services {
 
     export enum ActionType {
         Context = 0,
-        Hover   = 1
+        Hover = 1
     }
 
     export interface IActionOption {
-        title:    string;
-        icon:     string;
-        feature:  IFeature;
+        title: string;
+        icon: string;
+        feature: IFeature;
         callback: Function;
     }
 
     export interface ISearchResultItem {
-        type?:        string;
-        feature?:     IFeature;
+        type?: string;
+        feature?: IFeature;
         description?: string;
-        title:        string;
-        score?:       number;
-        icon?:        string;
-        service:      string;
-        click:        Function;
-        location?:    IGeoJsonGeometry;
+        title: string;
+        score?: number;
+        icon?: string;
+        service: string;
+        click: Function;
+        location?: IGeoJsonGeometry;
         /** The position the item has in the result, e.g. A, B, or C... */
         searchIndex?: string;
     }
@@ -102,6 +102,12 @@ module csComp.Services {
         getLayerActions(layer: ProjectLayer): IActionOption[] {
             if (!layer) return;
             var res = [];
+            
+            if (layer.isEditable && this.layerService.$mapService.isExpert && layer.enabled) res.push({
+                title: 'Edit Layer', icon: 'pencil', callback: (l, ls) => {
+                    this.layerService.$messageBusService.publish('layer', 'startEditing', l);
+                }
+            });
 
             if (layer.enabled && layer.layerSource) {
                 var refresh = <IActionOption>{ title: 'Refresh Layer', icon: 'refresh' };
@@ -118,12 +124,26 @@ module csComp.Services {
                     res.push(fit);
                 }
             }
+            
+            if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
+            var reset = <IActionOption> { title: 'Reset Layer', icon: 'reset' };
+                reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        console.log("Resetting layer: "+layer.title);
+                        layer.data.features = [];
+                        layer.layerSource.refreshLayer(layer);
+                };
+                res.push(reset);
+            }
 
-            var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
-            remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
-                layerService.removeLayer(layer, true);
-            };
-            res.push(remove);
+            if (this.layerService.$mapService.isAdminExpert) {
+                var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
+                remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    layerService.$messageBusService.confirm("Delete layer","Are you sure",(result)=>{
+                        if (result) layerService.removeLayer(layer, true);
+                    })                    
+                };
+                res.push(remove);
+            }
             return res;
 
         }

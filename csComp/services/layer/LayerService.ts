@@ -119,6 +119,25 @@ module csComp.Services {
                 this.refreshActiveLayers();
             }, 500);
 
+            $("body").keyup(e => {
+                if (e.keyCode === 46 && e.target.localName != "input") {                    
+                    if (this.selectedFeatures.length > 1) {
+                        this.$messageBusService.confirm("Delete objects", "Do you want to remove all (" + this.selectedFeatures.length + ") selected objects ?", r => {
+                            this.selectedFeatures.forEach(f => {
+                                this.removeFeature(f,true);
+                            });
+                        });
+                    } else
+                        if (this.selectedFeatures.length === 1) {
+                            this.$messageBusService.confirm("Delete object", "Are you sure", r => {                                
+                                    this.removeFeature(this.selectedFeatures[0],true);
+                                
+                            });
+                        }
+
+                }
+            })
+
             $messageBusService.subscribe('timeline', (trigger: string, date: Date) => {
                 switch (trigger) {
                     case 'focusChange':
@@ -842,7 +861,7 @@ module csComp.Services {
             if (!source.title) source.title = source.url;
 
             // if url starts with  'api/' this is a dynamic resource
-            if (typeof(source.isDynamic) === "undefined") {
+            if (typeof (source.isDynamic) === "undefined") {
                 source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
             }
 
@@ -1337,7 +1356,7 @@ module csComp.Services {
         }
 
         /** remove feature */
-        public removeFeature(feature: IFeature, dynamic: boolean = false) {
+        public removeFeature(feature: IFeature, save: boolean = false) {
             this.project.features = this.project.features.filter((f: IFeature) => { return f !== feature; });
             feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f !== feature; });
             if (feature.layer.group.filterResult)
@@ -1347,7 +1366,7 @@ module csComp.Services {
 
             this.$messageBusService.publish('feature', 'onFeatureRemoved', feature);
 
-            if (dynamic) {
+            if (save && feature.layer.isDynamic) {
                 var s = new LayerUpdate();
                 s.layerId = feature.layerId;
                 s.action = LayerUpdateAction.deleteFeature;
@@ -2204,8 +2223,7 @@ module csComp.Services {
             this.apply();
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
-            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-            this.saveProject();
+            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');            
         }
 
         public removeAllFilters(g: ProjectGroup) {
@@ -2570,12 +2588,14 @@ module csComp.Services {
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
                                     } else {
-                                        this.$messageBusService.notify('New update available for layer ', layer.title);
-                                        if (l.enabled) {
+                                        this.$messageBusService.confirm('New update available for layer ' + layer.title,'Do you want to reload this layer',r=>{
+                                            if (r && l.enabled) {
                                             var wasRightPanelVisible = this.visual.rightPanelVisible;
                                             l.layerSource.refreshLayer(l);
                                             this.visual.rightPanelVisible = wasRightPanelVisible;
                                         }
+                                        });
+                                        
                                     }
                                 }
                             }
@@ -2596,7 +2616,12 @@ module csComp.Services {
                                     }
                                 } else {
                                     if (project.id === this.project.id) {
-                                        this.$messageBusService.notify('New update available for project ', project.title);
+                                        this.$messageBusService.confirm('New update available for project ' + project.title, 'Do you want to reload the project?',r=>{
+                                            if (r)
+                                            {
+                                               this.openProject(solutionProject, null, project); 
+                                            }
+                                        });
                                         // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
                                         //     this.openProject(solutionProject, null, project);
                                         // });

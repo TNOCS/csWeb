@@ -272,7 +272,7 @@ module csComp.Services {
                 configSettings = { titleKey: 'Name', descriptionKey: 'news_title', dateKey: 'news_date' };
             };
             try {
-                var features = (<any>this.layer.data).features;
+                var features = (<any>layer.data).features;
                 if (features == null)
                     return;
                 var done = false;
@@ -286,7 +286,7 @@ module csComp.Services {
                         if (this.service.project.eventTab) {
                             this.service.$messageBusService.publish('eventtab', 'updated', { feature: f, config: configSettings });
                         } else {
-                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, f.properties['Name'] + ' updated');
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, f.properties['Name'] + ' updated');
                         }
                         //  console.log('updating feature');
                         return true;
@@ -307,12 +307,12 @@ module csComp.Services {
                         }
                     } else {
                         features.push(value);
-                        this.service.initFeature(value, this.layer);
+                        this.service.initFeature(value, layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
                         if (this.service.project.eventTab) {
                             this.service.$messageBusService.publish('eventtab', 'added', { feature: value, config: configSettings });
                         } else {
-                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
                         }
                     }
                 }
@@ -325,7 +325,7 @@ module csComp.Services {
             try {
                 var feature = this.service.findFeature(layer, id);
                 if (feature) {
-                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, feature.properties['Name'] + ' removed');
                     this.service.removeFeature(feature, false);
                 }
             } catch (e) {
@@ -354,7 +354,7 @@ module csComp.Services {
                 ['Fit map', (($itemScope) => this.fitMap(layer))]];
             if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
             result.push(null);
-            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);                        
             return result;
         }
 
@@ -443,7 +443,7 @@ module csComp.Services {
                     case 'msg':
                         var d = msg.data;
                         if (d.hasOwnProperty('message')) {
-                            this.service.$messageBusService.notify(this.layer.title, d.message);
+                            this.service.$messageBusService.notify(layer.title, d.message);
                         }
                         break;
                     case 'layer':
@@ -455,7 +455,7 @@ module csComp.Services {
                                         // find feature
                                         var fId = lu.featureId;
                                         var logs: { [key: string]: Log[] } = lu.item;
-                                        var ff = <IFeature[]>(<any>this.layer.data).features;
+                                        var ff = <IFeature[]>(<any>layer.data).features;
                                         ff.forEach((f: IFeature) => {
                                             if (f.id === fId) {
                                                 if (!f.logs) f.logs = {};
@@ -501,7 +501,7 @@ module csComp.Services {
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
                                         if (feature) {
-                                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, feature.properties['Name'] + ' removed');
                                             this.service.removeFeature(feature, false);
                                         }
 

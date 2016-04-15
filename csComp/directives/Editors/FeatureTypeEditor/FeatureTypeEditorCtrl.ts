@@ -58,6 +58,11 @@ module FeatureTypeEditor {
             this.$layerService.updateFeatureTypes(this.$scope.featureType);            
         }
         
+        public cancel()
+        {
+             this.$messageBusService.publish("featuretype","stopEditing");  
+        }
+        
          /** save a resource (back to api and update features) */
         public saveFeatureType() {
             if (!this.$scope.featureType._isInitialized) {

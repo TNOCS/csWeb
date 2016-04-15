@@ -16,7 +16,8 @@ module ProjectSettings {
             'layerService',
             'dashboardService',
             'mapService',
-            'messageBusService'
+            'messageBusService',
+            'localStorageService'
         ];
 
         public project: csComp.Services.Project;
@@ -29,13 +30,15 @@ module ProjectSettings {
             private $layerService: csComp.Services.LayerService,
             private dashboardService: csComp.Services.DashboardService,
             private mapService: csComp.Services.MapService,
-            private messageBus: csComp.Services.MessageBusService
+            private messageBus: csComp.Services.MessageBusService,
+            private $localStorageService: ng.localStorage.ILocalStorageService
         ) {
             $scope.vm = this;
         } 
 
         toggleTouchMode() {
             this.dashboardService.touchMode = !this.dashboardService.touchMode;
+            this.$localStorageService.set('touchmode',this.dashboardService.touchMode); 
         }
 
         toggleRenderer() {
