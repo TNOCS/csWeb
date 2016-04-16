@@ -33,7 +33,7 @@ module DashboarHeaderdSelection {
             $scope.vm = this;
         }
 
-        public childDashboards(db: csComp.Services.Dashboard): csComp.Services.Dashboard[] {
+        public childDashboards(db: csComp.Services.Dashboard): csComp.Services.Dashboard[] {            
             var res = this.$layerService.project.dashboards.filter((d: csComp.Services.Dashboard) => { return (d.parents && d.parents.indexOf(db.id) > -1); });
             return res;
         }

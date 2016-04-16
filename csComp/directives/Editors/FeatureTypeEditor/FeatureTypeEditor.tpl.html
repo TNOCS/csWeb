@@ -24,7 +24,7 @@
             <input type="text" data-ng-model="featureType.id" class="form-control" /> -->
 
                 <div class="rightpanel-label">Feature title</div>
-                <input type="text" ng-disabled="featureType._isInitialized" id="featureTypeName" name="featureTypeName" data-ng-model="featureType.name"
+                <input type="text"  id="featureTypeName" name="featureTypeName" data-ng-model="featureType.name"
                     validfeaturetypeid class="form-control" />
                 <span class="help-block" ng-show="featureTypeForm.$valid">Not a valid title</span>
 
@@ -33,7 +33,7 @@
                 <div class="row">
                     <div class="col-md-6 checkbox dashboard-edit-checkbox">
                         <div class="rightpanel-label">Type</div>
-                        <select ng-disabled="featureType._isInitialized" data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']"
+                        <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon', 'Image']"
                             class="form-control"></select>
                     </div>
                 </div>
