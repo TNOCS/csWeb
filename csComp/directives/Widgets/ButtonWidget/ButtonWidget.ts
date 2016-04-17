@@ -12,7 +12,7 @@ module ButtonWidget {
     }
 
     /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    myModule.directive('buttonwidget', [function(): ng.IDirective {
+    myModule.directive('buttonwidget', [function (): ng.IDirective {
         return {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
@@ -21,9 +21,8 @@ module ButtonWidget {
             replace: true,    // Remove the directive from the DOM
             transclude: false,   // Add elements and attributes to the template
             controller: ButtonWidgetCtrl
-        }
-    }
-    ]);
+        };
+    }]);
 
     export interface IButtonWidgetScope extends ng.IScope {
         vm: ButtonWidgetCtrl;
@@ -75,7 +74,6 @@ module ButtonWidget {
             private $http: ng.IHttpService,
             public layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService,
-
             private $timeout: ng.ITimeoutService
         ) {
             $scope.vm = this;
@@ -90,8 +88,7 @@ module ButtonWidget {
 
             if (!_.isUndefined($scope.data.layerGroup)) {
                 this.initLayerGroup();
-            }
-            else {
+            } else {
                 this.$scope.buttons = this.$scope.data.buttons;
                 this.initButtons();
             }
@@ -100,30 +97,27 @@ module ButtonWidget {
         private initButtons() {
             this.$scope.buttons.forEach(b => {
                 switch (b.action) {
-                    case "Activate TimeRange":
-
+                    case 'Activate TimeRange':
                         break;
-                    case "Activate Layer":
+                    case 'Activate Layer':
                         this.checkLayer(b);
-                        this.messageBusService.subscribe("layer", (a, l) => this.checkLayer(b));
+                        this.messageBusService.subscribe('layer', (a, l) => this.checkLayer(b));
                         break;
-                    case "Activate Style":
+                    case 'Activate Style':
                         this.checkStyle(b);
-                        this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle(b));
+                        this.messageBusService.subscribe('updatelegend', (a, l) => this.checkStyle(b));
                         break;
-                    case "Activate Baselayer":
+                    case 'Activate Baselayer':
                         this.checkBaselayer(b);
-                        this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer(b));
+                        this.messageBusService.subscribe('baselayer', (a, l) => this.checkBaselayer(b));
                         break;
                 }
-
             });
-
         }
 
         private initLayerGroup() {
             this.checkLayerGroup();
-            this.messageBusService.subscribe("layer", (a, l) => this.checkLayerGroup());
+            this.messageBusService.subscribe('layer', (a, l) => this.checkLayerGroup());
         }
 
         private checkLayerGroup() {
@@ -133,13 +127,12 @@ module ButtonWidget {
                 group.layers.forEach(l => {
                     var b = <IButton>{
                         title: l.title,
-                        action: "Activate Layer",
+                        action: 'Activate Layer',
                         layer: l.id,
                         showLegend: false
                     };
                     this.$scope.buttons.push(b);
                     this.checkLayer(b);
-
                 });
             }
         }
@@ -155,17 +148,16 @@ module ButtonWidget {
 
                 if (layer._gui.hasOwnProperty('editing') && layer._gui['editing'] === true) {
                     (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
-                    layer.data.features.forEach(f=>{
+                    layer.data.features.forEach(f => {
                         delete f._gui['editMode'];
                         this.layerService.updateFeature(f);
                         this.layerService.saveFeature(f);
-                    })
-                }
-                else {
+                    });
+                } else {
                     (<csComp.Services.EditableGeoJsonSource>layer.layerSource).startEditing(layer);
-                    layer.data.features.forEach(f=>{
-                        this.layerService.editFeature(f,false);
-                    })
+                    layer.data.features.forEach(f => {
+                        this.layerService.editFeature(f, false);
+                    });
                 }
             }
         }
@@ -188,29 +180,27 @@ module ButtonWidget {
                 b._disabled = false;
                 b._active = b._layer.enabled;
                 b._canEdit = b._layer.enabled && b._layer.isEditable;
-            }
-            else {
+            } else {
                 b._disabled = true;
             }
-
         }
 
         private checkStyle(b: IButton) {
             var group = this.layerService.findGroupById(b.group);
             var prop = b.property;
-            if (prop.indexOf("#") > -1) prop = prop.split("#")[1];
+            if (prop.indexOf('#') > -1) prop = prop.split('#')[1];
             if (typeof group !== 'undefined') {
                 var selected = group.styles.filter(gs => {
-                    return gs.property === prop
+                    return gs.property === prop;
                 });
                 b._active = selected.length > 0;
                 if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
                     this.checkLegend(b);
-                } else { b._legend = null; }
-
+                } else {
+                    b._legend = null;
+                }
             }
-
         }
 
         public checkLegend(b: IButton) {
@@ -222,19 +212,19 @@ module ButtonWidget {
 
         public click(b: IButton) {
             switch (b.action) {
-                case "Activate TimeRange":
+                case 'Activate TimeRange':
                     console.log('time range');
                     this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
                     this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
                     this.layerService.project.timeLine.focus = new Date().getTime();
                     break;
-                case "Activate Layer":
+                case 'Activate Layer':
                     var pl = this.layerService.findLayer(b.layer);
                     if (typeof pl !== 'undefined') {
                         this.layerService.toggleLayer(pl);
                     }
                     break;
-                case "Activate Style":
+                case 'Activate Style':
                     var group = this.layerService.findGroupById(b.group);
                     if (typeof group !== 'undefined') {
                         var propType = this.layerService.findPropertyTypeById(b.property);
@@ -243,7 +233,7 @@ module ButtonWidget {
                         }
                     }
                     break;
-                case "Activate Baselayer":
+                case 'Activate Baselayer':
                     var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
                     this.layerService.activeMapRenderer.changeBaseLayer(layer);
                     this.layerService.$mapService.changeBaseLayer(b.layer);
