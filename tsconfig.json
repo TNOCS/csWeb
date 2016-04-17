@@ -181,6 +181,7 @@
         "csComp/helpers/typestate.ts", "csComp/helpers/Utils.ts",
         "csComp/helpers/ValidationDirectives.ts",
         "csComp/services/bus/MessageBus.ts",
+        "csComp/services/dashboard/ActionService.ts",
         "csComp/services/dashboard/ChartGenerators.ts",
         "csComp/services/dashboard/DashboardService.ts",
         "csComp/services/dashboard/top10chart.ts",

@@ -66,6 +66,7 @@ module ButtonWidget {
             '$http',
             'layerService',
             'messageBusService',
+            'actionService',
             '$timeout'
         ];
 
@@ -74,13 +75,13 @@ module ButtonWidget {
             private $http: ng.IHttpService,
             public layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService,
+            private actionService: csComp.Services.ActionService,
             private $timeout: ng.ITimeoutService
         ) {
             $scope.vm = this;
 
             var par = <any>$scope.$parent;
             $scope.data = <IButtonData>par.widget.data;
-
 
             if (typeof $scope.data.buttons === 'undefined') {
                 $scope.data.buttons = [];
@@ -211,34 +212,39 @@ module ButtonWidget {
         }
 
         public click(b: IButton) {
-            switch (b.action) {
-                case 'Activate TimeRange':
-                    console.log('time range');
-                    this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
-                    this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
-                    this.layerService.project.timeLine.focus = new Date().getTime();
-                    break;
-                case 'Activate Layer':
-                    var pl = this.layerService.findLayer(b.layer);
-                    if (typeof pl !== 'undefined') {
-                        this.layerService.toggleLayer(pl);
-                    }
-                    break;
-                case 'Activate Style':
-                    var group = this.layerService.findGroupById(b.group);
-                    if (typeof group !== 'undefined') {
-                        var propType = this.layerService.findPropertyTypeById(b.property);
-                        if (typeof propType !== 'undefined') {
-                            this.layerService.setGroupStyle(group, propType);
-                        }
-                    }
-                    break;
-                case 'Activate Baselayer':
-                    var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
-                    this.layerService.activeMapRenderer.changeBaseLayer(layer);
-                    this.layerService.$mapService.changeBaseLayer(b.layer);
-                    break;
-            }
+            this.actionService.execute(b.action, {
+                layer: b.layer,
+                group: b.group,
+                property: b.property
+            });
+            // switch (b.action) {
+            //     case 'Activate TimeRange':
+            //         console.log('time range');
+            //         this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
+            //         this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
+            //         this.layerService.project.timeLine.focus = new Date().getTime();
+            //         break;
+            //     case 'Activate Layer':
+            //         var pl = this.layerService.findLayer(b.layer);
+            //         if (typeof pl !== 'undefined') {
+            //             this.layerService.toggleLayer(pl);
+            //         }
+            //         break;
+            //     case 'Activate Style':
+            //         var group = this.layerService.findGroupById(b.group);
+            //         if (typeof group !== 'undefined') {
+            //             var propType = this.layerService.findPropertyTypeById(b.property);
+            //             if (typeof propType !== 'undefined') {
+            //                 this.layerService.setGroupStyle(group, propType);
+            //             }
+            //         }
+            //         break;
+            //     case 'Activate Baselayer':
+            //         var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
+            //         this.layerService.activeMapRenderer.changeBaseLayer(layer);
+            //         this.layerService.$mapService.changeBaseLayer(b.layer);
+            //         break;
+            // }
         }
 
         public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
