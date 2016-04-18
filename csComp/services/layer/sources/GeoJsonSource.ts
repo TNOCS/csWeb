@@ -346,7 +346,7 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer._gui['editing']) this.stopEditing(layer);            
+            if (layer._gui['editing']) this.service.stopEditingLayer(layer);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
@@ -354,7 +354,7 @@ module csComp.Services {
                 ['Fit map', (($itemScope) => this.fitMap(layer))]];
             if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
             result.push(null);
-            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);                        
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
             return result;
         }
 
@@ -376,16 +376,7 @@ module csComp.Services {
             this.initAvailableFeatureTypesEditing(layer);
         }
 
-        public stopEditing(layer: csComp.Services.ProjectLayer) {
-            delete layer._gui['featureTypes'];
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g._gui['editing'];
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    delete l._gui['editing'];
-                });
-            });
-            this.service.editing = false;
-        }
+        
 
         /** prepare layer for editing, add featuretypes to temp. _gui object */
         public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
@@ -421,7 +412,7 @@ module csComp.Services {
                 this.initSubscriptions(layer);
             }
         }
-        
+
         removeLayer(layer: ProjectLayer) {
             super.removeLayer(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);

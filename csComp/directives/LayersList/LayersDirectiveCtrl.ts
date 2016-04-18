@@ -390,7 +390,7 @@ module LayersDirective {
                     interact('#layerfeaturetype-' + key).onend = null;
                 };
             }
-            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
+            this.$layerService.stopEditingLayer(layer);            
         }
 
         /** change layer opacity */
