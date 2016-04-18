@@ -193,31 +193,26 @@ module csComp.Services {
                     var geometryType = "Point";
                     
                     var c = [];
-                    
-                     switch (this.drawingFeatureType.style.drawingMode)
-                    {
+                    switch (this.drawingFeatureType.style.drawingMode) {
                         case "Line":
                             geometryType = "LineString";
                             e.layer._latlngs.forEach(ll => {
-                                 c.push([ll.lng, ll.lat]);
+                                    c.push([ll.lng, ll.lat]);
                             });
                             break;
                         case "Polygon":
                             geometryType = "Polygon";
-                            
-                            
                             e.layer._latlngs.forEach(g => {
                                 var inner = [];
                                 g.forEach(ll=>{
                                     inner.push([ll.lng, ll.lat]);}
                                 );
                                 //Make sure first and last point are the same
-                                if (inner.length > 1 && !_.isEqual(_.first(inner), _.last(inner)) {
+                                if (inner.length > 1 && !_.isEqual(_.first(inner), _.last(inner))) {
                                     inner.push(_.first(inner));
                                 }
                                 c.push(inner);
                             });
-                            
                             break;
                     }
 
