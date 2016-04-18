@@ -73,7 +73,8 @@ module csComp.Services {
             '$rootScope',
             'geoService',
             '$http',
-            'expressionService'
+            'expressionService',
+            'actionService'
         ];
 
         constructor(
@@ -85,8 +86,11 @@ module csComp.Services {
             public $rootScope: any,
             public geoService: GeoService,
             public $http: ng.IHttpService,
-            private expressionService: csComp.Services.ExpressionService
+            private expressionService: ExpressionService,
+            private actionService: ActionService
         ) {
+            this.actionService.init(this);
+
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb = $messageBusService;
@@ -119,24 +123,23 @@ module csComp.Services {
                 this.refreshActiveLayers();
             }, 500);
 
-            $("body").keyup(e => {
-                if (e.keyCode === 46 && e.target.localName != "input") {
+            $('body').keyup(e => {
+                if (e.keyCode === 46 && e.target.localName !== 'input') {
                     if (this.selectedFeatures.length > 1) {
-                        this.$messageBusService.confirm("Delete objects", "Do you want to remove all (" + this.selectedFeatures.length + ") selected objects ?", r => {
+                        this.$messageBusService.confirm('Delete objects', 'Do you want to remove all (' + this.selectedFeatures.length + ') selected objects ?', r => {
                             this.selectedFeatures.forEach(f => {
                                 this.removeFeature(f, true);
                             });
                         });
-                    } else
+                    } else {
                         if (this.selectedFeatures.length === 1) {
-                            this.$messageBusService.confirm("Delete object", "Are you sure", r => {
+                            this.$messageBusService.confirm('Delete object', 'Are you sure', r => {
                                 this.removeFeature(this.selectedFeatures[0], true);
-
                             });
                         }
-
+                    }
                 }
-            })
+            });
 
             $messageBusService.subscribe('timeline', (trigger: string, date: Date) => {
                 switch (trigger) {
@@ -1137,9 +1140,18 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
+                if (!feature.fType.selectActions) {
+                    this.actionService.execute('Select feature');
+                } else {
+                    feature.fType.selectActions.forEach(action => {
+                        this.actionService.execute(action, {
+                            layerId: feature.layerId
+                        })
+                    });
+                }
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 

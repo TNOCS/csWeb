@@ -17,18 +17,31 @@ module csComp.Services {
      * It comes with some predefined actions, and can be enhanced with other actions from your application.
      */
     export class ActionService {
+        /** The layerService cannot be injected, as this would cause a circular dependency with the LayerService itself. */
+        private layerService: LayerService;
         private actions: IButtonAction = {};
 
         public static $inject = [
-            'layerService'
+            'messageBusService'
         ];
 
-        constructor(private layerService: LayerService) {
-            this.initDefaultActions();
-        }
+        constructor(private messageBusService: MessageBusService) {}
 
-        /** Initialize the default actions. */
-        private initDefaultActions() {
+        /** Initialize the default actions */
+        init(layerService: LayerService) {
+            this.layerService = layerService;
+
+            // NOTE all action titles must be in lowercase
+            this.actions['select feature'] = () => {
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
+                this.messageBusService.publish('rightpanel', 'activate', rpt);
+            };
+
+            this.actions['select agenda'] = () => {
+                var rpt = csComp.Helpers.createRightPanelTab('agenda', 'agenda', null, 'Selected agenda', '{{"AGENDA_INFO" | translate}}', 'info', false, true);
+                this.messageBusService.publish('rightpanel', 'activate', rpt);
+            };
+
             this.actions['activate timerange'] = () => {
                 console.log('Activate timerange action called');
                 this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
@@ -61,7 +74,7 @@ module csComp.Services {
         }
 
         /** Call an action by name (lowercase), optionally providing it with additional parameters like group, layer or property id. */
-        public execute(actionTitle: string, options: IButtonActionOptions) {
+        public execute(actionTitle: string, options?: IButtonActionOptions) {
             let action = actionTitle.toLowerCase();
             if (!this.actions.hasOwnProperty(action)) {
                 console.log(`Warning: action ${actionTitle} is not defined!`);

@@ -29,6 +29,7 @@ module csComp.Services {
         layerId: string;
         layer: csComp.Services.ProjectLayer;
         type?: string;
+        fType?: IFeatureType;
         geometry: IGeoJsonGeometry;
         properties?: IProperty;
         propertiesOld?: IProperty;
