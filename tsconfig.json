@@ -125,6 +125,8 @@
         "csComp/directives/TripPlanner/TripPlanner.ts",
         "csComp/directives/TripPlanner/TripPlannerCtrl.ts",
         "csComp/directives/Voting/Voting.ts",
+        "csComp/directives/Widgets/Agenda/AgendaWidget-edit.ts",
+        "csComp/directives/Widgets/Agenda/AgendaWidget.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget-edit.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget.ts",
         "csComp/directives/Widgets/Charts/Charts-edit.ts",
