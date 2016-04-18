@@ -193,24 +193,24 @@ module csComp.Services {
                     var geometryType = "Point";
                     
                     var c = [];
-                    
-                     switch (this.drawingFeatureType.style.drawingMode)
-                    {
+                    switch (this.drawingFeatureType.style.drawingMode) {
                         case "Line":
                             geometryType = "LineString";
                             e.layer._latlngs.forEach(ll => {
-                                 c.push([ll.lng, ll.lat]);
+                                    c.push([ll.lng, ll.lat]);
                             });
                             break;
                         case "Polygon":
                             geometryType = "Polygon";
-                            
-                            
                             e.layer._latlngs.forEach(g => {
                                 var inner = [];
                                 g.forEach(ll=>{
                                     inner.push([ll.lng, ll.lat]);}
                                 );
+                                //Make sure first and last point are the same
+                                if (inner.length > 1 && !_.isEqual(_.first(inner), _.last(inner))) {
+                                    inner.push(_.first(inner));
+                                }
                                 c.push(inner);
                             });
                             break;
@@ -224,6 +224,16 @@ module csComp.Services {
                     };
                    
                     f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
+                    
+                    // Initialize properties
+                    if (_.isArray(this.drawingFeatureType._propertyTypeData)) {
+                        for (var k in this.drawingFeatureType._propertyTypeData) {
+                            var pt = this.drawingFeatureType._propertyTypeData[k];
+                            this.drawingFeatureType._propertyTypeData.forEach(pt => {
+                                f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
+                            })
+                        }
+                    }
 
                     var l = this.drawingLayer;
                     if (!l.data) l.data = {};

@@ -204,7 +204,12 @@ export class CISDataSource {
             return;
         }
         f.properties['featureTypeId'] = "Alert";
-        this.apiManager.addFeature(this.capLayerId, f, {}, () => { });
+        //Ignore messages from csWeb (as our own messages get returned)
+        if (f.properties['sender'] && f.properties['sender'].toLowerCase() === 'csweb') {
+            console.log('Ignoring CAP message coming from csWeb');
+        } else {
+            this.apiManager.addFeature(this.capLayerId, f, {}, () => { });
+        }
     }
     
     /**
@@ -249,6 +254,7 @@ export class CISDataSource {
                 urgency: 'Immediate',
                 severity: 'Severe',
                 certainty: 'Observed',
+                headline: 'Headline',
                 area: {
                     areaDesc: 'Testarea'
                 }

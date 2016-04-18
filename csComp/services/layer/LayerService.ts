@@ -2240,10 +2240,12 @@ module csComp.Services {
         }
 
         public removeAllFilters(g: ProjectGroup) {
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
-                g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
+            // if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
+                g.filters.forEach((gf: GroupFilter) => { 
+                    this.removeFilter(gf);
+                });
                 g.filters.length = 0;
-            }
+            // }
         }
 
         public removeAllStyles(g: ProjectGroup) {
