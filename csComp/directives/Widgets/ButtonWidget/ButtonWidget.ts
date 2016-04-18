@@ -213,9 +213,9 @@ module ButtonWidget {
 
         public click(b: IButton) {
             this.actionService.execute(b.action, {
-                layer: b.layer,
-                group: b.group,
-                property: b.property
+                layerId: b.layer,
+                groupId: b.group,
+                propertyId: b.property
             });
             // switch (b.action) {
             //     case 'Activate TimeRange':

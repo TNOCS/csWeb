@@ -7,21 +7,45 @@ module Timeline {
         timeline: any;
     }
 
+    /** Interface for the timeline configuration, may be part of the {csComp.Services.IFeatureType} or {csComp.Services.IProjectLayer}. */
     export interface ITimelineConfig {
+        /** Group (row/lane) to use */
         group?: string;
+        /** Property to use as the group (row/lane) */
         groupProperty?: string;
+        /** CSS class to use for the group */
+        groupClass?: string;
+        /** Property to use as the CSS class for the group */
+        groupClassProperty?: string;
+        /** CSS class to use for the timeline item */
+        class?: string;
+        /** Property to use as the CSS class for the timeline item */
+        classProperty?: string;
+        /** Property that contains the start time (as stringified Date) */
         startTimeProperty?: string;
+        /** Property that contains the end time (as stringified Date) */
         endTimeProperty?: string;
+        /** Property that contains the content (text that appears inside the timeline item) */
         contentProperty?: string;
     }
 
+    /** Interface for every group and timeline item. */
     export interface ITimelineItem {
+        /** Feature ID */
         id?: any;
-        layerId?: string,
+        /** Layer ID */
+        layerId?: string;
+        /** Content to show in the timeline item (html or string) */
         content?: string;
+        /** Start time */
         start?: Date;
+        /** End time */
         end?: Date;
         group?: string;
+        /** CSS group class name */
+        groupClass?: string;
+        /** CSS timeline item class name */
+        className?: string;
     }
 
     /** Interface to talk to the timeline items in the timeline, of type vis.DataSet. */
@@ -165,6 +189,8 @@ module Timeline {
                 let props = f.properties;
                 let featureConfig = f.fType.timelineConfig;
                 if (!featureConfig && !layerConfig) return;
+                let classProp = (featureConfig && featureConfig.classProperty) || (layerConfig && layerConfig.classProperty);
+                let groupClassProp = (featureConfig && featureConfig.groupClassProperty) || (layerConfig && layerConfig.groupClassProperty);
                 let contentProp = (featureConfig && featureConfig.contentProperty) || (layerConfig && layerConfig.contentProperty);
                 let startProp = (featureConfig && featureConfig.startTimeProperty) || (layerConfig && layerConfig.startTimeProperty);
                 let endProp = (featureConfig && featureConfig.endTimeProperty) || (layerConfig && layerConfig.endTimeProperty);
@@ -172,7 +198,9 @@ module Timeline {
                 let timelineItem = <ITimelineItem> {
                     id: f.id,
                     layerId: layer.id,
-                    group: props.hasOwnProperty(groupProp) ? props[groupProp] : featureConfig.group || layerConfig.group,
+                    className: props.hasOwnProperty(classProp) ? props[classProp] : (featureConfig && featureConfig.class) || (layerConfig && layerConfig.class),
+                    groupClass: props.hasOwnProperty(groupClassProp) ? props[groupClassProp] : (featureConfig && featureConfig.groupClass) || (layerConfig && layerConfig.groupClass),
+                    group: props.hasOwnProperty(groupProp) ? props[groupProp] : (featureConfig && featureConfig.group) || (layerConfig && layerConfig.group) || '',
                     start: props.hasOwnProperty(startProp) ? props[startProp] : null,
                     end: props.hasOwnProperty(endProp) ? props[endProp] : null,
                     content: props.hasOwnProperty(contentProp) ? props[contentProp] : ''
@@ -201,6 +229,7 @@ module Timeline {
                 if (groups.indexOf(item.group) >= 0) return;
                 groups.push(item.group);
                 this.timelineGroups.add(<ITimelineItem> {
+                    className: item.groupClass,
                     content: item.group,
                     id: item.group,
                     title: item.group

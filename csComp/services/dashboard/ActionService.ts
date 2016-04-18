@@ -1,9 +1,9 @@
 module csComp.Services {
 
     export interface IButtonActionOptions {
-        layer?: string;
-        group?: string;
-        property?: string;
+        layerId?: string;
+        groupId?: string;
+        propertyId?: string;
         [key: string]: any;
     }
 
@@ -38,29 +38,29 @@ module csComp.Services {
 
             this.actions['activate layer'] = options => {
                 console.log('Activate layer action called');
-                var pl = this.layerService.findLayer(options.layer);
+                var pl = this.layerService.findLayer(options.layerId);
                 if (typeof pl === 'undefined') return;
                 this.layerService.toggleLayer(pl);
             };
 
             this.actions['activate style'] = options => {
                 console.log('Activate style action called');
-                var group = this.layerService.findGroupById(options.group);
+                var group = this.layerService.findGroupById(options.groupId);
                 if (typeof group === 'undefined') return;
-                var propType = this.layerService.findPropertyTypeById(options.property);
+                var propType = this.layerService.findPropertyTypeById(options.propertyId);
                 if (typeof propType === 'undefined') return;
                 this.layerService.setGroupStyle(group, propType);
             };
 
             this.actions['activate baselayer'] = options => {
                 console.log('Activate baselayer action called');
-                var layer: BaseLayer = this.layerService.$mapService.getBaselayer(options.layer);
+                var layer: BaseLayer = this.layerService.$mapService.getBaselayer(options.layerId);
                 this.layerService.activeMapRenderer.changeBaseLayer(layer);
-                this.layerService.$mapService.changeBaseLayer(options.layer);
+                this.layerService.$mapService.changeBaseLayer(options.layerId);
             };
         }
 
-        /** Call an action by name (lowercase), optionally providing it with additional parameters. */
+        /** Call an action by name (lowercase), optionally providing it with additional parameters like group, layer or property id. */
         public execute(actionTitle: string, options: IButtonActionOptions) {
             let action = actionTitle.toLowerCase();
             if (!this.actions.hasOwnProperty(action)) {
