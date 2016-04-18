@@ -96,6 +96,12 @@ module csComp.Services {
                 }
             });
 
+            this.widgetTypes['agenda'] = <csComp.Services.IWidget>{
+                id: 'agenda',
+                icon: 'fa fa-calendar',
+                description: 'Agenda'
+            };
+
             this.widgetTypes['buttonwidget'] = <IWidget>{
                 id: 'buttonwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',

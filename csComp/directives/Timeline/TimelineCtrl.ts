@@ -7,15 +7,68 @@ module Timeline {
         timeline: any;
     }
 
-    // export interface timelineItem {
-    //     id: any;
-    //     content: string;
-    //     start: Date;
-    // }
+    /** Interface for the timeline configuration, may be part of the {csComp.Services.IFeatureType} or {csComp.Services.IProjectLayer}. */
+    export interface ITimelineConfig {
+        /** Group (row/lane) to use */
+        group?: string;
+        /** Property to use as the group (row/lane) */
+        groupProperty?: string;
+        /** CSS class to use for the group */
+        groupClass?: string;
+        /** Property to use as the CSS class for the group */
+        groupClassProperty?: string;
+        /** CSS class to use for the timeline item */
+        class?: string;
+        /** Property to use as the CSS class for the timeline item */
+        classProperty?: string;
+        /** Property that contains the start time (as stringified Date) */
+        startTimeProperty?: string;
+        /** Property that contains the end time (as stringified Date) */
+        endTimeProperty?: string;
+        /** Property that contains the content (text that appears inside the timeline item) */
+        contentProperty?: string;
+    }
+
+    /** Interface for every group and timeline item. */
+    export interface ITimelineItem {
+        /** Feature ID */
+        id?: any;
+        /** Layer ID */
+        layerId?: string;
+        /** Content to show in the timeline item (html or string) */
+        content?: string;
+        /** Start time */
+        start?: Date;
+        /** End time */
+        end?: Date;
+        group?: string;
+        /** CSS group class name */
+        groupClass?: string;
+        /** CSS timeline item class name */
+        className?: string;
+    }
+
+    /** Interface to talk to the timeline items in the timeline, of type vis.DataSet. */
+    export interface IDataSet {
+        /** Add one or more timeline items. */
+        add(items: ITimelineItem | ITimelineItem[]);
+        /** Removes an item from the timeline. */
+        remove(items: ITimelineItem | ITimelineItem[]);
+        /** Returns the ids of all timeline items. */
+        getIds(): string[];
+        /** Get all timeline items. */
+        get(): ITimelineItem[];
+        /** Clears the timeline items. */
+        clear();
+        forEach(calback: (item: ITimelineItem) => void);
+    }
 
     export class TimelineCtrl {
         private scope: ITimelineScope;
         private locale = 'en-us';
+        private timelineGroups: IDataSet = new vis.DataSet();
+        /** Holds the timeline items, is databound to the timeline. */
+        private timelineItems: IDataSet = new vis.DataSet();
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -47,7 +100,6 @@ module Timeline {
         private debounceSetItems: Function;
         private ids: string[] = [];
 
-
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -64,32 +116,30 @@ module Timeline {
                 'editable': false,
                 'margin': 0,
                 'height': '54px',
-                'zoomMax' : 172800000,
-                'zoomMin' : 3600000
+                'zoomMax': 172800000,
+                'zoomMin': 3600000
                 //'layout': 'box'
             };
 
-
             this.debounceUpdate = _.debounce(this.updateFeatures, 500);
-            this.debounceSetItems = _.debounce((items) => { this.setItems(items); }, 500);
+            this.debounceSetItems = _.debounce((items) => { this.addItems(items); }, 500);
 
             $scope.vm = this;
 
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
                 setTimeout(() => {
-                    //    this.initTimeline();
-                    
-                    
+                    this.$scope.timeline.setItems(this.timelineItems);
+                    this.$scope.timeline.setGroups(this.timelineGroups);
                     // set min/max zoom levels if available
                     if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
-                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMax)) this.$scope.timeline.options["zoomMax"] = this.$layerService.project.timeLine.zoomMax;
-                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMin)) this.$scope.timeline.options["zoomMin"] = this.$layerService.project.timeLine.zoomMin;
+                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMax)) this.$scope.timeline.options['zoomMax'] = this.$layerService.project.timeLine.zoomMax;
+                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMin)) this.$scope.timeline.options['zoomMin'] = this.$layerService.project.timeLine.zoomMin;
                     }
-                    
+
                     this.updateFocusTime();
                     this.updateDragging();
                     this.myTimer();
-                    
+
                     if (this.$layerService.project.timeLine.isLive) this.goLive();
                 }, 0);
             });
@@ -116,6 +166,74 @@ module Timeline {
                         this.initTimeline();
                         break;
                 }
+            });
+
+            this.$messageBusService.subscribe('layer', (title: string, layer: csComp.Services.IProjectLayer) => {
+                switch (title) {
+                    case 'activated':
+                        this.addTimelineItemsInLayer(layer);
+                        break;
+                    case 'deactivate':
+                        this.removeTimelineItemsInLayer(layer);
+                        break;
+                }
+            });
+        }
+
+        /** Check whether the layer contains timeline items, and if so, add them to the timeline. */
+        private addTimelineItemsInLayer(layer: csComp.Services.IProjectLayer) {
+            if (!layer.timeAware || !layer.data || !layer.data.features) return;
+            var layerConfig = layer.timelineConfig;
+            var items: ITimelineItem[] = [];
+            layer.data.features.forEach((f: csComp.Services.IFeature) => {
+                let props = f.properties;
+                let featureConfig = f.fType.timelineConfig;
+                if (!featureConfig && !layerConfig) return;
+                let classProp = (featureConfig && featureConfig.classProperty) || (layerConfig && layerConfig.classProperty);
+                let groupClassProp = (featureConfig && featureConfig.groupClassProperty) || (layerConfig && layerConfig.groupClassProperty);
+                let contentProp = (featureConfig && featureConfig.contentProperty) || (layerConfig && layerConfig.contentProperty);
+                let startProp = (featureConfig && featureConfig.startTimeProperty) || (layerConfig && layerConfig.startTimeProperty);
+                let endProp = (featureConfig && featureConfig.endTimeProperty) || (layerConfig && layerConfig.endTimeProperty);
+                let groupProp = (featureConfig && featureConfig.groupProperty) || (layerConfig && layerConfig.groupProperty);
+                let timelineItem = <ITimelineItem> {
+                    id: f.id,
+                    layerId: layer.id,
+                    className: props.hasOwnProperty(classProp) ? props[classProp] : (featureConfig && featureConfig.class) || (layerConfig && layerConfig.class),
+                    groupClass: props.hasOwnProperty(groupClassProp) ? props[groupClassProp] : (featureConfig && featureConfig.groupClass) || (layerConfig && layerConfig.groupClass),
+                    group: props.hasOwnProperty(groupProp) ? props[groupProp] : (featureConfig && featureConfig.group) || (layerConfig && layerConfig.group) || '',
+                    start: props.hasOwnProperty(startProp) ? props[startProp] : null,
+                    end: props.hasOwnProperty(endProp) ? props[endProp] : null,
+                    content: props.hasOwnProperty(contentProp) ? props[contentProp] : ''
+                };
+                items.push(timelineItem);
+            });
+            this.addItems(items);
+        }
+
+        /** Remove all timeline items that could be found in this layer. */
+        private removeTimelineItemsInLayer(layer) {
+            if (!layer.timeAware || !layer.data || !layer.data.features) return;
+            var deleteItems: ITimelineItem[] = [];
+            this.timelineItems.forEach(item => {
+                if (item.layerId !== layer.id) return;
+                deleteItems.push(item);
+            });
+            this.deleteItems(deleteItems);
+        }
+
+        /** Update the groups, most likely after certain items have been added or deleted */
+        private updateGroups() {
+            this.timelineGroups.clear();
+            var groups: string[] = [];
+            this.timelineItems.forEach(item => {
+                if (groups.indexOf(item.group) >= 0) return;
+                groups.push(item.group);
+                this.timelineGroups.add(<ITimelineItem> {
+                    className: item.groupClass,
+                    content: item.group,
+                    id: item.group,
+                    title: item.group
+                 });
             });
         }
 
@@ -153,16 +271,23 @@ module Timeline {
             //console.log(`Moved timeline and focuscontainer to ${data}`);
         }, 300, true);
 
-        private setItems(items: any[]) {
+        private addItems(items: ITimelineItem[]) {
             if (!items) return;
-            var its = new vis.DataSet(items);
-            this.$scope.timeline.setItems(its);
+            this.timelineItems.add(items);
+            this.updateGroups();
         }
 
-        private setGroups(groups: any[]) {
+        private deleteItems(items: ITimelineItem[]) {
+            if (!items) return;
+            this.timelineItems.remove(items);
+            this.updateGroups();
+        }
+
+        private setGroups(groups: ITimelineItem[]) {
             if (!groups) return;
-            var gs = new vis.DataSet(groups);
-            this.$scope.timeline.setGroups(gs);
+            this.timelineGroups.add(groups);
+            //var gs = new vis.DataSet(groups);
+            //this.$scope.timeline.setGroups(gs);
         }
 
         private updateFeatures() {
@@ -200,18 +325,12 @@ module Timeline {
         }
 
         private initTimeline() {
-
             var container = document.getElementById('timeline');
 
             // Remove old timeline before initializing a new one
             while (container.firstChild) {
                 container.removeChild(container.firstChild);
             }
-
-
-            
-            
-            
 
             this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
@@ -354,7 +473,6 @@ module Timeline {
         public stop() {
             this.isPlaying = false;
             if (this.timer) clearInterval(this.timer);
-
         }
 
         public updateFocusTimeContainer(time: Date) {

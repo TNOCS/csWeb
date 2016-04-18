@@ -29,13 +29,13 @@ module csComp.Services {
         layerId: string;
         layer: csComp.Services.ProjectLayer;
         type?: string;
+        fType?: IFeatureType;
         geometry: IGeoJsonGeometry;
         properties?: IProperty;
         propertiesOld?: IProperty;
         isSelected?: boolean;
         htmlStyle?: string;
         featureTypeName?: string;
-        fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized?: boolean;
         lastUpdated: number;
@@ -307,7 +307,6 @@ module csComp.Services {
         /** Optional expressions that are shown in the legend list. */
         legendExpr?: IPropertyType[];
         properties?: {};
-        _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
         contourProperty?: string;
@@ -319,7 +318,10 @@ module csComp.Services {
         languages?: ILanguageData;
         eventStyle?: IEventStyleProperties;
         /** Action after selection, not set: open Feature Properties */
-        selectAction?: string;
+        selectActions?: string[];
+        /** If true, specifies the properties to publish items on the timeline. */
+        timelineConfig?: Timeline.ITimelineConfig;
+        _propertyTypeData?: IPropertyType[];
         _isInitialized?: boolean;
         _resource?: ITypesResource;
     }

@@ -130,6 +130,8 @@ module csComp.Services {
         updated?: number;
         /** zoom to layer if it gets activated */
         fitToMap? : boolean;
+        /** If true, specifies the properties to publish items on the timeline. */
+        timelineConfig?: Timeline.ITimelineConfig;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
