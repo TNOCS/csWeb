@@ -54,6 +54,8 @@ module csComp.Services {
         enableLive:    boolean = true;
         enablePlay:    boolean = true;
         enableEvents:  boolean = true;
+        enableFocus:   boolean = true;
+        expandHeight:        number;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -65,6 +67,8 @@ module csComp.Services {
             if (typeof res.enableLive === 'undefined') { res.enableLive = true }
             if (typeof res.enablePlay === 'undefined') { res.enablePlay = true }
             if (typeof res.enableEvents === 'undefined') { res.enableEvents = true }
+            if (typeof res.enableFocus === 'undefined') { res.enableFocus = true }
+            if (typeof res.expandHeight === 'undefined') { res.expandHeight = 150; }
             return res;
         }
 

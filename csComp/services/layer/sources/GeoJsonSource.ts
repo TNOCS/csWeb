@@ -375,6 +375,11 @@ module csComp.Services {
             this.service.editing = true;
             this.initAvailableFeatureTypesEditing(layer);
         }
+        
+        public stopEditing(layer : csComp.Services.ProjectLayer)
+        {
+            this.service.stopEditingLayer(layer);
+        }
 
         
 

@@ -2233,14 +2233,14 @@ input[type="checkbox"] {
     @include box-shadow(2px,0,10px,rgba(0,0,0,.2));
 }
 .rightpanel {
-    position: absolute;
-    height: 100%;
+    position: absolute;    
     width: 100%;
     // max-width: 400px;
     // margin-top: 50px;
     // display: table-cell;
     pointer-events: none;
     right: 0;
+    bottom:0;
     top: 0;
     z-index: 2;
 }

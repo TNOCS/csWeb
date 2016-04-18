@@ -115,7 +115,7 @@ module Timeline {
                 'width': '100%',
                 'editable': false,
                 'margin': 0,
-                'height': '54px',
+                'height': 54,
                 'zoomMax': 172800000,
                 'zoomMin': 3600000
                 //'layout': 'box'
@@ -125,6 +125,10 @@ module Timeline {
             this.debounceSetItems = _.debounce((items) => { this.addItems(items); }, 500);
 
             $scope.vm = this;
+            
+            this.$messageBusService.subscribe('dashboard-main', (s: string, data: any) => {
+                if (s === "activated") this.updatePanelHeights();
+            });
 
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
                 setTimeout(() => {
@@ -377,11 +381,19 @@ module Timeline {
             this.expanded = !this.expanded;
             //    this.options.margin = {};
             //    this.options.margin['item'] = (this.expanded) ? 65 : 0;
-            this.options.height = (this.expanded) ? 150 : 54;
-
-            this.expandButtonBottom = (this.expanded) ? 149 : 52;
+            this.options.height = (this.expanded) ?  this.$layerService.project.timeLine.expandHeight : 54;
+            this.expandButtonBottom = (this.expanded) ? this.$layerService.project.timeLine.expandHeight -1 : 52;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
+            this.updatePanelHeights();
+            
+        }
+        
+        public updatePanelHeights()
+        {
+            var height = (this.expanded) ?  this.$layerService.project.timeLine.expandHeight : 54;
+            $('.leftpanel-container').css("bottom",height + 20); 
+            $('.rightpanel').css("bottom",height);            
         }
 
         private throttleTimeSpanUpdate = _.debounce(this.triggerTimeSpanUpdated, 1000);
