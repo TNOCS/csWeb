@@ -211,8 +211,13 @@ module csComp.Services {
                                 g.forEach(ll=>{
                                     inner.push([ll.lng, ll.lat]);}
                                 );
+                                //Make sure first and last point are the same
+                                if (inner.length > 1 && !_.isEqual(_.first(inner), _.last(inner)) {
+                                    inner.push(_.first(inner));
+                                }
                                 c.push(inner);
                             });
+                            
                             break;
                     }
 
