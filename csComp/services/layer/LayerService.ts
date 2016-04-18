@@ -120,18 +120,18 @@ module csComp.Services {
             }, 500);
 
             $("body").keyup(e => {
-                if (e.keyCode === 46 && e.target.localName != "input") {                    
+                if (e.keyCode === 46 && e.target.localName != "input") {
                     if (this.selectedFeatures.length > 1) {
                         this.$messageBusService.confirm("Delete objects", "Do you want to remove all (" + this.selectedFeatures.length + ") selected objects ?", r => {
                             this.selectedFeatures.forEach(f => {
-                                this.removeFeature(f,true);
+                                this.removeFeature(f, true);
                             });
                         });
                     } else
                         if (this.selectedFeatures.length === 1) {
-                            this.$messageBusService.confirm("Delete object", "Are you sure", r => {                                
-                                    this.removeFeature(this.selectedFeatures[0],true);
-                                
+                            this.$messageBusService.confirm("Delete object", "Are you sure", r => {
+                                this.removeFeature(this.selectedFeatures[0], true);
+
                             });
                         }
 
@@ -2223,7 +2223,7 @@ module csComp.Services {
             this.apply();
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
-            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');            
+            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
         }
 
         public removeAllFilters(g: ProjectGroup) {
@@ -2588,14 +2588,14 @@ module csComp.Services {
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
                                     } else {
-                                        this.$messageBusService.confirm('New update available for layer ' + layer.title,'Do you want to reload this layer',r=>{
+                                        this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
                                             if (r && l.enabled) {
-                                            var wasRightPanelVisible = this.visual.rightPanelVisible;
-                                            l.layerSource.refreshLayer(l);
-                                            this.visual.rightPanelVisible = wasRightPanelVisible;
-                                        }
+                                                var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                                l.layerSource.refreshLayer(l);
+                                                this.visual.rightPanelVisible = wasRightPanelVisible;
+                                            }
                                         });
-                                        
+
                                     }
                                 }
                             }
@@ -2616,10 +2616,9 @@ module csComp.Services {
                                     }
                                 } else {
                                     if (project.id === this.project.id) {
-                                        this.$messageBusService.confirm('New update available for project ' + project.title, 'Do you want to reload the project?',r=>{
-                                            if (r)
-                                            {
-                                               this.openProject(solutionProject, null, project); 
+                                        this.$messageBusService.confirm('New update available for project ' + project.title, 'Do you want to reload the project?', r => {
+                                            if (r) {
+                                                this.openProject(solutionProject, null, project);
                                             }
                                         });
                                         // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
@@ -3036,8 +3035,24 @@ module csComp.Services {
         public unlockFeature(f: IFeature) {
             delete f._gui['lock'];
         }
+        
+        public stopEditingLayer(layer: csComp.Services.ProjectLayer) {
+            this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                delete g._gui['editing'];
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    delete layer._gui['editing'];
+                    delete layer._gui['featureTypes'];
+                    layer.data.features.forEach(f => {
+                        delete f._gui['editMode'];
+                        this.updateFeature(f);
+                        this.saveFeature(f);
+                    })                    
+                });
+            });
+            this.editing = false;
+        }
 
-
+        
         /* save project back to api */
         public saveProject() {
             // if project is not dynamic, don't save it
