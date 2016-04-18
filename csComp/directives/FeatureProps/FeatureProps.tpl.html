@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    
+
 
     <div ng-if="vm.$mapService.isAdminExpert">
         <div ng-if="configMode" style="margin:5px">
@@ -49,7 +49,7 @@
     </div>
 
     <div ng-if="!configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden; width: 100%" resize resize-y="150">
-        
+
          <div class="layer-actions" ng-if="!configMode" style="background:white">
             <!--<div class="inner-addon left-addon" style="margin:5px;float:left" ng-focus="">
                 <i class="fa fa-search"></i>
@@ -60,21 +60,21 @@
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-pencil layer-action-icon" />{{'EDIT' | translate}}
             </button>
-            
+
              <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'SAVE' | translate}}
             </button>
-            
+
             <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable" ng-click="vm.removeFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'REMOVE' | translate}}
             </button>
 
         </div>
-        
+
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
-            
+
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
@@ -117,7 +117,7 @@
                                     <div ng-style="item.isDraft && {'opacity':0.5}" class="feature-prop-title">{{item.propertyType.title}}</div>
                                     <div ng-if="!item.configMode" ng-hide="item.propertyType.hideValue" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
-                                            {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
+                                            {{item.value}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
