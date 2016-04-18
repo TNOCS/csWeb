@@ -36,7 +36,6 @@ module csComp.Services {
         isSelected?: boolean;
         htmlStyle?: string;
         featureTypeName?: string;
-        fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized?: boolean;
         lastUpdated: number;
