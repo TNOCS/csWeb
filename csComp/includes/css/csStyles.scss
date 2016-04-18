@@ -702,12 +702,21 @@ body,
 .dashboard-selection {
     border-bottom: transparent;
     border-bottom-style: solid;
+    border-bottom-width: 5px;
     height: 50px;
 }
 .dashboardselectionactive {
         border-bottom: gold;
     border-bottom-style: solid;
     border-bottom-width: 5px;
+       height: 50px;
+}
+
+.dashboard-selection :hover {
+    border-bottom: gold;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    height: 50px;
 }
 
 .project-logo
