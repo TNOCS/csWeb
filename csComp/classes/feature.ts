@@ -318,7 +318,7 @@ module csComp.Services {
         languages?: ILanguageData;
         eventStyle?: IEventStyleProperties;
         /** Action after selection, not set: open Feature Properties */
-        selectAction?: string;
+        selectActions?: string[];
         /** If true, specifies the properties to publish items on the timeline. */
         timelineConfig?: Timeline.ITimelineConfig;
         _propertyTypeData?: IPropertyType[];
