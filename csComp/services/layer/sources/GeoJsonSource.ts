@@ -515,6 +515,7 @@ module csComp.Services {
                             } catch (e) {
                                 console.warn('Error updating feature: ' + JSON.stringify(e, null, 2));
                             }
+                            this.service.$messageBusService.publish('layer', 'updated', layer);
                         }
                         break;
 

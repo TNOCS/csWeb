@@ -224,6 +224,16 @@ module csComp.Services {
                     };
                    
                     f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
+                    
+                    // Initialize properties
+                    if (_.isArray(this.drawingFeatureType._propertyTypeData)) {
+                        for (var k in this.drawingFeatureType._propertyTypeData) {
+                            var pt = this.drawingFeatureType._propertyTypeData[k];
+                            this.drawingFeatureType._propertyTypeData.forEach(pt => {
+                                f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
+                            })
+                        }
+                    }
 
                     var l = this.drawingLayer;
                     if (!l.data) l.data = {};
