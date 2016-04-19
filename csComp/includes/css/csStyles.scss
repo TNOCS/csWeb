@@ -4,6 +4,11 @@ $background-dark: #aaa;
 $background-light: #eee;
 $navbar-height: 50px;
 
+.modal-backdrop.in
+{
+    display:none;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
@@ -463,7 +468,7 @@ body,
 .rightpanelContainer {
     position: absolute;
     width: 100%;
-    height: 100%;
+    bottom:0;
     padding: 0;
     top:0;
 }
