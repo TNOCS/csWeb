@@ -116,9 +116,10 @@ describe('Helpers spec:', function() {
                 drawingMode: 'Polygon',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
-                fillOpacity: 0.75,
-                opacity: 0.75,
-                fillColor: '#FFFF00',
+                fillOpacity: 0,
+                strokeOpacity:0,
+                opacity: 1,
+                fillColor: '#000000',
                 stroke: true,
                 iconUri: 'bower_components/csweb/dist-bower/images/marker.png'
             });
