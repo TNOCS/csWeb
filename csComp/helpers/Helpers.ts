@@ -58,9 +58,9 @@ module csComp.Helpers {
                 drawingMode: 'Point',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
-                fillOpacity: 1,
+                fillOpacity: 0, 
                 opacity: 1,
-                fillColor: '#FFFF00',
+                fillColor: '#000000',
                 stroke: true,
                 rotate: 0,
                 cornerRadius: 50,
@@ -633,19 +633,22 @@ module csComp.Helpers {
             if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
             closeImageTag = '" />';
         }
+        
+        var bc = chroma(es.fillColor).alpha(es.fillOpacity).rgba();
+        var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`; 
 
         switch (es.marker) {
             case 'pin':
                 if (es.innerTextProperty) {
                     html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${es.fillColor};`
+                        + `background:${backgroundColor};`
                         + `width:${iconPlusBorderWidth}px;`
                         + `height:${iconPlusBorderHeight}px;`
                         + `opacity:${es.opacity || 1};`
                         + `">${content}</div>`;
                 } else {
                     html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${es.fillColor};`
+                        + `background:${backgroundColor};`
                         + `width:${iconPlusBorderWidth}px;`
                         + `height:${iconPlusBorderHeight}px;`
                         + `opacity:${es.opacity || 1};`
@@ -656,7 +659,7 @@ module csComp.Helpers {
                 break;
             case 'bubble':
                 html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                    + `background:${es.fillColor};`
+                    + `background:${backgroundColor};`
                     + `width:${iconPlusBorderWidth}px;`
                     + `height:${iconPlusBorderHeight}px;`
                     + `opacity:${es.opacity || 1};`
@@ -665,7 +668,7 @@ module csComp.Helpers {
                 break;
             default:
                 html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                    + `background:${es.fillColor};`
+                    + `background:${backgroundColor};`
                     + `width:${iconPlusBorderWidth}px;`
                     + `height:${iconPlusBorderHeight}px;`
                     + `border-radius:${es.cornerRadius}%;`

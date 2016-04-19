@@ -65,17 +65,30 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Fill color</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', showAlpha: true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', allowEmpty:true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                     </div>
-
+                    <div class="col-md-3">
+                        <div class="rightpanel-label"></div>                        
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rightpanel-label">Fill opacity</div>
+                 <input class="ui-slider" step='0.1' type="range"
+                                min='0' max='1' ng-model="featureType.style['fillOpacity']" />         
+                    </div>
+                 </div>
+                 <div class="row">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Stroke</div>
-                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', showAlpha: true, chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
+                        <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', allowEmpty:true, chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
                     </div>
 
-                    <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
-                        <div class="rightpanel-label">Stroke width</div>
+                    <div class="col-md-3" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
+                        <div class="rightpanel-label">Width</div>
                         <input type="number" name="stroke" data-ng-model="featureType.style['strokeWidth']" class="form-control">
+                    </div>
+                    
+                                        <div class="col-md-6">
+                        <div class="rightpanel-label">Stroke opacity</div>                        
                     </div>
                 </div>
                 <div class="row">
