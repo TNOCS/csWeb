@@ -98,10 +98,14 @@ module csComp.Services {
 
             this.widgetTypes['agenda'] = <csComp.Services.IWidget>{
                 id: 'agenda',
-                icon: 'fa fa-calendar',
-                description: 'Agenda'
+                icon: 'bower_components/csweb/dist-bower/images/widgets/agenda.png',
+                description: 'Show an event calendar.'
             };
-
+            this.widgetTypes['presentation'] = <csComp.Services.IWidget>{
+                id: 'presentation',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/presentation.png',
+                description: 'Create and share presentations.'
+            };
             this.widgetTypes['buttonwidget'] = <IWidget>{
                 id: 'buttonwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
