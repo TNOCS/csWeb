@@ -404,7 +404,9 @@ module csComp.Services {
                         imageUrl = feature.properties['imageUrl'],
                         opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
                         attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
-                    L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } ).addTo(this.map);
+                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } );
+                    feature._gui['imageOverlay'] = imageOverlay;
+                    imageOverlay.addTo(this.map);
                     break;
                 default:
                     try {
