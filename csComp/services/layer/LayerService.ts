@@ -2241,10 +2241,10 @@ module csComp.Services {
 
         public removeAllFilters(g: ProjectGroup) {
             // if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
-                g.filters.forEach((gf: GroupFilter) => { 
-                    this.removeFilter(gf);
-                });
-                g.filters.length = 0;
+            g.filters.forEach((gf: GroupFilter) => {
+                this.removeFilter(gf);
+            });
+            g.filters.length = 0;
             // }
         }
 
@@ -3050,24 +3050,26 @@ module csComp.Services {
         public unlockFeature(f: IFeature) {
             delete f._gui['lock'];
         }
-        
+
         public stopEditingLayer(layer: csComp.Services.ProjectLayer) {
             this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                     delete layer._gui['editing'];
                     delete layer._gui['featureTypes'];
-                    layer.data.features.forEach(f => {
-                        delete f._gui['editMode'];
-                        this.updateFeature(f);
-                        this.saveFeature(f);
-                    })                    
+                    if (layer.data && layer.data.features && _.isArray(layer.data.features)) {
+                        layer.data.features.forEach(f => {
+                            delete f._gui['editMode'];
+                            this.updateFeature(f);
+                            this.saveFeature(f);
+                        })
+                    }
                 });
             });
             this.editing = false;
         }
 
-        
+
         /* save project back to api */
         public saveProject() {
             // if project is not dynamic, don't save it
