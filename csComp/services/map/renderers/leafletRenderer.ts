@@ -397,8 +397,14 @@ module csComp.Services {
                         //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
                         //map.panTo(new L.LatLng(position.lat, position.lng))
                     });
-
-
+                    break;
+                case 'Overlay':
+                    if (!feature.properties.hasOwnProperty('imageUrl')) break;
+                    let imageBounds = feature.geometry.coordinates,
+                        imageUrl = feature.properties['imageUrl'],
+                        opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
+                        attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
+                    L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } ).addTo(this.map);
                     break;
                 default:
                     try {
