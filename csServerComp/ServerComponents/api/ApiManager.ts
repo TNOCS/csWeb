@@ -154,7 +154,7 @@ export class Key implements StorageObject {
 }
 
 /**
- * Project definition 
+ * Project definition
  */
 export class Project implements StorageObject {
     id: string;
@@ -1171,12 +1171,12 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
-        Winston.error('saving feature: ' + layerId);
+        Winston.info(`ApiManger.updateFeature: Saving feature with id ${feature.id} to layer ${layerId}.`);
         var s = this.findStorageForLayerId(layerId);
         if (s) {
             s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
         } else {
-            Winston.error('error saving feature');
+            Winston.error(`ApiManger.updateFeature: Error saving feature with id ${feature.id} to layer ${layerId}.`);
         }
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
@@ -1185,7 +1185,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /** Similar to updateFeature, but with an array of updated features instead of one feature.
-     * 
+     *
      */
     public addUpdateFeatureBatch(layerId: string, features: IChangeEvent[], meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
