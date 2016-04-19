@@ -186,6 +186,8 @@ module csComp.Services {
         isSearchable?: boolean;
         minValue?: number;
         maxValue?: number;
+        /** always show in edit mode */
+        alwaysEditable?: boolean;
         defaultValue?: number;
         count?: number;
         calculation?: string;

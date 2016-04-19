@@ -79,7 +79,7 @@
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
                     popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
-                        <div ng-if="feature._gui.editMode" class="property-edit">
+                        <div ng-if="feature._gui.editMode || item.propertyType.alwaysEditable" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
                                 <ng-form name="userFieldForm">
@@ -106,7 +106,7 @@
                         </div>
 
                         <!-- Currently-styled-property background gray -->
-                        <div ng-if="!feature._gui.editMode" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
+                        <div ng-if="!feature._gui.editMode && !item.propertyType.alwaysEditable" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
                             <!-- Currently-styled-property background styleColor -->
                             <!-- <div ng-show="!feature._gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature._gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">

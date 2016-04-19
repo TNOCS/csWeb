@@ -436,7 +436,8 @@ module csComp.Services {
                     history: false
                 },
                 icon: 'fa fa-question-circle',
-                cornerclass: 'ui-pnotify-sharp'
+                cornerclass: 'ui-pnotify-sharp',
+                duration: 60000
 
             };
 
