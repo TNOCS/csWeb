@@ -28,6 +28,8 @@ module csComp.Services {
                 service.project.features.forEach((feature: IFeature) => {
                     if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
                         delete layer.group.markers[feature.id];
+                    } else if (feature.geometry.type === 'Overlay') {
+                        service.map.map.removeLayer(feature._gui['imageOverlay']);
                     }
                 });
                 if (service.map.map && layer.mapLayer) {
