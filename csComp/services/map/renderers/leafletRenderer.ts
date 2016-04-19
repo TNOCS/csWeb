@@ -205,7 +205,7 @@ module csComp.Services {
             var s = {
                 fillColor: style.fillColor,
                 weight: style.strokeWidth,
-                opacity: style.opacity,
+                opacity: style.strokeOpacity,
                 fillOpacity: style.fillOpacity
             };
             s['color'] = (typeof style.stroke !== 'undefined' && style.stroke === false)

@@ -229,6 +229,7 @@ module csComp.Services {
         nameLabel?: string;
         /** Default marker type, e.g. default is a circle, other types include pin and bubble */
         marker?: string;
+                       
         /** The background fill color */
         fillColor?: string;
         /** The stroke/outline color */
@@ -244,6 +245,8 @@ module csComp.Services {
         /** Height of the property, e.g. when styling a property in Cesium */
         height?: number;
         opacity?: number;
+        
+        strokeOpacity?: number;
         fillOpacity?: number;
         /** Default true, draw an outline around the feature (sometimes, you wish to turn it off when dealing with a grid) */
         stroke?: boolean;
