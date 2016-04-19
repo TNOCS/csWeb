@@ -137,7 +137,7 @@ module csComp.Helpers {
     /**
      * Extract a valid color string, without transparency.
      */
-    export function getColorString(color: string, defaultColor = '#00000000') {
+    export function getColorString(color: string, defaultColor = '#000000') {
         if (!color) return defaultColor;
         if (color === 'transparent') return '#00000000';
         if (color.length === 4 || color.length === 7) return color;

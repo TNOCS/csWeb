@@ -8,7 +8,7 @@
         <button ng-if="featureType._isInitialized" ng-click="vm.apply()" ng-disabled="!featureTypeForm.$valid" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />apply
             </button>
-            
+
         <button ng-click="vm.cancel()" ng-if="!featureType._isInitialized" class="layer-action">
                 <span class="fa fa-save layer-action-icon" />cancel
             </button>
@@ -24,8 +24,8 @@
             <input type="text" data-ng-model="featureType.id" class="form-control" /> -->
 
                 <div class="rightpanel-label">Feature title</div>
-                <input type="text"  id="featureTypeName" name="featureTypeName" data-ng-model="featureType.name"
-                    validfeaturetypeid class="form-control" />
+                <input type="text" id="featureTypeName" name="featureTypeName" data-ng-model="featureType.name" validfeaturetypeid class="form-control"
+                />
                 <span class="help-block" ng-show="featureTypeForm.$valid">Not a valid title</span>
 
                 <!--<div class="rightpanel-label">Title property (used to display name)</div>
@@ -68,15 +68,14 @@
                         <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', allowEmpty:true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                     </div>
                     <div class="col-md-3">
-                        <div class="rightpanel-label"></div>                        
+                        <div class="rightpanel-label"></div>
                     </div>
                     <div class="col-md-6">
                         <div class="rightpanel-label">Fill opacity</div>
-                 <input class="ui-slider" step='0.1' type="range"
-                                min='0' max='1' ng-model="featureType.style['fillOpacity']" />         
+                        <input class="ui-slider" step='0.1' type="range" min='0' max='1' ng-model="featureType.style['fillOpacity']" />
                     </div>
-                 </div>
-                 <div class="row">
+                </div>
+                <div class="row">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Stroke</div>
                         <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', allowEmpty:true, chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
@@ -86,21 +85,17 @@
                         <div class="rightpanel-label">Width</div>
                         <input type="number" name="stroke" data-ng-model="featureType.style['strokeWidth']" class="form-control">
                     </div>
-                    
-                                        <div class="col-md-6">
-                        <div class="rightpanel-label">Stroke opacity</div>                        
+
+                    <div class="col-md-6">
+                        <div class="rightpanel-label">Stroke opacity</div>
+                        <input class="ui-slider" step='0.1' type="range" min='0' max='1' ng-model="featureType.style['strokeOpacity']" />
                     </div>
                 </div>
                 <div class="row">
                     <div ng-show="featureType.style['drawingMode'] == 'Point'" class="col-md-6" ng-class="{ 'has-error': featureTypeForm.cornerRadius.$invalid }">
                         <div class="rightpanel-label">Corner radius (%)</div>
                         <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                        <!--ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }"-->
-                        <div class="rightpanel-label">Opacity</div>
-                        <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
-                    </div>
+                    </div>                   
                 </div>
                 <!--<div class="row">
                     <div class="col-md-6 checkbox dashboard-edit-checkbox" style="margin-left: 20px">

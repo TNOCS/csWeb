@@ -1401,6 +1401,7 @@ module csComp.Services {
                 if (style.marker) s.marker = style.marker;
                 if (style.iconUri) s.iconUri = style.iconUri;
                 if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
+                if (style.strokeOpacity >=0) s.strokeOpacity = style.strokeOpacity;
                 if (style.opacity >= 0) s.opacity = style.opacity;
                 if (style.fillColor) s.fillColor = csComp.Helpers.getColorString(style.fillColor);
                 // Stroke is a boolean property, so you have to check whether it is undefined.
