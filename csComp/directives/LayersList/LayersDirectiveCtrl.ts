@@ -363,9 +363,6 @@ module LayersDirective {
             this.state = 'layers';
         }
 
-
-
-
         /* start editing layer */
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'editlayer';
