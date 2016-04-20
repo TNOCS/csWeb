@@ -17,7 +17,7 @@ module csComp.Helpers {
         arr.forEach(a => {
             if (skipTitlesOrIdStartingWithUnderscore
                 && ((a.hasOwnProperty('title') && a['title'][0] === '_')
-                ||  (a.hasOwnProperty('id') && a['id'][0] === '_'))) return;
+                    || (a.hasOwnProperty('id') && a['id'][0] === '_'))) return;
             result.push(callback(a));
         });
         return result;
@@ -42,10 +42,8 @@ module csComp.Helpers {
     }
 
     /** get the name part of a featureid (strips resource uri part if needed) */
-    export function getFeatureTypeName(id : string)
-    {
-        if (id.indexOf('#')>=0)
-        {
+    export function getFeatureTypeName(id: string) {
+        if (id.indexOf('#') >= 0) {
             return id.split('#')[1];
         }
         else return id;
@@ -58,8 +56,8 @@ module csComp.Helpers {
                 drawingMode: 'Point',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
-                fillOpacity: 0, 
-                strokeOpacity : 0,
+                fillOpacity: 0,
+                strokeOpacity: 0,
                 opacity: 1,
                 fillColor: '#000000',
                 stroke: true,
@@ -76,7 +74,7 @@ module csComp.Helpers {
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
                 fillOpacity: 0.75,
-                strokeOpacity : 1,
+                strokeOpacity: 1,
                 opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
@@ -219,7 +217,7 @@ module csComp.Helpers {
         return propertyTypes;
     }
 
-    export function getPropertyKey(keyString : string, property : string) : string {
+    export function getPropertyKey(keyString: string, property: string): string {
         var keys = keyString.split(';');
         var prop = property;
         var count = 1;
@@ -556,7 +554,7 @@ module csComp.Helpers {
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string, replace? : boolean, canClose? : boolean): Services.RightPanelTab {
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string, replace?: boolean, canClose?: boolean): Services.RightPanelTab {
         var rpt = new Services.RightPanelTab();
         rpt.container = container;
         rpt.data = data;
@@ -599,100 +597,112 @@ module csComp.Helpers {
         return url;
     }
 
-    export function createIconHtml(feature: IFeature): {
+    export function createIconHtml(feature: IFeature, style? : csComp.Services.IFeatureTypeStyle): {
         html: string,
         iconPlusBorderWidth: number,
         iconPlusBorderHeight: number
     } {
-        var es = feature.effectiveStyle;
+        var es = (typeof style === 'undefined') ? feature.effectiveStyle : style;
         var iconUri = es.iconUri; //ft.style.iconUri;
-
-        // TODO refactor to object
-        var iconPlusBorderWidth, iconPlusBorderHeight;
-        if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
-            iconPlusBorderWidth = es.iconWidth + (2 * es.strokeWidth);
-            iconPlusBorderHeight = es.iconHeight + (2 * es.strokeWidth);
-        } else {
-            iconPlusBorderWidth = es.iconWidth;
-            iconPlusBorderHeight = es.iconHeight;
-        }
-
         var html: string,
             content: string,
             closeImageTag: string = '';
-
-        if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
-            var textSize = es.innerTextSize || 12;
-            if (es.marker === 'pin') {
-                content = `<div class="pin-inner" style="font-size:${textSize}px;">${feature.properties[es.innerTextProperty]}</div>`;
-            } else {
-                content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[es.innerTextProperty]}</span>`;
-            }
-        } else if (iconUri != null) {
-            // Must the iconUri be formatted?
-            if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-            content = `<img src="${iconUri}" style="width:${es.iconWidth}px;height:${es.iconHeight}px;display:block;`;
-            if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
-            closeImageTag = '" />';
-        }
-        
-        var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
-        var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`; 
-        
-        
-        switch (es.marker) {
-            case 'pin':
-                if (es.innerTextProperty) {
-                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${backgroundColor};`
-                        + `width:${iconPlusBorderWidth}px;`
-                        + `height:${iconPlusBorderHeight}px;`
-                        + `opacity:${es.opacity || 1};`
-                        + `">${content}</div>`;
+        switch (feature.fType.style.drawingMode) {
+            case "Line":
+                break;
+            case "Polygon":
+                break;
+            case "Point":
+                // TODO refactor to object
+                var iconPlusBorderWidth, iconPlusBorderHeight;
+                if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
+                    iconPlusBorderWidth = es.iconWidth + (2 * es.strokeWidth);
+                    iconPlusBorderHeight = es.iconHeight + (2 * es.strokeWidth);
                 } else {
-                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${backgroundColor};`
-                        + `width:${iconPlusBorderWidth}px;`
-                        + `height:${iconPlusBorderHeight}px;`
-                        + `opacity:${es.opacity || 1};`
-                        + '"></div>'
-                        + content
-                        + `position:absolute;margin:${es.strokeWidth}px" />`;
+                    iconPlusBorderWidth = es.iconWidth;
+                    iconPlusBorderHeight = es.iconHeight;
                 }
-                break;
-            case 'bubble':
-                html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                    + `background:${backgroundColor};`
-                    + `width:${iconPlusBorderWidth}px;`
-                    + `height:${iconPlusBorderHeight}px;`
-                    + `opacity:${es.opacity || 1};`
-                    + '"></div>'
-                    + content + `position:absolute;margin:${es.strokeWidth}px" />`;
-                break;
-            default:
-                var sc = chroma(es.strokeColor).alpha(+es.strokeOpacity).rgba();
-                var strokeColor = `rgba(${sc[0]},${sc[1]},${sc[2]},${sc[3]})`;
 
-                html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                    + `background:${backgroundColor};`
-                    + `width:${iconPlusBorderWidth}px;`
-                    + `height:${iconPlusBorderHeight}px;`
-                    + `border-radius:${es.cornerRadius}%;`
-                    + 'border-style:solid;'
-                    + `border-color:${strokeColor};`
-                    + `border-width:${es.strokeWidth}px;`
-                    + `opacity:${es.opacity || 1};`
-                    + '">'
-                    + content + closeImageTag
-                    + '</div>';
-                break;
+
+
+                if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
+                    var textSize = es.innerTextSize || 12;
+                    if (es.marker === 'pin') {
+                        content = `<div class="pin-inner" style="font-size:${textSize}px;">${feature.properties[es.innerTextProperty]}</div>`;
+                    } else {
+                        content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[es.innerTextProperty]}</span>`;
+                    }
+                } else if (iconUri != null) {
+                    // Must the iconUri be formatted?
+                    if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+                    content = `<img src="${iconUri}" style="width:${es.iconWidth}px;height:${es.iconHeight}px;display:block;`;
+                    if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
+                    closeImageTag = '" />';
+                }
+
+                var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
+                var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`;
+
+
+                switch (es.marker) {
+                    case 'pin':
+                        if (es.innerTextProperty) {
+                            html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                                + `background:${backgroundColor};`
+                                + `width:${iconPlusBorderWidth}px;`
+                                + `height:${iconPlusBorderHeight}px;`
+                                + `opacity:${es.opacity || 1};`
+                                + `">${content}</div>`;
+                        } else {
+                            html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                                + `background:${backgroundColor};`
+                                + `width:${iconPlusBorderWidth}px;`
+                                + `height:${iconPlusBorderHeight}px;`
+                                + `opacity:${es.opacity || 1};`
+                                + '"></div>'
+                                + content
+                                + `position:absolute;margin:${es.strokeWidth}px" />`;
+                        }
+                        break;
+                    case 'bubble':
+                        html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                            + `background:${backgroundColor};`
+                            + `width:${iconPlusBorderWidth}px;`
+                            + `height:${iconPlusBorderHeight}px;`
+                            + `opacity:${es.opacity || 1};`
+                            + '"></div>'
+                            + content + `position:absolute;margin:${es.strokeWidth}px" />`;
+                        break;
+                    default:
+                        var sc = chroma(es.strokeColor).alpha(+es.strokeOpacity).rgba();
+                        var strokeColor = `rgba(${sc[0]},${sc[1]},${sc[2]},${sc[3]})`;
+
+                        html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
+                            + `background:${backgroundColor};`
+                            + `width:${iconPlusBorderWidth}px;`
+                            + `height:${iconPlusBorderHeight}px;`
+                            + `border-radius:${es.cornerRadius}%;`
+                            + 'border-style:solid;'
+                            + `border-color:${strokeColor};`
+                            + `border-width:${es.strokeWidth}px;`
+                            + `opacity:${es.opacity || 1};`
+                            + '">'
+                            + content + closeImageTag
+                            + '</div>';
+                        break;
+                }
+
+
+
         }
-
         var iconHtml = {
             html: html,
             iconPlusBorderWidth: iconPlusBorderWidth,
             iconPlusBorderHeight: iconPlusBorderHeight
         };
         return iconHtml;
+
+
+
     }
 }

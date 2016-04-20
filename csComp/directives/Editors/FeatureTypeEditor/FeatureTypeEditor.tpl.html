@@ -62,7 +62,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row" ng-show="featureType.style['drawingMode'] == 'Point' || featureType.style['drawingMode'] == 'Polygon'">
                     <div class="col-md-3">
                         <div class="rightpanel-label">Fill color</div>
                         <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', allowEmpty:true, chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
