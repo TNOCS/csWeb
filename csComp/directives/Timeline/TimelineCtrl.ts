@@ -125,9 +125,9 @@ module Timeline {
             this.debounceSetItems = _.debounce((items) => { this.addItems(items); }, 500);
 
             $scope.vm = this;
-            
+
             this.$messageBusService.subscribe('dashboard-main', (s: string, data: any) => {
-                if (s === "activated") this.updatePanelHeights();
+                if (s === 'activated') this.updatePanelHeights();
             });
 
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
@@ -199,7 +199,7 @@ module Timeline {
                 let startProp = (featureConfig && featureConfig.startTimeProperty) || (layerConfig && layerConfig.startTimeProperty);
                 let endProp = (featureConfig && featureConfig.endTimeProperty) || (layerConfig && layerConfig.endTimeProperty);
                 let groupProp = (featureConfig && featureConfig.groupProperty) || (layerConfig && layerConfig.groupProperty);
-                let timelineItem = <ITimelineItem> {
+                let timelineItem = <ITimelineItem>{
                     id: f.id,
                     layerId: layer.id,
                     className: props.hasOwnProperty(classProp) ? props[classProp] : (featureConfig && featureConfig.class) || (layerConfig && layerConfig.class),
@@ -232,12 +232,12 @@ module Timeline {
             this.timelineItems.forEach(item => {
                 if (groups.indexOf(item.group) >= 0) return;
                 groups.push(item.group);
-                this.timelineGroups.add(<ITimelineItem> {
+                this.timelineGroups.add(<ITimelineItem>{
                     className: item.groupClass,
                     content: item.group,
                     id: item.group,
                     title: item.group
-                 });
+                });
             });
         }
 
@@ -381,19 +381,18 @@ module Timeline {
             this.expanded = !this.expanded;
             //    this.options.margin = {};
             //    this.options.margin['item'] = (this.expanded) ? 65 : 0;
-            this.options.height = (this.expanded) ?  this.$layerService.project.timeLine.expandHeight : 54;
-            this.expandButtonBottom = (this.expanded) ? this.$layerService.project.timeLine.expandHeight -1 : 52;
+            this.options.height = (this.expanded) ? this.$layerService.project.timeLine.expandHeight : 54;
+            this.expandButtonBottom = (this.expanded) ? this.$layerService.project.timeLine.expandHeight - 1 : 52;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
             this.updatePanelHeights();
-            
+
         }
-        
-        public updatePanelHeights()
-        {
-            var height = (this.expanded) ?  this.$layerService.project.timeLine.expandHeight : 54;
-            $('.leftpanel-container').css("bottom",height + 20); 
-            $('.rightpanel').css("bottom",height);            
+
+        public updatePanelHeights() {
+            var height = (this.expanded) ? this.$layerService.project.timeLine.expandHeight : 54;
+            $('.leftpanel-container').css('bottom', height + 20);
+            $('.rightpanel').css('bottom', height);
         }
 
         private throttleTimeSpanUpdate = _.debounce(this.triggerTimeSpanUpdated, 1000);
