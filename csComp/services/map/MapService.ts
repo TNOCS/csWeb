@@ -9,6 +9,8 @@ module csComp.Services {
      */
     export class MapService {
         private static expertModeKey = 'expertMode';
+        private scale: any;
+        private showLocation = false;
 
         public static $inject = [
             'localStorageService',
@@ -65,6 +67,32 @@ module csComp.Services {
                     case 'setzoom':
                         // Zoom to a location on the map.
                         this.map.setZoomAround(data.loc, data.zoom || 16);
+                        break;
+                    case 'showscale':
+                        if (data) {
+                            this.scale = L.control.scale({
+                                // Position, i.e. bottomleft, topright, topleft, bottomright
+                                position: 'bottomleft',
+                                maxWidth: 100,
+                                metric: true,
+                                imperial: false,
+                                // If true, the control is updated on moveend, otherwise it's always up-to-date (updated on move).
+                                updateWhenIdle: true
+                            }).addTo(this.map);
+                        } else if (this.scale) {
+                            this.map.removeControl(this.scale);
+                        }
+                        break;
+                    case 'showlocation':
+                        if (this.showLocation) {
+                            this.showLocation = false;
+                            this.map.on('click', null);
+                        } else {
+                            this.showLocation = true;
+                            this.map.on('click', (e: any) => {
+                                alert(e.latlng);
+                            });
+                        }
                         break;
                 }
             });
@@ -191,7 +219,7 @@ module csComp.Services {
                 if (this.drawingLayer) {
                     if (this.drawingNotification) this.drawingNotification.remove();
                     var geometryType = "Point";
-                    
+
                     var c = [];
                     switch (this.drawingFeatureType.style.drawingMode) {
                         case "Line":
@@ -222,9 +250,9 @@ module csComp.Services {
                         fType: this.drawingFeatureType,
                         properties: {}
                     };
-                   
+
                     f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
-                    
+
                     // Initialize properties
                     if (_.isArray(this.drawingFeatureType._propertyTypeData)) {
                         for (var k in this.drawingFeatureType._propertyTypeData) {
@@ -262,7 +290,7 @@ module csComp.Services {
             var opts = <any>{
                 stroke: true,
                 color: this.drawingFeatureType.style.strokeColor,
-                weight: 4,                
+                weight: 4,
                 opacity: 0.5,
                 fill: false,
                 clickable: true
@@ -278,7 +306,7 @@ module csComp.Services {
                     opts.fill = true;
                     break;
             }
-                            
+
             this.drawInstance.addHooks();
             this.drawingNotification = this.$messageBusService.confirm("Drawing started","Use double-click or one of these options to end your drawing",(r)=>{
                 if (r)
@@ -289,7 +317,7 @@ module csComp.Services {
                 {
                     this.drawInstance.removeHooks();
                     this.drawingFeatureType = null;
-                }                
+                }
             });
         }
     }
