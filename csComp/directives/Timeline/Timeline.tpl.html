@@ -1,11 +1,7 @@
 <div class="timeline-widget">
-
-
-
     <div id="timelinecontainer" style="pointer-events:auto">
         <div id="timeline"></div>
     </div>
-
 
     <div class="callout top" ng-show="vm.$mapService.timelineVisible && vm.$layerService.project.timeLine.enableFocus" id="focustimeContainer" style="position:absolute;bottom:{{vm.expandButtonBottom}}px;pointer-events:auto">
         <div class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
@@ -31,8 +27,7 @@
         </div>
     </div>
 
-    <div ng-if="vm.$layerService.project.timeLine.enableEvents" class="timeline-expand-button" style="position:absolute;" ng-style="{'bottom':vm.expandButtonBottom + 'px'}"
-        ng-click="vm.expandToggle()" style="pointer-events:auto">
+    <div ng-if="vm.$layerService.project.timeLine.enableEvents" class="timeline-expand-button" style="position:absolute;" ng-style="{'bottom':vm.expandButtonBottom + 'px'}" ng-click="vm.expandToggle()" style="pointer-events:auto">
         <span ng-show="vm.expanded" class="fa fa-chevron-down" />
         <span ng-hide="vm.expanded" class="fa fa-chevron-up" />
     </div>
