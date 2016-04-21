@@ -2424,6 +2424,9 @@ module csComp.Services {
                 this.activeMapRenderer.fitBounds(this.project.viewBounds);
             }
 
+            this.$messageBusService.publish('map', 'showScale', this.project.showScale);
+            this.$messageBusService.publish('map', 'showLocation', this.project.showLocation);
+
             this.initTypeResources(this.project);
 
             if (this.project.eventTab) {
@@ -2458,7 +2461,6 @@ module csComp.Services {
                 }];
                 this.project.dashboards.push(d2);
             } else {
-
                 // initialize dashboards
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
