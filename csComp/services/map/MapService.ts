@@ -16,7 +16,6 @@ module csComp.Services {
             'localStorageService',
             '$timeout',
             'messageBusService'
-
         ];
 
         public map: L.Map;
@@ -26,12 +25,21 @@ module csComp.Services {
         public activeBaseLayer: BaseLayer;
         public activeBaseLayerId: string;
         public mapVisible: boolean = true;
-        public timelineVisible: boolean = false;
         public rightMenuVisible: boolean = true;
         public maxBounds: IBoundingBox;
         public drawInstance: any;
         public featureGroup: L.ILayer;
         public drawingNotification : any;
+
+        private _timelineVisible: boolean = false;
+        public get timelineVisible() { return this._timelineVisible; }
+        public set timelineVisible(val: boolean) {
+            this._timelineVisible = val;
+            setTimeout(() => {
+                let windowHeight = $(window).height();
+                $('#map').height(windowHeight - (this._timelineVisible ? $('#timeline').height() : 0));
+            }, 300);
+        }
 
         expertMode: Expertise;
 
