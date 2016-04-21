@@ -203,6 +203,10 @@ module csComp.Services {
         datasources:       DataSource[];
         dataSets:          DataSet[];
         viewBounds:        IBoundingBox;
+        /** When true, show a scale at the bottom left */
+        showScale:         boolean;
+        /** When true, show the latlng of the clicked location */
+        showLocation:      boolean;
         collapseAllLayers: boolean;
         /** if enabled a user can change mode (novice, intermediate, etc.), default = true */
         exportModeSelectionEnabled : boolean;
