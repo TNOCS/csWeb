@@ -103,8 +103,8 @@ module ButtonWidget {
             this.$scope.buttons.forEach((b: IButton) => {
                 var actions = b.action.split(';');
                 actions.forEach((act) => {
-                    switch (act) {
-                        case 'activate timeRange':
+                    switch (act.toLowerCase()) {
+                        case 'activate timerange':
                             break;
                         case 'activate layer':
                             this.checkLayer(b);
@@ -224,7 +224,7 @@ module ButtonWidget {
         public click(b: IButton) {
             var actions = b.action.split(';');
             actions.forEach((act) => {
-                this.actionService.execute(act, {
+                this.actionService.execute(act.toLowerCase(), {
                     layerId: b.layer,
                     groupId: b.group,
                     propertyId: b.property,
