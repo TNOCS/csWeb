@@ -98,7 +98,7 @@ module csComp.Services {
                         } else {
                             this.showLocation = true;
                             this.map.on('click', (e: any) => {
-                                alert(e.latlng);
+                                // alert(e.latlng);
                             });
                         }
                         break;

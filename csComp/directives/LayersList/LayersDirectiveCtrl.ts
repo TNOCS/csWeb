@@ -135,7 +135,7 @@ module LayersDirective {
         }
 
         public dropdownpos(event) {
-            alert('drop down');
+            // alert('drop down');
             //     var dropDownTop = button.offset().top + button.outerHeight();
             // dropdown.css('top', dropDownTop + 'px');
             // dropdown.css('left', button.offset().left + 'px');

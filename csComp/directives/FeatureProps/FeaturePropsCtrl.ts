@@ -445,7 +445,7 @@ module FeatureProps {
         public openLayer(property: FeatureProps.CallOutProperty) {
             if (property.feature != null && property.feature.properties.hasOwnProperty(property.propertyType.label)) {
                 var link = property.feature.properties[property.propertyType.label];
-                alert(link);
+                // alert(link);
             }
         }
 
