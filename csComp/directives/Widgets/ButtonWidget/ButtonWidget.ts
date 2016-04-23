@@ -45,6 +45,10 @@ module ButtonWidget {
         property: string;
         showLegend: boolean;
         image: string;
+        /* Set to when the button should be enabled ("clicked") on initialization */
+        defaultEnabled: boolean;
+        /* Zoom to a level when clicking the button */
+        zoomLevel: number;
         _legend: csComp.Services.Legend;
         _layer: csComp.Services.ProjectLayer;
         _disabled: boolean;
@@ -96,22 +100,28 @@ module ButtonWidget {
         }
 
         private initButtons() {
-            this.$scope.buttons.forEach(b => {
-                switch (b.action) {
-                    case 'Activate TimeRange':
-                        break;
-                    case 'Activate Layer':
-                        this.checkLayer(b);
-                        this.messageBusService.subscribe('layer', (a, l) => this.checkLayer(b));
-                        break;
-                    case 'Activate Style':
-                        this.checkStyle(b);
-                        this.messageBusService.subscribe('updatelegend', (a, l) => this.checkStyle(b));
-                        break;
-                    case 'Activate Baselayer':
-                        this.checkBaselayer(b);
-                        this.messageBusService.subscribe('baselayer', (a, l) => this.checkBaselayer(b));
-                        break;
+            this.$scope.buttons.forEach((b: IButton) => {
+                var actions = b.action.split(';');
+                actions.forEach((act) => {
+                    switch (act) {
+                        case 'activate timeRange':
+                            break;
+                        case 'activate layer':
+                            this.checkLayer(b);
+                            this.messageBusService.subscribe('layer', (a, l) => this.checkLayer(b));
+                            break;
+                        case 'activate style':
+                            this.checkStyle(b);
+                            this.messageBusService.subscribe('updatelegend', (a, l) => this.checkStyle(b));
+                            break;
+                        case 'activate baselayer':
+                            this.checkBaselayer(b);
+                            this.messageBusService.subscribe('baselayer', (a, l) => this.checkBaselayer(b));
+                            break;
+                    }
+                });
+                if (b.defaultEnabled) {
+                    this.click(b);
                 }
             });
         }
@@ -212,10 +222,14 @@ module ButtonWidget {
         }
 
         public click(b: IButton) {
-            this.actionService.execute(b.action, {
-                layerId: b.layer,
-                groupId: b.group,
-                propertyId: b.property
+            var actions = b.action.split(';');
+            actions.forEach((act) => {
+                this.actionService.execute(act, {
+                    layerId: b.layer,
+                    groupId: b.group,
+                    propertyId: b.property,
+                    zoomLevel: b.zoomLevel
+                });
             });
             // switch (b.action) {
             //     case 'Activate TimeRange':

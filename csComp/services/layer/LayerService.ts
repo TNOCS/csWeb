@@ -701,8 +701,6 @@ module csComp.Services {
                         });
                     }
                     layer.layerSource.addLayer(layer, (l) => {
-                        if (layerloaded) layerloaded(layer);
-
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
@@ -722,6 +720,7 @@ module csComp.Services {
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
                         }
+                        if (layerloaded) layerloaded(layer);
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
@@ -1075,6 +1074,18 @@ module csComp.Services {
                 this.activeMapRenderer = this.mapRenderers[renderer];
                 this.activeMapRenderer.enable(this.$mapService.activeBaseLayer);
             }
+        }
+        
+        public centerFeatureOnMap(selFeatures: IFeature[]) {
+            if (!selFeatures || !_.isArray(selFeatures) || selFeatures.length === 0) return;
+            var f = selFeatures[0];
+            var center;
+            if (f.geometry.type.toLowerCase() === 'point') {
+                center = f.geometry.coordinates;
+            } else {
+                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates);
+            }
+            this.map.getMap().panTo(new L.LatLng(center.coordinates[1], center.coordinates[0]));
         }
 
         public editFeature(feature: IFeature, select = true) {
