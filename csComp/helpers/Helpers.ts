@@ -56,7 +56,7 @@ module csComp.Helpers {
                 drawingMode: 'Point',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
-                fillOpacity: 0,
+                fillOpacity: 1,
                 strokeOpacity: 0,
                 opacity: 1,
                 fillColor: '#000000',
@@ -607,7 +607,7 @@ module csComp.Helpers {
         var html: string,
             content: string,
             closeImageTag: string = '';
-        switch (feature.fType.style.drawingMode) {
+        switch (es.drawingMode) {
             case "Line":
                 break;
             case "Polygon":
@@ -639,6 +639,8 @@ module csComp.Helpers {
                     if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
                     closeImageTag = '" />';
                 }
+                
+                if (isNaN(es.fillOpacity)) es.fillOpacity = 1;
 
                 var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
                 var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`;

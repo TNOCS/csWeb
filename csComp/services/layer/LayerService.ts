@@ -1327,6 +1327,7 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
+                feature.type = "Feature";
                 feature._gui = {
                     included: true
                 };
