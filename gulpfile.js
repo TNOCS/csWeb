@@ -9,7 +9,7 @@
 // * Copy this to test folder.
 
 var gulp = require('gulp'),
-    tsconfig = require('gulp-tsconfig'),    
+    tsconfig = require('gulp-tsconfig'),
     exec = require('child_process').execSync,
     install = require('gulp-install'),
     runSequence = require('run-sequence'),
@@ -63,7 +63,7 @@ gulp.task('bower_useref', ['bower_install'], function(cb){
 gulp.task('concat_css', ['include_css'], function (cb) {
     return gulp.src('./csComp/includes/bower_dep/index.html')
         .pipe(useref())
-        .pipe(gulp.dest('./dist-bower')); 
+        .pipe(gulp.dest('./dist-bower'));
 });
 
 gulp.task('bower', ['bower_install','bower_useref']);
@@ -130,8 +130,7 @@ gulp.task('typings', function (cb) {
     gulp.src("./typings.json")
         .pipe(gulpTypings());
     cb();
-         //will install all typingsfiles in pipeline. 
-  
+    //will install all typingsfiles in pipeline.
 });
 
 gulp.task('travis', function (cb) {
@@ -284,7 +283,7 @@ gulp.task('quick', function (cb) {
 // Initiallize the project and update the npm and bower package folders
 gulp.task('update_packages', [
     'init',
-    'minify_csComp'    
+    'minify_csComp'
 ]);
 
 gulp.task('default', ['update_packages', 'watch']);

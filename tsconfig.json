@@ -12,7 +12,7 @@
         "sourceMap": true
     },
     "filesGlob": ["./Scripts/**/*.d.ts", "./csComp/**/*.ts",
-        "./csServerComp/**/*.ts", "./test/**/*.ts",        
+        "./csServerComp/**/*.ts", "./test/**/*.ts",
         "!./csComp/includes/**/*.ts", "!./dist-npm", "!./dist-bower",
         "!./docker-dev", "!./docs", "!./csServerComp/OfflineSearch/**/*.ts",
         "!./node_modules/**/*.ts"

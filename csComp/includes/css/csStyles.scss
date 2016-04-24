@@ -331,7 +331,7 @@ body,
 }
 
 .featureType-item
-{    
+{
     margin: 5px;
     position: relative;
 }
@@ -343,7 +343,7 @@ body,
     margin-left: 10px;
     margin-top: 8px;
     float: left;
-    min-width: 250px; 
+    min-width: 250px;
 }
 
 /* layers */
@@ -1360,7 +1360,7 @@ body,
 }
 
 .button-container-down {
-    background: #aaa;     
+    background: #aaa;
     color: white;
 }
 
@@ -1373,9 +1373,9 @@ body,
         padding-left:5px;
     text-decoration: none;
     right: 0;
-    top: 0;        
+    top: 0;
 
-    width: 50px; 
+    width: 50px;
     background: rgba(100, 100, 100, 0.77);
 }
 
@@ -1719,24 +1719,20 @@ body,
     z-index:3
 }
 
-.timeline-widget
-{
+.timeline-widget {
     height:150px;position:absolute;bottom:0;width:100%;pointer-events:none
 }
 
-.vis-timeline
-{
+.vis-timeline {
     border-style: none;
-          box-shadow: 0px -2px 7px 0px rgba(0, 0, 0, 0.4);    
+    box-shadow: 0px -2px 7px 0px rgba(0, 0, 0, 0.4);
 }
 
-.vis-panel.vis-center
-{
+.vis-panel.vis-center {
     border-style:none;
-  
 }
 
-.timeline-expand-button {      
+.timeline-expand-button {
    pointer-events: auto;
     cursor: pointer;
     width: 65px;
@@ -2239,7 +2235,7 @@ input[type="checkbox"] {
     @include box-shadow(2px,0,10px,rgba(0,0,0,.2));
 }
 .rightpanel {
-    position: absolute;    
+    position: absolute;
     width: 100%;
     // max-width: 400px;
     // margin-top: 50px;

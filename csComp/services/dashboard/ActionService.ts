@@ -58,11 +58,28 @@ module csComp.Services {
 
             this.actions['activate style'] = options => {
                 console.log('Activate style action called');
-                var group = this.layerService.findGroupById(options.groupId);
-                if (typeof group === 'undefined') return;
-                var propType = this.layerService.findPropertyTypeById(options.propertyId);
-                if (typeof propType === 'undefined') return;
-                this.layerService.setGroupStyle(group, propType);
+                if (options.layerId) {
+                    var pl = this.layerService.findLayer(options.layerId);
+                    if (typeof pl !== 'undefined') {
+                        // If the layer is not loaded, activate style after loading.
+                        if (!pl.enabled) {
+                            this.layerService.toggleLayer(pl, () => {
+                                this.activateStyle(options.groupId, options.propertyId);
+                            });
+                            // If the layer is being loaded, activate style after activation message.
+                        } else if (pl.isLoading) {
+                            var handle = this.messageBusService.subscribe("layer", (a, l) => {
+                                if (a === 'activated' && l.id === options.layerId) {
+                                    setTimeout(() => {
+                                        this.activateStyle(options.groupId, options.propertyId);
+                                    }, 400);
+                                    this.messageBusService.unsubscribe(handle);
+                                }
+                            });
+                        }
+                    }
+                }
+                this.activateStyle(options.groupId, options.propertyId);
             };
 
             this.actions['activate baselayer'] = options => {
@@ -70,6 +87,18 @@ module csComp.Services {
                 var layer: BaseLayer = this.layerService.$mapService.getBaselayer(options.layerId);
                 this.layerService.activeMapRenderer.changeBaseLayer(layer);
                 this.layerService.$mapService.changeBaseLayer(options.layerId);
+            };
+            
+            this.actions['zoom map'] = options => {
+                console.log('Zoom map action called');
+                if (!options['zoomLevel']) return;
+                this.layerService.map.getMap().setZoom(+options['zoomLevel']);
+            };
+            
+            this.actions['center on map'] = options => {
+                console.log('Center map action called');
+                // Move map such that selected feature in the center of the map
+                this.layerService.centerFeatureOnMap(this.layerService.selectedFeatures);
             };
         }
 
@@ -97,6 +126,14 @@ module csComp.Services {
             var copy: IButtonAction;
             ng.copy(this.actions, copy);
             return copy;
+        }
+        
+        public activateStyle(groupId: string, propId: string) {
+            var group = this.layerService.findGroupById(groupId);
+            if (typeof group === 'undefined') return;
+            var propType = this.layerService.findPropertyTypeById(propId);
+            if (typeof propType === 'undefined') return;
+            this.layerService.setGroupStyle(group, propType);
         }
     }
 

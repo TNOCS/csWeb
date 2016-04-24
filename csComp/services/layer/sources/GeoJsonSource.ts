@@ -171,10 +171,10 @@ module csComp.Services {
             layer.isTransparent = false;
             if (layer.zoomHandle) this.service.$messageBusService.unsubscribe(layer.zoomHandle);
             //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
-            if (layer.fitToMap) {
-                if (!this.service.solution.viewBounds) return;
-                this.service.$messageBusService.publish('map', 'setextent', this.service.solution.viewBounds);
-            }
+            // if (layer.fitToMap) {
+            //     if (!this.service.project.viewBounds) return;
+            //     this.service.$messageBusService.publish('map', 'setextent', this.service.project.viewBounds);
+            // }
         }
 
         private processAccessibilityReply(data, layer, clbk) {
@@ -375,13 +375,13 @@ module csComp.Services {
             this.service.editing = true;
             this.initAvailableFeatureTypesEditing(layer);
         }
-        
+
         public stopEditing(layer : csComp.Services.ProjectLayer)
         {
             this.service.stopEditingLayer(layer);
         }
 
-        
+
 
         /** prepare layer for editing, add featuretypes to temp. _gui object */
         public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
