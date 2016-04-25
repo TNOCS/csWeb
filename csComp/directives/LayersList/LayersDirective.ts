@@ -40,6 +40,7 @@ module LayersDirective {
             f.fType = type;
             f.featureTypeName = f.fType.name;
             f._gui = <csComp.Services.IGuiObject>{};
+            f.effectiveStyle = f.fType.style;
             layerService.calculateFeatureStyle(f);
             switch (f.fType.style.drawingMode)
             {
