@@ -97,8 +97,8 @@ module csComp.Services {
                             this.map.on('click', null);
                         } else {
                             this.showLocation = true;
-                            this.map.on('click', (e: any) => {
-                                alert(e.latlng);
+                            this.map.on('click', (e: L.LeafletMouseEvent) => {
+                                this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
                             });
                         }
                         break;

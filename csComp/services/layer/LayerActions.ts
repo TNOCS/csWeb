@@ -102,7 +102,7 @@ module csComp.Services {
         getLayerActions(layer: ProjectLayer): IActionOption[] {
             if (!layer) return;
             var res = [];
-            
+
             if (layer.isEditable && this.layerService.$mapService.isExpert && layer.enabled) res.push({
                 title: 'Edit Layer', icon: 'pencil', callback: (l, ls) => {
                     this.layerService.$messageBusService.publish('layer', 'startEditing', l);
@@ -124,13 +124,13 @@ module csComp.Services {
                     res.push(fit);
                 }
             }
-            
+
             if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
-            var reset = <IActionOption> { title: 'Reset Layer', icon: 'reset' };
+                var reset = <IActionOption>{ title: 'Reset Layer', icon: 'reset' };
                 reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
-                        console.log("Resetting layer: "+layer.title);
-                        layer.data.features = [];
-                        layer.layerSource.refreshLayer(layer);
+                    console.log('Resetting layer: ' + layer.title);
+                    layer.data.features = [];
+                    layer.layerSource.refreshLayer(layer);
                 };
                 res.push(reset);
             }
@@ -138,9 +138,9 @@ module csComp.Services {
             if (this.layerService.$mapService.isAdminExpert) {
                 var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
                 remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
-                    layerService.$messageBusService.confirm("Delete layer","Are you sure",(result)=>{
+                    layerService.$messageBusService.confirm('Delete layer', 'Are you sure', (result) => {
                         if (result) layerService.removeLayer(layer, true);
-                    })                    
+                    })
                 };
                 res.push(remove);
             }
@@ -208,7 +208,7 @@ module csComp.Services {
                             this.layerService.selectFeature(f);
                         }
                     };
-                    //if (f.fType && f.fType.name!=="default") res.description += " (" + f.fType.name + ")";
+                    //if (f.fType && f.fType.name!=='default') res.description += ' (' + f.fType.name + ')';
                     r.push(res);
                 }
             });

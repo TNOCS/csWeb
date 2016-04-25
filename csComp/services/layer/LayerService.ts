@@ -2766,7 +2766,21 @@ module csComp.Services {
                         break;
                     case 'bing':
                         if (!searchProvider.key) break;
-                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url));
+                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url, searchProvider.data ));
+                        break;
+                    case 'opencagedata':
+                        if (!searchProvider.key) break;
+                        let data = searchProvider.data;
+                        if (!data) {
+                            data = {
+                                countrycode: 'nl',
+                                //(min long, min lat, max long, max lat).
+                                //NL: [[[3.357962,50.7503838],[3.357962,53.5551999],[7.2275102,53.5551999],[7.2275102,50.7503838],[3.357962,50.7503838]]]
+                                bounds: '3.357962,50.7503838,7.2275102,53.5551999'
+                            };
+                        }
+                        data.messageBus = this.$messageBusService;
+                        this.addActionService(new OpenCageDataSearchAction(this.$http, searchProvider.key, searchProvider.url, data));
                         break;
                 }
             });

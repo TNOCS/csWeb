@@ -194,6 +194,7 @@
         "csComp/services/layer/actions/BingSearchAction.ts",
         "csComp/services/layer/actions/OfflineSearchAction.ts",
         "csComp/services/layer/actions/OnlineSearchAction.ts",
+        "csComp/services/layer/actions/OpenCageDataSearchAction.ts",
         "csComp/services/layer/ContourAction.ts",
         "csComp/services/layer/ExpressionService.ts",
         "csComp/services/layer/LayerActions.ts",
