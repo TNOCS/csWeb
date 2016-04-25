@@ -116,7 +116,7 @@ module Timeline {
                 'editable': false,
                 'margin': 0,
                 'height': 54,
-                'zoomMax': 172800000,
+                'zoomMax': 172800000000,
                 'zoomMin': 3600000
                 //'layout': 'box'
             };
