@@ -181,6 +181,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/ServerStatus.png',
                 description: 'Show status of simulation services.'
             };
+            this.widgetTypes['locationwidget'] = <IWidget>{
+                id: 'locationwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
+                description: 'Show reverse geocode info.'
+            };
         }
 
         public get search(): ISearch { return this._search; };
@@ -272,8 +277,6 @@ module csComp.Services {
                 }
                 this.rightPanelTabs[tab.container] = tab;
             }
-
-
         }
 
         public deactivateTabContainer(container: string) {

@@ -152,6 +152,7 @@
         "csComp/directives/Widgets/Indicators/Indicators-edit.ts",
         "csComp/directives/Widgets/Indicators/Indicators.ts",
         "csComp/directives/Widgets/Indicators/IndicatorsCtrl.ts",
+        "csComp/directives/Widgets/LocationWidget/LocationWidget.ts",
         "csComp/directives/Widgets/MarkdownWidget/Markdown-edit.ts",
         "csComp/directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
         "csComp/directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",

@@ -1,0 +1,26 @@
+<div ng-show="vm.location.locations" style="background: white; padding: 10px; width: 100%; overflow: hidden">
+    <div class="display: inline-block" style="margin-bottom: 5px">
+        <select style="width: auto;" ng-show="vm.location.locations" ng-model="vm.selectedLocationFormat" ng-options="o as o for o in vm.location.locations"></select>
+        <i class="fa fa-2x fa-remove pull-right" style="margin-top: -5px;" ng-click="vm.close()"></i>
+    </div>
+
+    <div ng-show="vm.location.streetViewUrlThumb" style="width: 200px; height: 200px; float:left; margin-right: 5px">
+        <a ng-href="{{vm.location.streetViewUrlFull}}" target="_blank">
+            <img class="img-responsive" ng-src="{{vm.location.streetViewUrlThumb}}" width="200" height="200" alt="StreetView image: Click for a larger view">
+        </a>
+    </div>
+
+    <div style="width: 50% float:right">
+        <h4>{{vm.location.title}}</h4>
+        <div>{{vm.location.address}}</div>
+        <div>{{vm.location.postcode}}</div>
+        <div>{{vm.location.neighbourhood}}</div>
+        <div>{{vm.location.city}}</div>
+
+        <div ng-show="vm.location.sunrise">
+            <span><i class="fa fa-sun-o"></i>&nbsp;{{vm.location.sunrise}}&nbsp;&nbsp;</span>
+            <span><i class="fa fa-moon-o"></i>&nbsp;{{vm.location.sunset}}</span>
+        </div>
+    </div>
+    <br style="clear:both;"/>
+</div>
