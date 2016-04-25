@@ -359,6 +359,7 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
+                    if (!feature.geometry.coordinates.length || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {

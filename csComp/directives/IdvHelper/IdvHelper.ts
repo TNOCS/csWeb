@@ -204,7 +204,7 @@ module Idv {
             this.scope = scope;
             var store = 'records3';
             this.state = "Laden configuratie";
-            
+            this.resize();
          
             
           $(window).resize(()=> {
