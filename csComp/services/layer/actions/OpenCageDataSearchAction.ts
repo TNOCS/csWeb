@@ -2,7 +2,7 @@ module csComp.Services {
     import IFeature = csComp.Services.IFeature;
 
     export interface IOCDFeature {
-        geometry?: IGeoJsonGeometry | { lat: number, lng: number },
+        geometry?: { lat: number, lng: number },
         annotations: {
             DMS?: {
                 lat: string;
@@ -53,7 +53,10 @@ module csComp.Services {
                 words?: string;
             };
         };
-        bounds: L.LatLngBounds;
+        bounds: {
+            southwest: {lat: number; lng: number};
+            northeast: {lat: number; lng: number};
+        };
         components?: {
             city?: string;
             city_district?: string;
@@ -79,7 +82,7 @@ module csComp.Services {
      */
     export interface IOCDSearchResult {
         type?: string;
-        features?: IOCDFeature[];
+        results?: IOCDFeature[];
     }
 
     export class OpenCageDataSearchAction extends BasicActionService {
@@ -132,7 +135,7 @@ module csComp.Services {
             var geocodeRequest = `${this.queryUrl}&q=${point.lat},${point.lng}`;
 
             this.$http.jsonp(geocodeRequest)
-                .success((r: any) => {
+                .success((r: IOCDSearchResult) => {
                     if (!r.results || r.results.length === 0) return;
                     this.messageBus.publish('geocoding', 'reverseLookupResult', r.results[0]);
                 })
@@ -152,7 +155,7 @@ module csComp.Services {
                 this.geocodeCallback(this.searchCache[query.query], handler, query.query);
                 return;
             }
-            var geocodeRequest = `${this.queryUrl}&${encodeURIComponent(query.query)}`;
+            var geocodeRequest = `${this.queryUrl}&q=${encodeURIComponent(query.query)}`;
 
             this.callRestService(geocodeRequest, (result, handler, query) => this.geocodeCallback(result, handler, query), handler, query.query);
         }
@@ -173,7 +176,7 @@ module csComp.Services {
             console.log(JSON.stringify(result, null, 2));
             this.searchCache[query] = result;
             var searchResults: ISearchResultItem[] = [];
-            result.features.forEach(f => {
+            result.results.forEach(f => {
                 searchResults.push(<ISearchResultItem>{
                     title: f.formatted,
                     type: f.annotations ? `${f.annotations.DMS.lat}, ${f.annotations.DMS.lng}` : '',
@@ -182,7 +185,10 @@ module csComp.Services {
                     score: f.confidence / 10,
                     icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
                     click: () => this.onSelect(f),
-                    location: <IGeoJsonGeometry>f.geometry
+                    location: {
+                        type: 'Point',
+                        coordinates: [f.geometry.lng, f.geometry.lat]
+                    }
                 });
             });
             handler(null, searchResults);
@@ -197,9 +203,10 @@ module csComp.Services {
 
         private onSelect(feature: IOCDFeature) {
             if (feature.bounds) {
-                this.layerService.map.getMap().fitBounds(feature.bounds);
+                let bounds: L.LatLngBounds = new L.LatLngBounds(feature.bounds.southwest, feature.bounds.northeast);
+                this.layerService.map.getMap().fitBounds(bounds);
             } else {
-                this.layerService.$mapService.zoomToLocation(new L.LatLng((<IGeoJsonGeometry>feature.geometry).coordinates[0], (<IGeoJsonGeometry>feature.geometry).coordinates[1]), 18);
+                this.layerService.$mapService.zoomToLocation(new L.LatLng((feature.geometry.lat), (feature.geometry.lng)), 18);
             }
         }
     }
