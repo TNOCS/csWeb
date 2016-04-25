@@ -2250,7 +2250,7 @@ module csComp.Services {
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
             if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-            this.saveProject();
+            if (removeFromGroup) this.saveProject();
         }
 
         public removeAllFilters(g: ProjectGroup) {
