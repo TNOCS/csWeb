@@ -94,16 +94,18 @@ module csComp.Services {
                     case 'showlocation':
                         if (this.showLocation) {
                             this.showLocation = false;
-                            this.map.on('click', null);
+                            this.map.off('click', this.mapClicked);
                         } else {
                             this.showLocation = true;
-                            this.map.on('click', (e: L.LeafletMouseEvent) => {
-                                this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
-                            });
+                            this.map.on('click', this.mapClicked);
                         }
                         break;
                 }
             });
+        }
+
+        private mapClicked(e: L.LeafletMouseEvent) {
+            this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
         }
 
         /**

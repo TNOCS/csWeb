@@ -34,35 +34,32 @@ module ProjectSettings {
             private $localStorageService: ng.localStorage.ILocalStorageService
         ) {
             $scope.vm = this;
-        } 
+        }
 
         toggleTouchMode() {
             this.dashboardService.touchMode = !this.dashboardService.touchMode;
-            this.$localStorageService.set('touchmode',this.dashboardService.touchMode); 
+            this.$localStorageService.set('touchmode', this.dashboardService.touchMode);
         }
 
         toggleRenderer() {
             if (this.$layerService.activeMapRenderer.title === 'cesium') {
-                this.$layerService.selectRenderer('leaflet')
+                this.$layerService.selectRenderer('leaflet');
+            } else {
+                this.$layerService.selectRenderer('cesium');
             }
-            else {
-                this.$layerService.selectRenderer('cesium')
-            }
-            
         }
-        
-        toggleAdminMode()
-        {
-            if (this.mapService.expertMode !== csComp.Services.Expertise.Admin)
-            {
+
+        toggleShowLocation() {
+            this.messageBus.publish('map', 'showLocation');
+        }
+
+        toggleAdminMode() {
+            if (this.mapService.expertMode !== csComp.Services.Expertise.Admin) {
                 this.mapService.expertMode = csComp.Services.Expertise.Admin;
-                this.messageBus.publish('expertMode', 'newExpertise', csComp.Services.Expertise.Admin);                
-            }
-            else
-            {
+                this.messageBus.publish('expertMode', 'newExpertise', csComp.Services.Expertise.Admin);
+            } else {
                 this.mapService.expertMode = csComp.Services.Expertise.Expert;
                 this.messageBus.publish('expertMode', 'newExpertise', csComp.Services.Expertise.Expert);
-                
             }
         }
 
