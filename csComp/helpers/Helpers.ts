@@ -639,7 +639,7 @@ module csComp.Helpers {
                     if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
                     closeImageTag = '" />';
                 }
-                
+
                 if (isNaN(es.fillOpacity)) es.fillOpacity = 1;
 
                 var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
