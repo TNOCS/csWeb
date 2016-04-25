@@ -1075,7 +1075,7 @@ module csComp.Services {
                 this.activeMapRenderer.enable(this.$mapService.activeBaseLayer);
             }
         }
-        
+
         public centerFeatureOnMap(selFeatures: IFeature[]) {
             if (!selFeatures || !_.isArray(selFeatures) || selFeatures.length === 0) return;
             var f = selFeatures[0];
@@ -1413,7 +1413,7 @@ module csComp.Services {
                 if (style.marker) s.marker = style.marker;
                 if (style.iconUri) s.iconUri = style.iconUri;
                 if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
-                if (style.strokeOpacity >=0) s.strokeOpacity = style.strokeOpacity;
+                if (style.strokeOpacity >= 0) s.strokeOpacity = style.strokeOpacity;
                 if (style.opacity >= 0) s.opacity = style.opacity;
                 if (style.fillColor) s.fillColor = csComp.Helpers.getColorString(style.fillColor);
                 // Stroke is a boolean property, so you have to check whether it is undefined.
@@ -1822,7 +1822,10 @@ module csComp.Services {
                     gs.meta = property.meta;
                     var ptd = this.propertyTypeData[property.property];
                     if (ptd && ptd.legend) {
+
                         gs.activeLegend = ptd.legend;
+                        if (ptd.legend.visualAspect) gs.visualAspect = ptd.legend.visualAspect;
+
                         gs.legends[ptd.title] = ptd.legend;
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
@@ -2778,7 +2781,7 @@ module csComp.Services {
                         break;
                     case 'bing':
                         if (!searchProvider.key) break;
-                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url, searchProvider.data ));
+                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url, searchProvider.data));
                         break;
                     case 'opencagedata':
                         if (!searchProvider.key) break;

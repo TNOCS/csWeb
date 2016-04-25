@@ -8,7 +8,7 @@
             <div class="bounce3" style="background:white"></div>
         </div>
 
-        <layereditor ng-show="b._layer._gui['editing']" view="icons" class="button-layer-editor" />
+        <layereditor ng-show="b._layer._gui['editing']" layer="b._layer" view="icons" class="button-layer-editor" />
 
         <div ng-if="b.showLegend" ng-show="b._active">
             <div data-ng-if="b._legend" style="float:left;clear:left">
