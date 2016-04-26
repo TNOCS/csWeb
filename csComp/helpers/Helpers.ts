@@ -596,8 +596,7 @@ module csComp.Helpers {
         url = url.substring(0, url.length - 1);
         return url;
     }
-
-    export function createIconHtml(feature: IFeature, style?: csComp.Services.IFeatureTypeStyle): {
+    
     export function createIconHtml(feature: IFeature, style? : csComp.Services.IFeatureTypeStyle): {
         html: string,
         iconPlusBorderWidth: number,
