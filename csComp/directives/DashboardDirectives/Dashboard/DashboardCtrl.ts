@@ -111,8 +111,7 @@ module Dashboard {
                         if (wScope && wScope.vm && wScope.vm.stop) {
                             wScope.vm.stop();
                         }
-                    } 
-                    catch (e) { }
+                    } catch (e) { }
                 }
             });
         }
@@ -347,32 +346,8 @@ module Dashboard {
                 w.width = '150px';
                 w.enabled = true;
                 d.widgets.push(w);
-                //this.$dashboardService.
-                //this.$dashboardService.addNewWidget(w, d);
-                //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
             }
         };
-
-        // if (!d.widgets) d.widgets = [];
-        // if (d.showLegend) {
-        //     var legendWidgetPresent = false;
-        //     d.widgets.forEach(w => {
-        //         if(w.id === 'legend') legendWidgetPresent = true;
-        //     });
-        //     if (!legendWidgetPresent) {
-        //         console.log('Create legend');
-        //         var w = <csComp.Services.IWidget>{};
-        //         w.directive = 'legend-directive';
-        //         w.id = 'legend';
-        //         w.title = 'Legenda';
-        //         w.data = {mode: 'lastSelectedStyle'};
-        //         w.left = '10px';
-        //         w.top = '20px';
-        //         w.width = '150px';
-        //         w.enabled = true;
-        //         this.$dashboardService.addNewWidget(w, d);
-        //         //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
-        //     }
 
         public updateDashboard() {
             var d = this.$scope.dashboard;
