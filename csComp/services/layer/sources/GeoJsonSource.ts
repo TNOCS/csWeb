@@ -279,8 +279,7 @@ module csComp.Services {
                 features.some((f: IFeature) => {
                     if (f.hasOwnProperty(key) && f[key] === id) {
                         f.properties = value.properties;
-                        f.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(f);
+                        f.geometry = value.geometry;                        
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
@@ -391,10 +390,7 @@ module csComp.Services {
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
             for (var ft in this.service.typesResources[layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[layer.typeUrl].featureTypes[ft];
-
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
-                
-
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
                 featureTypes[ft] = this.service.typesResources[layer.typeUrl].featureTypes[ft];
                 featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                 featureTypes[ft]._guid = csComp.Helpers.getGuid();

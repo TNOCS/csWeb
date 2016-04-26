@@ -1217,14 +1217,14 @@ module csComp.Services {
                     }
                 }
 
-                if (changed) {
-                    this.calculateFeatureStyle(f);
+                if (changed) {                    
                     this.updateFeature(f);
                 }
             }
         }
 
         public updateFeature(feature: IFeature) {
+            this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
             if (feature === this.lastSelectedFeature) {
                 this.$messageBusService.publish('feature', 'onFeatureUpdated');
@@ -2622,13 +2622,13 @@ module csComp.Services {
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
                                     } else {
-                                        this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
-                                            if (r && l.enabled) {
-                                                var wasRightPanelVisible = this.visual.rightPanelVisible;
-                                                l.layerSource.refreshLayer(l);
-                                                this.visual.rightPanelVisible = wasRightPanelVisible;
-                                            }
-                                        });
+                                        // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
+                                        //     if (r && l.enabled) {
+                                        //         var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                        //         l.layerSource.refreshLayer(l);
+                                        //         this.visual.rightPanelVisible = wasRightPanelVisible;
+                                        //     }
+                                        // });
 
                                     }
                                 }
