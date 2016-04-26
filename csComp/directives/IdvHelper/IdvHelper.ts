@@ -645,7 +645,8 @@ module Idv {
                         .group((d)=> {                    
                             var date = d[config.time];
                             return "";
-                        })         
+                        })                        
+                        .size(1000)                                 
                         .columns(c);
                                
                     break;
