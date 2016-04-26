@@ -98,7 +98,7 @@ describe('Helpers spec:', function() {
             var f = <csComp.Services.IFeature>{};
             var rt = <csComp.Services.TypeResource>{};
             var result = csComp.Helpers.createDefaultType(f, rt);
-            // expect(result.style).toEqual({ 
+            // expect(result.style).toEqual({
             //     nameLabel: 'Name',
             //     strokeWidth: 3,
             //     strokeColor: '#0033ff',
@@ -116,10 +116,10 @@ describe('Helpers spec:', function() {
                 drawingMode: 'Polygon',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
-                fillOpacity: 0,
-                strokeOpacity:0,
-                opacity: 1,
-                fillColor: '#000000',
+                fillOpacity: 0.75,
+                strokeOpacity: 1,
+                opacity: 0.75,
+                fillColor: '#FFFF00',
                 stroke: true,
                 iconUri: 'bower_components/csweb/dist-bower/images/marker.png'
             });
@@ -249,6 +249,7 @@ describe('Helpers spec:', function() {
         beforeEach(() => {
             f = <csComp.Services.IFeature>{
                 effectiveStyle: <csComp.Services.IFeatureTypeStyle>{
+                    drawingMode: 'Point',
                     iconHeight: 24,
                     iconWidth: 24,
                     iconUri: 'images/marker.png',
@@ -281,7 +282,7 @@ describe('Helpers spec:', function() {
             var icon = csComp.Helpers.createIconHtml(f);
             var expectation = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
                 + 'background:#ff0000;width:30px;height:30px;border-radius:5%;border-style:solid;border-color:#ffff00;border-width:3px;opacity:0.5;">'
-                + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>'; 
+                + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>';
             expect(icon.html.replace(' ', ''))
                 .toBe(expectation.replace(' ', ''));
         });

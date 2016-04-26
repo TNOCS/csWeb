@@ -597,6 +597,7 @@ module csComp.Helpers {
         return url;
     }
 
+    export function createIconHtml(feature: IFeature, style?: csComp.Services.IFeatureTypeStyle): {
     export function createIconHtml(feature: IFeature, style? : csComp.Services.IFeatureTypeStyle): {
         html: string,
         iconPlusBorderWidth: number,
@@ -608,12 +609,12 @@ module csComp.Helpers {
             content: string,
             closeImageTag: string = '';
         switch (es.drawingMode) {
-            case "Line":
+            case 'Line':
                 break;
-            case "Polygon":
+            case 'Polygon':
                 html = "<img src='images/bom.png'></img>"
                 break;
-            case "Point":
+            case 'Point':
                 // TODO refactor to object
                 var iconPlusBorderWidth, iconPlusBorderHeight;
                 if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
@@ -623,8 +624,6 @@ module csComp.Helpers {
                     iconPlusBorderWidth = es.iconWidth;
                     iconPlusBorderHeight = es.iconHeight;
                 }
-
-
 
                 if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
                     var textSize = es.innerTextSize || 12;
@@ -645,7 +644,6 @@ module csComp.Helpers {
 
                 var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
                 var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`;
-
 
                 switch (es.marker) {
                     case 'pin':
@@ -694,9 +692,6 @@ module csComp.Helpers {
                             + '</div>';
                         break;
                 }
-
-
-
         }
         var iconHtml = {
             html: html,
@@ -704,8 +699,5 @@ module csComp.Helpers {
             iconPlusBorderHeight: iconPlusBorderHeight
         };
         return iconHtml;
-
-
-
     }
 }
