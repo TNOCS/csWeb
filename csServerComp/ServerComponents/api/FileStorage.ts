@@ -31,6 +31,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public keys: { [key: string]: Key } = {}
     public resources: { [key: string]: ResourceFile } = {}
     public layersPath: string;
+    public backupPath: string;
+    public layersBackupPath: string;
     public keysPath: string;
     public blobPath: string;
     public iconPath: string;
@@ -41,14 +43,18 @@ export class FileStorage extends BaseConnector.BaseConnector {
     constructor(public rootpath: string, watch: boolean = true) {
         super();
         this.receiveCopy = false;
-        this.keysPath      = path.join(rootpath, 'keys/');
-        this.layersPath    = path.join(rootpath, 'layers/');
-        this.projectsPath  = path.join(rootpath, 'projects/');
+        this.backupPath = path.join(rootpath, 'backup/');
+        this.keysPath = path.join(rootpath, 'keys/');
+        this.layersPath = path.join(rootpath, 'layers/');
+        this.layersBackupPath = path.join(this.backupPath, 'layers/');
+        this.projectsPath = path.join(rootpath, 'projects/');
         this.resourcesPath = path.join(rootpath, 'resourceTypes/');
-        this.blobPath      = path.join(rootpath, 'blobs/');
-        this.iconPath      = path.join(rootpath, '../images/');
+        this.blobPath = path.join(rootpath, 'blobs/');
+        this.iconPath = path.join(rootpath, '../images/');
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
+        if (!fs.existsSync(this.backupPath)) { fs.mkdirsSync(this.backupPath); }
+        if (!fs.existsSync(this.layersBackupPath)) { fs.mkdirsSync(this.layersBackupPath); }
         if (!fs.existsSync(this.iconPath)) { fs.mkdirsSync(this.iconPath); }
         if (watch) {
             this.watchLayersFolder();
@@ -61,6 +67,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public watchLayersFolder() {
         Winston.info('filestore: watch folder:' + this.layersPath);
         if (!fs.existsSync(this.layersPath)) { fs.mkdirSync(this.layersPath); }
+        if (!fs.existsSync(path.join(this.layersPath, 'backup'))) { fs.mkdirSync(path.join(this.layersPath, 'backup')); }
         setTimeout(() => {
             var watcher = chokidar.watch(this.layersPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
@@ -117,18 +124,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var projectFile = path.join(f, "project.json");
         if (fs.existsSync(projectFile)) {
             this.openProjectFile(projectFile, folder, true);
-            
-            var rf = path.join(f,"resources");
-            if (fs.existsSync(rf))
-            {
-                fs.readdir(rf,(error,files)=>{
-                    if (!error){
-                        files.forEach(file=>{
-                            this.openResourceFile(path.join(rf,file));                                                        
+
+            var rf = path.join(f, "resources");
+            if (fs.existsSync(rf)) {
+                fs.readdir(rf, (error, files) => {
+                    if (!error) {
+                        files.forEach(file => {
+                            this.openResourceFile(path.join(rf, file));
                         });
-                    }                   
+                    }
                 });
-            }            
+            }
             //Winston.error('project file found : ' + folder);
         }
         else {
@@ -202,6 +208,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.join(this.layersPath, layerId + '.json');
     }
 
+    private getLayerBackupFilename(layerId: string) {
+        return path.join(this.layersBackupPath, layerId + '-' + new Date().getTime() + '.json');
+    }
+
     private getKeyFilename(keyId: string) {
         return path.join(this.keysPath, keyId + '.json');
     }
@@ -239,17 +249,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
             }
         });
     }
-    
-    
+
+
 
     /** Save project file to disk */
     private saveProjectFile(project: Project) {
         var fn = project._localFile;
         if (!fn) {
-         fn = this.getProjectFilename(project.id);
+            fn = this.getProjectFilename(project.id);
         }
         Winston.info('writing project file : ' + fn);
-        fs.writeFile(fn, JSON.stringify(project,null,4), (error) => {
+        fs.writeFile(fn, JSON.stringify(project, null, 4), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
             } else {
@@ -271,20 +281,30 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private saveLayerFile(layer: Layer) {
-        try
-        {
-        var fn = this.getLayerFilename(layer.id);
-        fs.writeFile(fn, JSON.stringify(layer,null,2), (error) => {
-            if (error) {
-                Winston.info('error writing file : ' + fn);
+        try {
+            var fn = this.getLayerFilename(layer.id);
+            fs.writeFile(fn, JSON.stringify(layer, null, 2), (error) => {
+                if (error) {
+                    Winston.info('error writing file : ' + fn);
+                }
+                else {
+                    Winston.info('filestore: file saved : ' + fn);
+                }
+            });
+
+            if (layer.type === "dynamicgeojson") {
+                var backup = this.getLayerBackupFilename(layer.id);
+                fs.writeFile(backup, JSON.stringify(layer, null, 2), (error) => {
+                    if (error) {
+                        Winston.info('error writing file : ' + backup);
+                    }
+                    else {
+                        Winston.info('filestore: file saved : ' + backup);
+                    }
+                });
             }
-            else {
-                Winston.info('filestore: file saved : ' + fn);
-            }
-        });
         }
-        catch (e)
-        {
+        catch (e) {
             Winston.error('Error writing layer ' + layer.title + ':' + e);
         }
     }
@@ -324,6 +344,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private openLayerFile(fileName: string) {
+        if ((fileName.indexOf('.backup')) > 0) return;
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.layers.hasOwnProperty(id)) {
@@ -393,8 +414,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         fs.readFile(fileName, 'utf8', (err, data) => {
             if (!err && data && data.length > 0) {
                 var project = <Project>JSON.parse(data);
-                project._localFile = fileName;                
-                if (typeof project.id === 'undefined') {                    
+                project._localFile = fileName;
+                if (typeof project.id === 'undefined') {
                     project.id = id || helpers.newGuid();
                     this.manager.getProjectId(project);
                     this.saveProjectFile(project);
@@ -411,7 +432,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     // project.title = id;
                     // project.groups = [];
                     // project.logo = "";
-                    
+
                     if (typeof isDynamic !== 'undefined') project.isDynamic = isDynamic;
                     project.url = "/api/projects/" + id;
 
@@ -421,7 +442,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 Winston.error('Error reading file: ' + id + '(' + err.message + ')')
             }
         });
-        
+
 
         //if (path.basename(fileName) === 'project.json') {return;}
     }
@@ -458,7 +479,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {
         if (this.projects.hasOwnProperty(project.id)) {
-            
+
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
             Winston.info('Added project ' + project.id + ' to FileStorage projects');
@@ -576,7 +597,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
         for (var key in logs) {
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-            logs[key].forEach(l=> {
+            logs[key].forEach(l => {
                 delete l.prop;
                 f.logs[key].push(l);
                 if (key != "~geometry") f.properties[key] = l.value;
@@ -596,8 +617,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var l = this.layers[layerId];
         var found = false;
         l.features.forEach((f: Feature) => {
-            if (f.id === featureId)
-            {
+            if (f.id === featureId) {
                 found = true;
                 callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
             }
@@ -672,18 +692,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveResourcesDelay(res);
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
-    
+
     /** Get a resource file  */
-    public getResource(resourceId : string, meta : ApiMeta, callback : Function)
-    {
-       if (this.resources.hasOwnProperty(resourceId))
-       {
-           callback(<CallbackResult> { result : ApiResult.OK, resource : this.resources[resourceId]});
-       }   
-       else
-       {
-           callback(<CallbackResult> { result : ApiResult.ResourceNotFound});
-       }
+    public getResource(resourceId: string, meta: ApiMeta, callback: Function) {
+        if (this.resources.hasOwnProperty(resourceId)) {
+            callback(<CallbackResult>{ result: ApiResult.OK, resource: this.resources[resourceId] });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
+        }
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
