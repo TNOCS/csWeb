@@ -65,6 +65,8 @@ module csComp.Services {
                 }
             });
 
+            let mapClicked = (e: L.LeafletMouseEvent) => this.mapClicked(e);
+
             $messageBusService.subscribe('map', (action: string, data) => {
                 switch (action.toLowerCase()) {
                     case 'setextent':
@@ -94,10 +96,10 @@ module csComp.Services {
                     case 'showlocation':
                         if (this.showLocation) {
                             this.showLocation = false;
-                            this.map.off('click', this.mapClicked);
+                            this.map.off('click', mapClicked);
                         } else {
                             this.showLocation = true;
-                            this.map.on('click', this.mapClicked);
+                            this.map.on('click', mapClicked);
                         }
                         break;
                 }

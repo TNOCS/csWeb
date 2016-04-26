@@ -8,7 +8,7 @@ module MarkdownWidget {
         url: string;
         /**
          * Allows you to provide a link to a text file containing a list of properties (i.e. key-value pairs). When the keys
-         * are stated in the markdown content (between curly braces {{KEY}}), they will be replaced by the value. 
+         * are stated in the markdown content (between curly braces {{KEY}}), they will be replaced by the value.
          */
         dataSourceUrl: string;
         /**
@@ -130,7 +130,7 @@ module MarkdownWidget {
         private close() {
             this.parentWidget.hide();
         }
-        
+
         public stop() {
             if (this.msgBusHandle) {
                 this.$messageBus.unsubscribe(this.msgBusHandle);

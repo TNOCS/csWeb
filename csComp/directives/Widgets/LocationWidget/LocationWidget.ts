@@ -58,6 +58,7 @@ module LocationWidget {
 
     export class LocationWidgetCtrl {
         private streetViewUrl = 'https://maps.googleapis.com/maps/api/streetview';
+        private parentWidget: JQuery;
         private location: LocationInfo = {};
         private selectedLocationFormat: string;
 
@@ -83,9 +84,12 @@ module LocationWidget {
             var par = <any>$scope.$parent;
             $scope.data = <ILocationData>par.widget.data;
             if ($scope.data.streetViewUrl) this.streetViewUrl = $scope.data.streetViewUrl;
+            this.parentWidget = $('#' + par.widget.elementId).parent();
+            this.parentWidget.hide();
 
             messageBusService.subscribe('geocoding', (action: string, data: csComp.Services.IOCDFeature) => {
                 if (action !== 'reverseLookupResult') return;
+                this.parentWidget.show();
                 this.updateWidget(data);
             });
         }
@@ -127,6 +131,7 @@ module LocationWidget {
 
         private close() {
             this.location = {};
+            this.parentWidget.hide();
         }
     }
 }
