@@ -129,6 +129,9 @@ module csComp.Services {
             var reset = <IActionOption> { title: 'Reset Layer', icon: 'reset' };
                 reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                         console.log("Resetting layer: "+layer.title);
+                        layer.data.features.forEach(function (f) {
+                            layer.layerSource.service.removeFeature(f)
+                        });
                         layer.data.features = [];
                         layer.layerSource.refreshLayer(layer);
                 };
