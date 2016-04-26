@@ -48,9 +48,11 @@ module LayersDirective {
                     var html = csComp.Helpers.createIconHtml(f);
                     return html.html;
                 case "Line":
-                    return "<span>line</span>" 
+                    var html = csComp.Helpers.createIconHtml(f);
+                    return html.html; 
                 case "Polygon":
-                    return "<span>polygon</span>"                                         
+                    var html = csComp.Helpers.createIconHtml(f);
+                    return html.html;                                         
             }
             
                                      

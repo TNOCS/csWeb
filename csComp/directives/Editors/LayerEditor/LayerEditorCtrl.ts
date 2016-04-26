@@ -38,8 +38,7 @@ module LayerEditor {
             private $dashboardService: csComp.Services.DashboardService
         ) {
             this.scope = $scope;
-            $scope.vm = this;
-            console.log('open layer editor');
+            $scope.vm = this;            
             if (!this.scope.layer) {
                 if ($scope.$parent.hasOwnProperty("b")) {
                     this.layer = $scope.$parent["b"]["_layer"];
@@ -58,7 +57,8 @@ module LayerEditor {
             // ft.style.drawingMode
         }
 
-        public startDraw(featureType: csComp.Services.IFeatureType) {
+        public startDraw(featureType: csComp.Services.IFeatureType, event?) {
+            if (event) event.stopPropagation();
             this.$mapService.startDraw(this.layer, featureType);
         }
 

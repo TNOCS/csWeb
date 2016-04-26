@@ -407,10 +407,17 @@ module FeatureProps {
             this.lastSelectedProperty = prop;
             $event.stopPropagation();
         }
+        
+        public openImage(img : string)
+        {
+            window.open(img,'mywindow','width=600')
+            
+        }
 
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature, true);
+            
             this.$layerService.updateFeature(this.$scope.feature);
             this.displayFeature(this.$layerService.lastSelectedFeature);
         }
