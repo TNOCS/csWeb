@@ -266,7 +266,7 @@ describe('Helpers spec:', function() {
         it('should be created correctly', () => {
             var icon = csComp.Helpers.createIconHtml(f);
             var expectation = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                + 'background:rgba(255,0,0,0.5);width:30px;height:30px;border-radius:5%;border-style:solid;rgba(255,255,0,1);border-width:3px;opacity:0.5;">'
+                + 'background:rgba(255,0,0,0.5);width:30px;height:30px;border-radius:5%;border-style:solid;border-color:rgba(255,255,0,1);border-width:3px;opacity:0.5;">'
                 + '<img src="images/marker.png" style="width:24px;height:24px;display:block;" /></div>';
             expect(icon.html.replace(' ', ''))
                 .toBe(expectation.replace(' ', ''));
@@ -281,7 +281,7 @@ describe('Helpers spec:', function() {
             f.effectiveStyle.innerTextSize = 14;
             var icon = csComp.Helpers.createIconHtml(f);
             var expectation = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                + 'background:solid;rgba(255,255,0,0.5);width:30px;height:30px;border-radius:5%;border-style:solid;border-color:solid;rgba(255,255,0,1);border-width:3px;opacity:0.5;">'
+                + 'background:solid;rgba(255,255,0,0.5);width:30px;height:30px;border-radius:5%;border-style:solid;border-color:rgba(255,255,0,1);border-width:3px;opacity:0.5;">'
                 + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>';
             expect(icon.html.replace(' ', ''))
                 .toBe(expectation.replace(' ', ''));
