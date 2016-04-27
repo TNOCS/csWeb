@@ -2,6 +2,7 @@ import express = require('express')
 import cors = require('cors')
 import Winston = require('winston');
 import request = require('request');
+import moment = require('moment');
 import path = require('path');
 import fs = require('fs-extra');
 import _ = require('underscore');
@@ -172,6 +173,7 @@ export class RestDataSource {
     
     private filterOldEntries(fcoll) {
         if (!fcoll || !fcoll.features || fcoll.features.length === 0) return;
+        console.log("Before filtering: " + fcoll.features.length);
         var dProp = this.restDataSourceOpts.dateProperty;
         var tProp = this.restDataSourceOpts.timeProperty;
         var dFormat = this.restDataSourceOpts.dateFormat;
@@ -179,14 +181,20 @@ export class RestDataSource {
         var age = this.restDataSourceOpts.maxFeatureAgeMinutes;
         fcoll.features = fcoll.features.filter((f: IFeature) => {
             if (f.properties.hasOwnProperty(dProp) && f.properties.hasOwnProperty(dProp)) {
-                var propDate = moment(f.properties[dProp].concat(f.properties[tProp]), dFormat.concat(tFormat));
+                var time = f.properties[tProp].toString();
+                if (time.length === 5) time = '0' + time;
+                var propDate = moment(''.concat(f.properties[dProp],time), ''.concat(dFormat,tFormat));
                 var now = moment();
                 if (Math.abs(now.diff(propDate, 'minutes', true)) > age) {
+                    // console.log("Remove feature: " + propDate.toISOString());
                     return false;
+                } else {
+                    f.properties['ParsedDate'] = propDate.toDate().getTime();
                 }
             }
             return true;
         });
+        console.log("After filtering: " + fcoll.features.length);
     }
 
     private initFeatures(fCollection: GeoJSONHelper.IGeoJson, updateTime: number) {
