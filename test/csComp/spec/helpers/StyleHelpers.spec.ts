@@ -100,7 +100,7 @@ describe('StyleHelpers', function() {
             var color = csComp.Helpers.getColorString(undefined, '#abc');
             expect(color).toEqual('#abc');
             color = csComp.Helpers.getColorString(undefined);
-            expect(color).toEqual('#f00');
+            expect(color).toEqual('#000000');
             color = csComp.Helpers.getColorString('#000');
             expect(color).toEqual('#000');
             color = csComp.Helpers.getColorString('#001122');
@@ -108,7 +108,7 @@ describe('StyleHelpers', function() {
             color = csComp.Helpers.getColorString('#00112233');
             expect(color).toEqual('#112233');
             color = csComp.Helpers.getColorString('#notReallyAColor');
-            expect(color).toEqual('#f00');
+            expect(color).toEqual('#000000');
         });
     });
 });
