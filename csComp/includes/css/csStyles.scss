@@ -3096,6 +3096,19 @@ input[type="checkbox"] {
     font-weight: 700;
 }
 
+.search-result-list
+{
+        overflow-y: auto;
+    overflow-x: hidden;
+    /* margin-top: 10px; */
+    /* height: 509px; */
+    position: absolute;
+    top: 75px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
 .search-result-description{
     font-size:13px;
 }
