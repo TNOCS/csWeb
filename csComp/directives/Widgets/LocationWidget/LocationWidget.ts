@@ -39,6 +39,8 @@ module LocationWidget {
         streetViewApiKey: string;
         /** Optionally, specify the StreetView url, e.g. https://maps.googleapis.com/maps/api/streetview */
         streetViewUrl: string;
+        showCoordinates : boolean;
+        showSunMoonRise : boolean;
     }
 
     export interface LocationInfo {
@@ -50,6 +52,7 @@ module LocationWidget {
         sunrise?: string;
         sunset?: string;
         locations?: string[];
+        defaultLocation? : string;
         streetViewUrlThumb?: string;
         streetViewUrlFull?: string;
     }
@@ -114,11 +117,13 @@ module LocationWidget {
 
             // Set locations
             this.location.locations = [];
+            if (data.geometry) this.location.locations.push(`${(<any>data.geometry).lat}, ${(<any>data.geometry).lng}`);
             if (data.annotations.DMS) this.location.locations.push(`DMS latitude: ${data.annotations.DMS.lat}, longitude: ${data.annotations.DMS.lng}`);
             if (data.geometry) this.location.locations.push(`WGS84 latitude: ${(<any>data.geometry).lat}, longitude: ${(<any>data.geometry).lng}`);
             if (data.annotations.MGRS) this.location.locations.push(`MGRS: ${data.annotations.MGRS}`);
             if (data.annotations.Mercator) this.location.locations.push(`Mercator x: ${data.annotations.Mercator.x}, y: ${data.annotations.Mercator.y}`);
             if (this.location.locations.length > 0) this.selectedLocationFormat = this.location.locations[0];
+            this.location.defaultLocation = this.location.locations[0];
 
             // Set sunrise and sunset
             if (data.annotations.sun) {
