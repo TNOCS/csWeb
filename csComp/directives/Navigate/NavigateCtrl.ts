@@ -164,7 +164,7 @@ module Navigate {
                 mark = csComp.Helpers.nextChar(mark);
             });
             csComp.Services.GeojsonRenderer.render(this.$layerService, this.searchResultLayer, this.$layerService.activeMapRenderer);
-            this.fitMap(this.searchResultLayer);
+            //this.fitMap(this.searchResultLayer);
         }
 
         /** Fit the search results, if any, to the map. */
