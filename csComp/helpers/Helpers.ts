@@ -596,7 +596,7 @@ module csComp.Helpers {
         url = url.substring(0, url.length - 1);
         return url;
     }
-    
+
     export function createIconHtml(feature: IFeature, style? : csComp.Services.IFeatureTypeStyle): {
         html: string,
         iconPlusBorderWidth: number,
@@ -611,7 +611,7 @@ module csComp.Helpers {
             case 'Line':
                 break;
             case 'Polygon':
-                html = "<img src='images/bom.png'></img>"
+                html = '<img src="images/bom.png"></img>';
                 break;
             case 'Point':
                 // TODO refactor to object
@@ -674,7 +674,7 @@ module csComp.Helpers {
                             + content + `position:absolute;margin:${es.strokeWidth}px" />`;
                         break;
                     default:
-                        var sc = chroma(es.strokeColor).alpha(+es.strokeOpacity).rgba();
+                        var sc = chroma(es.strokeColor).alpha(+es.strokeOpacity || 1).rgba();
                         var strokeColor = `rgba(${sc[0]},${sc[1]},${sc[2]},${sc[3]})`;
 
                         html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
