@@ -356,8 +356,7 @@ module csComp.Helpers {
         if (typeof text === 'undefined' || !pt.type) return text;
         switch (pt.type) {
             case 'bbcode':
-                if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))
-                    text = String.format(pt.stringFormat, text);
+                if (pt.stringFormat) text = String.format(pt.stringFormat, text);
                 displayValue = XBBCODE.process({ text: text }).html;
                 break;
             case 'number':
