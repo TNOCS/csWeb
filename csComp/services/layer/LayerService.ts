@@ -2280,8 +2280,6 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers = {};
 
-
-
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
                 url = this.emptySolutionUrl;
@@ -2332,7 +2330,15 @@ module csComp.Services {
                     }
 
                     if (this.openSingleProject) {
-                        var u = 'api/projects/' + searchParams['project'];
+                        let projectId = searchParams['project'];
+                        // By default, look for an API project
+                        let u  = 'api/projects/' + projectId;
+                        solution.projects.some(p => {
+                            // If the solution already specifies a project, use that instead.
+                            if (p.id !== projectId) return false;
+                            u = p.url;
+                            return true;
+                        })
                         this.$http.get(u)
                             .success(<Project>(data) => {
                                 if (data) {
