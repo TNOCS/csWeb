@@ -35,11 +35,17 @@ module csComp.Services {
             this.actions['select feature'] = () => {
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
                 this.messageBusService.publish('rightpanel', 'activate', rpt);
+                this.layerService.visual.rightPanelVisible = true;
             };
 
             this.actions['select agenda'] = () => {
                 var rpt = csComp.Helpers.createRightPanelTab('agenda', 'agenda', null, 'Selected agenda', '{{"AGENDA_INFO" | translate}}', 'info', false, true);
                 this.messageBusService.publish('rightpanel', 'activate', rpt);
+            };
+            
+            this.actions['show style tab'] = () => {
+                this.layerService.visual.leftPanelVisible = true;
+                $('#style-tab').click();
             };
 
             this.actions['activate timerange'] = () => {

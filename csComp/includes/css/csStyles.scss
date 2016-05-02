@@ -166,15 +166,23 @@ body,
             padding: 15px;
             /* padding-left: 20px; */
             cursor: pointer;
-            border-right-style: solid;
-            border-right-width: 1px;
-            border-right-color: lightgray;
+            border-right: 1px solid lightgray;
             font-size: 30px;
             color: black;
         }
 
         .lp-tab.active {
             background: lightskyblue
+        }
+        
+        .lp-tab.close-tab {
+            width: 26px;
+            float: right;
+            padding: 2px;
+            padding-top: 10px;
+            border-left: 1px solid lightgray;
+            cursor: pointer;
+            font-size: 28px;
         }
 
         .search-icon {

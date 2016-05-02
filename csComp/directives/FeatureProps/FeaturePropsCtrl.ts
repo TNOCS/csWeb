@@ -497,7 +497,7 @@ module FeatureProps {
                     callApply = false;
                     this.displayFeature(feature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
-                    this.$layerService.visual.rightPanelVisible = true;
+                    //this.$layerService.visual.rightPanelVisible = true;
                     this.updateAllStats();
                     if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                         this.$scope.$root.$apply();
