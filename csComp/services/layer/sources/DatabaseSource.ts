@@ -9,9 +9,20 @@ module csComp.Services {
         public constructor(public service: LayerService) { }
 
         public refreshLayer(layer: ProjectLayer) {
-            if (!layer.data || !layer.data.features || layer.data.features.length === 0) {
-                this.service.removeLayer(layer);
-                this.service.addLayer(layer);
+            if (layer.isLoading) {
+                var handle = this.service.$messageBusService.subscribe('layer', (a, l) => {
+                    if (a === 'activated' && l.id === layer.id) {
+                        // this.service.removeLayer(layer);
+                        this.service.addLayer(layer);
+                        this.service.$messageBusService.unsubscribe(handle);
+                    }
+                });
+                return;
+            }
+            if (!layer.enabled) {
+                // this.service.removeLayer(layer);
+                // this.service.addLayer(layer);
+                this.baseAddLayer(layer, () => { }, false);
             } else {
                 this.baseAddLayer(layer, () => { }, true);
             }
@@ -23,7 +34,7 @@ module csComp.Services {
 
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
-            var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+            var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
             this.service.$messageBusService.publish('map', 'setextent', b);
         }
 
@@ -146,6 +157,11 @@ module csComp.Services {
         removeLayer(layer: ProjectLayer) {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) projLayer.enabled = false;
+            if (projLayer.data && projLayer.data.features && projLayer.data.features.forEach) {
+                projLayer.data.features.forEach((f) => {
+                    this.service.removeFeature(f);
+                });
+            }
             if (layer.data) {
                 layer.data['features'].length = 0;
             }

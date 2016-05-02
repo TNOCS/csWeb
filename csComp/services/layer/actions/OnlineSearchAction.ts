@@ -27,7 +27,7 @@ module csComp.Services {
         public search(query: ISearchQuery, result: SearchResultHandler) {
             var r: ISearchResultItem[] = [];
 
-            this.getHits(query.query, 15, (searchResults: IOnlineSearchResult[]) => {
+            this.getHits(query.query, 10, (searchResults: IOnlineSearchResult[]) => {
                 searchResults.forEach((sr: IOnlineSearchResult) => {
                     r.push(<ISearchResultItem>{
                         title: sr.title,
@@ -35,7 +35,7 @@ module csComp.Services {
                         icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
                         service: this.id,
                         location: JSON.parse(sr.location),
-                        score: 0.99,
+                        score: (sr.description == 'Gemeente') ? 0.99 : 0.98,
                         click: () => this.onSelect(sr)
                     });
                 });
@@ -46,7 +46,7 @@ module csComp.Services {
         /**
          * Get the features based on the entered text.
          */
-        private getHits(text: string, resultCount = 15, cb: Function) {
+        private getHits(text: string, resultCount = 10, cb: Function) {
             if (!this.isReady || text === null || text.length < 2) {
                 cb([]);
                 return;

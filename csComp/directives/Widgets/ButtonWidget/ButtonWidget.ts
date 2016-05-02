@@ -204,7 +204,15 @@ module ButtonWidget {
                 var selected = group.styles.filter(gs => {
                     return gs.property === prop;
                 });
-                b._active = selected.length > 0;
+                if (selected.length === 0) {
+                    b._active = false;
+                } else {
+                    if (!b.layer) {
+                        b._active = true;
+                    } else {
+                        b._active = (this.layerService.findLoadedLayer(b.layer)) ? true : false;
+                    }
+                }
                 if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
                     this.checkLegend(b);

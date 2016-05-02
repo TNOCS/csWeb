@@ -188,7 +188,8 @@ module Translations {
             MARVEL_FEATURE_DEP: 'Depends on',
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
-            CLEAR_EVENTS: 'Clear event log'
+            CLEAR_EVENTS: 'Clear event log',
+            SEARCH_PLACEHOLDER: 'Municipality, address, ...'
         };
     }
 }
