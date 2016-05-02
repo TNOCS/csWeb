@@ -413,7 +413,9 @@ module csComp.Helpers {
                 }
                 break;
             default:
-                displayValue = text;
+                displayValue = pt.stringFormat
+                    ? String.format(pt.stringFormat, text)
+                    : text;
                 break;
         }
         return displayValue;
