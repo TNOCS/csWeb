@@ -166,15 +166,23 @@ body,
             padding: 15px;
             /* padding-left: 20px; */
             cursor: pointer;
-            border-right-style: solid;
-            border-right-width: 1px;
-            border-right-color: lightgray;
+            border-right: 1px solid lightgray;
             font-size: 30px;
             color: black;
         }
 
         .lp-tab.active {
             background: lightskyblue
+        }
+        
+        .lp-tab.close-tab {
+            width: 26px;
+            float: right;
+            padding: 2px;
+            padding-top: 10px;
+            border-left: 1px solid lightgray;
+            cursor: pointer;
+            font-size: 28px;
         }
 
         .search-icon {
@@ -1349,12 +1357,24 @@ body,
     margin-right:4px;
 }
 
+.button-legend-entries {
+    float: left;
+    margin-right: 4px;
+    margin-top: 3px;
+}
+
+.button-legend-color-entry {
+    width: 20px;
+    height: 8px;
+}
+
 .button-container {
     background: rgba(255, 255, 255, 0.77);
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
     cursor : pointer;
     font-size: 20px;
     margin-top:5px;
+    margin-right: 8px;
     color:black;
         min-height: 46px;
 

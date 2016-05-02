@@ -188,7 +188,8 @@ module Translations {
             MARVEL_FEATURE_DEP: 'Afhankelijk van',
             STATE: 'Status',
             EVENT_INFO: 'Toon lijst van gebeurtenissen',
-            CLEAR_EVENTS: 'Lijst leegmaken'
+            CLEAR_EVENTS: 'Lijst leegmaken',
+            SEARCH_PLACEHOLDER: 'Gemeente, adres, ...'
         }
     }
 }

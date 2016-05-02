@@ -337,7 +337,7 @@ export class MapLayerFactory {
                         type: 'Feature',
                         geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
                         properties: props,
-                        id: props['pandid'] || Utils.newGuid()
+                        id: (getPointFeatures) ? 'p_' + props['pandid'] || Utils.newGuid() : 'c_' + props['pandid'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });

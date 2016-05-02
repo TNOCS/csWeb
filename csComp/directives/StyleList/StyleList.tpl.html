@@ -69,7 +69,7 @@
                                 <div class="legend-description">{{style.activeLegend.description}}</div>
                                 <ul class="legend-entry-list" style="position:relative">
                                     <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
-                                        <div class="legend-color-square" style="float: left; background: {{le.color}}"></div>
+                                        <div class="legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                                         <div class="legend-label-d" style="float: left">{{le.label}}</div>
                                         <div>&nbsp;</div>
                                         <!-- die &nbsp; is echt nodig... -->

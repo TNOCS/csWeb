@@ -16,8 +16,8 @@
                 <div data-ng-if="b._legend.legendKind === 'discrete' || b._legend.legendKind === 'discreteStrings'">
                     <span class="button-legend-label">{{b._lastLegendLabel}}</span>
 
-                    <div data-ng-repeat="le in b._legend.legendEntries " style="float:left;margin-right:4px;margin-top:3px" ng-click="$parent.$parent.$parent.$parent.$parent.vm.createFilter(le, b.group, b.property);$event.stopPropagation();">
-                        <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
+                    <div class="button-legend-entries" data-ng-repeat="le in b._legend.legendEntries " ng-click="$parent.$parent.$parent.$parent.$parent.vm.createFilter(le, b.group, b.property);$event.stopPropagation();">
+                        <div class="button-legend-color-entry" ng-style="{'background-color': le.color}" uib-tooltip="{{le.label}}"></div>
                     </div>
                     <span class="button-legend-label">{{b._firstLegendLabel}}</span>
 
