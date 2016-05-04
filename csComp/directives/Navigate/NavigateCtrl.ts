@@ -188,13 +188,12 @@ module Navigate {
             bbox.northEast = [bounds.yMax, bounds.xMax];
 
             // var b = csComp.Helpers.GeoExtensions.getBoundingBox(layer.data);
-            if (this.searchResults.length === 1) {
+            if (this.searchResults.length === 1 && this.searchResults[0].location.type.toLowerCase() === 'point') {
                 this.$messageBus.publish('map', 'setzoom', { loc: bbox.southWest, zoom: 16 });
             } else {
                 this.$messageBus.publish('map', 'setextent', bbox);
             }
         }
-
 
         public selectSearchResult(item: csComp.Services.ISearchResultItem) {
             if (item.click) item.click(item);

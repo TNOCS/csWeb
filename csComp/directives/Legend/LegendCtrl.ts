@@ -134,6 +134,7 @@ module Legend {
 
             var ptd: csComp.Services.IPropertyType = this.$layerService.propertyTypeData[activeStyle.property];
             if (!ptd) return leg;
+            if (ptd.legend) return ptd.legend;
             leg.id = ptd.label + 'legendcolors';
             leg.legendKind = 'interpolated';
             leg.description = ptd.title;

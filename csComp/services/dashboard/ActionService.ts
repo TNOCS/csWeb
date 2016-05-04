@@ -22,10 +22,11 @@ module csComp.Services {
         private actions: IButtonAction = {};
 
         public static $inject = [
-            'messageBusService'
+            'messageBusService',
+            '$timeout'
         ];
 
-        constructor(private messageBusService: MessageBusService) {}
+        constructor(private messageBusService: MessageBusService, private $timeout: ng.ITimeoutService) {}
 
         /** Initialize the default actions */
         init(layerService: LayerService) {
@@ -35,11 +36,17 @@ module csComp.Services {
             this.actions['select feature'] = () => {
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
                 this.messageBusService.publish('rightpanel', 'activate', rpt);
+                this.layerService.visual.rightPanelVisible = true;
             };
 
             this.actions['select agenda'] = () => {
                 var rpt = csComp.Helpers.createRightPanelTab('agenda', 'agenda', null, 'Selected agenda', '{{"AGENDA_INFO" | translate}}', 'info', false, true);
                 this.messageBusService.publish('rightpanel', 'activate', rpt);
+            };
+            
+            this.actions['show style tab'] = () => {
+                this.layerService.visual.leftPanelVisible = true;
+                $('#style-tab').click();
             };
 
             this.actions['activate timerange'] = () => {
@@ -64,18 +71,22 @@ module csComp.Services {
                         // If the layer is not loaded, activate style after loading.
                         if (!pl.enabled) {
                             this.layerService.toggleLayer(pl, () => {
-                                this.activateStyle(options.groupId, options.propertyId);
+                                this.$timeout(() => {
+                                    this.activateStyle(options.groupId, options.propertyId);
+                                }, 50);
                             });
+                            return;
                             // If the layer is being loaded, activate style after activation message.
                         } else if (pl.isLoading) {
                             var handle = this.messageBusService.subscribe('layer', (a, l) => {
                                 if (a === 'activated' && l.id === options.layerId) {
-                                    setTimeout(() => {
+                                    this.$timeout(() => {
                                         this.activateStyle(options.groupId, options.propertyId);
-                                    }, 400);
+                                    }, 50);
                                     this.messageBusService.unsubscribe(handle);
                                 }
                             });
+                            return;
                         }
                     }
                 }
@@ -92,7 +103,9 @@ module csComp.Services {
             this.actions['zoom map'] = options => {
                 console.log('Zoom map action called');
                 if (!options['zoomLevel']) return;
-                this.layerService.map.getMap().setZoom(+options['zoomLevel']);
+                this.$timeout(() => {
+                    this.layerService.map.getMap().setZoom(+options['zoomLevel']);
+                }, 0);
             };
 
             this.actions['center on map'] = options => {

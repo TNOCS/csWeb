@@ -9,9 +9,20 @@ module csComp.Services {
         public constructor(public service: LayerService) { }
 
         public refreshLayer(layer: ProjectLayer) {
-            if (!layer.data || !layer.data.features || layer.data.features.length === 0) {
-                this.service.removeLayer(layer);
-                this.service.addLayer(layer);
+            if (layer.isLoading) {
+                var handle = this.service.$messageBusService.subscribe('layer', (a, l) => {
+                    if (a === 'activated' && l.id === layer.id) {
+                        // this.service.removeLayer(layer);
+                        this.service.addLayer(layer);
+                        this.service.$messageBusService.unsubscribe(handle);
+                    }
+                });
+                return;
+            }
+            if (!layer.enabled) {
+                // this.service.removeLayer(layer);
+                // this.service.addLayer(layer);
+                this.baseAddLayer(layer, () => { }, false);
             } else {
                 this.baseAddLayer(layer, () => { }, true);
             }
@@ -23,7 +34,7 @@ module csComp.Services {
 
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
-            var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+            var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
             this.service.$messageBusService.publish('map', 'setextent', b);
         }
 
@@ -98,22 +109,31 @@ module csComp.Services {
             if (projLayer) {
                 layer.count = 0;
                 projLayer.isLoading = false;
-                projLayer.enabled   = true;
+                projLayer.enabled = true;
                 projLayer.data = layer.data;
             }
+
+            var count = 0;
             if (projLayer.data && projLayer.data.features && projLayer.data.features.forEach) {
                 projLayer.data.features.forEach((f) => {
+                    count += 1;
                     this.service.initFeature(f, projLayer, false, false);
+                    // this.service.calculateFeatureStyle(f);
+                    // this.service.activeMapRenderer.addFeature(f);
                 });
+            } else {
+                projLayer.data = {};
+                projLayer.data['features'] = [];
             }
             if (projLayer.typeUrl && projLayer.defaultFeatureType) {
                 var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
-                this.service.evaluateLayerExpressions(projLayer, {featureTypeName: this.service.getFeatureTypeById(featureTypeName)});
+                this.service.evaluateLayerExpressions(projLayer, { featureTypeName: this.service.getFeatureTypeById(featureTypeName) });
             }
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
+            console.log(`Initialized ${count} features in ${layer.id}`);
             callback(projLayer);
         }
-        
+
         private updateLayer(layer: ProjectLayer, callback: Function) {
             var projLayer = this.service.findLayer(layer.id);
             if (!projLayer || !projLayer.data || !projLayer.data.features) {
@@ -122,23 +142,23 @@ module csComp.Services {
             }
             if (projLayer) {
                 projLayer.isLoading = false;
-                projLayer.enabled   = true;
+                projLayer.enabled = true;
             }
             // Add new features
             var count = 0;
             if (layer.data && layer.data.features && layer.data.features.forEach) {
                 layer.data.features.forEach((f) => {
-                    if (!projLayer.data.features.some(pf => {return pf.id === f.id})) {
+                    if (!projLayer.data.features.some(pf => { return pf.id === f.id })) {
                         projLayer.data.features.push(f);
                         count += 1;
                         this.service.initFeature(f, projLayer, false, false);
-                        this.service.evaluateFeatureExpressions(f);                        
+                        this.service.evaluateFeatureExpressions(f);
                         this.service.calculateFeatureStyle(f);
                         this.service.activeMapRenderer.addFeature(f);
                     }
                 });
             }
-            console.log(`Added ${count} features`);
+            console.log(`Added ${count} features in ${layer.id}`);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             callback(projLayer);
         }
@@ -146,6 +166,11 @@ module csComp.Services {
         removeLayer(layer: ProjectLayer) {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) projLayer.enabled = false;
+            if (projLayer.data && projLayer.data.features && projLayer.data.features.forEach) {
+                projLayer.data.features.forEach((f) => {
+                    this.service.removeFeature(f);
+                });
+            }
             if (layer.data) {
                 layer.data['features'].length = 0;
             }

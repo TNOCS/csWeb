@@ -34,7 +34,7 @@ module csComp.Services {
         public socket;
         public editWidgetMode: boolean;
         /** Search status: if isActive is true, show the Navigate directive. */
-        private _search: ISearch = { isActive: false, query: '' };
+        public _search: ISearch = { isActive: false, query: '' };
         /** website is running in touch mode */
         public touchMode: boolean;
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};

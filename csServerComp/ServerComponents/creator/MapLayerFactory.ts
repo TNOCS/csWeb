@@ -190,6 +190,7 @@ export class MapLayerFactory {
             for (var ftName in combinedjson.featureTypes) {
                 if (combinedjson.featureTypes.hasOwnProperty(ftName)) {
                     var defaultFeatureType = combinedjson.featureTypes[ftName];
+                    defaultFeatureType['contourProperty'] = '_bag_contour';
                     if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
                         var propertyTypeObjects = {};
                         var propKeys: string = '';
@@ -337,7 +338,7 @@ export class MapLayerFactory {
                         type: 'Feature',
                         geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
                         properties: props,
-                        id: props['pandid'] || Utils.newGuid()
+                        id: (getPointFeatures) ? 'p_' + props['pandid'] || Utils.newGuid() : 'c_' + props['pandid'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });
@@ -427,8 +428,8 @@ export class MapLayerFactory {
         var timestamps = this.convertTimebasedPropertyData(template);
 
         //Add projectID to the icon name to make it unique
-        var iconName = path.join(path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri));
-        ld.iconUri = path.join('data', 'images', iconName);
+        var iconName = path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri);
+        ld.iconUri = ['data', 'images', iconName].join('/');
         var featureTypeName = ld.featureType || 'Default';
         var featureTypeContent = {
             name: featureTypeName,
@@ -920,13 +921,15 @@ export class MapLayerFactory {
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         if (p[name].substring(0, 3) === 'www') {
-                            p[name] = '[url=http://' + p[name] + ']' + p[name] + '[/url]';
+                            p[name] = '[url=http://' + p[name] + ']' + (pt['stringFormat'] ? pt['stringFormat'] : p[name]) + '[/url]';
                         } else {
-                            p[name] = '[url=' + p[name] + ']' + p[name] + '[/url]';
+                            p[name] = '[url=' + p[name] + ']' + (pt['stringFormat'] ? pt['stringFormat'] : p[name]) + '[/url]';
                         }
                     }
                 });
+                // Prepare propType for use in csWeb-client
                 pt['type'] = 'bbcode';
+                delete pt['stringFormat'];
             }
         });
     }

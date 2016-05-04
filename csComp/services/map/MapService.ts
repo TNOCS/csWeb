@@ -94,6 +94,7 @@ module csComp.Services {
                         }
                         break;
                     case 'showlocation':
+                        if (typeof data !== 'undefined') this.showLocation = !data; // Use !data, since the normal behaviour is to toggle.
                         if (this.showLocation) {
                             this.showLocation = false;
                             this.map.off('click', mapClicked);

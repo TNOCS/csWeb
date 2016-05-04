@@ -119,6 +119,7 @@ module csComp.Services {
 
     /** Project within a solution file, refers to a project url*/
     export class SolutionProject {
+        id: string;
         title: string;
         url: string;
         dynamic: boolean;

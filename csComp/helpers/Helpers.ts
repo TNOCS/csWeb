@@ -353,11 +353,10 @@ module csComp.Helpers {
         var displayValue: string;
         // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
         //     text = text.replace(/&amp;/g, '&');
-        if (typeof text === 'undefined' || !pt.type) return text;
+        if (!text || !pt.type) return text;
         switch (pt.type) {
             case 'bbcode':
-                if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))
-                    text = String.format(pt.stringFormat, text);
+                if (pt.stringFormat) text = String.format(pt.stringFormat, text);
                 displayValue = XBBCODE.process({ text: text }).html;
                 break;
             case 'number':
@@ -414,7 +413,9 @@ module csComp.Helpers {
                 }
                 break;
             default:
-                displayValue = text;
+                displayValue = pt.stringFormat
+                    ? String.format(pt.stringFormat, text)
+                    : text;
                 break;
         }
         return displayValue;
