@@ -21,14 +21,14 @@
         </div>
 
         <div class="row" ng-if="callOut.sectionCount() >= 3" ng-hide="configMode">
-            <ul class="nav nav-tabs" id="featureTabs2" style="margin-left:10px">
+            <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a data-target="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
                     </a>
                 </li>
                 <li class="dropdown" ng-init="selectedSection.title=vm.defaultDropdownTitle">
-                    <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
+                    <a class="dropdown-toggle" style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
                         <li data-ng-repeat="key in callOut.sectionKeys" ng-if="!($first && callOut.hasInfoSection)">
