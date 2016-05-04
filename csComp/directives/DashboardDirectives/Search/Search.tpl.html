@@ -2,4 +2,5 @@
     <div class="fa fa-search search-icon" style="font-size:24px;margin-top:12px;float:left"
     ng-click="sv=!sv;vm.$layerService.visual.leftPanelVisible = true;vm.startSearch()"></div>
     <input type="text" style="margin-top:10px;float:left" id="searchInput" ng-show="sv" ng-model="vm.query" />
+    <span class="fa fa-spinner" style="float:left;margin-top: 15px;margin-left: 5px;" ng-show="sv"></span>
 </span>
