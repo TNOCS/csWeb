@@ -2324,13 +2324,24 @@ module csComp.Services {
                         // By default, look for an API project
                         let u  = 'api/projects/' + projectId;
                         if (!initialProject) {
-                            solution.projects.some(p => {
+                            var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.
                                 if (p.id !== projectId) return false;
                                 initialProject = p.title;
                                 //u = p.url;
                                 return true;
-                            })
+                            });
+                            if (!foundProject) {
+                                this.$http.get(u)
+                                    .success(<Project>(data) => {
+                                        if (data) {
+                                            this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
+                                        }
+                                    })
+                                    .error((data) => {
+                                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                    });
+                            }
                         } else {
                             this.$http.get(u)
                                 .success(<Project>(data) => {
