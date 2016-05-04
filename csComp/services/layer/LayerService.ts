@@ -2202,7 +2202,7 @@ module csComp.Services {
 
             layer.enabled = false;
             layer.isLoading = false;
-            layer._gui.more = false;
+            if (layer._gui) layer._gui.more = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
