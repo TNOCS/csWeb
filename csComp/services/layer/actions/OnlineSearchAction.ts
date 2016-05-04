@@ -100,13 +100,13 @@ module csComp.Services {
             if (geoLoc && geoLoc.hasOwnProperty('coordinates') && geoLoc.hasOwnProperty('type')) {
                 switch (geoLoc.type) {
                     case 'Point':
-                        this.layerService.$mapService.zoomToLocation(new L.LatLng(geoLoc.coordinates[1], geoLoc.coordinates[0]), 19);
+                        this.layerService.$mapService.zoomToLocation(new L.LatLng(geoLoc.coordinates[1], geoLoc.coordinates[0]), 18);
                         break;
                     case 'MultiPolygon':
                     case 'Polygon':
                     default:
                         this.layerService.map.getMap().fitBounds(L.geoJson(geoLoc).getBounds());
-                        this.layerService.map.getMap().setZoom(14);
+                        // this.layerService.map.getMap().setZoom(14);
                         break;
                 }
             }
