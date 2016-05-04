@@ -878,6 +878,15 @@ export class MapLayerFactory {
             isSearchable: false
         };
         if (section) { propType['section'] = section; }
+        switch (name.toLowerCase()) {
+            case 'oppervlakteverblijfsobject':
+            case 'bouwjaar':
+                propType.type = 'number';
+                break;
+            case '_bag_contour':
+                propType.visibleInCallOut = false;
+                break;
+        }
         propertyTypes.push(propType);
     }
 
