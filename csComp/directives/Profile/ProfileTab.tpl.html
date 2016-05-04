@@ -3,15 +3,15 @@
         <i class="layersIcon rightpanel-header-icon" />User Login
     </h4>
     <div ng-hide="vm.profileService.loggedIn" >
-     <form name="loginForm"  novalidate>
+     <form name="loginForm" ng-submit="vm.validateUser()"  novalidate>
 
             <div class="layer-actions">
 
-                <button ng-disabled="!loginForm.$valid" ng-click="vm.validateUser()"  class="layer-action save">
+                <button ng-disabled="!loginForm.$valid" type="submit" class="layer-action save">
                     <span class="fa fa-save layer-action-icon" />login
                 </button>
 
-                <button ng-click="vm.exitDirectory()" class="layer-action">
+                <button class="layer-action">
                     <span class="fa fa-times layer-action-icon" />cancel
                 </button>
             </div>

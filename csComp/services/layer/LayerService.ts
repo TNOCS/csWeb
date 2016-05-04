@@ -1295,7 +1295,7 @@ module csComp.Services {
 
             for (var ll in this.loadedLayers) {
                 var l = this.loadedLayers[ll];
-                if (this.project.activeDashboard.isLive) {
+                if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
                     if (!_.isUndefined(l.timestamps) && _.isArray(l.timestamps)) {
                         date = l.timestamps[l.timestamps.length - 1];
                         this.updateLayerSensorData(l, date);
