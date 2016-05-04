@@ -127,7 +127,13 @@ module csComp.Services {
             }
             if (projLayer.typeUrl && projLayer.defaultFeatureType) {
                 var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
-                this.service.evaluateLayerExpressions(projLayer, { featureTypeName: this.service.getFeatureTypeById(featureTypeName) });
+                var fType = this.service.getFeatureTypeById(featureTypeName);
+                this.service.evaluateLayerExpressions(projLayer, { featureTypeName: fType });
+                if (fType._propertyTypeData && fType._propertyTypeData.length > 0) {
+                    fType._propertyTypeData.forEach(pt => {
+                        csComp.Helpers.updateSection(projLayer, pt);
+                    });
+                }
             }
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             console.log(`Initialized ${count} features in ${layer.id}`);

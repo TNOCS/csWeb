@@ -14,21 +14,26 @@ module StyleList {
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
+            '$timeout',
             'layerService',
             'messageBusService'
         ];
 
         public selectedGroup: csComp.Services.ProjectGroup;
         public selectedSection: csComp.Services.Section;
+        public activeStyles: string[];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: IStyleListScope,
+            private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private messageBus: csComp.Services.MessageBusService
         ) {
             $scope.vm = this;
+            this.activeStyles = [];
+            
             messageBus.subscribe('layer', (title) => {
                 switch (title) {
                     case "activated":
@@ -36,6 +41,19 @@ module StyleList {
                         // Update the legend when a layer is added or removed.
                         this.initWizard();
                         break;
+                }
+            });
+            
+            messageBus.subscribe('updatelegend', (title, gs) => {
+                if (title === 'updatedstyle') {
+                    if (this.selectedGroup) {
+                        var g = this.$layerService.findGroupById(this.selectedGroup.id);
+                        if (g.styles) {
+                            this.$timeout(() => {
+                                this.activeStyles = _.map(g.styles.filter((s) => {return s.enabled}), (enabledStyle) => { return enabledStyle.property;});
+                            }, 0);
+                        }
+                    }
                 }
             });
         }

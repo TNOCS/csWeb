@@ -145,13 +145,12 @@
                 </div>
                 <div id="styles_properties" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingProperties">
                     <div data-ng-repeat="(l,p) in vm.selectedSection.properties">
-                        <div class="btn" ng-click="vm.setStyle(vm.selectedGroup,p)">
+                        <div class="btn" ng-class="{'property-style-selected': vm.activeStyles.indexOf(p.label) > -1}" ng-click="vm.setStyle(vm.selectedGroup,p)">
                             {{p.title}}
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
