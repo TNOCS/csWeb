@@ -688,18 +688,6 @@ module csComp.Services {
                         return;
                     }
                     layer.layerSource = this.layerSources[layerSource];
-                    // load layer from source
-                    if (layerSource === 'database') {
-                        this.$messageBusService.serverSubscribe(layer.id, 'layer', (sub: string, msg: any) => {
-                            //console.log(msg);
-                            if (msg.action === 'layer-update') {
-                                if (!msg.data.group) {
-                                    msg.data.group = this.findGroupByLayerId(msg.data);
-                                }
-                                this.addLayer(msg.data, () => { });
-                            }
-                        });
-                    }
                     layer.layerSource.addLayer(layer, (l) => {
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
@@ -1986,6 +1974,7 @@ module csComp.Services {
                                         break;
                                     case 'options':
                                         gf.filterType = 'row';
+                                        gf.filterLabel = f.properties[prop];
                                         break;
                                     //case 'rank':
                                     //    gf.filterType  = 'bar';
@@ -1993,6 +1982,7 @@ module csComp.Services {
                                     //    break;
                                     case 'text':
                                         gf.filterType = 'row';
+                                        gf.filterLabel = f.properties[prop];
                                         break;
                                     default:
                                         gf.filterType = 'text';
@@ -2334,13 +2324,24 @@ module csComp.Services {
                         // By default, look for an API project
                         let u  = 'api/projects/' + projectId;
                         if (!initialProject) {
-                            solution.projects.some(p => {
+                            var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.
                                 if (p.id !== projectId) return false;
                                 initialProject = p.title;
                                 //u = p.url;
                                 return true;
-                            })
+                            });
+                            if (!foundProject) {
+                                this.$http.get(u)
+                                    .success(<Project>(data) => {
+                                        if (data) {
+                                            this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
+                                        }
+                                    })
+                                    .error((data) => {
+                                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                    });
+                            }
                         } else {
                             this.$http.get(u)
                                 .success(<Project>(data) => {

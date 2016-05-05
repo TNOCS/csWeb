@@ -327,7 +327,7 @@ module csComp.Helpers {
 
     export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
         if (!layer || !prop) return;
-        if (prop.type === 'number') {
+        if (prop.type === 'number' || prop.hasOwnProperty('legend')) {
             if (!layer._gui.hasOwnProperty('sections')) layer._gui['sections'] = {};
             var sections: { [key: string]: csComp.Services.Section } = layer._gui['sections'];
             var s = (prop.section) ? prop.section : 'general';

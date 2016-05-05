@@ -9,6 +9,10 @@ $navbar-height: 50px;
     display:none;
 }
 
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: searchfield-cancel-button;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }
@@ -1332,15 +1336,26 @@ body,
 .button-widget-image
 {
     float:left;
-    height:25px;
+    max-height:45px;
+    max-width:45px;
     margin-top:5px;
     margin-right:5px;
+    border-radius: 4px;
+}
+
+.button-widget-image-active
+{
+    float:left;
+    max-height:25px;
+    max-width:25px;
+    margin-top:5px;
+    margin-right:25px;
+    border-radius: 4px;
 }
 
 .button-widget-description
 {
     font-size:13px;
-    clear:left;
     color: #444;
     margin-top:-2px;
 }
@@ -1376,8 +1391,7 @@ body,
     margin-top:5px;
     margin-right: 8px;
     color:black;
-        min-height: 46px;
-
+    min-height: 46px;
     }
 
 .button-container:active {
@@ -2251,6 +2265,7 @@ input[type="checkbox"] {
     display: inline-block;
 }
 .leftpanel-container {
+    z-index: 100;
     background: white;
     position: absolute;
     left:25px;
@@ -3150,6 +3165,11 @@ input[type="checkbox"] {
     width: 32px;
     // height:20px;
 }
+.property-style-selected {
+    background-color: lightskyblue;
+    border: 1px solid black;
+}
+
 
 .pin {
     width: 30px;

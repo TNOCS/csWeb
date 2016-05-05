@@ -556,7 +556,7 @@ export class ApiManager extends events.EventEmitter {
                 resource._localFile = this.resources[resource.id]._localFile;
             }
 
-            // create new resource defintion (without actual content)
+            // create new resource definition (without actual content)
             this.resources[resource.id] = <ResourceFile>{ _localFile: resource._localFile, id: resource.id, title: resource.title, storage: resource.storage };
 
             // don't actually save it, if this method is called from the storage connector it self
@@ -855,7 +855,7 @@ export class ApiManager extends events.EventEmitter {
             title: project.title ? project.title : project.id,
             isDynamic: (typeof project.isDynamic !== 'undefined') ? project.isDynamic : true,
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
-            //groups: project.groups ? project.groups : [],
+            groups: project.groups ? _.map(project.groups, (g) => { return this.getGroupDefinition(g); }) : [],
             url: project.url ? project.url : '/api/projects/' + project.id,
             _localFile: project._localFile
         };
@@ -872,7 +872,7 @@ export class ApiManager extends events.EventEmitter {
             title: group.title ? group.title : group.id,
             clusterLevel: group.clusterLevel ? group.clusterLevel : 19,
             clustering: true, //For now, set clustering always to true, as it can not be activated anymore when group is created (TODO: implement updateGroup)
-            layers: group.layers ? group.layers : []
+            layers: group.layers ? _.map(group.layers, (l) => { return this.getLayerDefinition(l); }) : []
         };
         return g;
     }
