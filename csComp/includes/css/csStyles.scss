@@ -769,9 +769,6 @@ body,
 .dashboard-option-selected {
     color: red;
 }
-.spinner {
-    margin-right: 5px;
-}
 .btn-filter-delete {
     position: relative;
     right: 0;
@@ -1652,8 +1649,8 @@ body,
     text-align: center;
     float: right;
     position: absolute;
-    right: 5px;
     top: 0;
+    margin-right: 5px;
 }
 .spinner > div {
     width: 6px;

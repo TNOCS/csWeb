@@ -287,10 +287,10 @@ module csComp.Services {
          * @text:        the translation key of the notification's content
          * @location:    the location on the screen where the notification is shown (default bottom right)
 		 */
-        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight, type = NotifyType.Normal) {
+        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight, type = NotifyType.Normal, duration = 4000) {
             this.$translate(title).then((translatedTitle) => {
                 this.$translate(text).then((translatedText) => {
-                    this.notify(translatedTitle, translatedText, location, type);
+                    this.notify(translatedTitle, translatedText, location, type, duration);
                 });
             });
         }
@@ -366,7 +366,7 @@ module csComp.Services {
                 },
                 hide: true
             };
-            if (typeof duration != 'undefined') opts[duration] = duration;
+            if (typeof duration != 'undefined') opts['delay'] = duration;
 
             var PNot = new PNotify(opts);
             this.notifications.push(PNot);
