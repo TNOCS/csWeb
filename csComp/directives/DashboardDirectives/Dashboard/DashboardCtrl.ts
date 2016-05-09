@@ -343,7 +343,7 @@ module Dashboard {
                 w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
                 w.top = '80px';
                 w.hideIfLeftPanel = true;
-                w.width = '150px';
+                w.width = '';
                 w.enabled = true;
                 d.widgets.push(w);
             }

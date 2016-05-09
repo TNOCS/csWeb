@@ -327,7 +327,7 @@ module csComp.Helpers {
 
     export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
         if (!layer || !prop) return;
-        if (prop.type === 'number') {
+        if (prop.type === 'number' || prop.hasOwnProperty('legend')) {
             if (!layer._gui.hasOwnProperty('sections')) layer._gui['sections'] = {};
             var sections: { [key: string]: csComp.Services.Section } = layer._gui['sections'];
             var s = (prop.section) ? prop.section : 'general';
@@ -353,7 +353,7 @@ module csComp.Helpers {
         var displayValue: string;
         // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
         //     text = text.replace(/&amp;/g, '&');
-        if (!text || !pt.type) return text;
+        if (text === undefined || text === null || !pt.type) return text;
         switch (pt.type) {
             case 'bbcode':
                 if (pt.stringFormat) text = String.format(pt.stringFormat, text);
