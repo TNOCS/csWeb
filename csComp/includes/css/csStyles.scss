@@ -700,6 +700,18 @@ body,
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4)
 }
 
+.widget-scrollable
+{
+    position: absolute;
+    top: 40px;
+    left:0;
+    right:0;
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+}
+
 .widget-min-max-close{
     display: inline-block;
     float: right;

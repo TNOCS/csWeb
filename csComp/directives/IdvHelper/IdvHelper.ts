@@ -637,6 +637,8 @@ module Idv {
                             return d[ci.property] }
                         });
                     })
+                    console.log('table:' + config.elementId);
+                    $("#" + config.elementId).addClass("widget-scrollable");
                     config.chart = dc.dataTable("#" + config.elementId);
                     config.chart  
                         .width(width)
