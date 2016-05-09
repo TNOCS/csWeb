@@ -29,10 +29,26 @@ module csComp.Services {
 
         /** zoom to boundaries of layer */
         public fitTimeline(layer: ProjectLayer) {
-            if (layer.hasSensorData && layer.timestamps && layer.timestamps.length > 0) {
-                var min = layer.timestamps[0];
-                var max = layer.timestamps[layer.timestamps.length - 1];
-                this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
+            if (layer.hasSensorData) {
+                if (layer.timestamps && layer.timestamps.length > 0) {
+                    let min = layer.timestamps[0];
+                    let max = layer.timestamps[layer.timestamps.length - 1];
+                    this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
+                }
+                else {
+                    let min = null;
+                    let max = null;
+
+                    layer.data.features.forEach((f: Feature) => {
+                        if (f.timestamps) {
+                            if (min === null)  { min = f.timestamps[0]; } else { if (min > f.timestamps[0]) min = f.timestamps[0]} 
+                            if (max === null) { max = f.timestamps[f.timestamps.length-1]; } else { if (max < f.timestamps[f.timestamps.length-1]) max = f.timestamps[f.timestamps.length-1]};                            
+                        }
+                    });
+                    
+                    if (min !== null && max !== null) this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
+
+                }
             }
         }
 
@@ -279,7 +295,7 @@ module csComp.Services {
                 features.some((f: IFeature) => {
                     if (f.hasOwnProperty(key) && f[key] === id) {
                         f.properties = value.properties;
-                        f.geometry = value.geometry;                        
+                        f.geometry = value.geometry;
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
@@ -375,8 +391,7 @@ module csComp.Services {
             this.initAvailableFeatureTypesEditing(layer);
         }
 
-        public stopEditing(layer : csComp.Services.ProjectLayer)
-        {
+        public stopEditing(layer: csComp.Services.ProjectLayer) {
             this.service.stopEditingLayer(layer);
         }
 
@@ -390,11 +405,11 @@ module csComp.Services {
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
             for (var ft in this.service.typesResources[layer.typeUrl].featureTypes) {
                 var t = this.service.typesResources[layer.typeUrl].featureTypes[ft];
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
                 featureTypes[ft] = this.service.typesResources[layer.typeUrl].featureTypes[ft];
                 featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                 featureTypes[ft]._guid = csComp.Helpers.getGuid();
-                
+
             }
         }
 
