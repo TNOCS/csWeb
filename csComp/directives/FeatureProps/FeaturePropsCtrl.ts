@@ -549,7 +549,7 @@ module FeatureProps {
 
             // create sparkline
             try {
-                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
+                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')(ns);
                 ch.append(chartElement);
             } catch (e) {
                 console.log('Error adding sparkline');
