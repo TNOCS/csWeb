@@ -353,7 +353,7 @@ module csComp.Helpers {
         var displayValue: string;
         // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
         //     text = text.replace(/&amp;/g, '&');
-        if (!text || !pt.type) return text;
+        if (text === undefined || text === null || !pt.type) return text;
         switch (pt.type) {
             case 'bbcode':
                 if (pt.stringFormat) text = String.format(pt.stringFormat, text);
