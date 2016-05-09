@@ -123,6 +123,14 @@ module csComp.Services {
                     };
                     res.push(fit);
                 }
+                
+                if (layer.hasSensorData && _.isFunction(layer.layerSource.fitTimeline)) {
+                    var fit = <IActionOption>{ title: 'Fit Timeline', icon: 'map' };
+                    fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        layer.layerSource.fitTimeline(layer);
+                    };
+                    res.push(fit);
+                }
             }
 
             if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
