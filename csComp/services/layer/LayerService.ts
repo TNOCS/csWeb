@@ -117,11 +117,7 @@ module csComp.Services {
             this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
-            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 500);
 
-            var delayFocusChange = _.debounce((date) => {
-                this.refreshActiveLayers();
-            }, 500);
 
             $('body').keyup(e => {
                 if (e.keyCode === 46 && e.target.localName !== 'input') {
@@ -1205,7 +1201,7 @@ module csComp.Services {
                     }
                 }
 
-                if (changed) {                    
+                if (changed) {
                     this.updateFeature(f);
                 }
             }
@@ -2322,7 +2318,7 @@ module csComp.Services {
                     if (this.openSingleProject) {
                         let projectId = searchParams['project'];
                         // By default, look for an API project
-                        let u  = 'api/projects/' + projectId;
+                        let u = 'api/projects/' + projectId;
                         if (!initialProject) {
                             var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.
@@ -2421,6 +2417,12 @@ module csComp.Services {
                 this.$http.get(solutionProject.url)
                     .success((prj: Project) => {
                         this.parseProject(prj, solutionProject, layerIds);
+
+                        this.throttleSensorDataUpdate = _.throttle(this.updateSensorData, this.project.timeLine.updateDelay);
+
+                        var delayFocusChange = _.throttle((date) => {
+                            this.refreshActiveLayers();
+                        }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
                     })
                     .error(() => {

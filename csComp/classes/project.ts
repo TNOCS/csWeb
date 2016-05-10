@@ -51,11 +51,13 @@ module csComp.Services {
         /** Set a minimum zoom interval for the visible range in milliseconds. It will not be possible to zoom in further than this minimum. */
         zoomMin:       number;
         isLive:        boolean;
+        isExpanded : boolean = false;
         enableLive:    boolean = true;
         enablePlay:    boolean = true;
         enableEvents:  boolean = true;
         enableFocus:   boolean = true;
         expandHeight:        number;
+        updateDelay : number;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -68,7 +70,9 @@ module csComp.Services {
             if (typeof res.enablePlay === 'undefined') { res.enablePlay = true }
             if (typeof res.enableEvents === 'undefined') { res.enableEvents = true }
             if (typeof res.enableFocus === 'undefined') { res.enableFocus = true }
+            if (typeof res.isExpanded === 'undefined') { res.isExpanded = false }
             if (typeof res.expandHeight === 'undefined') { res.expandHeight = 150; }
+            if (typeof res.updateDelay === 'undefined') { res.updateDelay = 500;}
             return res;
         }
 
