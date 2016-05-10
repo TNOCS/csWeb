@@ -99,18 +99,20 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager) {
+    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
         if (bag != null) {
             bag.init();
         }
         var fileList: IProperty[] = [];
-        fs.readdir('public/data/templates', function(err, files) {
+        var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
+        fs.readdir(templateFolder, function(err, files) {
             if (err) {
-                console.log('Error while looking for templates');
+                console.log('Error while looking for templates in ' + templateFolder);
             } else {
                 files.forEach((f) => {
-                    fileList[f.replace(/\.[^/.]+$/, '')] = ('public/data/templates/' + f); // Filter extension from key and store in dictionary
+                    fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
                 });
+                console.log(`Loaded ${files.length} templates from ${templateFolder}.` );
             }
         });
         this.templateFiles = fileList;
