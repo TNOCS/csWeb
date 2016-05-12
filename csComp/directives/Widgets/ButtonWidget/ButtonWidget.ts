@@ -239,34 +239,6 @@ module ButtonWidget {
                     zoomLevel: b.zoomLevel
                 });
             });
-            // switch (b.action) {
-            //     case 'Activate TimeRange':
-            //         console.log('time range');
-            //         this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
-            //         this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
-            //         this.layerService.project.timeLine.focus = new Date().getTime();
-            //         break;
-            //     case 'Activate Layer':
-            //         var pl = this.layerService.findLayer(b.layer);
-            //         if (typeof pl !== 'undefined') {
-            //             this.layerService.toggleLayer(pl);
-            //         }
-            //         break;
-            //     case 'Activate Style':
-            //         var group = this.layerService.findGroupById(b.group);
-            //         if (typeof group !== 'undefined') {
-            //             var propType = this.layerService.findPropertyTypeById(b.property);
-            //             if (typeof propType !== 'undefined') {
-            //                 this.layerService.setGroupStyle(group, propType);
-            //             }
-            //         }
-            //         break;
-            //     case 'Activate Baselayer':
-            //         var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
-            //         this.layerService.activeMapRenderer.changeBaseLayer(layer);
-            //         this.layerService.$mapService.changeBaseLayer(b.layer);
-            //         break;
-            // }
         }
 
         public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
@@ -285,6 +257,8 @@ module ButtonWidget {
             this.layerService.rebuildFilters(projGroup);
             projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
             this.layerService.setFilter(gf, projGroup);
+            this.layerService.visual.leftPanelVisible = true;
+            $('#filter-tab').click();
         }
     }
 }

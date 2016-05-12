@@ -1799,6 +1799,11 @@ body,
     border: 0.8em solid transparent;
     position: absolute;
 }
+.callout-icon {
+    margin-left:5px;
+    width: 24px;
+    height: 24px;
+}
 .pintimeButton {
     margin: 3px;
     cursor: pointer;
@@ -2310,7 +2315,6 @@ input[type="checkbox"] {
     color: black;
     font-size: 22px;
     font-weight: bold;
-    height: 45px;
     margin-top: 1px;
     overflow: hidden;
     padding-bottom: 10px;
