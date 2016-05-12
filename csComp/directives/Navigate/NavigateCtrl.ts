@@ -68,6 +68,7 @@ module Navigate {
                         this.doSearch(search.query);
                         break;
                     case 'reset':
+                        this.$dashboardService._search.isActive = false;
                         this.clearSearchLayer();
                         break;
                 }

@@ -136,6 +136,7 @@ module csComp.Services {
                 }
             }
             projLayer.isLoading = false;
+            this.service.$messageBusService.publish('layer', 'activated', layer);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             console.log(`Initialized ${count} features in ${layer.id}`);
             callback(projLayer);

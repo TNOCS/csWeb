@@ -110,6 +110,8 @@ module csComp.Services {
                         break;
                 }
             }
+            this.layerService.visual.leftPanelVisible = false;
+            this.layerService.$messageBusService.publish('search','reset');
         }
 
         private selectFeatureById(layerId: string, featureIndex: number) {
