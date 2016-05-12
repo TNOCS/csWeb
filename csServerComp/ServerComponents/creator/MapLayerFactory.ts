@@ -681,7 +681,7 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties[templateKey] === p[par1]) {
+                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===) 
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
