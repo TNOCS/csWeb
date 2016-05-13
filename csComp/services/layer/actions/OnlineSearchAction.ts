@@ -51,8 +51,7 @@ module csComp.Services {
                 cb([]);
                 return;
             }
-            var searchWords = text.toLowerCase().split(' ');
-            var sqlSearch = searchWords.join(' & ');
+            var sqlSearch = text.toLowerCase();
             var searchObject = { query: sqlSearch, nrItems: resultCount };
 
             var searchResults: ISearchResultItem[] = [];

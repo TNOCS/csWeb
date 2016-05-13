@@ -214,10 +214,14 @@ module Navigate {
             this.$layerService.actionServices.forEach(as => {
                 if (!as.search) return;
                 as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
-                    this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
-                    this.searchResults = this.searchResults.concat(result).sort((a, b) => { return ((b.score - a.score) || -1); });
-                    this.updateSearchLayer();
-                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    if (this.$dashboardService._search.isActive) {
+                        this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
+                        this.searchResults = this.searchResults.concat(result).sort((a, b) => { return ((b.score - a.score) || -1); });
+                        this.updateSearchLayer();
+                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    } else {
+                        console.log('Ignoring old results');
+                    }
                 });
             });
         }

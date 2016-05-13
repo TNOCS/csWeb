@@ -132,6 +132,33 @@ export class BagDatabase {
             });
         });
     }
+    
+    public searchGemeente(query: string, limit: number = 10, callback: (searchResults) => void) {
+        if (!query) {
+            console.log('No valid query supplied');
+            callback(null);
+            return;
+        }
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+                return;
+            }
+            var sql = `SELECT gemeente.gemeentenaam, 0.99 as score, ST_AsGeoJSON(ST_Force_2D(ST_Transform(gemeente.geovlak, 4326))) as location, concat('Gemeente') as description, gemeente.gemeentenaam as title FROM bagactueel.gemeente WHERE lower(gemeente.gemeentenaam) LIKE '${query}%' ORDER BY gemeentenaam LIMIT ${limit}`
+            // console.log(sql);
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.log(err);
+                    console.log(`Cannot find gemeente with query: ${query}`);
+                    callback(null);
+                } else {
+                    callback(result.rows);
+                }
+            });
+        });
+    }
 
     public lookupBagArea(bounds: string, callback: (areas: Location[]) => void) {
         if (!bounds) {
@@ -174,7 +201,7 @@ export class BagDatabase {
                 callback(null);
                 return;
             }
-            var sql = `SELECT bu_naam, bu_code, gm_naam, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 500`;
+            var sql = `SELECT bu_naam, bu_code, gm_naam, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 1000`;
             client.query(sql, (err, result) => {
                 done();
                 if (err) {

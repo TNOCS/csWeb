@@ -357,7 +357,7 @@ export class MapLayerFactory {
         var template: IBagSearchRequest = req.body;
         var query = template.query;
         var nrItems = template.nrItems;
-        this.bag.searchAddress(query, nrItems, (results) => {
+        this.bag.searchGemeente(query, nrItems, (results) => {
             if (!results || !results.length || results.length === 0) {
                 res.status(200).send({});
             } else {
