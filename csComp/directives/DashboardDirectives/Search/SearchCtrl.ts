@@ -75,5 +75,9 @@ module Search {
                 this.$scope.sv = false;
             }, 0);
         }
+        
+        selectFirst() {
+            this.$messageBusService.publish('search', 'selectFirstResult');
+        }
     }
 }

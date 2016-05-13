@@ -62,14 +62,18 @@ module Navigate {
             });
 
             this.$messageBus.subscribe('search', (title, search: csComp.Services.ISearch) => {
-                this.searchResults = [];
                 switch (title) {
                     case 'update':
+                        this.searchResults = [];
                         this.doSearch(search.query);
                         break;
                     case 'reset':
+                        this.searchResults = [];
                         this.$dashboardService._search.isActive = false;
                         this.clearSearchLayer();
+                        break;
+                    case 'selectFirstResult':
+                        this.selectFirstResult();
                         break;
                 }
             });
@@ -193,6 +197,12 @@ module Navigate {
                 this.$messageBus.publish('map', 'setzoom', { loc: bbox.southWest, zoom: 16 });
             } else {
                 this.$messageBus.publish('map', 'setextent', bbox);
+            }
+        }
+        
+        public selectFirstResult() {
+            if (this.searchResults && this.searchResults.length > 0) {
+                this.selectSearchResult(this.searchResults[0]);
             }
         }
 
