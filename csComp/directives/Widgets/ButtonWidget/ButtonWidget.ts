@@ -60,6 +60,7 @@ module ButtonWidget {
 
     export interface IButtonData {
         buttons: IButton[];
+        minimalLayout: boolean;
         layerGroup: string;
     }
 
@@ -241,24 +242,33 @@ module ButtonWidget {
             });
         }
 
-        public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
+        public toggleFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
             if (!le) return;
             var projGroup = this.layerService.findGroupById(group);
             var property = this.layerService.findPropertyTypeById(prop);
-            var gf = new csComp.Services.GroupFilter();
-            gf.property = prop.split('#').pop();
-            gf.id = 'buttonwidget_filter';
-            gf.group = projGroup;
-            gf.filterType = 'row';
-            gf.title = property.title;
-            gf.rangex = [le.interval.min, le.interval.max];
-            gf.filterLabel = le.label;
-            console.log('Setting filter');
-            this.layerService.rebuildFilters(projGroup);
-            projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
-            this.layerService.setFilter(gf, projGroup);
-            this.layerService.visual.leftPanelVisible = true;
-            $('#filter-tab').click();
+            //Check if filter already exists. If so, remove it.
+            var exists: boolean = projGroup.filters.some((f: csComp.Services.GroupFilter) => {
+                if (f.property === property.label) {
+                    this.layerService.removeFilter(f);
+                    return true;
+                }
+            });
+            if (!exists) {
+                var gf = new csComp.Services.GroupFilter();
+                gf.property = prop.split('#').pop();
+                gf.id = 'buttonwidget_filter';
+                gf.group = projGroup;
+                gf.filterType = 'row';
+                gf.title = property.title;
+                gf.rangex = [le.interval.min, le.interval.max];
+                gf.filterLabel = le.label;
+                console.log('Setting filter');
+                this.layerService.rebuildFilters(projGroup);
+                projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
+                this.layerService.setFilter(gf, projGroup);
+                this.layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            }
         }
     }
 }
