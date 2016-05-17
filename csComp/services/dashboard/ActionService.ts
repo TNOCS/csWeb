@@ -48,6 +48,11 @@ module csComp.Services {
                 this.layerService.visual.leftPanelVisible = true;
                 $('#style-tab').click();
             };
+            
+            this.actions['show filter tab'] = () => {
+                this.layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            };
 
             this.actions['activate timerange'] = () => {
                 console.log('Activate timerange action called');

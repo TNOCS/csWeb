@@ -60,6 +60,7 @@ module ButtonWidget {
 
     export interface IButtonData {
         buttons: IButton[];
+        minimalLayout: boolean;
         layerGroup: string;
     }
 
@@ -239,52 +240,35 @@ module ButtonWidget {
                     zoomLevel: b.zoomLevel
                 });
             });
-            // switch (b.action) {
-            //     case 'Activate TimeRange':
-            //         console.log('time range');
-            //         this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
-            //         this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
-            //         this.layerService.project.timeLine.focus = new Date().getTime();
-            //         break;
-            //     case 'Activate Layer':
-            //         var pl = this.layerService.findLayer(b.layer);
-            //         if (typeof pl !== 'undefined') {
-            //             this.layerService.toggleLayer(pl);
-            //         }
-            //         break;
-            //     case 'Activate Style':
-            //         var group = this.layerService.findGroupById(b.group);
-            //         if (typeof group !== 'undefined') {
-            //             var propType = this.layerService.findPropertyTypeById(b.property);
-            //             if (typeof propType !== 'undefined') {
-            //                 this.layerService.setGroupStyle(group, propType);
-            //             }
-            //         }
-            //         break;
-            //     case 'Activate Baselayer':
-            //         var layer: csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
-            //         this.layerService.activeMapRenderer.changeBaseLayer(layer);
-            //         this.layerService.$mapService.changeBaseLayer(b.layer);
-            //         break;
-            // }
         }
 
-        public createFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
+        public toggleFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
             if (!le) return;
             var projGroup = this.layerService.findGroupById(group);
             var property = this.layerService.findPropertyTypeById(prop);
-            var gf = new csComp.Services.GroupFilter();
-            gf.property = prop.split('#').pop();
-            gf.id = 'buttonwidget_filter';
-            gf.group = projGroup;
-            gf.filterType = 'row';
-            gf.title = property.title;
-            gf.rangex = [le.interval.min, le.interval.max];
-            gf.filterLabel = le.label;
-            console.log('Setting filter');
-            this.layerService.rebuildFilters(projGroup);
-            projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
-            this.layerService.setFilter(gf, projGroup);
+            //Check if filter already exists. If so, remove it.
+            var exists: boolean = projGroup.filters.some((f: csComp.Services.GroupFilter) => {
+                if (f.property === property.label) {
+                    this.layerService.removeFilter(f);
+                    return true;
+                }
+            });
+            if (!exists) {
+                var gf = new csComp.Services.GroupFilter();
+                gf.property = prop.split('#').pop();
+                gf.id = 'buttonwidget_filter';
+                gf.group = projGroup;
+                gf.filterType = 'row';
+                gf.title = property.title;
+                gf.rangex = [le.interval.min, le.interval.max];
+                gf.filterLabel = le.label;
+                console.log('Setting filter');
+                this.layerService.rebuildFilters(projGroup);
+                projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
+                this.layerService.setFilter(gf, projGroup);
+                this.layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            }
         }
     }
 }

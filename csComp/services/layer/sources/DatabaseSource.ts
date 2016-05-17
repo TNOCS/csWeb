@@ -24,6 +24,7 @@ module csComp.Services {
                 // this.service.addLayer(layer);
                 this.baseAddLayer(layer, () => { }, false);
             } else {
+                this.service.$messageBusService.publish('layer', 'loading', layer);
                 this.baseAddLayer(layer, () => { }, true);
             }
         }
@@ -60,7 +61,7 @@ module csComp.Services {
                     }
                     var corners;
                     if (this.service.$mapService.map.getZoom() < minZoom) {
-                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info);
+                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
                         return;
@@ -108,7 +109,6 @@ module csComp.Services {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) {
                 layer.count = 0;
-                projLayer.isLoading = false;
                 projLayer.enabled = true;
                 projLayer.data = layer.data;
             }
@@ -135,6 +135,8 @@ module csComp.Services {
                     });
                 }
             }
+            projLayer.isLoading = false;
+            this.service.$messageBusService.publish('layer', 'activated', layer);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             console.log(`Initialized ${count} features in ${layer.id}`);
             callback(projLayer);
@@ -147,7 +149,6 @@ module csComp.Services {
                 return;
             }
             if (projLayer) {
-                projLayer.isLoading = false;
                 projLayer.enabled = true;
             }
             // Add new features
@@ -164,6 +165,8 @@ module csComp.Services {
                     }
                 });
             }
+            projLayer.isLoading = false;
+            this.service.$messageBusService.publish('layer', 'activated', layer);
             console.log(`Added ${count} features in ${layer.id}`);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             callback(projLayer);

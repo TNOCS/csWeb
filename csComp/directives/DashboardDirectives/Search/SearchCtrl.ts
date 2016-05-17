@@ -50,7 +50,15 @@ module Search {
 
             $scope.$watch('vm.query', _.throttle(search => {
                 this.$dashboardService.search = { query: search };
-            }, 500));
+            }, 700, { leading: false }));
+
+            this.$messageBusService.subscribe('search', (title, search: csComp.Services.ISearch) => {
+                switch (title) {
+                    case 'reset':
+                        this.closeSearch();
+                        break;
+                }
+            });
         }
 
         startSearch() {
@@ -59,7 +67,17 @@ module Search {
                     $('#searchInput').focus();
                 }, 100);
             }
+        }
 
+        closeSearch() {
+            this.$timeout(() => {
+                $('#searchInput').val('');
+                this.$scope.sv = false;
+            }, 0);
+        }
+        
+        selectFirst() {
+            this.$messageBusService.publish('search', 'selectFirstResult');
         }
     }
 }

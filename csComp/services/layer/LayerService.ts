@@ -646,7 +646,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            var disableLayers = [];
             async.series([
                 (callback) => {
                     // check if in this group only one layer can be active
@@ -654,7 +653,8 @@ module csComp.Services {
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
                             if (l.id !== layer.id && l.enabled) {
-                                disableLayers.push(l);
+                                this.removeLayer(l);
+                                l.enabled = false;
                             }
                         });
                     }
@@ -711,14 +711,6 @@ module csComp.Services {
                         if (layerloaded) layerloaded(layer);
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-                    callback(null, null);
-                },
-                (callback) => {
-                    // now remove the layers that need to be disabled
-                    disableLayers.forEach((l) => {
-                        this.removeLayer(l);
-                        l.enabled = false;
-                    });
                     callback(null, null);
                 }
             ]);
@@ -2826,6 +2818,11 @@ module csComp.Services {
                 this.removeLayer(layer);
                 if (loaded) loaded();
             }
+        }
+
+        public enableLayer(layer: ProjectLayer, loaded?: Function) {
+            layer.enabled = true;
+            this.addLayer(layer, () => { if (loaded) loaded() });
         }
 
         public removeGroup(group: ProjectGroup) {

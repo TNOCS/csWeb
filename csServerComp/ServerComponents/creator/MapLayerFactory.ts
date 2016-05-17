@@ -99,18 +99,20 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager) {
+    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
         if (bag != null) {
             bag.init();
         }
         var fileList: IProperty[] = [];
-        fs.readdir('public/data/templates', function(err, files) {
+        var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
+        fs.readdir(templateFolder, function(err, files) {
             if (err) {
-                console.log('Error while looking for templates');
+                console.log('Error while looking for templates in ' + templateFolder);
             } else {
                 files.forEach((f) => {
-                    fileList[f.replace(/\.[^/.]+$/, '')] = ('public/data/templates/' + f); // Filter extension from key and store in dictionary
+                    fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
                 });
+                console.log(`Loaded ${files.length} templates from ${templateFolder}.` );
             }
         });
         this.templateFiles = fileList;
@@ -355,7 +357,7 @@ export class MapLayerFactory {
         var template: IBagSearchRequest = req.body;
         var query = template.query;
         var nrItems = template.nrItems;
-        this.bag.searchAddress(query, nrItems, (results) => {
+        this.bag.searchGemeente(query, nrItems, (results) => {
             if (!results || !results.length || results.length === 0) {
                 res.status(200).send({});
             } else {
@@ -679,7 +681,7 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties[templateKey] === p[par1]) {
+                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===) 
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
