@@ -87,7 +87,7 @@ module csComp.Services {
             public geoService: GeoService,
             public $http: ng.IHttpService,
             private expressionService: ExpressionService,
-            private actionService: ActionService
+            public actionService: ActionService
         ) {
             this.actionService.init(this);
 

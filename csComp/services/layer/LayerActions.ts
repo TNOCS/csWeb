@@ -206,6 +206,8 @@ module csComp.Services {
                         click: () => {
                             this.layerService.$mapService.zoomTo(f);
                             this.layerService.selectFeature(f);
+                            this.layerService.$messageBusService.publish('search', 'reset');
+                            this.layerService.visual.leftPanelVisible = false;
                         }
                     };
                     //if (f.fType && f.fType.name!=='default') res.description += ' (' + f.fType.name + ')';

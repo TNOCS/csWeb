@@ -362,6 +362,8 @@ module csComp.Helpers {
             case 'number':
                 if (!$.isNumeric(text)) {
                     displayValue = text;
+                } else if (isNaN(text)) {
+                    displayValue = '';
                 } else if (!pt.stringFormat) {
                     displayValue = text.toString();
                 } else {
