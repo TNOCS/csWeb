@@ -17,6 +17,8 @@ module Legend {
         vm: LegendCtrl;
         data: LegendData;
         legend: csComp.Services.Legend;
+        activeStyleProperty: csComp.Services.IPropertyType;
+        activeStyleGroup: csComp.Services.ProjectGroup;
     }
 
     export class LegendCtrl {
@@ -54,6 +56,7 @@ module Legend {
             if (this.widget && this.widget.data) $scope.data = <LegendData>this.widget.data;
             //$scope.s1 = $scope.data.propertyTypeKey;
             if (this.widget && this.widget.data && this.widget.data.hasOwnProperty('propertyTypeKey')) var ptd = this.$layerService.propertyTypeData[$scope.data.propertyTypeKey];
+            $scope.activeStyleProperty = ptd;
             //if (ptd) $scope.s2 = ptd.title;
             //$scope.s3 = 'passcount=' + this.passcount.toString();
             // if ($scope.data.mode = 'lastSelectedStyle') {
@@ -61,15 +64,12 @@ module Legend {
             // }
             if ($scope.data && $scope.data.mode === 'lastSelectedLayer') {
                 this.$messageBus.subscribe("layer", (a, l: csComp.Services.ProjectLayer) => {
-                    if (a === "activated")
-                    { $scope.legend = null;
-                        
-                     if (l && l.defaultLegend) {
-                         $scope.legend = this.$layerService.getLayerLegend(l);
-                        
-                        console.log('activate new layer ' + l.title);
-                        
-                    }
+                    if (a === "activated") {
+                    $scope.legend = null;
+                        if (l && l.defaultLegend) {
+                            $scope.legend = this.$layerService.getLayerLegend(l);
+                            console.log('activate new layer ' + l.title);
+                        }
                     }
                 });
             }
@@ -92,6 +92,7 @@ module Legend {
                             default:
                                 if (ptd && ptd.legend) {
                                     $scope.legend = ptd.legend;
+                                    $scope.activeStyleProperty = ptd;
                                 }
                                 if ($scope.data.mode = 'lastSelectedStyle') {
                                     $scope.legend = this.createLegend();
@@ -127,12 +128,14 @@ module Legend {
                 g.styles.forEach((gs) => {
                     if (gs.enabled) {
                         activeStyle = gs;
+                        this.$scope.activeStyleGroup = g;
                     }
                 });
             });
             if (!activeStyle) return leg;
 
             var ptd: csComp.Services.IPropertyType = this.$layerService.propertyTypeData[activeStyle.property];
+            this.$scope.activeStyleProperty = ptd;
             if (!ptd) return leg;
             if (ptd.legend) return ptd.legend;
             leg.id = ptd.label + 'legendcolors';
@@ -186,6 +189,35 @@ module Legend {
             }
             return style;
         }
-
+        
+        public toggleFilter(legend: csComp.Services.Legend, le: csComp.Services.LegendEntry) {
+            if (!legend || !le) return;
+            var projGroup = this.$scope.activeStyleGroup;
+            var property = this.$scope.activeStyleProperty;
+            if (!projGroup || !property) return;
+            //Check if filter already exists. If so, remove it.
+            var exists: boolean = projGroup.filters.some((f: csComp.Services.GroupFilter) => {
+                if (f.property === property.label) {
+                    this.$layerService.removeFilter(f);
+                    return true;
+                }
+            });
+            if (!exists) {
+                var gf = new csComp.Services.GroupFilter();
+                gf.property = property.label;//prop.split('#').pop();
+                gf.id = 'buttonwidget_filter';
+                gf.group = projGroup;
+                gf.filterType = 'row';
+                gf.title = property.title;
+                gf.rangex = [le.interval.min, le.interval.max];
+                gf.filterLabel = le.label;
+                console.log('Setting filter');
+                this.$layerService.rebuildFilters(projGroup);
+                projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
+                this.$layerService.setFilter(gf, projGroup);
+                this.$layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            }
+        }
     }
 }
