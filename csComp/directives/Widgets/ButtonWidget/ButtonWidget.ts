@@ -28,6 +28,7 @@ module ButtonWidget {
         vm: ButtonWidgetCtrl;
         data: IButtonData;
         buttons: IButton[];
+        activeIndex: number;
     }
 
     export interface IButtonWidget {
@@ -61,6 +62,8 @@ module ButtonWidget {
     export interface IButtonData {
         buttons: IButton[];
         minimalLayout: boolean;
+        /* Show only one button. Clicking it will execute the according action and then show the next button */
+        toggleMode: boolean;
         layerGroup: string;
     }
 
@@ -240,6 +243,13 @@ module ButtonWidget {
                     zoomLevel: b.zoomLevel
                 });
             });
+            // In case we're in toggleMode, increase the index counter
+            if (this.$scope.data.toggleMode) {
+                this.$timeout(() => {
+                    this.$scope.activeIndex++;
+                    if (this.$scope.activeIndex >= this.$scope.buttons.length) this.$scope.activeIndex = 0;
+                }, 0);
+            }
         }
 
         public toggleFilter(le: csComp.Services.LegendEntry, group: string, prop: string) {
