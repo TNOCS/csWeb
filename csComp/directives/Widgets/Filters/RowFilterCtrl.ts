@@ -133,8 +133,8 @@ module Filters {
             
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
 
-            this.dcChart.width(315)
-                .height(210)                
+            this.dcChart.width(380)
+                .height(285)                
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {

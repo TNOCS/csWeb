@@ -23,12 +23,10 @@ module Legend {
 
     export class LegendCtrl {
         private scope: ILegendDirectiveScope;
-
         private widget: csComp.Services.IWidget;
-
         private passcount: number = 1;
-
         private subscribeHandle: csComp.Services.MessageBusHandle;
+        private parentWidget: any;
 
         // $inject annotation
         // It provides $injector with information about dependencies to be injected into constructor
@@ -50,6 +48,7 @@ module Legend {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
+            this.parentWidget = $('#' + this.widget.elementId).parent();
             //console.log(JSON.stringify(this.widget.data));
             //$scope.title = this.widget.title;
             //$scope.timestamp = '19:45';
@@ -84,18 +83,22 @@ module Legend {
                 }
 
                 if (!this.subscribeHandle) {
-                    this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, ptdataKey: string) => {
+                    this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, data: any) => {
                         switch (title) {
                             case 'removelegend':
                                 this.$messageBus.unsubscribe(this.subscribeHandle);
                                 break;
+                            case 'hidelegend':
+                                this.parentWidget.hide();
+                                break;
                             default:
+                                this.parentWidget.show();
                                 if (ptd && ptd.legend) {
                                     $scope.legend = ptd.legend;
                                     $scope.activeStyleProperty = ptd;
                                 }
                                 if ($scope.data.mode = 'lastSelectedStyle') {
-                                    $scope.legend = this.createLegend();
+                                    $scope.legend = this.createLegend(data);
                                     if ($scope.$parent.hasOwnProperty('widget')) {
                                         if (!$scope.legend.hasOwnProperty('legendEntries')) {
                                             (<any>$scope.$parent).widget['enabled'] = false;
@@ -121,17 +124,20 @@ module Legend {
             }
         }
 
-        createLegend(): csComp.Services.Legend {
+        createLegend(activeStyle: csComp.Services.GroupStyle = null): csComp.Services.Legend {
             var leg = new csComp.Services.Legend();
-            var activeStyle: csComp.Services.GroupStyle;
-            this.$layerService.project.groups.forEach((g) => {
-                g.styles.forEach((gs) => {
-                    if (gs.enabled) {
-                        activeStyle = gs;
-                        this.$scope.activeStyleGroup = g;
-                    }
+            if (!activeStyle) {
+                this.$layerService.project.groups.forEach((g) => {
+                    g.styles.forEach((gs) => {
+                        if (gs.enabled) {
+                            activeStyle = gs;
+                            this.$scope.activeStyleGroup = g;
+                        }
+                    });
                 });
-            });
+            } else {
+                this.$scope.activeStyleGroup = activeStyle.group;
+            }
             if (!activeStyle) return leg;
 
             var ptd: csComp.Services.IPropertyType = this.$layerService.propertyTypeData[activeStyle.property];

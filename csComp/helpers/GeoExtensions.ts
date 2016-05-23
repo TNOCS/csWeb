@@ -100,7 +100,11 @@ module csComp.Helpers {
             if (arr[0] instanceof Array) {
                 if (arr[0][0] instanceof Array) {
                     if (arr[0][0][0] instanceof Array) {
-                        arr = arr[0][0];
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
                     } else {
                         arr = arr[0];
                     }

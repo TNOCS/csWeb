@@ -1063,9 +1063,10 @@ module csComp.Services {
             if (f.geometry.type.toLowerCase() === 'point') {
                 center = f.geometry.coordinates;
             } else {
-                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates);
+                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates).coordinates;
             }
-            this.map.getMap().panTo(new L.LatLng(center.coordinates[1], center.coordinates[0]));
+            if (!center || center.length < 2) return;
+            this.map.getMap().panTo(new L.LatLng(center[1], center[0]));
         }
 
         public editFeature(feature: IFeature, select = true) {
@@ -1377,6 +1378,16 @@ module csComp.Services {
                 s.action = LayerUpdateAction.deleteFeature;
                 s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction('layer', s);
+            }
+            
+            if (feature.isSelected) {
+                this.lastSelectedFeature = null;
+                this.selectedFeatures.some((f, ind, arr) => {
+                    if (f.id === feature.id) {
+                        arr.splice(ind, 1);
+                        return true;
+                    }
+                });
             }
         }
 
