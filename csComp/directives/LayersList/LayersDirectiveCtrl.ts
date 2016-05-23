@@ -77,10 +77,10 @@ module LayersDirective {
             });
 
             this.$messageBusService.subscribe('featuretype', (action: string, type: csComp.Services.IFeatureType) => {
-                if (action === "startEditing") {
+                if (action === 'startEditing') {
                     this.editFeaturetype(type);
                 }
-                if (action === "stopEditing") {
+                if (action === 'stopEditing') {
                     this.editLayer(this.layer);
                 }
             });
@@ -135,7 +135,7 @@ module LayersDirective {
         }
 
         public dropdownpos(event) {
-            alert('drop down');
+            // alert('drop down');
             //     var dropDownTop = button.offset().top + button.outerHeight();
             // dropdown.css('top', dropDownTop + 'px');
             // dropdown.css('left', button.offset().left + 'px');
@@ -153,7 +153,7 @@ module LayersDirective {
                     types.forEach(t => {
                         tr.featureTypes[t] = null;
                         delete tr.featureTypes[t];
-                    })
+                    });
                     this.$layerService.saveResource(tr);
                 }
 
@@ -283,8 +283,8 @@ module LayersDirective {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
 
+                        var fid = 'new object';
                         var tr = this.$layerService.findResourceByLayer(layer);
-                        var fid = 'new object'
                         if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
                             if (!ft._isInitialized) {
@@ -295,7 +295,7 @@ module LayersDirective {
                                     var pt = ft._propertyTypeData[k];
                                     ft._propertyTypeData.forEach(pt => {
                                         f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? '' : pt.defaultValue;
-                                    })
+                                    });
                                 }
                             }
                             fid = ft.name;
@@ -366,9 +366,6 @@ module LayersDirective {
             this.state = 'layers';
         }
 
-
-
-
         /* start editing layer */
         public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = 'editlayer';
@@ -393,7 +390,7 @@ module LayersDirective {
                     interact('#layerfeaturetype-' + key).onend = null;
                 };
             }
-            (<csComp.Services.EditableGeoJsonSource>layer.layerSource).stopEditing(layer);
+            this.$layerService.stopEditingLayer(layer);
         }
 
         /** change layer opacity */
@@ -491,12 +488,13 @@ module LayersDirective {
             }
 
             if (group) {
-                this.newLayer.id = this.newLayer.title;
+                let id = encodeURI(this.newLayer.title.toLowerCase());
+                this.newLayer.id = id;
 
                 var nl = this.newLayer;
 
-                // make a sensible id
-                var id = nl.title.replace(' ', '_').toLowerCase();
+                //// make a sensible id
+                //var id = nl.title.replace(' ', '_').toLowerCase();
                 /// create layer on server
                 if (this.newLayer.type === 'dynamicgeojson') {
                     this.newLayer.url = 'api/layers/' + id;
@@ -522,7 +520,7 @@ module LayersDirective {
                                     })
                                     .error((e) => {
                                         // error adding resource, stop
-                                        this.$messageBusService.notifyError("Creating layer", "Error creating new layer, resource already exists");
+                                        this.$messageBusService.notifyError('Creating layer', 'Error creating new layer, resource already exists');
                                         cb(e);
                                     });
                             } else {
@@ -559,20 +557,18 @@ module LayersDirective {
                                     cb(null);
                                 })
                                 .error((e) => {
-                                    this.$messageBusService.notifyError("Creating layer", "Error creating new layer");
+                                    this.$messageBusService.notifyError('Creating layer', 'Error creating new layer');
                                     console.log('error adding layer');
                                     cb(e);
                                 });
                         }
                     ], (e) => {
                         if (!e) {
-                            this.$messageBusService.notifyError("Creating layer", "Layer created");
+                            this.$messageBusService.notifyError('Creating layer', 'Layer created');
                             this.exitDirectory();
                         }
                     });
-                }
-                else // not a dynamic project, only save it locally
-                {
+                } else {// not a dynamic project, only save it locally
                     this.$layerService.initLayer(group, this.newLayer);
                     group.layers.push(this.newLayer);
                     this.$layerService.addLayer(this.newLayer);
@@ -589,16 +585,13 @@ module LayersDirective {
             if (event.altKey) {
                 if (!layer.enabled) {
                     this.$layerService.addLayer(layer, () => { this.editLayer(layer); });
-                }
-                else {
+                } else {
                     this.editLayer(layer);
                 }
-            }
-            else
-            {
+            } else {
                 this.$layerService.toggleLayer(layer);
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }
@@ -618,8 +611,8 @@ module LayersDirective {
                     var actions = acs.getLayerActions(layer);
                     if (_.isArray(actions)) actions.forEach(a => layer._gui['options'].push(a));
                 }
-            })
-           
+            });
+
             layer._gui['options'].push({ title: 'Layer Settings', callback: (l, ls) => this.layerSettings(l) });
 
             (<any>$(event.target).next()).dropdown('toggle');

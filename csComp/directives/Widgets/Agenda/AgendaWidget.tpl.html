@@ -1,0 +1,13 @@
+<div style="margin: 2px 5px;overflow:none;height:100%">
+    <div data-ng-if="vm.title" style="padding:0px;font-size:16px;margin:0;">
+        <h1 style="margin: 20px 10px; font-weight: bold;">{{vm.title}}</h1>
+
+        <ul class="list-unstyled">
+            <li data-ng-repeat="ev in vm.agenda" class="row" style="margin: 3px 10px; font-weight: bold;">
+                <div class="col-md-2">{{ev.startTime}}</div>
+                <div class="col-md-2">{{ev.endTime  }}</div>
+                <div class="col-md-7">{{ev.title    }}</div>
+            </li>
+        </ul>
+    </div>
+</div>

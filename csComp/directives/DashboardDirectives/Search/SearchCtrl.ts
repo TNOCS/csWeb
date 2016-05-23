@@ -3,6 +3,9 @@ module Search {
 
     export interface ISearchScope extends ng.IScope {
         vm: SearchCtrl;
+        // search visible
+        sv: boolean;
+
     }
 
     export interface IWidgetScope extends ng.IScope {
@@ -47,7 +50,34 @@ module Search {
 
             $scope.$watch('vm.query', _.throttle(search => {
                 this.$dashboardService.search = { query: search };
-            }, 500));
+            }, 700, { leading: false }));
+
+            this.$messageBusService.subscribe('search', (title, search: csComp.Services.ISearch) => {
+                switch (title) {
+                    case 'reset':
+                        this.closeSearch();
+                        break;
+                }
+            });
+        }
+
+        startSearch() {
+            if (this.$scope.sv) {
+                setTimeout(() => {
+                    $('#searchInput').focus();
+                }, 100);
+            }
+        }
+
+        closeSearch() {
+            this.$timeout(() => {
+                $('#searchInput').val('');
+                this.$scope.sv = false;
+            }, 0);
+        }
+        
+        selectFirst() {
+            this.$messageBusService.publish('search', 'selectFirstResult');
         }
     }
 }

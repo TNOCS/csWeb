@@ -2,10 +2,10 @@
     <h4 class="rightpanel-header">
         <!-- Show popup with complete title for long names -->
         <div ng-if="callOut.title.length >= 27" uib-popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
-            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
         <div ng-if="callOut.title.length < 27">
-            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
     </h4>
 
@@ -21,14 +21,14 @@
         </div>
 
         <div class="row" ng-if="callOut.sectionCount() >= 3" ng-hide="configMode">
-            <ul class="nav nav-tabs" id="featureTabs2" style="margin-left:10px">
+            <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a data-target="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
                     </a>
                 </li>
                 <li class="dropdown" ng-init="selectedSection.title=vm.defaultDropdownTitle">
-                    <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
+                    <a class="dropdown-toggle" style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
                         <li data-ng-repeat="key in callOut.sectionKeys" ng-if="!($first && callOut.hasInfoSection)">
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    
+
 
     <div ng-if="vm.$mapService.isAdminExpert">
         <div ng-if="configMode" style="margin:5px">
@@ -49,8 +49,8 @@
     </div>
 
     <div ng-if="!configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden; width: 100%" resize resize-y="150">
-        
-         <div class="layer-actions" ng-if="!configMode" style="background:white">
+
+         <div ng-show="vm.$mapService.isExpert && feature.layer.isEditable"class="layer-actions" ng-if="!configMode" style="background:white">
             <!--<div class="inner-addon left-addon" style="margin:5px;float:left" ng-focus="">
                 <i class="fa fa-search"></i>
                 <input type="text" ng-model="propFilter" expand-to="200px" style="width:100px;height:30px" />
@@ -60,26 +60,26 @@
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-pencil layer-action-icon" />{{'EDIT' | translate}}
             </button>
-            
+
              <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'SAVE' | translate}}
             </button>
-            
+
             <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable" ng-click="vm.removeFeature()" class="layer-action"
                 popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'REMOVE' | translate}}
             </button>
 
         </div>
-        
+
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
-            
+
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
                     popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
-                        <div ng-if="feature._gui.editMode" class="property-edit">
+                        <div ng-if="feature._gui.editMode || item.propertyType.alwaysEditable" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
                                 <ng-form name="userFieldForm">
@@ -106,7 +106,7 @@
                         </div>
 
                         <!-- Currently-styled-property background gray -->
-                        <div ng-if="!feature._gui.editMode" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
+                        <div ng-if="!feature._gui.editMode && !item.propertyType.alwaysEditable" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
                             <!-- Currently-styled-property background styleColor -->
                             <!-- <div ng-show="!feature._gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature._gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">
@@ -117,7 +117,7 @@
                                     <div ng-style="item.isDraft && {'opacity':0.5}" class="feature-prop-title">{{item.propertyType.title}}</div>
                                     <div ng-if="!item.configMode" ng-hide="item.propertyType.hideValue" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
-                                            {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
+                                            {{item.value}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
@@ -125,7 +125,7 @@
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
-                                            <div ng-repeat="media in item.feature.properties[item.property] track by $index">
+                                            <div style="cursor:pointer" ng-click="vm.openImage(media)" ng-repeat="media in item.feature.properties[item.property] track by $index">
                                                 <img ng-src="{{media}}" style="width:300px;float:left;margin:5px">
                                             </div>
                                         </div>

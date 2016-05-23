@@ -29,13 +29,13 @@ module csComp.Services {
         layerId: string;
         layer: csComp.Services.ProjectLayer;
         type?: string;
+        fType?: IFeatureType;
         geometry: IGeoJsonGeometry;
         properties?: IProperty;
         propertiesOld?: IProperty;
         isSelected?: boolean;
         htmlStyle?: string;
         featureTypeName?: string;
-        fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized?: boolean;
         lastUpdated: number;
@@ -60,7 +60,7 @@ module csComp.Services {
         index: number;
         layerId: string;
         layer: ProjectLayer;
-        type: string;
+        type: string = 'Feature';
         geometry: IGeoJsonGeometry;
         properties: IProperty;
         propertiesOld: IProperty;
@@ -82,6 +82,7 @@ module csComp.Services {
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};
             res.id = f.id;
+            res.layerId = f.layerId;
             res.type = f.type;
             res.geometry = f.geometry;
             res.properties = f.properties;
@@ -186,6 +187,8 @@ module csComp.Services {
         isSearchable?: boolean;
         minValue?: number;
         maxValue?: number;
+        /** always show in edit mode */
+        alwaysEditable?: boolean;
         defaultValue?: number;
         count?: number;
         calculation?: string;
@@ -227,6 +230,7 @@ module csComp.Services {
         nameLabel?: string;
         /** Default marker type, e.g. default is a circle, other types include pin and bubble */
         marker?: string;
+
         /** The background fill color */
         fillColor?: string;
         /** The stroke/outline color */
@@ -242,6 +246,8 @@ module csComp.Services {
         /** Height of the property, e.g. when styling a property in Cesium */
         height?: number;
         opacity?: number;
+
+        strokeOpacity?: number;
         fillOpacity?: number;
         /** Default true, draw an outline around the feature (sometimes, you wish to turn it off when dealing with a grid) */
         stroke?: boolean;
@@ -307,7 +313,6 @@ module csComp.Services {
         /** Optional expressions that are shown in the legend list. */
         legendExpr?: IPropertyType[];
         properties?: {};
-        _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
         contourProperty?: string;
@@ -319,7 +324,10 @@ module csComp.Services {
         languages?: ILanguageData;
         eventStyle?: IEventStyleProperties;
         /** Action after selection, not set: open Feature Properties */
-        selectAction?: string;
+        selectActions?: string[];
+        /** If true, specifies the properties to publish items on the timeline. */
+        timelineConfig?: Timeline.ITimelineConfig;
+        _propertyTypeData?: IPropertyType[];
         _isInitialized?: boolean;
         _resource?: ITypesResource;
     }

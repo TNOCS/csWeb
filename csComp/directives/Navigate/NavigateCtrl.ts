@@ -62,13 +62,18 @@ module Navigate {
             });
 
             this.$messageBus.subscribe('search', (title, search: csComp.Services.ISearch) => {
-                this.searchResults = [];
                 switch (title) {
                     case 'update':
+                        this.searchResults = [];
                         this.doSearch(search.query);
                         break;
                     case 'reset':
+                        this.searchResults = [];
+                        this.$dashboardService._search.isActive = false;
                         this.clearSearchLayer();
+                        break;
+                    case 'selectFirstResult':
+                        this.selectFirstResult();
                         break;
                 }
             });
@@ -164,7 +169,7 @@ module Navigate {
                 mark = csComp.Helpers.nextChar(mark);
             });
             csComp.Services.GeojsonRenderer.render(this.$layerService, this.searchResultLayer, this.$layerService.activeMapRenderer);
-            this.fitMap(this.searchResultLayer);
+            //this.fitMap(this.searchResultLayer);
         }
 
         /** Fit the search results, if any, to the map. */
@@ -188,13 +193,18 @@ module Navigate {
             bbox.northEast = [bounds.yMax, bounds.xMax];
 
             // var b = csComp.Helpers.GeoExtensions.getBoundingBox(layer.data);
-            if (this.searchResults.length === 1) {
+            if (this.searchResults.length === 1 && this.searchResults[0].location.type.toLowerCase() === 'point') {
                 this.$messageBus.publish('map', 'setzoom', { loc: bbox.southWest, zoom: 16 });
             } else {
                 this.$messageBus.publish('map', 'setextent', bbox);
             }
         }
-
+        
+        public selectFirstResult() {
+            if (this.searchResults && this.searchResults.length > 0) {
+                this.selectSearchResult(this.searchResults[0]);
+            }
+        }
 
         public selectSearchResult(item: csComp.Services.ISearchResultItem) {
             if (item.click) item.click(item);
@@ -204,10 +214,14 @@ module Navigate {
             this.$layerService.actionServices.forEach(as => {
                 if (!as.search) return;
                 as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
-                    this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
-                    this.searchResults = this.searchResults.concat(result).sort((a, b) => { return ((b.score - a.score) || -1); });
-                    this.updateSearchLayer();
-                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    if (this.$dashboardService._search.isActive) {
+                        this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
+                        this.searchResults = this.searchResults.concat(result).sort((a, b) => { return ((b.score - a.score) || -1); });
+                        this.updateSearchLayer();
+                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    } else {
+                        console.log('Ignoring old results');
+                    }
                 });
             });
         }

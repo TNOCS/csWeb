@@ -17,7 +17,7 @@ module csComp.Helpers {
         arr.forEach(a => {
             if (skipTitlesOrIdStartingWithUnderscore
                 && ((a.hasOwnProperty('title') && a['title'][0] === '_')
-                ||  (a.hasOwnProperty('id') && a['id'][0] === '_'))) return;
+                    || (a.hasOwnProperty('id') && a['id'][0] === '_'))) return;
             result.push(callback(a));
         });
         return result;
@@ -42,25 +42,24 @@ module csComp.Helpers {
     }
 
     /** get the name part of a featureid (strips resource uri part if needed) */
-    export function getFeatureTypeName(id : string)
-    {
-        if (id.indexOf('#')>=0)
-        {
+    export function getFeatureTypeName(id: string) {
+        if (id.indexOf('#') >= 0) {
             return id.split('#')[1];
         }
         else return id;
     }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
-        if (feature && (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'point') || (feature.fType && feature.fType.style && feature.fType.style.drawingMode && feature.fType.style.drawingMode === "point")) {
+        if (feature && (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'point') || (feature.fType && feature.fType.style && feature.fType.style.drawingMode && feature.fType.style.drawingMode.toLowerCase() === "point")) {
             var p: csComp.Services.IFeatureTypeStyle = {
                 nameLabel: 'Name',
                 drawingMode: 'Point',
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
                 fillOpacity: 1,
+                strokeOpacity: 0,
                 opacity: 1,
-                fillColor: '#FFFF00',
+                fillColor: '#000000',
                 stroke: true,
                 rotate: 0,
                 cornerRadius: 50,
@@ -75,6 +74,7 @@ module csComp.Helpers {
                 strokeWidth: 1,
                 strokeColor: '#0033ff',
                 fillOpacity: 0.75,
+                strokeOpacity: 1,
                 opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
@@ -111,6 +111,52 @@ module csComp.Helpers {
             var a: any = document.createElement('a');
             document.body.appendChild(a);
             a.href = 'data:    text/' + fileType + ';charset=utf-8,' + encodeURI(data);
+            a.target = '_blank';
+            a.download = filename;
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+    
+    /**
+     * Export image to the file system.
+     */
+    export function saveImage(data: string, filename: string, fileType: string) {
+        fileType = fileType.replace('.', '');
+        filename = filename.replace('.' + fileType, '') + '.' + fileType; // if the filename already contains a type, first remove it before adding it.
+
+        if (navigator.msSaveBlob) {
+            // IE 10+
+            var link: any = document.createElement('a');
+            link.addEventListener('click', event => {
+                var byteCharacters = atob(data.split(',').pop());
+                var byteArrays = [];
+                var sliceSize = 512;
+
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                var blob = new Blob(byteArrays, { 'type': 'image/' + fileType + ';' });
+                navigator.msSaveBlob(blob, filename);
+            }, false);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else if (!csComp.Helpers.supportsDataUri()) {
+            // Older versions of IE: show the data in a new window
+            var popup = window.open('', fileType, '');
+            popup.document.body.innerHTML = '<pre>' + data + '</pre>';
+        } else {
+            // Support for browsers that support the data uri.
+            var a: any = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = encodeURI(data);
             a.target = '_blank';
             a.download = filename;
             a.click();
@@ -217,7 +263,7 @@ module csComp.Helpers {
         return propertyTypes;
     }
 
-    export function getPropertyKey(keyString : string, property : string) : string {
+    export function getPropertyKey(keyString: string, property: string): string {
         var keys = keyString.split(';');
         var prop = property;
         var count = 1;
@@ -327,7 +373,7 @@ module csComp.Helpers {
 
     export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
         if (!layer || !prop) return;
-        if (prop.type === 'number') {
+        if (prop.type === 'number' || prop.hasOwnProperty('legend')) {
             if (!layer._gui.hasOwnProperty('sections')) layer._gui['sections'] = {};
             var sections: { [key: string]: csComp.Services.Section } = layer._gui['sections'];
             var s = (prop.section) ? prop.section : 'general';
@@ -353,16 +399,17 @@ module csComp.Helpers {
         var displayValue: string;
         // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
         //     text = text.replace(/&amp;/g, '&');
-        if (typeof text === 'undefined' || !pt.type) return text;
+        if (text === undefined || text === null || !pt.type) return text;
         switch (pt.type) {
             case 'bbcode':
-                if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))
-                    text = String.format(pt.stringFormat, text);
+                if (pt.stringFormat) text = String.format(pt.stringFormat, text);
                 displayValue = XBBCODE.process({ text: text }).html;
                 break;
             case 'number':
                 if (!$.isNumeric(text)) {
                     displayValue = text;
+                } else if (isNaN(text)) {
+                    displayValue = '';
                 } else if (!pt.stringFormat) {
                     displayValue = text.toString();
                 } else {
@@ -414,7 +461,9 @@ module csComp.Helpers {
                 }
                 break;
             default:
-                displayValue = text;
+                displayValue = pt.stringFormat
+                    ? String.format(pt.stringFormat, text)
+                    : text;
                 break;
         }
         return displayValue;
@@ -554,7 +603,7 @@ module csComp.Helpers {
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string, replace? : boolean, canClose? : boolean): Services.RightPanelTab {
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string, replace?: boolean, canClose?: boolean): Services.RightPanelTab {
         var rpt = new Services.RightPanelTab();
         rpt.container = container;
         rpt.data = data;
@@ -597,88 +646,101 @@ module csComp.Helpers {
         return url;
     }
 
-    export function createIconHtml(feature: IFeature): {
+    export function createIconHtml(feature: IFeature, style? : csComp.Services.IFeatureTypeStyle): {
         html: string,
         iconPlusBorderWidth: number,
         iconPlusBorderHeight: number
     } {
-        var es = feature.effectiveStyle;
+        var es = (typeof style === 'undefined') ? feature.effectiveStyle : style;
         var iconUri = es.iconUri; //ft.style.iconUri;
-
-        // TODO refactor to object
-        var iconPlusBorderWidth, iconPlusBorderHeight;
-        if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
-            iconPlusBorderWidth = es.iconWidth + (2 * es.strokeWidth);
-            iconPlusBorderHeight = es.iconHeight + (2 * es.strokeWidth);
-        } else {
-            iconPlusBorderWidth = es.iconWidth;
-            iconPlusBorderHeight = es.iconHeight;
-        }
-
         var html: string,
             content: string,
             closeImageTag: string = '';
-
-        if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
-            var textSize = es.innerTextSize || 12;
-            if (es.marker === 'pin') {
-                content = `<div class="pin-inner" style="font-size:${textSize}px;">${feature.properties[es.innerTextProperty]}</div>`;
-            } else {
-                content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[es.innerTextProperty]}</span>`;
-            }
-        } else if (iconUri != null) {
-            // Must the iconUri be formatted?
-            if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-            content = `<img src="${iconUri}" style="width:${es.iconWidth}px;height:${es.iconHeight}px;display:block;`;
-            if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
-            closeImageTag = '" />';
-        }
-
-        switch (es.marker) {
-            case 'pin':
-                if (es.innerTextProperty) {
-                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${es.fillColor};`
-                        + `width:${iconPlusBorderWidth}px;`
-                        + `height:${iconPlusBorderHeight}px;`
-                        + `opacity:${es.opacity || 1};`
-                        + `">${content}</div>`;
+        switch (es.drawingMode) {
+            case 'Line':
+                break;
+            case 'Polygon':
+                html = '<img src="images/bom.png"></img>';
+                break;
+            case 'Point':
+                // TODO refactor to object
+                var iconPlusBorderWidth, iconPlusBorderHeight;
+                if (es.hasOwnProperty('strokeWidth') && es.strokeWidth > 0) {
+                    iconPlusBorderWidth = es.iconWidth + (2 * es.strokeWidth);
+                    iconPlusBorderHeight = es.iconHeight + (2 * es.strokeWidth);
                 } else {
-                    html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                        + `background:${es.fillColor};`
-                        + `width:${iconPlusBorderWidth}px;`
-                        + `height:${iconPlusBorderHeight}px;`
-                        + `opacity:${es.opacity || 1};`
-                        + '"></div>'
-                        + content
-                        + `position:absolute;margin:${es.strokeWidth}px" />`;
+                    iconPlusBorderWidth = es.iconWidth;
+                    iconPlusBorderHeight = es.iconHeight;
                 }
-                break;
-            case 'bubble':
-                html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
-                    + `background:${es.fillColor};`
-                    + `width:${iconPlusBorderWidth}px;`
-                    + `height:${iconPlusBorderHeight}px;`
-                    + `opacity:${es.opacity || 1};`
-                    + '"></div>'
-                    + content + `position:absolute;margin:${es.strokeWidth}px" />`;
-                break;
-            default:
-                html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
-                    + `background:${es.fillColor};`
-                    + `width:${iconPlusBorderWidth}px;`
-                    + `height:${iconPlusBorderHeight}px;`
-                    + `border-radius:${es.cornerRadius}%;`
-                    + 'border-style:solid;'
-                    + `border-color:${es.strokeColor};`
-                    + `border-width:${es.strokeWidth}px;`
-                    + `opacity:${es.opacity || 1};`
-                    + '">'
-                    + content + closeImageTag
-                    + '</div>';
-                break;
-        }
 
+                if (es.innerTextProperty != null && feature.properties.hasOwnProperty(es.innerTextProperty)) {
+                    var textSize = es.innerTextSize || 12;
+                    if (es.marker === 'pin') {
+                        content = `<div class="pin-inner" style="font-size:${textSize}px;">${feature.properties[es.innerTextProperty]}</div>`;
+                    } else {
+                        content = `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[es.innerTextProperty]}</span>`;
+                    }
+                } else if (iconUri != null) {
+                    // Must the iconUri be formatted?
+                    if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+                    content = `<img src="${iconUri}" style="width:${es.iconWidth}px;height:${es.iconHeight}px;display:block;`;
+                    if (es.rotate && es.rotate > 0) content += `;transform:rotate(${es.rotate}deg)`;
+                    closeImageTag = '" />';
+                }
+
+                if (isNaN(es.fillOpacity)) es.fillOpacity = 1;
+
+                var bc = chroma(es.fillColor).alpha(+es.fillOpacity).rgba();
+                var backgroundColor = `rgba(${bc[0]},${bc[1]},${bc[2]},${bc[3]})`;
+
+                switch (es.marker) {
+                    case 'pin':
+                        if (es.innerTextProperty) {
+                            html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                                + `background:${backgroundColor};`
+                                + `width:${iconPlusBorderWidth}px;`
+                                + `height:${iconPlusBorderHeight}px;`
+                                + `opacity:${es.opacity || 1};`
+                                + `">${content}</div>`;
+                        } else {
+                            html = '<div class="pin" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                                + `background:${backgroundColor};`
+                                + `width:${iconPlusBorderWidth}px;`
+                                + `height:${iconPlusBorderHeight}px;`
+                                + `opacity:${es.opacity || 1};`
+                                + '"></div>'
+                                + content
+                                + `position:absolute;margin:${es.strokeWidth}px" />`;
+                        }
+                        break;
+                    case 'bubble':
+                        html = '<div class="bubble" style="display:inline-block;vertical-align:bottom;text-align:center;'
+                            + `background:${backgroundColor};`
+                            + `width:${iconPlusBorderWidth}px;`
+                            + `height:${iconPlusBorderHeight}px;`
+                            + `opacity:${es.opacity || 1};`
+                            + '"></div>'
+                            + content + `position:absolute;margin:${es.strokeWidth}px" />`;
+                        break;
+                    default:
+                        var sc = chroma(es.strokeColor).alpha(+es.strokeOpacity || 1).rgba();
+                        var strokeColor = `rgba(${sc[0]},${sc[1]},${sc[2]},${sc[3]})`;
+
+                        html = '<div style="display:inline-block;vertical-align:middle;text-align:center;'
+                            + `background:${backgroundColor};`
+                            + `width:${iconPlusBorderWidth}px;`
+                            + `height:${iconPlusBorderHeight}px;`
+                            + `border-radius:${es.cornerRadius}%;`
+                            + 'border-style:solid;'
+                            + `border-color:${strokeColor};`
+                            + `border-width:${es.strokeWidth}px;`
+                            + `opacity:${es.opacity || 1};`
+                            + '">'
+                            + content + closeImageTag
+                            + '</div>';
+                        break;
+                }
+        }
         var iconHtml = {
             html: html,
             iconPlusBorderWidth: iconPlusBorderWidth,

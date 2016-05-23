@@ -42,7 +42,7 @@ module LayerSettings {
         // public addLayer() {
         // }
 
-        public saveLayer() {
+        public saveLayer() {            
             this.$layerService.saveProject();
         }
 

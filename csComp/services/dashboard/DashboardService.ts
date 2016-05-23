@@ -34,7 +34,7 @@ module csComp.Services {
         public socket;
         public editWidgetMode: boolean;
         /** Search status: if isActive is true, show the Navigate directive. */
-        private _search: ISearch = { isActive: false, query: '' };
+        public _search: ISearch = { isActive: false, query: '' };
         /** website is running in touch mode */
         public touchMode: boolean;
         public rightPanelTabs: { [key: string]: RightPanelTab } = {};
@@ -96,6 +96,16 @@ module csComp.Services {
                 }
             });
 
+            this.widgetTypes['agenda'] = <csComp.Services.IWidget>{
+                id: 'agenda',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/agenda.png',
+                description: 'Show an event calendar.'
+            };
+            this.widgetTypes['presentation'] = <csComp.Services.IWidget>{
+                id: 'presentation',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/presentation.png',
+                description: 'Create and share presentations.'
+            };
             this.widgetTypes['buttonwidget'] = <IWidget>{
                 id: 'buttonwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
@@ -170,6 +180,11 @@ module csComp.Services {
                 id: 'simstate',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/ServerStatus.png',
                 description: 'Show status of simulation services.'
+            };
+            this.widgetTypes['locationwidget'] = <IWidget>{
+                id: 'locationwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
+                description: 'Show reverse geocode info.'
             };
         }
 
@@ -262,8 +277,6 @@ module csComp.Services {
                 }
                 this.rightPanelTabs[tab.container] = tab;
             }
-
-
         }
 
         public deactivateTabContainer(container: string) {

@@ -6,6 +6,7 @@ module LayerEditor {
 
     export interface ILayerEditorScope extends ng.IScope {
         vm: LayerEditorCtrl;
+        layer : csComp.Services.ProjectLayer;
     }
 
     export class LayerEditorCtrl {
@@ -37,12 +38,16 @@ module LayerEditor {
             private $dashboardService: csComp.Services.DashboardService
         ) {
             this.scope = $scope;
-            $scope.vm = this;
-            console.log('open layer editor');
-            if ($scope.$parent.hasOwnProperty("b")) {
-                this.layer = $scope.$parent["b"]["_layer"];
-            } else if ($scope.$parent.$parent.hasOwnProperty("vm")) this.layer = $scope.$parent.$parent["vm"]["layer"];
-
+            $scope.vm = this;            
+            if (!this.scope.layer) {
+                if ($scope.$parent.hasOwnProperty("b")) {
+                    this.layer = $scope.$parent["b"]["_layer"];
+                } else if ($scope.$parent.$parent.hasOwnProperty("vm")) this.layer = $scope.$parent.$parent["vm"]["layer"];
+            }
+            else
+            {
+                this.layer = this.scope.layer;
+            }
 
             var ft = <csComp.Services.IFeatureType>{};
 
@@ -52,7 +57,8 @@ module LayerEditor {
             // ft.style.drawingMode
         }
 
-        public startDraw(featureType: csComp.Services.IFeatureType) {
+        public startDraw(featureType: csComp.Services.IFeatureType, event?) {
+            if (event) event.stopPropagation();
             this.$mapService.startDraw(this.layer, featureType);
         }
 
@@ -119,9 +125,9 @@ module LayerEditor {
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
-                        this.$layerService.editFeature(f,true);
+                        this.$layerService.editFeature(f, true);
 
-                    }, 10);    
+                    }, 10);
                     $(event.target).remove();
                 }
             }).on('move', (event) => {
@@ -185,7 +191,7 @@ module LayerEditor {
                         this.$messageBusService.publish('featuretype', 'stopEditing', type);
                     }
                 }
-            }) 
+            })
         }
 
         editFeaturetype(type: csComp.Services.IFeatureType) {

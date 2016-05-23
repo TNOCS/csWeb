@@ -54,6 +54,8 @@ module csComp.Services {
         enableLive:    boolean = true;
         enablePlay:    boolean = true;
         enableEvents:  boolean = true;
+        enableFocus:   boolean = true;
+        expandHeight:        number;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -65,6 +67,8 @@ module csComp.Services {
             if (typeof res.enableLive === 'undefined') { res.enableLive = true }
             if (typeof res.enablePlay === 'undefined') { res.enablePlay = true }
             if (typeof res.enableEvents === 'undefined') { res.enableEvents = true }
+            if (typeof res.enableFocus === 'undefined') { res.enableFocus = true }
+            if (typeof res.expandHeight === 'undefined') { res.expandHeight = 150; }
             return res;
         }
 
@@ -115,6 +119,7 @@ module csComp.Services {
 
     /** Project within a solution file, refers to a project url*/
     export class SolutionProject {
+        id: string;
         title: string;
         url: string;
         dynamic: boolean;
@@ -199,6 +204,10 @@ module csComp.Services {
         datasources:       DataSource[];
         dataSets:          DataSet[];
         viewBounds:        IBoundingBox;
+        /** When true, show a scale at the bottom left */
+        showScale:         boolean;
+        /** When true, show the latlng of the clicked location */
+        showLocation:      boolean;
         collapseAllLayers: boolean;
         /** if enabled a user can change mode (novice, intermediate, etc.), default = true */
         exportModeSelectionEnabled : boolean;

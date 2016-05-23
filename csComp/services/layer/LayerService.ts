@@ -73,7 +73,8 @@ module csComp.Services {
             '$rootScope',
             'geoService',
             '$http',
-            'expressionService'
+            'expressionService',
+            'actionService'
         ];
 
         constructor(
@@ -85,8 +86,11 @@ module csComp.Services {
             public $rootScope: any,
             public geoService: GeoService,
             public $http: ng.IHttpService,
-            private expressionService: csComp.Services.ExpressionService
+            private expressionService: ExpressionService,
+            public actionService: ActionService
         ) {
+            this.actionService.init(this);
+
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb = $messageBusService;
@@ -119,24 +123,23 @@ module csComp.Services {
                 this.refreshActiveLayers();
             }, 500);
 
-            $("body").keyup(e => {
-                if (e.keyCode === 46 && e.target.localName != "input") {                    
+            $('body').keyup(e => {
+                if (e.keyCode === 46 && e.target.localName !== 'input') {
                     if (this.selectedFeatures.length > 1) {
-                        this.$messageBusService.confirm("Delete objects", "Do you want to remove all (" + this.selectedFeatures.length + ") selected objects ?", r => {
+                        this.$messageBusService.confirm('Delete objects', 'Do you want to remove all (' + this.selectedFeatures.length + ') selected objects ?', r => {
                             this.selectedFeatures.forEach(f => {
-                                this.removeFeature(f,true);
+                                this.removeFeature(f, true);
                             });
                         });
-                    } else
+                    } else {
                         if (this.selectedFeatures.length === 1) {
-                            this.$messageBusService.confirm("Delete object", "Are you sure", r => {                                
-                                    this.removeFeature(this.selectedFeatures[0],true);
-                                
+                            this.$messageBusService.confirm('Delete object', 'Are you sure', r => {
+                                this.removeFeature(this.selectedFeatures[0], true);
                             });
                         }
-
+                    }
                 }
-            })
+            });
 
             $messageBusService.subscribe('timeline', (trigger: string, date: Date) => {
                 switch (trigger) {
@@ -643,7 +646,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            var disableLayers = [];
             async.series([
                 (callback) => {
                     // check if in this group only one layer can be active
@@ -651,7 +653,8 @@ module csComp.Services {
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
                             if (l.id !== layer.id && l.enabled) {
-                                disableLayers.push(l);
+                                this.removeLayer(l);
+                                l.enabled = false;
                             }
                         });
                     }
@@ -685,21 +688,7 @@ module csComp.Services {
                         return;
                     }
                     layer.layerSource = this.layerSources[layerSource];
-                    // load layer from source
-                    if (layerSource === 'database') {
-                        this.$messageBusService.serverSubscribe(layer.id, 'layer', (sub: string, msg: any) => {
-                            //console.log(msg);
-                            if (msg.action === 'layer-update') {
-                                if (!msg.data.group) {
-                                    msg.data.group = this.findGroupByLayerId(msg.data);
-                                }
-                                this.addLayer(msg.data, () => { });
-                            }
-                        });
-                    }
                     layer.layerSource.addLayer(layer, (l) => {
-                        if (layerloaded) layerloaded(layer);
-
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
@@ -719,16 +708,9 @@ module csComp.Services {
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
                         }
+                        if (layerloaded) layerloaded(layer);
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-                    callback(null, null);
-                },
-                (callback) => {
-                    // now remove the layers that need to be disabled
-                    disableLayers.forEach((l) => {
-                        this.removeLayer(l);
-                        l.enabled = false;
-                    });
                     callback(null, null);
                 }
             ]);
@@ -1074,6 +1056,19 @@ module csComp.Services {
             }
         }
 
+        public centerFeatureOnMap(selFeatures: IFeature[]) {
+            if (!selFeatures || !_.isArray(selFeatures) || selFeatures.length === 0) return;
+            var f = selFeatures[0];
+            var center;
+            if (f.geometry.type.toLowerCase() === 'point') {
+                center = f.geometry.coordinates;
+            } else {
+                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates).coordinates;
+            }
+            if (!center || center.length < 2) return;
+            this.map.getMap().panTo(new L.LatLng(center[1], center[0]));
+        }
+
         public editFeature(feature: IFeature, select = true) {
             feature._gui['editMode'] = true;
             this.updateFeature(feature);
@@ -1086,6 +1081,7 @@ module csComp.Services {
             this.activeMapRenderer.updateFeature(feature);
         }
 
+        /** Called when a feature is selected. */
         public selectFeature(feature: IFeature, multi = false, force = false) {
             if (force) {
                 feature.isSelected = true;
@@ -1136,9 +1132,18 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
+                if (!feature.fType.selectActions) {
+                    this.actionService.execute('Select feature');
+                } else {
+                    feature.fType.selectActions.forEach(action => {
+                        this.actionService.execute(action, {
+                            layerId: feature.layerId
+                        })
+                    });
+                }
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
                 //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
 
@@ -1193,14 +1198,14 @@ module csComp.Services {
                     }
                 }
 
-                if (changed) {
-                    this.calculateFeatureStyle(f);
+                if (changed) {                    
                     this.updateFeature(f);
                 }
             }
         }
 
         public updateFeature(feature: IFeature) {
+            this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
             if (feature === this.lastSelectedFeature) {
                 this.$messageBusService.publish('feature', 'onFeatureUpdated', feature);
@@ -1314,6 +1319,7 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
+                feature.type = "Feature";
                 feature._gui = {
                     included: true
                 };
@@ -1373,6 +1379,16 @@ module csComp.Services {
                 s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction('layer', s);
             }
+            
+            if (feature.isSelected) {
+                this.lastSelectedFeature = null;
+                this.selectedFeatures.some((f, ind, arr) => {
+                    if (f.id === feature.id) {
+                        arr.splice(ind, 1);
+                        return true;
+                    }
+                });
+            }
         }
 
         /**
@@ -1388,6 +1404,7 @@ module csComp.Services {
                 if (style.marker) s.marker = style.marker;
                 if (style.iconUri) s.iconUri = style.iconUri;
                 if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
+                if (style.strokeOpacity >= 0) s.strokeOpacity = style.strokeOpacity;
                 if (style.opacity >= 0) s.opacity = style.opacity;
                 if (style.fillColor) s.fillColor = csComp.Helpers.getColorString(style.fillColor);
                 // Stroke is a boolean property, so you have to check whether it is undefined.
@@ -1796,7 +1813,10 @@ module csComp.Services {
                     gs.meta = property.meta;
                     var ptd = this.propertyTypeData[property.property];
                     if (ptd && ptd.legend) {
+
                         gs.activeLegend = ptd.legend;
+                        if (ptd.legend.visualAspect) gs.visualAspect = ptd.legend.visualAspect;
+
                         gs.legends[ptd.title] = ptd.legend;
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
@@ -1957,6 +1977,7 @@ module csComp.Services {
                                         break;
                                     case 'options':
                                         gf.filterType = 'row';
+                                        gf.filterLabel = f.properties[prop];
                                         break;
                                     //case 'rank':
                                     //    gf.filterType  = 'bar';
@@ -1964,6 +1985,7 @@ module csComp.Services {
                                     //    break;
                                     case 'text':
                                         gf.filterType = 'row';
+                                        gf.filterLabel = f.properties[prop];
                                         break;
                                     default:
                                         gf.filterType = 'text';
@@ -2223,14 +2245,17 @@ module csComp.Services {
             this.apply();
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
-            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');            
+            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
+            if (removeFromGroup) this.saveProject();
         }
 
         public removeAllFilters(g: ProjectGroup) {
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
-                g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
-                g.filters.length = 0;
-            }
+            // if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
+            g.filters.forEach((gf: GroupFilter) => {
+                this.removeFilter(gf);
+            });
+            g.filters.length = 0;
+            // }
         }
 
         public removeAllStyles(g: ProjectGroup) {
@@ -2247,8 +2272,6 @@ module csComp.Services {
         openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers = {};
-
-
 
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
@@ -2300,16 +2323,39 @@ module csComp.Services {
                     }
 
                     if (this.openSingleProject) {
-                        var u = 'api/projects/' + searchParams['project'];
-                        this.$http.get(u)
-                            .success(<Project>(data) => {
-                                if (data) {
-                                    this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
-                                }
-                            })
-                            .error((data) => {
-                                this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                        let projectId = searchParams['project'];
+                        // By default, look for an API project
+                        let u  = 'api/projects/' + projectId;
+                        if (!initialProject) {
+                            var foundProject = solution.projects.some(p => {
+                                // If the solution already specifies a project, use that instead.
+                                if (p.id !== projectId) return false;
+                                initialProject = p.title;
+                                //u = p.url;
+                                return true;
                             });
+                            if (!foundProject) {
+                                this.$http.get(u)
+                                    .success(<Project>(data) => {
+                                        if (data) {
+                                            this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
+                                        }
+                                    })
+                                    .error((data) => {
+                                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                    });
+                            }
+                        } else {
+                            this.$http.get(u)
+                                .success(<Project>(data) => {
+                                    if (data) {
+                                        this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
+                                    }
+                                })
+                                .error((data) => {
+                                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                });
+                        }
                     }
 
                     if (solution.projects && solution.projects.length > 0) {
@@ -2407,6 +2453,9 @@ module csComp.Services {
                 this.activeMapRenderer.fitBounds(this.project.viewBounds);
             }
 
+            this.$messageBusService.publish('map', 'showScale', this.project.showScale);
+            this.$messageBusService.publish('map', 'showLocation', this.project.showLocation);
+
             this.initTypeResources(this.project);
 
             if (this.project.eventTab) {
@@ -2441,7 +2490,6 @@ module csComp.Services {
                 }];
                 this.project.dashboards.push(d2);
             } else {
-
                 // initialize dashboards
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
@@ -2588,14 +2636,14 @@ module csComp.Services {
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
                                     } else {
-                                        this.$messageBusService.confirm('New update available for layer ' + layer.title,'Do you want to reload this layer',r=>{
-                                            if (r && l.enabled) {
-                                            var wasRightPanelVisible = this.visual.rightPanelVisible;
-                                            l.layerSource.refreshLayer(l);
-                                            this.visual.rightPanelVisible = wasRightPanelVisible;
-                                        }
-                                        });
-                                        
+                                        // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
+                                        //     if (r && l.enabled) {
+                                        //         var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                        //         l.layerSource.refreshLayer(l);
+                                        //         this.visual.rightPanelVisible = wasRightPanelVisible;
+                                        //     }
+                                        // });
+
                                     }
                                 }
                             }
@@ -2616,10 +2664,9 @@ module csComp.Services {
                                     }
                                 } else {
                                     if (project.id === this.project.id) {
-                                        this.$messageBusService.confirm('New update available for project ' + project.title, 'Do you want to reload the project?',r=>{
-                                            if (r)
-                                            {
-                                               this.openProject(solutionProject, null, project); 
+                                        this.$messageBusService.confirm('New update available for project ' + project.title, 'Do you want to reload the project?', r => {
+                                            if (r) {
+                                                this.openProject(solutionProject, null, project);
                                             }
                                         });
                                         // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
@@ -2748,7 +2795,21 @@ module csComp.Services {
                         break;
                     case 'bing':
                         if (!searchProvider.key) break;
-                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url));
+                        this.addActionService(new BingSearchAction(this.$http, searchProvider.key, searchProvider.url, searchProvider.data));
+                        break;
+                    case 'opencagedata':
+                        if (!searchProvider.key) break;
+                        let data = searchProvider.data;
+                        if (!data) {
+                            data = {
+                                countrycode: 'nl',
+                                //(min long, min lat, max long, max lat).
+                                //NL: [[[3.357962,50.7503838],[3.357962,53.5551999],[7.2275102,53.5551999],[7.2275102,50.7503838],[3.357962,50.7503838]]]
+                                bounds: '3.357962,50.7503838,7.2275102,53.5551999'
+                            };
+                        }
+                        data.messageBus = this.$messageBusService;
+                        this.addActionService(new OpenCageDataSearchAction(this.$http, searchProvider.key, searchProvider.url, data));
                         break;
                 }
             });
@@ -2768,6 +2829,11 @@ module csComp.Services {
                 this.removeLayer(layer);
                 if (loaded) loaded();
             }
+        }
+
+        public enableLayer(layer: ProjectLayer, loaded?: Function) {
+            layer.enabled = true;
+            this.addLayer(layer, () => { if (loaded) loaded() });
         }
 
         public removeGroup(group: ProjectGroup) {
@@ -3035,6 +3101,24 @@ module csComp.Services {
 
         public unlockFeature(f: IFeature) {
             delete f._gui['lock'];
+        }
+
+        public stopEditingLayer(layer: csComp.Services.ProjectLayer) {
+            this.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                delete g._gui['editing'];
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    delete layer._gui['editing'];
+                    delete layer._gui['featureTypes'];
+                    if (layer.data && layer.data.features && _.isArray(layer.data.features)) {
+                        layer.data.features.forEach(f => {
+                            delete f._gui['editMode'];
+                            this.updateFeature(f);
+                            this.saveFeature(f);
+                        })
+                    }
+                });
+            });
+            this.editing = false;
         }
 
 

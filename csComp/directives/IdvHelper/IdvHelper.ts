@@ -39,6 +39,7 @@ module Idv {
         config?: string;
         data?: string;
         localStorage? : boolean;
+        refreshTimer? : number;
         charts?: ChartConfig[];
     }
 
@@ -197,20 +198,10 @@ module Idv {
             $("#g-parent").css("height",$(window).height() - 100);   
               $("#g-parent").css("width",$(window).width() - 100);
         }
-
-
-        public initCharts(scope: ng.IScope, layerService: csComp.Services.LayerService, prepare, done) {
-            this.layerService = layerService;
-            this.scope = scope;
-            var store = 'records3';
-            this.state = "Laden configuratie";
-            
-         
-            
-          $(window).resize(()=> {
-              this.resize();
- });
-            
+        
+        public loadData(prepare,done)
+        {
+             var store = 'records3';
             async.series([
                 // get enums
                 (cb) => {
@@ -312,6 +303,32 @@ module Idv {
     }], done=> {
         
     });
+        }
+
+
+        public initCharts(scope: ng.IScope, layerService: csComp.Services.LayerService, prepare, done) {
+            this.layerService = layerService;
+            this.scope = scope;
+           
+            this.state = "Laden configuratie";
+            this.resize();
+            
+             if (this.config.refreshTimer)
+            {
+                setInterval(()=> {
+                    this.loadData(prepare,done);                    
+                }, (this.config.refreshTimer));
+            }
+            
+            this.loadData(prepare,done);
+           
+         
+            
+          $(window).resize(()=> {
+              this.resize();
+ });
+            
+            
 
 }
         
@@ -628,12 +645,10 @@ module Idv {
                         .group((d)=> {                    
                             var date = d[config.time];
                             return "";
-                        })         
-                        .columns(c)
-                        .sortBy((d)=> {
-                            return -d.Bezoekers;
-                         })
-                        .order(d3.ascending);        
+                        })                        
+                        .size(1000)                                 
+                        .columns(c);
+                               
                     break;
                 case "time":
                     config.chart = dc.lineChart("#" + config.elementId);

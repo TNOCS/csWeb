@@ -27,7 +27,7 @@ module csComp.Services {
         public search(query: ISearchQuery, result: SearchResultHandler) {
             var r: ISearchResultItem[] = [];
 
-            this.getHits(query.query, 15, (searchResults: IOnlineSearchResult[]) => {
+            this.getHits(query.query, 10, (searchResults: IOnlineSearchResult[]) => {
                 searchResults.forEach((sr: IOnlineSearchResult) => {
                     r.push(<ISearchResultItem>{
                         title: sr.title,
@@ -35,7 +35,7 @@ module csComp.Services {
                         icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
                         service: this.id,
                         location: JSON.parse(sr.location),
-                        score: 0.99,
+                        score: (sr.description == 'Gemeente') ? 0.99 : 0.98,
                         click: () => this.onSelect(sr)
                     });
                 });
@@ -46,13 +46,12 @@ module csComp.Services {
         /**
          * Get the features based on the entered text.
          */
-        private getHits(text: string, resultCount = 15, cb: Function) {
+        private getHits(text: string, resultCount = 10, cb: Function) {
             if (!this.isReady || text === null || text.length < 2) {
                 cb([]);
                 return;
             }
-            var searchWords = text.toLowerCase().split(' ');
-            var sqlSearch = searchWords.join(' & ');
+            var sqlSearch = text.toLowerCase();
             var searchObject = { query: sqlSearch, nrItems: resultCount };
 
             var searchResults: ISearchResultItem[] = [];
@@ -100,16 +99,18 @@ module csComp.Services {
             if (geoLoc && geoLoc.hasOwnProperty('coordinates') && geoLoc.hasOwnProperty('type')) {
                 switch (geoLoc.type) {
                     case 'Point':
-                        this.layerService.$mapService.zoomToLocation(new L.LatLng(geoLoc.coordinates[1], geoLoc.coordinates[0]), 19);
+                        this.layerService.$mapService.zoomToLocation(new L.LatLng(geoLoc.coordinates[1], geoLoc.coordinates[0]), 18);
                         break;
                     case 'MultiPolygon':
                     case 'Polygon':
                     default:
                         this.layerService.map.getMap().fitBounds(L.geoJson(geoLoc).getBounds());
-                        this.layerService.map.getMap().setZoom(14);
+                        // this.layerService.map.getMap().setZoom(14);
                         break;
                 }
             }
+            this.layerService.visual.leftPanelVisible = false;
+            this.layerService.$messageBusService.publish('search','reset');
         }
 
         private selectFeatureById(layerId: string, featureIndex: number) {

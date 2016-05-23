@@ -1,6 +1,6 @@
-<div style="padding:10px">
+<div style="padding-left:10px">
     <h1 translate="NAVIGATE.TITLE"></h1>
-    <div ng-if="vm.searchResults.length>0" class="scrolling" style="overflow-y: auto; overflow-x: hidden;margin-top:10px" resize resize-y="95">
+    <div ng-if="vm.searchResults.length>0" class="scrolling search-result-list" >
         <div ng-repeat="r in vm.searchResults" style="cursor:pointer;position:relative" ng-click="vm.selectSearchResult(r)">
             <img ng-if="r.icon" class="search-result-image" ng-src="{{r.icon}}">
             <div class="search-result-details">

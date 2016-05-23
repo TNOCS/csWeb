@@ -97,7 +97,19 @@ module csComp.Helpers {
         /** Get the approximate centroid of a polygon by averaging the coordinates of its vertices. */
         static getCentroid(arr): csComp.Services.IGeoJsonGeometry {
             if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
-            if (arr[0] instanceof Array) arr = arr[0];
+            if (arr[0] instanceof Array) {
+                if (arr[0][0] instanceof Array) {
+                    if (arr[0][0][0] instanceof Array) {
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
+                    } else {
+                        arr = arr[0];
+                    }
+                }
+            }
             // http://stackoverflow.com/questions/22796520/finding-the-center-of-leaflet-polygon
             var centroid = arr.reduce(function (x, y) {
                 return [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length];

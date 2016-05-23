@@ -12,7 +12,7 @@ module csComp.Services {
         borderRadius:       string;
         opacity:            number;
         disableIfLeftPanel: boolean;
-        borderShadow:       boolean = true;
+        shadow:       boolean = true;
     }
 
     export interface IWidgetCtrl {
@@ -71,6 +71,8 @@ module csComp.Services {
         canCollapse?:       boolean;
         width?:             string;
         height?:            string;
+        minWidth? :         string;
+        minHeight? :        string
         allowFullscreen?:   boolean;
         hover?:             boolean;
         messageBusService?: csComp.Services.MessageBusService;
@@ -113,6 +115,8 @@ module csComp.Services {
         public canCollapse: boolean;
         public width: string;
         public height: string;
+        public minWidth : string;
+        public minHeight : string;
         public allowFullscreen: boolean;
         public messageBusService: csComp.Services.MessageBusService;
         public layerService: csComp.Services.LayerService;

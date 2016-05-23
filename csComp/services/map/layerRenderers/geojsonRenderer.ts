@@ -26,8 +26,11 @@ module csComp.Services {
                 });
             } else {
                 service.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
+                    if (feature.layerId !== layer.id) return;
+                    if (layer.group.markers.hasOwnProperty(feature.id)) {
                         delete layer.group.markers[feature.id];
+                    } else if (feature.geometry && feature.geometry.type === 'Overlay') {
+                        service.map.map.removeLayer(feature._gui['imageOverlay']);
                     }
                 });
                 if (service.map.map && layer.mapLayer) {

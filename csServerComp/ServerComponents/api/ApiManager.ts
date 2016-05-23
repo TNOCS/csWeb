@@ -154,7 +154,7 @@ export class Key implements StorageObject {
 }
 
 /**
- * Project definition 
+ * Project definition
  */
 export class Project implements StorageObject {
     id: string;
@@ -556,7 +556,7 @@ export class ApiManager extends events.EventEmitter {
                 resource._localFile = this.resources[resource.id]._localFile;
             }
 
-            // create new resource defintion (without actual content)
+            // create new resource definition (without actual content)
             this.resources[resource.id] = <ResourceFile>{ _localFile: resource._localFile, id: resource.id, title: resource.title, storage: resource.storage };
 
             // don't actually save it, if this method is called from the storage connector it self
@@ -855,7 +855,7 @@ export class ApiManager extends events.EventEmitter {
             title: project.title ? project.title : project.id,
             isDynamic: (typeof project.isDynamic !== 'undefined') ? project.isDynamic : true,
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
-            //groups: project.groups ? project.groups : [],
+            groups: project.groups ? _.map(project.groups, (g) => { return this.getGroupDefinition(g); }) : [],
             url: project.url ? project.url : '/api/projects/' + project.id,
             _localFile: project._localFile
         };
@@ -872,7 +872,7 @@ export class ApiManager extends events.EventEmitter {
             title: group.title ? group.title : group.id,
             clusterLevel: group.clusterLevel ? group.clusterLevel : 19,
             clustering: true, //For now, set clustering always to true, as it can not be activated anymore when group is created (TODO: implement updateGroup)
-            layers: group.layers ? group.layers : []
+            layers: group.layers ? _.map(group.layers, (l) => { return this.getLayerDefinition(l); }) : []
         };
         return g;
     }
@@ -1171,12 +1171,12 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
-        Winston.error('saving feature: ' + layerId);
+        Winston.info(`ApiManger.updateFeature: Saving feature with id ${feature.id} to layer ${layerId}.`);
         var s = this.findStorageForLayerId(layerId);
         if (s) {
             s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
         } else {
-            Winston.error('error saving feature');
+            Winston.error(`ApiManger.updateFeature: Error saving feature with id ${feature.id} to layer ${layerId}.`);
         }
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
@@ -1185,7 +1185,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /** Similar to updateFeature, but with an array of updated features instead of one feature.
-     * 
+     *
      */
     public addUpdateFeatureBatch(layerId: string, features: IChangeEvent[], meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);

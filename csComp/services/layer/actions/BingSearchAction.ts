@@ -127,7 +127,7 @@ module csComp.Services {
                 this.geocodeCallback(this.searchCache[query.query], handler, query.query);
                 return;
             }
-            var geocodeRequest = 'http://dev.virtualearth.net/REST/v1/Locations?query='
+            var geocodeRequest = `${this.searchUrl}?query=`
                 + encodeURIComponent(query.query)
                 + `&culture=${this.data.culture}&userLocation=${this.data.userLocation}&maxResults=10&jsonp=JSON_CALLBACK&key=${this.apiKey}`;
 

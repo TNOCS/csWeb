@@ -2,6 +2,7 @@ import express = require('express')
 import cors = require('cors')
 import Winston = require('winston');
 import request = require('request');
+import moment = require('moment');
 import path = require('path');
 import fs = require('fs-extra');
 import _ = require('underscore');
@@ -28,6 +29,16 @@ export interface IRestDataSourceSettings {
     diffPropertiesBlacklist?: string[];
     /** Properties that should be used for calculating feature diffs (takes precendence of blacklist) */
     diffPropertiesWhitelist?: string[];
+    /** Date property */
+    dateProperty?: string;
+    /** Time property */
+    timeProperty?: string;
+    /** Date format */
+    dateFormat?: string;
+    /** Time format */
+    timeFormat?: string;
+    /** Ignore aged features */
+    maxFeatureAgeMinutes?: number;
     /** When filename is given, the retrieved data will be written to that file. Otherwise, logging is disabled */
     logFile?: string;
 }
@@ -81,8 +92,13 @@ export class RestDataSource {
         this.restDataSourceOpts.diffIgnoreGeometry = (options.hasOwnProperty('diffIgnoreGeometry')) ? false : options['diffIgnoreGeometry'];
         this.restDataSourceOpts.diffPropertiesBlacklist = options.diffPropertiesBlacklist || [];
         this.restDataSourceOpts.diffPropertiesWhitelist = options.diffPropertiesWhitelist || [];
+        this.restDataSourceOpts.dateProperty = options.dateProperty || '';
+        this.restDataSourceOpts.timeProperty = options.timeProperty || '';
+        this.restDataSourceOpts.dateFormat = options.dateFormat || '';
+        this.restDataSourceOpts.timeFormat = options.timeFormat || '';
+        this.restDataSourceOpts.maxFeatureAgeMinutes = options.maxFeatureAgeMinutes || Number.MAX_VALUE;
         this.restDataSourceOpts.logFile = options.logFile || null;
-
+        
         if (this.restDataSourceOpts.diffPropertiesBlacklist.length > 0 && this.restDataSourceOpts.diffPropertiesWhitelist.length > 0) {
             Winston.info('Both whitelist and blacklist properties provided, ignoring the blacklist.');
             this.restDataSourceOpts.diffPropertiesBlacklist.length = 0;
@@ -134,6 +150,7 @@ export class RestDataSource {
         this.converter.getData(request, dataParameters, {apiManager: this.apiManager, fs: fs}, (result) => {
             Winston.info('RestDataSource received ' + result.length || 0 + ' features');
             var featureCollection = GeoJSONHelper.GeoJSONFactory.Create(result);
+            this.filterOldEntries(featureCollection);
             if (!this.features || Object.keys(this.features).length === 0) {
                 this.initFeatures(featureCollection, Date.now());
             } else {
@@ -152,6 +169,32 @@ export class RestDataSource {
             }
         });
         setTimeout(() => { this.startRestPolling(dataParameters) }, this.restDataSourceOpts.pollIntervalSeconds * 1000);
+    }
+    
+    private filterOldEntries(fcoll) {
+        if (!fcoll || !fcoll.features || fcoll.features.length === 0) return;
+        console.log("Before filtering: " + fcoll.features.length);
+        var dProp = this.restDataSourceOpts.dateProperty;
+        var tProp = this.restDataSourceOpts.timeProperty;
+        var dFormat = this.restDataSourceOpts.dateFormat;
+        var tFormat = this.restDataSourceOpts.timeFormat;
+        var age = this.restDataSourceOpts.maxFeatureAgeMinutes;
+        fcoll.features = fcoll.features.filter((f: IFeature) => {
+            if (f.properties.hasOwnProperty(dProp) && f.properties.hasOwnProperty(dProp)) {
+                var time = f.properties[tProp].toString();
+                if (time.length === 5) time = '0' + time;
+                var propDate = moment(''.concat(f.properties[dProp],time), ''.concat(dFormat,tFormat));
+                var now = moment();
+                if (Math.abs(now.diff(propDate, 'minutes', true)) > age) {
+                    // console.log("Remove feature: " + propDate.toISOString());
+                    return false;
+                } else {
+                    f.properties['ParsedDate'] = propDate.toDate().getTime();
+                }
+            }
+            return true;
+        });
+        console.log("After filtering: " + fcoll.features.length);
     }
 
     private initFeatures(fCollection: GeoJSONHelper.IGeoJson, updateTime: number) {

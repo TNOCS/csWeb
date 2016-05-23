@@ -14,16 +14,16 @@
     </div>
     <div class="controls">
         <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
+            <input type="checkbox" id="showLocationSelection" ng-checked="vm.mapService.showLocation" data-ng-click="vm.toggleShowLocation();">
+            <label class="editor-title input-xlarge" for="showLocationSelection">Show location</label>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
             <input type="checkbox" id="adminModeSelection" ng-checked="vm.mapService.isAdminExpert" data-ng-click="vm.toggleAdminMode();">
             <label class="editor-title input-xlarge" for="adminModeSelection">Admin Mode</label>
         </div>
     </div>
-
-    <!-- Select renderer -->
-    <!--<ul class="nav navbar-nav" style="float:right">
-                <li data-ng-if="vm.$layerService.activeMapRenderer.title!='leaflet'"><a data-ng-click="vm.$layerService.selectRenderer('leaflet')">2D</a></li>
-                <li data-ng-if="vm.$layerService.activeMapRenderer.title!='cesium'"><a data-ng-click="vm.$layerService.selectRenderer('cesium')">3D</a></li>
-            </ul>-->
 
     <div ng-show="vm.mapService.isAdminExpert">
         <div class="controls">

@@ -1,0 +1,153 @@
+<div ng-show="vm.activePresentation.title" class="container" style="margin: 2px 10px; overflow:none; height:100%; width: 100%">
+    <style>
+        /*#editor {
+            max-height: 250px;
+            height: 250px;
+            background-color: white;
+            border-collapse: separate;
+            border: 1px solid rgb(204, 204, 204);
+            padding: 4px;
+            box-sizing: content-box;
+            -webkit-box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+            box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            border-top-left-radius: 3px;
+            overflow: scroll;
+            outline: none;
+        }
+        
+        #voiceBtn {
+            width: 20px;
+            color: transparent;
+            background-color: transparent;
+            transform: scale(2.0, 2.0);
+            -webkit-transform: scale(2.0, 2.0);
+            -moz-transform: scale(2.0, 2.0);
+            border: transparent;
+            cursor: pointer;
+            box-shadow: none;
+            -webkit-box-shadow: none;
+        }
+        
+        div[data-role="editor-toolbar"] {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .dropdown-menu a {
+            cursor: pointer;
+        }*/
+        
+        .nav-dots {
+            cursor: pointer;
+            display: table;
+            outline: none;
+            border-collapse: collapse;
+            margin-left: 4px;
+            opacity: 0.8;
+        }
+        
+        .nav-dots.vertical {
+            width: 34px;
+        }
+        
+        .up-down-arrow {
+            height: 34px;
+        }
+        
+        .dot {
+            font-family: Georgia;
+            line-height: 21px;
+            padding: 0;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .activeslidedot {
+            -webkit-text-fill-color: red;
+            font-size: 2em;
+        }
+        
+        .nav-dot-container {
+            background: lightgray;
+            display: table;
+            height: 100%;
+            position: absolute;
+            overflow: hidden;
+            padding: 0;
+            top: 0;
+            right: -1px;
+        }
+        
+        .nav-dot-container .helper {
+            display: table-cell;
+            vertical-align: middle;
+        }
+        
+        .nav-dot-container .helper > ul {
+            cursor: pointer;
+            margin: 0 auto;
+            text-align: right;
+        }
+        
+        .edit-tools {
+            cursor: pointer;
+            position: absolute;
+            display: table;
+            opacity: 0.8;
+            text-align: center;
+            width: 8.33333%;
+            right: 0;
+            z-index: 1;
+        }
+    </style>
+
+    <div class="row widget-title" style="position: inherit; cursor: pointer; text-align: center">
+        <div class="col-md-2" data-ng-click="vm.previousPresentation()"><i class="fa fa-2x fa-angle-left" style="display: inline-block; font-weigth: bold; margin-top: -7px" data-ng-show="!vm.isFirstPresentation"></i></div>
+        <div class="col-md-8" style="display: inline-block;">{{vm.activePresentation.title || 'NO'}}</div>
+        <div class="col-md-2" data-ng-click="vm.nextPresentation()"><i class="fa fa-2x fa-angle-right" style="display: inline-block; font-weigth: bold; margin-top: -7px" data-ng-show="!vm.isLastPresentation"></i></div>
+    </div>
+    <div>
+        <div ng-show="!vm.isEditing" class="layer-actions" style="background: white; position:absolute; top:50px; left:0; z-index: 10;">
+            <button ng-show="vm.activeSlide.content" ng-click="vm.toggleEdit()" class="layer-action">
+                    <span class="fa fa-pencil layer-action-icon" />Edit
+                </button>
+            <button ng-click="vm.addSlide()" class="layer-action">
+                    <span class="fa fa-plus layer-action-icon" />Add Slide
+                </button>
+            <button ng-show="vm.activeSlide.content" ng-click="vm.deleteSlide()" class="layer-action">
+                    <span class="fa fa-trash layer-action-icon" />Delete Slide
+                </button>
+        </div>
+        <div ng-show="vm.isEditing" class="layer-actions" style="background: white; position:absolute; top:50px; left:0; z-index: 10;">
+            <button ng-click="vm.toggleEdit()" class="layer-action">
+                    <span class="fa fa-check layer-action-icon" />Save
+                </button>
+            <button ng-click="vm.saveLocation()" class="layer-action">
+                    <span class="fa fa-map-marker layer-action-icon" />Save locattion
+                </button>
+        </div>
+    </div>
+    <div ng-show="!vm.isEditing" class="row" ng-hide="minimized" style="height: 100%">
+        <div class="col-md-11" style="margin-top: 70px; font-size: 150%" ng-bind-html="vm.activeSlide.content"></div>
+        <div class="col-md-1 nav-dot-container" style="margin-top: 70px;">
+            <div class="helper">
+                <ul class="list-unstyled">
+                    <li class="dot up-down-arrow" data-ng-click="vm.previousSlide()"><i data-ng-show="!vm.isFirstSlide" class="fa fa-2x fa-angle-up"></i></li>
+                    <li class="dot" ng-repeat="slide in vm.activePresentation.slides track by $index" data-ng-click="vm.selectSlide($index)" data-ng-class="{activeslidedot: vm.isActiveSlide($index)}">●</li>
+                    <li class="dot up-down-arrow" data-ng-click="vm.nextSlide()"><i data-ng-show="!vm.isLastSlide" class="fa fa-2x fa-angle-down"></i></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Editor -->
+    <div class="row" ng-if="vm.isEditing" style="margin-top: 50px;">
+        <summernote ng-model="vm.activeSlide.content" dialogsinbody focus height="500"></summernote>
+    </div>
+
+
+</div>

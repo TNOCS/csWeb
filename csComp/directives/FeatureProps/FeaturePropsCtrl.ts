@@ -407,10 +407,17 @@ module FeatureProps {
             this.lastSelectedProperty = prop;
             $event.stopPropagation();
         }
+        
+        public openImage(img : string)
+        {
+            window.open(img,'mywindow','width=600')
+            
+        }
 
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature, true);
+            
             this.$layerService.updateFeature(this.$scope.feature);
             this.displayFeature(this.$layerService.lastSelectedFeature);
         }
@@ -445,7 +452,7 @@ module FeatureProps {
         public openLayer(property: FeatureProps.CallOutProperty) {
             if (property.feature != null && property.feature.properties.hasOwnProperty(property.propertyType.label)) {
                 var link = property.feature.properties[property.propertyType.label];
-                alert(link);
+                // alert(link);
             }
         }
 
@@ -490,7 +497,7 @@ module FeatureProps {
                     callApply = false;
                     this.displayFeature(feature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
-                    this.$layerService.visual.rightPanelVisible = true;
+                    //this.$layerService.visual.rightPanelVisible = true;
                     this.updateAllStats();
                     if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                         this.$scope.$root.$apply();
@@ -542,7 +549,7 @@ module FeatureProps {
 
             // create sparkline
             try {
-                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
+                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')(ns);
                 ch.append(chartElement);
             } catch (e) {
                 console.log('Error adding sparkline');

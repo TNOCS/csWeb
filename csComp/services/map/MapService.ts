@@ -9,12 +9,13 @@ module csComp.Services {
      */
     export class MapService {
         private static expertModeKey = 'expertMode';
+        private scale: any;
+        private showLocation = false;
 
         public static $inject = [
             'localStorageService',
             '$timeout',
             'messageBusService'
-
         ];
 
         public map: L.Map;
@@ -24,12 +25,21 @@ module csComp.Services {
         public activeBaseLayer: BaseLayer;
         public activeBaseLayerId: string;
         public mapVisible: boolean = true;
-        public timelineVisible: boolean = false;
         public rightMenuVisible: boolean = true;
         public maxBounds: IBoundingBox;
         public drawInstance: any;
         public featureGroup: L.ILayer;
         public drawingNotification : any;
+
+        private _timelineVisible: boolean = false;
+        public get timelineVisible() { return this._timelineVisible; }
+        public set timelineVisible(val: boolean) {
+            this._timelineVisible = val;
+            setTimeout(() => {
+                let windowHeight = $(window).height();
+                $('#map').height(windowHeight - (this._timelineVisible ? $('#timeline').height() : 0));
+            }, 300);
+        }
 
         expertMode: Expertise;
 
@@ -55,6 +65,8 @@ module csComp.Services {
                 }
             });
 
+            let mapClicked = (e: L.LeafletMouseEvent) => this.mapClicked(e);
+
             $messageBusService.subscribe('map', (action: string, data) => {
                 switch (action.toLowerCase()) {
                     case 'setextent':
@@ -66,8 +78,37 @@ module csComp.Services {
                         // Zoom to a location on the map.
                         this.map.setZoomAround(data.loc, data.zoom || 16);
                         break;
+                    case 'showscale':
+                        if (data) {
+                            this.scale = L.control.scale({
+                                // Position, i.e. bottomleft, topright, topleft, bottomright
+                                position: 'bottomleft',
+                                maxWidth: 100,
+                                metric: true,
+                                imperial: false,
+                                // If true, the control is updated on moveend, otherwise it's always up-to-date (updated on move).
+                                updateWhenIdle: true
+                            }).addTo(this.map);
+                        } else if (this.scale) {
+                            this.map.removeControl(this.scale);
+                        }
+                        break;
+                    case 'showlocation':
+                        if (typeof data !== 'undefined') this.showLocation = !data; // Use !data, since the normal behaviour is to toggle.
+                        if (this.showLocation) {
+                            this.showLocation = false;
+                            this.map.off('click', mapClicked);
+                        } else {
+                            this.showLocation = true;
+                            this.map.on('click', mapClicked);
+                        }
+                        break;
                 }
             });
+        }
+
+        private mapClicked(e: L.LeafletMouseEvent) {
+            if (this.$messageBusService) this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
         }
 
         /**
@@ -191,26 +232,26 @@ module csComp.Services {
                 if (this.drawingLayer) {
                     if (this.drawingNotification) this.drawingNotification.remove();
                     var geometryType = "Point";
-                    
+
                     var c = [];
-                    
-                     switch (this.drawingFeatureType.style.drawingMode)
-                    {
+                    switch (this.drawingFeatureType.style.drawingMode) {
                         case "Line":
                             geometryType = "LineString";
                             e.layer._latlngs.forEach(ll => {
-                                 c.push([ll.lng, ll.lat]);
+                                    c.push([ll.lng, ll.lat]);
                             });
                             break;
                         case "Polygon":
                             geometryType = "Polygon";
-                            
-                            
                             e.layer._latlngs.forEach(g => {
                                 var inner = [];
                                 g.forEach(ll=>{
                                     inner.push([ll.lng, ll.lat]);}
                                 );
+                                //Make sure first and last point are the same
+                                if (inner.length > 1 && !_.isEqual(_.first(inner), _.last(inner))) {
+                                    inner.push(_.first(inner));
+                                }
                                 c.push(inner);
                             });
                             break;
@@ -222,8 +263,18 @@ module csComp.Services {
                         fType: this.drawingFeatureType,
                         properties: {}
                     };
-                   
+
                     f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
+
+                    // Initialize properties
+                    if (_.isArray(this.drawingFeatureType._propertyTypeData)) {
+                        for (var k in this.drawingFeatureType._propertyTypeData) {
+                            var pt = this.drawingFeatureType._propertyTypeData[k];
+                            this.drawingFeatureType._propertyTypeData.forEach(pt => {
+                                f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
+                            })
+                        }
+                    }
 
                     var l = this.drawingLayer;
                     if (!l.data) l.data = {};
@@ -252,7 +303,7 @@ module csComp.Services {
             var opts = <any>{
                 stroke: true,
                 color: this.drawingFeatureType.style.strokeColor,
-                weight: 4,                
+                weight: 4,
                 opacity: 0.5,
                 fill: false,
                 clickable: true
@@ -268,7 +319,7 @@ module csComp.Services {
                     opts.fill = true;
                     break;
             }
-                            
+
             this.drawInstance.addHooks();
             this.drawingNotification = this.$messageBusService.confirm("Drawing started","Use double-click or one of these options to end your drawing",(r)=>{
                 if (r)
@@ -279,7 +330,7 @@ module csComp.Services {
                 {
                     this.drawInstance.removeHooks();
                     this.drawingFeatureType = null;
-                }                
+                }
             });
         }
     }

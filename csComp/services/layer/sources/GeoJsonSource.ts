@@ -171,10 +171,10 @@ module csComp.Services {
             layer.isTransparent = false;
             if (layer.zoomHandle) this.service.$messageBusService.unsubscribe(layer.zoomHandle);
             //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
-            if (layer.fitToMap) {
-                if (!this.service.solution.viewBounds) return;
-                this.service.$messageBusService.publish('map', 'setextent', this.service.solution.viewBounds);
-            }
+            // if (layer.fitToMap) {
+            //     if (!this.service.project.viewBounds) return;
+            //     this.service.$messageBusService.publish('map', 'setextent', this.service.project.viewBounds);
+            // }
         }
 
         private processAccessibilityReply(data, layer, clbk) {
@@ -279,8 +279,7 @@ module csComp.Services {
                 features.some((f: IFeature) => {
                     if (f.hasOwnProperty(key) && f[key] === id) {
                         f.properties = value.properties;
-                        f.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(f);
+                        f.geometry = value.geometry;                        
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
@@ -346,7 +345,7 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer._gui['editing']) this.stopEditing(layer);            
+            if (layer._gui['editing']) this.service.stopEditingLayer(layer);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
@@ -354,7 +353,7 @@ module csComp.Services {
                 ['Fit map', (($itemScope) => this.fitMap(layer))]];
             if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
             result.push(null);
-            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);                        
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
             return result;
         }
 
@@ -376,16 +375,12 @@ module csComp.Services {
             this.initAvailableFeatureTypesEditing(layer);
         }
 
-        public stopEditing(layer: csComp.Services.ProjectLayer) {
-            delete layer._gui['featureTypes'];
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g._gui['editing'];
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    delete l._gui['editing'];
-                });
-            });
-            this.service.editing = false;
+        public stopEditing(layer : csComp.Services.ProjectLayer)
+        {
+            this.service.stopEditingLayer(layer);
         }
+
+
 
         /** prepare layer for editing, add featuretypes to temp. _gui object */
         public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
@@ -393,14 +388,13 @@ module csComp.Services {
             layer._gui['featureTypes'] = featureTypes;
 
             if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
-            for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-
-                if (!t.style.drawingMode) t.style.drawingMode = 'Point';
-
-                featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+            for (var ft in this.service.typesResources[layer.typeUrl].featureTypes) {
+                var t = this.service.typesResources[layer.typeUrl].featureTypes[ft];
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                featureTypes[ft] = this.service.typesResources[layer.typeUrl].featureTypes[ft];
                 featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                 featureTypes[ft]._guid = csComp.Helpers.getGuid();
+                
             }
         }
 
@@ -421,7 +415,7 @@ module csComp.Services {
                 this.initSubscriptions(layer);
             }
         }
-        
+
         removeLayer(layer: ProjectLayer) {
             super.removeLayer(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
@@ -515,6 +509,7 @@ module csComp.Services {
                             } catch (e) {
                                 console.warn('Error updating feature: ' + JSON.stringify(e, null, 2));
                             }
+                            this.service.$messageBusService.publish('layer', 'updated', layer);
                         }
                         break;
 

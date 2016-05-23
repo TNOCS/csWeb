@@ -3,6 +3,7 @@ module Translations {
         public static locale: ng.translate.ITranslationTable = {
             CANCEL_BTN: 'Cancel',
             OK_BTN: 'OK',
+            CLOSE: 'Close',
             FROM: 'from',
             TO: 'to',
             ZOOM_LEVEL_LOW: 'Zoom level too low',
@@ -188,7 +189,8 @@ module Translations {
             MARVEL_FEATURE_DEP: 'Depends on',
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
-            CLEAR_EVENTS: 'Clear event log'
+            CLEAR_EVENTS: 'Clear event log',
+            SEARCH_PLACEHOLDER: 'Municipality, address, ...'
         };
     }
 }
