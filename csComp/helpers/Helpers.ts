@@ -117,6 +117,52 @@ module csComp.Helpers {
             document.body.removeChild(a);
         }
     }
+    
+    /**
+     * Export image to the file system.
+     */
+    export function saveImage(data: string, filename: string, fileType: string) {
+        fileType = fileType.replace('.', '');
+        filename = filename.replace('.' + fileType, '') + '.' + fileType; // if the filename already contains a type, first remove it before adding it.
+
+        if (navigator.msSaveBlob) {
+            // IE 10+
+            var link: any = document.createElement('a');
+            link.addEventListener('click', event => {
+                var byteCharacters = atob(data.split(',').pop());
+                var byteArrays = [];
+                var sliceSize = 512;
+
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                var blob = new Blob(byteArrays, { 'type': 'image/' + fileType + ';' });
+                navigator.msSaveBlob(blob, filename);
+            }, false);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else if (!csComp.Helpers.supportsDataUri()) {
+            // Older versions of IE: show the data in a new window
+            var popup = window.open('', fileType, '');
+            popup.document.body.innerHTML = '<pre>' + data + '</pre>';
+        } else {
+            // Support for browsers that support the data uri.
+            var a: any = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = encodeURI(data);
+            a.target = '_blank';
+            a.download = filename;
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
 
     declare var String; //: StringExt.IStringExt;
 
@@ -362,6 +408,8 @@ module csComp.Helpers {
             case 'number':
                 if (!$.isNumeric(text)) {
                     displayValue = text;
+                } else if (isNaN(text)) {
+                    displayValue = '';
                 } else if (!pt.stringFormat) {
                     displayValue = text.toString();
                 } else {

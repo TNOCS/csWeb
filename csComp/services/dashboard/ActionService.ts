@@ -48,6 +48,11 @@ module csComp.Services {
                 this.layerService.visual.leftPanelVisible = true;
                 $('#style-tab').click();
             };
+            
+            this.actions['show filter tab'] = () => {
+                this.layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            };
 
             this.actions['activate timerange'] = () => {
                 console.log('Activate timerange action called');
@@ -112,6 +117,12 @@ module csComp.Services {
                 console.log('Center map action called');
                 // Move map such that selected feature in the center of the map
                 this.layerService.centerFeatureOnMap(this.layerService.selectedFeatures);
+            };
+            
+            this.actions['reload project'] = options => {
+                console.log('Reload project action called');
+                this.layerService.openProject(this.layerService.projectUrl);
+                this.layerService.checkViewBounds();
             };
         }
 

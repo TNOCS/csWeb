@@ -83,7 +83,8 @@ export interface ILayerTemplate {
 }
 
 export interface IBagContourRequest {
-    bounds: string;
+    bounds?: string;
+    searchProp?: string;
     layer: any;
 }
 
@@ -306,6 +307,7 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var bu_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
         var getPointFeatures: boolean = false;
         if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('getPointFeatures')) {
@@ -315,7 +317,7 @@ export class MapLayerFactory {
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagArea(bounds, (areas: Location[]) => {
+        this.bag.lookupBagArea(bounds || bu_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
@@ -357,7 +359,7 @@ export class MapLayerFactory {
         var template: IBagSearchRequest = req.body;
         var query = template.query;
         var nrItems = template.nrItems;
-        this.bag.searchAddress(query, nrItems, (results) => {
+        this.bag.searchGemeente(query, nrItems, (results) => {
             if (!results || !results.length || results.length === 0) {
                 res.status(200).send({});
             } else {
@@ -383,12 +385,13 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var gm_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
 
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagBuurt(bounds, (areas: Location[]) => {
+        this.bag.lookupBagBuurt(bounds || gm_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
@@ -681,7 +684,7 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties[templateKey] === p[par1]) {
+                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===) 
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {

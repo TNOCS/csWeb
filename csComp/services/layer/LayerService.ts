@@ -87,7 +87,7 @@ module csComp.Services {
             public geoService: GeoService,
             public $http: ng.IHttpService,
             private expressionService: ExpressionService,
-            private actionService: ActionService
+            public actionService: ActionService
         ) {
             this.actionService.init(this);
 
@@ -647,7 +647,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            var disableLayers = [];
             async.series([
                 (callback) => {
                     // check if in this group only one layer can be active
@@ -655,7 +654,8 @@ module csComp.Services {
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
                             if (l.id !== layer.id && l.enabled) {
-                                disableLayers.push(l);
+                                this.removeLayer(l);
+                                l.enabled = false;
                             }
                         });
                     }
@@ -712,14 +712,6 @@ module csComp.Services {
                         if (layerloaded) layerloaded(layer);
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-                    callback(null, null);
-                },
-                (callback) => {
-                    // now remove the layers that need to be disabled
-                    disableLayers.forEach((l) => {
-                        this.removeLayer(l);
-                        l.enabled = false;
-                    });
                     callback(null, null);
                 }
             ]);
@@ -1072,9 +1064,10 @@ module csComp.Services {
             if (f.geometry.type.toLowerCase() === 'point') {
                 center = f.geometry.coordinates;
             } else {
-                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates);
+                center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates).coordinates;
             }
-            this.map.getMap().panTo(new L.LatLng(center.coordinates[1], center.coordinates[0]));
+            if (!center || center.length < 2) return;
+            this.map.getMap().panTo(new L.LatLng(center[1], center[0]));
         }
 
         public editFeature(feature: IFeature, select = true) {
@@ -1405,6 +1398,16 @@ module csComp.Services {
                 s.action = LayerUpdateAction.deleteFeature;
                 s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction('layer', s);
+            }
+            
+            if (feature.isSelected) {
+                this.lastSelectedFeature = null;
+                this.selectedFeatures.some((f, ind, arr) => {
+                    if (f.id === feature.id) {
+                        arr.splice(ind, 1);
+                        return true;
+                    }
+                });
             }
         }
 
@@ -2858,6 +2861,11 @@ module csComp.Services {
                 this.removeLayer(layer);
                 if (loaded) loaded();
             }
+        }
+
+        public enableLayer(layer: ProjectLayer, loaded?: Function) {
+            layer.enabled = true;
+            this.addLayer(layer, () => { if (loaded) loaded() });
         }
 
         public removeGroup(group: ProjectGroup) {

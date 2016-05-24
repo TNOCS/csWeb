@@ -1363,6 +1363,24 @@ body,
     border-radius: 4px;
 }
 
+.button-widget-content {
+    height: 100%;
+    width: 100%;
+}
+
+.button-widget-image-minimal {
+    &.down {
+        border: 3px black solid;
+    }
+    height: 100%;
+    margin: 0 0 8px;
+    border-radius: 4px;
+    border: 1px black solid;
+    -webkit-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
+    -moz-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
+    box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
+}
+
 .button-widget-description
 {
     font-size:13px;
@@ -1398,11 +1416,21 @@ body,
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
     cursor : pointer;
     font-size: 20px;
-    margin-top:5px;
+    margin-top: 5px;
     margin-right: 8px;
     color:black;
     min-height: 46px;
-    }
+}
+
+.button-container-minimal {
+    background: none;
+    cursor : pointer;
+    margin: 0 0 8px;
+    padding-left: 10px;
+    color:black;
+    height: 100%;
+    float: left;
+}
 
 .button-container:active {
     background: rgba(100, 100, 100, 0.77);
@@ -1420,11 +1448,10 @@ body,
     position: absolute;
     color:white;
     padding-top:5px;
-        padding-left:5px;
+    padding-left:5px;
     text-decoration: none;
     right: 0;
     top: 0;
-
     width: 50px;
     background: rgba(100, 100, 100, 0.77);
 }
@@ -1839,6 +1866,11 @@ body,
     height: 0;
     border: 0.8em solid transparent;
     position: absolute;
+}
+.callout-icon {
+    margin-left:5px;
+    width: 24px;
+    height: 24px;
 }
 .pintimeButton {
     margin: 3px;
@@ -2351,7 +2383,6 @@ input[type="checkbox"] {
     color: black;
     font-size: 22px;
     font-weight: bold;
-    height: 45px;
     margin-top: 1px;
     overflow: hidden;
     padding-bottom: 10px;
@@ -3208,6 +3239,9 @@ input[type="checkbox"] {
     border: 1px solid black;
 }
 
+.pointer-cursor {
+    cursor: pointer;
+}
 
 .pin {
     width: 30px;

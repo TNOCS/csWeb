@@ -35,7 +35,9 @@ module csComp.Services {
 
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
+            if (!layer.data.features || layer.data.features.length === 0) return;
             var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
+            if (b.xMax == 180 || b.yMax == 90) return;
             this.service.$messageBusService.publish('map', 'setextent', b);
         }
 
@@ -54,33 +56,54 @@ module csComp.Services {
                     layer.renderType = 'geojson';
                     layer.isLoading = true;
                     var minZoom;
+                    var searchProperty;
+                    var useFeatureBounds;
                     if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('minZoom')) {
                         minZoom = layer.dataSourceParameters['minZoom'];
                     } else {
                         minZoom = 15;
                     }
+                    if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('searchProperty')) {
+                        searchProperty = layer.dataSourceParameters['searchProperty'];
+                    }if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('useFeatureBounds')) {
+                        useFeatureBounds = layer.dataSourceParameters['useFeatureBounds'];
+                    }
                     var corners;
-                    if (this.service.$mapService.map.getZoom() < minZoom) {
+                    if (this.service.$mapService.map.getZoom() < minZoom && typeof searchProperty === 'undefined' && !useFeatureBounds) {
                         this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
                         return;
                     } else {
-                        // When the zoomlevel is valid:
-                        corners = this.service.$mapService.map.getBounds();
-                        var coords = [[
-                            [corners.getSouthWest().lng, corners.getSouthWest().lat],
-                            [corners.getNorthWest().lng, corners.getNorthWest().lat],
-                            [corners.getNorthEast().lng, corners.getNorthEast().lat],
-                            [corners.getSouthEast().lng, corners.getSouthEast().lat],
-                            [corners.getSouthWest().lng, corners.getSouthWest().lat]]];
-                        var bounds = JSON.stringify({ type: 'Polygon', coordinates: coords, crs: { type: 'name', properties: { 'name': 'EPSG:4326' } } });
+                        var bagRequestData;
+                        if (typeof searchProperty !== 'undefined') {
+                            bagRequestData = {
+                                searchProp: searchProperty,
+                                layer: ProjectLayer.serializeableData(layer)
+                            };
+                        } else if (useFeatureBounds === true) {
+                            var coordinates = layer.dataSourceParameters['coordinates'] || [[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]];
+                            bagRequestData = {
+                                bounds: JSON.stringify({ type: 'Polygon', coordinates: coordinates, crs: { type: 'name', properties: { 'name': 'EPSG:4326' } } }),
+                                layer: ProjectLayer.serializeableData(layer)
+                            };
+                        } else {
+                            // When the zoomlevel is valid:
+                            corners = this.service.$mapService.map.getBounds();
+                            var coords = [[
+                                [corners.getSouthWest().lng, corners.getSouthWest().lat],
+                                [corners.getNorthWest().lng, corners.getNorthWest().lat],
+                                [corners.getNorthEast().lng, corners.getNorthEast().lat],
+                                [corners.getSouthEast().lng, corners.getSouthEast().lat],
+                                [corners.getSouthWest().lng, corners.getSouthWest().lat]]];
+                            var bounds = JSON.stringify({ type: 'Polygon', coordinates: coords, crs: { type: 'name', properties: { 'name': 'EPSG:4326' } } });
 
-                        // get data from BAG
-                        var bagRequestData = {
-                            bounds: bounds,
-                            layer: ProjectLayer.serializeableData(layer)
-                        };
+                            // get data from BAG
+                            bagRequestData = {
+                                bounds: bounds,
+                                layer: ProjectLayer.serializeableData(layer)
+                            };
+                        }
 
                         $.ajax({
                             type: 'POST',
@@ -128,7 +151,9 @@ module csComp.Services {
             if (projLayer.typeUrl && projLayer.defaultFeatureType) {
                 var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
                 var fType = this.service.getFeatureTypeById(featureTypeName);
-                this.service.evaluateLayerExpressions(projLayer, { featureTypeName: fType });
+                var fTypes: {[key: string]: any} = {};
+                fTypes[featureTypeName] = fType;
+                this.service.evaluateLayerExpressions(projLayer, fTypes);
                 if (fType._propertyTypeData && fType._propertyTypeData.length > 0) {
                     fType._propertyTypeData.forEach(pt => {
                         csComp.Helpers.updateSection(projLayer, pt);
@@ -136,6 +161,7 @@ module csComp.Services {
                 }
             }
             projLayer.isLoading = false;
+            this.service.$messageBusService.publish('layer', 'activated', layer);
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             console.log(`Initialized ${count} features in ${layer.id}`);
             callback(projLayer);

@@ -2,10 +2,10 @@
     <h4 class="rightpanel-header">
         <!-- Show popup with complete title for long names -->
         <div ng-if="callOut.title.length >= 27" uib-popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
-            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
         <div ng-if="callOut.title.length < 27">
-            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
     </h4>
 

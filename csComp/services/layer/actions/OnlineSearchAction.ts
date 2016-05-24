@@ -51,8 +51,7 @@ module csComp.Services {
                 cb([]);
                 return;
             }
-            var searchWords = text.toLowerCase().split(' ');
-            var sqlSearch = searchWords.join(' & ');
+            var sqlSearch = text.toLowerCase();
             var searchObject = { query: sqlSearch, nrItems: resultCount };
 
             var searchResults: ISearchResultItem[] = [];
@@ -110,6 +109,8 @@ module csComp.Services {
                         break;
                 }
             }
+            this.layerService.visual.leftPanelVisible = false;
+            this.layerService.$messageBusService.publish('search','reset');
         }
 
         private selectFeatureById(layerId: string, featureIndex: number) {

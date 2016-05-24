@@ -3,8 +3,11 @@ module Translations {
         public static locale: ng.translate.ITranslationTable = {
             CANCEL_BTN: 'Annuleren',
             OK_BTN: 'OK',
+            CLOSE: 'Sluit',
             FROM: 'van',
             TO: 'tot',
+            ZOOM_IN: 'Inzoomen',
+            ZOOM_OUT: 'Uitzoomen',
             ZOOM_LEVEL_LOW: 'Zoom niveau te laag',
             ZOOM_IN_FOR_CONTOURS: 'Zoom in om de contouren te tonen',
             NAVIGATE: {

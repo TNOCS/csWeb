@@ -82,6 +82,7 @@ module csComp.Services {
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};
             res.id = f.id;
+            res.layerId = f.layerId;
             res.type = f.type;
             res.geometry = f.geometry;
             res.properties = f.properties;
