@@ -268,6 +268,7 @@ module csComp.Services {
                 showMap:              d.showMap,
                 mapWidth:             d.mapWidth,
                 alignMapRight:        d.alignMapRight,
+                timeline:             d.timeline,
                 showTimeline:         d.showTimeline,
                 showLeftmenu:         d.showLeftmenu,
                 showLegend:           d.showLegend,
@@ -281,7 +282,7 @@ module csComp.Services {
                 widgets:              csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
                 visibleLeftMenuItems: d.visibleLeftMenuItems,
                 mobile:               d.mobile,
-                isLive:               d.isLive
+                isLive:               d.isLive                
             }
         }
 

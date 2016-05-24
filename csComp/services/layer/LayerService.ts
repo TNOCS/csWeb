@@ -145,9 +145,9 @@ module csComp.Services {
                     case 'timeSpanUpdated':
                         this.updateSensorLinks();
                         break;
-                    case 'focusChange':
-                        delayFocusChange(date);
-                        break;
+                    // case 'focusChange':
+                    //     delayFocusChange(date);
+                    //     break;
                 }
             });
 
@@ -216,10 +216,13 @@ module csComp.Services {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
+                
+                 var t = this.project.timeLine;
+                if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.kpiUrl;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    link += "?tbox=" + t.start + "," + t.end;
                 }
                 else {
 
@@ -253,10 +256,12 @@ module csComp.Services {
             if (layer.sensorLink) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
+                var t = this.project.timeLine;
+                if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.url;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    link += "?tbox=" + t.start + "," + t.end;
                     //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
                 }
                 else {
@@ -1216,9 +1221,15 @@ module csComp.Services {
         }
 
         public getSensorIndex(d: Number, timestamps: Number[]) {
-            for (var i = 1; i < timestamps.length; i++) {
-                if (timestamps[i] > d) {
-                    return i - 1;
+            // check if active dashboard is live, return last value
+            if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
+                return timestamps.length - 1
+            }
+            else {
+                for (var i = 1; i < timestamps.length; i++) {
+                    if (timestamps[i] > d) {
+                        return i - 1;
+                    }
                 }
             }
             return timestamps.length - 1;
@@ -1343,6 +1354,19 @@ module csComp.Services {
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
+                
+                // check if defaultLegends are active
+                if (feature.fType.defaultLegendProperty) {
+                    if (typeof feature.fType.defaultLegendProperty === "string")
+                    {
+                        this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty);    
+                    }
+                    else
+                    {
+                        (<string[]>feature.fType.defaultLegendProperty).forEach(s=>this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty));
+                    }
+                    
+                }
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
                 if (feature.sensors) {
@@ -1456,6 +1480,7 @@ module csComp.Services {
                         var v = Number(feature.properties[gs.property]);
                         try {
                             if (!isNaN(v)) {
+                                
                                 switch (gs.visualAspect) {
                                     case 'strokeColor':
                                         s.strokeColor = csComp.Helpers.getColor(v, gs);
@@ -2085,6 +2110,11 @@ module csComp.Services {
                 var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
+            
+            if (!res)
+            {
+                res = <IPropertyType>{label : property, type : "text", title : property };
+            }
 
             return res;
         }
@@ -2418,9 +2448,9 @@ module csComp.Services {
                     .success((prj: Project) => {
                         this.parseProject(prj, solutionProject, layerIds);
 
-                        this.throttleSensorDataUpdate = _.throttle(this.updateSensorData, this.project.timeLine.updateDelay);
+                        this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, this.project.timeLine.updateDelay);
 
-                        var delayFocusChange = _.throttle((date) => {
+                        var delayFocusChange = _.debounce((date) => {
                             this.refreshActiveLayers();
                         }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
