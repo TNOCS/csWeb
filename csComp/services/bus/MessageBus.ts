@@ -271,7 +271,8 @@ module csComp.Services {
             if (c == null) return null;
 
             var sub = c.subscribe(target, type, callback);
-            return new MessageBusHandle(sub.id, callback);
+            if (sub) return new MessageBusHandle(sub.id, callback);
+            return null;
         }
 
         public serverUnsubscribe(handle: MessageBusHandle, serverId: string = '') {

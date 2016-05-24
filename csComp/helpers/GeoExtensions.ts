@@ -24,8 +24,9 @@ module csComp.Helpers {
         static getFeatureBounds(feature: IFeature): L.LatLng[] | L.LatLngBounds {
             if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
             var geoType = feature.geometry.type || 'Point';
+            if (!feature.geometry) return null;
             switch (geoType) {
-                case 'Point':
+                case 'Point':                    
                     return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
                 default:
                     var bounds = d3.geo.bounds(feature);
