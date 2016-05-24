@@ -182,7 +182,7 @@ module csComp.Services {
         title: string;
         enabled: boolean;
         layers: string[];
-        visualAspect: string;
+        visualAspect: string | string[];
         property: string;
         colors: string[];
         group: ProjectGroup;
@@ -248,7 +248,7 @@ module csComp.Services {
         id: string;
         description: string;
         legendKind: string;
-        visualAspect: string;
+        visualAspect: string | string[];
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
