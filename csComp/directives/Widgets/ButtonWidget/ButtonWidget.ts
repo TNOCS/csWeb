@@ -39,7 +39,7 @@ module ButtonWidget {
         title: string;
         description: string;
         action: string;
-        layer: string;
+        layer: string;        
         group: string;
         timerange: string;
         property: string;
@@ -51,6 +51,8 @@ module ButtonWidget {
         zoomLevel: number;
         _legend: csComp.Services.Legend;
         _layer: csComp.Services.ProjectLayer;
+        _feature : csComp.Services.Feature;
+        _featureIcon : string;
         _disabled: boolean;
         _active: boolean;
         _firstLegendLabel: string;
@@ -61,6 +63,7 @@ module ButtonWidget {
     export interface IButtonData {
         buttons: IButton[];
         layerGroup: string;
+        featureLayer : string;
     }
 
     export class ButtonWidgetCtrl {
@@ -71,7 +74,8 @@ module ButtonWidget {
             'layerService',
             'messageBusService',
             'actionService',
-            '$timeout'
+            '$timeout',
+            '$sce'
         ];
 
         constructor(
@@ -80,7 +84,8 @@ module ButtonWidget {
             public layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService,
             private actionService: csComp.Services.ActionService,
-            private $timeout: ng.ITimeoutService
+            private $timeout: ng.ITimeoutService,
+            private $sce : ng.ISCEService
         ) {
             $scope.vm = this;
 
@@ -90,8 +95,11 @@ module ButtonWidget {
             if (typeof $scope.data.buttons === 'undefined') {
                 $scope.data.buttons = [];
             }
-
-            if (!_.isUndefined($scope.data.layerGroup)) {
+            if (!_.isUndefined($scope.data.featureLayer))
+            {
+                this.initFeatureLayer();
+                
+            } else if (!_.isUndefined($scope.data.layerGroup)) {
                 this.initLayerGroup();
             } else {
                 this.$scope.buttons = this.$scope.data.buttons;
@@ -125,10 +133,39 @@ module ButtonWidget {
                 }
             });
         }
+        
+        private initFeatureLayer() {
+            this.checkFeatureLayer();
+            this.messageBusService.subscribe('layer', (a, l) => this.checkFeatureLayer());
+        }
 
         private initLayerGroup() {
             this.checkLayerGroup();
             this.messageBusService.subscribe('layer', (a, l) => this.checkLayerGroup());
+        }
+        
+        private checkFeatureLayer()
+        {
+            this.$scope.buttons = [];
+            var pl = this.layerService.findLayer(this.$scope.data.featureLayer);
+            if (pl)
+            {
+                
+                if (pl.data && pl.data.features)
+                {
+                    pl.data.features.forEach((f : IFeature)=>{
+                        var b = <IButton>{
+                        title: csComp.Helpers.getFeatureTitle(f),
+                        action: 'Activate Feature',
+                        description: 'Snelheid:',
+                        _feature: f,
+                        _featureIcon : this.$sce.trustAsHtml(csComp.Helpers.createIconHtml(f).html)                        
+                    };
+                    this.$scope.buttons.push(b);
+                    });                    
+                }
+            }
+            
         }
 
         private checkLayerGroup() {
