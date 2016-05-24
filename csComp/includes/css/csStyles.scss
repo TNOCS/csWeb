@@ -23,6 +23,7 @@ input[type="search"]::-webkit-search-cancel-button {
     background-color: rgba(0,0,0,.5);
 }
 @import url('http://fonts.googleapis.com/css?family=Noto Sans|Montserrat');
+@import url('http://netdna.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.woff2');
 
 /*----------------------
 webfont
@@ -1792,6 +1793,34 @@ body,
     padding: 5px;
     padding-left: 23px;
     opacity: 0.8;
+}
+
+.timeline-select-button {
+   pointer-events: auto;
+    cursor: pointer;
+    width: 65px;
+    background: white;
+    right: 470px;
+    height: 55px;
+    font-size: 20px;
+    padding: 5px;
+    padding-left: 23px;
+    opacity: 0.8;
+}
+
+.timeline-date-picker {
+      pointer-events: auto;
+    cursor: pointer;
+    /* width: 265px; */
+    // background: white;
+    right: 370px;
+    bottom:120px;
+    height: 155px;
+    font-size: 20px;
+    position: absolute;
+    padding: 5px;
+    padding-left: 23px;
+    /* opacity: 0.8; */
 }
 
 .timeline-expand-button ::hover

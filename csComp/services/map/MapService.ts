@@ -106,6 +106,15 @@ module csComp.Services {
                 }
             });
         }
+        
+          public zoomIn(){
+                this.map.zoomIn();
+            };
+            
+            public zoomOut()
+             {
+                this.map.zoomOut();
+            };
 
         private mapClicked(e: L.LeafletMouseEvent) {
             if (this.$messageBusService) this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
