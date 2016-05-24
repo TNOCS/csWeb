@@ -118,6 +118,12 @@ module csComp.Services {
                 // Move map such that selected feature in the center of the map
                 this.layerService.centerFeatureOnMap(this.layerService.selectedFeatures);
             };
+            
+            this.actions['reload project'] = options => {
+                console.log('Reload project action called');
+                this.layerService.openProject(this.layerService.projectUrl);
+                this.layerService.checkViewBounds();
+            };
         }
 
         /** Call an action by name (lowercase), optionally providing it with additional parameters like group, layer or property id. */

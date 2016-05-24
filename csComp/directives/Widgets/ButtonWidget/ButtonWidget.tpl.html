@@ -45,10 +45,18 @@
         </div>
     </div>
     <!-- Minimalistic layout (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
-    <div ng-if="data.minimalLayout" style="width:100%;height:100%;display:inline-block;">
+    <div ng-if="data.minimalLayout&&!data.toggleMode" style="width:100%;height:100%;display:inline-block;">
         <div ng-repeat="b in $parent.buttons" class="button-container-minimal" ng-style="{'width': (98 / $parent.buttons.length)+'%'}">
             <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.title}}" popover-trigger="mouseenter">
-                <img class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-if="b.image" ng-src="{{b.image}}"></img>
+                <img class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-if="b.image" ng-src="{{b.image}}">
+            </div>
+        </div>
+    </div>
+    <!-- Minimalistic layout (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
+    <div ng-if="data.minimalLayout&&data.toggleMode" style="width:100%;height:100%;display:inline-block;" ng-init="$parent.activeIndex=0">
+        <div ng-repeat="b in $parent.buttons track by $index" class="button-container-minimal" style="width:100%" ng-show="$index==$parent.$parent.activeIndex" >
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b);" uib-popover="{{b.title}}" popover-trigger="mouseenter">
+                <img class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-if="b.image" ng-src="{{b.image}}"/>
             </div>
         </div>
     </div>

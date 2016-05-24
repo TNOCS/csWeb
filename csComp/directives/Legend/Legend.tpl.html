@@ -4,7 +4,8 @@
         <div data-ng-if="legend.legendKind === 'discrete' || legend.legendKind === 'discreteStrings'  ">
             <div class="legend-description">{{legend.description}}</div>
             <ul class="legend-entry-list">
-                <li data-ng-repeat="le in legend.legendEntries | reverse" class="legend-entry-item-d">
+                <li data-ng-repeat="le in legend.legendEntries | reverse" class="legend-entry-item-d" ng-class="{'pointer-cursor': $parent.$parent.$parent.activeStyleProperty}"
+                    ng-click="$parent.$parent.$parent.vm.toggleFilter(legend, le)" uib-popover="{{'UTILS.FILTER' | translate}}" popover-trigger="mouseenter" popover-append-to-body="true" popover-placement="right" popover-enable="{{$parent.$parent.$parent.activeStyleProperty}}">
                     <div class="legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                     <div class="legend-label-d" style="float: left">{{le.label}}</div>
                     <div>&nbsp;</div>
@@ -16,9 +17,7 @@
             <div class="legend-description">{{legend.description}}</div>
             <ul class="legend-entry-list">
                 <li data-ng-repeat="(key, le) in legend.legendEntries | reverse" class="legend-entry-item-i">
-                    <div ng-if="key < legend.legendEntries.length-1"
-                         class="legend-color-gradient-rect"
-                         ng-style="vm.getStyle(legend, le, key)"></div>
+                    <div ng-if="key < legend.legendEntries.length-1" class="legend-color-gradient-rect" ng-style="vm.getStyle(legend, le, key)"></div>
                     <div class="legend-label-i">{{le.label}}</div>
                     <!-- die &nbsp; is echt nodig... -->
                     <div>&nbsp;</div>

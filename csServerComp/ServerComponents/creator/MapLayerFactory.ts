@@ -83,7 +83,8 @@ export interface ILayerTemplate {
 }
 
 export interface IBagContourRequest {
-    bounds: string;
+    bounds?: string;
+    searchProp?: string;
     layer: any;
 }
 
@@ -306,6 +307,7 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var bu_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
         var getPointFeatures: boolean = false;
         if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('getPointFeatures')) {
@@ -315,7 +317,7 @@ export class MapLayerFactory {
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagArea(bounds, (areas: Location[]) => {
+        this.bag.lookupBagArea(bounds || bu_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
@@ -383,12 +385,13 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var gm_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
 
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagBuurt(bounds, (areas: Location[]) => {
+        this.bag.lookupBagBuurt(bounds || gm_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {

@@ -119,11 +119,24 @@ module Filters {
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
+            
+            // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
+            if (pt.legend) {
+                var allEntries = [];
+                _.each(<any>pt.legend.legendEntries, (le: csComp.Services.LegendEntry) => { allEntries.push(le.label); });
+                var fakeNdx = crossfilter(allEntries);
+                var fakeDim = fakeNdx.dimension(d => {
+                    return d;
+                });
+                var fakeGroup = fakeDim.group();
+            }
+            
+            var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
 
-            this.dcChart.width(315)
-                .height(210)                
+            this.dcChart.width(380)
+                .height(285)                
                 .dimension(dcDim)
-                .group(dcGroup)
+                .group(ensuredGroup || dcGroup)
                 .title(d=> {
                     return d.key })
                 .elasticX(true)                
@@ -155,6 +168,36 @@ module Filters {
             this.updateRange();
             dc.renderAll();
         }
+        
+        private ensureAllBins(source_group, fake_group) { // (source_group, bins...}
+            var bins = fake_group.all().slice(0);
+            return {
+                all: function () {
+                    var result = source_group.all().slice(0); // copy original results (we mustn't modify them)
+                    var found = {};
+                    result.forEach(function (d) {
+                        found[d.key] = true;
+                    });
+                    bins.forEach(function (d) {
+                        if (!found[d.key])
+                            result.push({ key: d.key, value: 0 });
+                    });
+                    return result;
+                },
+                top: function (n) {
+                    var result = source_group.all().slice(0); // copy original results (we mustn't modify them)
+                    var found = {};
+                    result.forEach(function (d) {
+                        found[d.key] = true;
+                    });
+                    bins.forEach(function (d) {
+                        if (!found[d.key])
+                            result.push({ key: d.key, value: 0 });
+                    });
+                    return result.slice(0, n);
+                }
+            };
+        };
 
         private updateFilter() {
             setTimeout(() => {

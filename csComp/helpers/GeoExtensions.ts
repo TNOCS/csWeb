@@ -99,9 +99,15 @@ module csComp.Helpers {
             if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
             if (arr[0] instanceof Array) {
                 if (arr[0][0] instanceof Array) {
-                    arr = arr[0][0];
-                } else {
-                    arr = arr[0];
+                    if (arr[0][0][0] instanceof Array) {
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
+                    } else {
+                        arr = arr[0];
+                    }
                 }
             }
             // http://stackoverflow.com/questions/22796520/finding-the-center-of-leaflet-polygon
