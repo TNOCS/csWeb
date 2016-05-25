@@ -66,32 +66,11 @@ module Filters {
 
                     return res;
                 });
-
-
             }
-
         }
 
         private createScatter(gf: csComp.Services.GroupFilter) {
             this.$layerService.createScatterFilter(this.$scope.filter.group, this.$scope.filter.property, gf.property);
-        }
-
-        private displayFilterRange(min, max) {
-            if ((+min) > (+max)) {
-                min = max;
-            }
-            var filter = this.$scope.filter;
-            if (filter.rangex[0] < min) {
-                filter.from = min;
-            } else {
-                filter.from = filter.rangex[0];
-            }
-            if (filter.rangex[1] > max) {
-                filter.to = max;
-            } else {
-                filter.to = filter.rangex[1];
-            }
-            this.$scope.$apply();
         }
 
         private dcChart: any;
@@ -113,50 +92,68 @@ module Filters {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
                     if (!pt) pt = this.$layerService.getPropertyType(d,filter.property);
-                    if (d.properties[filter.property] != null) {
-                        
-                        var a = d.properties[filter.property];
-                        var r;
-                        if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                            r = a + "." + pt.options[a];
-                        } else { r = a + "." + a}
-                        return r;
+                        if (d.properties[filter.property] != null) {
+                            var a = d.properties[filter.property];
+                            if (pt.type === 'options') {
+                                var r;
+                                if (pt && pt.options && pt.options.hasOwnProperty(a)) {
+                                    r = a + "." + pt.options[a];
+                                } else { r = a + "." + a}
+                                return r;
+                            } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
+                                var label;
+                                pt.legend.legendEntries.some((le) => {
+                                    if (a >= le.interval.min && le.interval.max >= a) {
+                                        label = le.label;
+                                        return true;
+                                    }
+                                });
+                                if (!label) label = 'other';
+                                return label;
+                            } else if (pt.type === 'text' || pt.type === 'textarea') {
+                                return a;
+                            }
+                        }
+                        return null;
                     }
-                    return null;
-                }
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
+            
+            // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
+            if (pt.legend) {
+                var allEntries = [];
+                _.each(<any>pt.legend.legendEntries, (le: csComp.Services.LegendEntry) => { allEntries.push(le.label); });
+                var fakeNdx = crossfilter(allEntries);
+                var fakeDim = fakeNdx.dimension(d => {
+                    return d;
+                });
+                var fakeGroup = fakeDim.group();
+            }
+            
+            var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
 
-            //var scale =
-            this.dcChart.width(315)
-                .height(210)                
+            this.dcChart.width(380)
+                .height(285)                
                 .dimension(dcDim)
-                .group(dcGroup)
+                .group(ensuredGroup || dcGroup)
                 .title(d=> {
-                    console.log(d); 
                     return d.key })
                 .elasticX(true)                
                 .colors(d=>{
-                    if (pt.legend)
-                    {                        
-                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]),pt.legend);
+                    if (pt && pt.legend) {
+                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
+                        if (!pt.options) {
+                            var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
+                            return (arr.length > 0 ? arr[0].color : '#444444');
+                        }
                     }
-                    else
-                    {
-                        return "red";    
+                    else {
+                        return "red";
                     }
-                    
-                    
                 })
+                .cap(10)
                 .on('renderlet', (e) => {
-                    // var fil = e.hasFilter();
-                    // var s = '';
-                    // if (e.filters.length > 0) {
-                    //     var localFilter = e.filters[0];
-                    //     this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
-                    //     s += localFilter[0];
-                    // }
                     dc.events.trigger(() => {
                         this.$layerService.updateFilterGroupCount(group);
                     }, 0);
@@ -164,51 +161,59 @@ module Filters {
                         group.filterResult = dcDim.top(Infinity);
                         this.$layerService.updateMapFilter(group);
                     }, 100);
+                }).on('filtered', (e) => {
+                    console.log('Filtered rowchart');
                 });
             this.dcChart.selectAll();
-            //this.displayFilterRange(min,max);
-
-
-            
-
-
-            //this.$scope.$watch('filter.from',()=>this.updateFilter());
-            //  this.$scope.$watch('filter.to',()=>this.updateFilter());
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
-
-            //this.dcChart.yAxis().ticks(5);
-            //this.dcChart.xAxis().ticks(5);
-            //this.dcChart.mouseZoomable(true);
-            dc.renderAll();
             this.updateRange();
-            //  this.updateChartRange(this.dcChart,filter);
-
+            dc.renderAll();
         }
+        
+        private ensureAllBins(source_group, fake_group) { // (source_group, bins...}
+            var bins = fake_group.all().slice(0);
+            return {
+                all: function () {
+                    var result = source_group.all().slice(0); // copy original results (we mustn't modify them)
+                    var found = {};
+                    result.forEach(function (d) {
+                        found[d.key] = true;
+                    });
+                    bins.forEach(function (d) {
+                        if (!found[d.key])
+                            result.push({ key: d.key, value: 0 });
+                    });
+                    return result;
+                },
+                top: function (n) {
+                    var result = source_group.all().slice(0); // copy original results (we mustn't modify them)
+                    var found = {};
+                    result.forEach(function (d) {
+                        found[d.key] = true;
+                    });
+                    bins.forEach(function (d) {
+                        if (!found[d.key])
+                            result.push({ key: d.key, value: 0 });
+                    });
+                    return result.slice(0, n);
+                }
+            };
+        };
 
         private updateFilter() {
             setTimeout(() => {
-                this.dcChart.filter([this.$scope.filter.from, this.$scope.filter.to]);
+                this.dcChart.filter(this.$scope.filter.filterLabel);
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
             }, 10);
-
         }
 
         public updateRange() {
             setTimeout(() => {
                 var filter = this.$scope.filter;
                 var group = filter.group;
-                this.displayFilterRange(this.$scope.filter.from, this.$scope.filter.to);
                 this.dcChart.filterAll();
-                this.dcChart.filter((<any>dc).filters.RangedFilter(this.$scope.filter.from, this.$scope.filter.to));
+                this.dcChart.filter(this.$scope.filter.filterLabel);
                 this.dcChart.render();
                 dc.redrawAll();
                 group.filterResult = filter.dimension.top(Infinity);
@@ -222,6 +227,5 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-
     }
 }

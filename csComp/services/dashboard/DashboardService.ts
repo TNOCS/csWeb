@@ -7,9 +7,17 @@ module csComp.Services {
         public data: any;
         public icon: string = 'tachometer';
         public popover: string = '';
-        public open : boolean = true;
-        public replace : boolean = true; 
-        public canClose : boolean = true;
+        public open: boolean = true;
+        public replace: boolean = true;
+        public canClose: boolean = true;
+    }
+
+    /** When searching, specify the search query */
+    export interface ISearch {
+        /** If true, the search is active. */
+        isActive?: boolean;
+        /** Query string to search for */
+        query: string;
     }
 
     /** service for managing dashboards */
@@ -22,11 +30,14 @@ module csComp.Services {
         public activeWidget: IWidget;
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget } = {};
-        public chartGenerators : { [key : string] : Function} = {};
+        public chartGenerators: { [key: string]: Function } = {};
         public socket;
         public editWidgetMode: boolean;
-        
-        public rightPanelTabs : { [key : string] : RightPanelTab } = {};
+        /** Search status: if isActive is true, show the Navigate directive. */
+        public _search: ISearch = { isActive: false, query: '' };
+        /** website is running in touch mode */
+        public touchMode: boolean;
+        public rightPanelTabs: { [key: string]: RightPanelTab } = {};
 
         public static $inject = [
             '$rootScope',
@@ -38,6 +49,7 @@ module csComp.Services {
             'messageBusService',
             'layerService',
             'mapService',
+            'localStorageService'
         ];
 
         constructor(
@@ -49,8 +61,9 @@ module csComp.Services {
             private $translate: ng.translate.ITranslateService,
             private $messageBusService: Services.MessageBusService,
             private $layerService: Services.LayerService,
-            private $mapService: Services.MapService
-            ) {
+            private $mapService: Services.MapService,
+            private $localStorageService: ng.localStorage.ILocalStorageService
+        ) {
 
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -59,18 +72,20 @@ module csComp.Services {
             this.mainDashboard = new csComp.Services.Dashboard();
             this.dashboards = [];
             this.dashboards['main'] = this.mainDashboard;
+            this.touchMode = $localStorageService.get("touchmode");
 
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
-            this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService,this);}
+            this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService, this); }
+            this.chartGenerators['kpi'] = () => { return new csComp.Services.layerKpiGenerator(this.$layerService, this); }
             this.chartGenerators['top10'] = () => { return new csComp.Services.top10Generator(this.$layerService, this); };
 
             // this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
             //     //alert(event);
             // });
-            this.$messageBusService.subscribe('rightpanel', (event: string, tab: any) => {
+            this.$messageBusService.subscribe('rightpanel', (event: string, tab: RightPanelTab | string) => {
                 switch (event) {
                     case 'activate':
-                        this.activateTab(<RightPanelTab>tab);
+                            this.activateTab(tab);
                         break;
                     case 'deactivate':
                         this.deactivateTab(<RightPanelTab>tab);
@@ -81,6 +96,16 @@ module csComp.Services {
                 }
             });
 
+            this.widgetTypes['agenda'] = <csComp.Services.IWidget>{
+                id: 'agenda',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/agenda.png',
+                description: 'Show an event calendar.'
+            };
+            this.widgetTypes['presentation'] = <csComp.Services.IWidget>{
+                id: 'presentation',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/presentation.png',
+                description: 'Create and share presentations.'
+            };
             this.widgetTypes['buttonwidget'] = <IWidget>{
                 id: 'buttonwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
@@ -156,6 +181,25 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/ServerStatus.png',
                 description: 'Show status of simulation services.'
             };
+            this.widgetTypes['locationwidget'] = <IWidget>{
+                id: 'locationwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
+                description: 'Show reverse geocode info.'
+            };
+        }
+
+        public get search(): ISearch { return this._search; };
+        public set search(s: ISearch) {
+            this._search = s;
+            if (s.query && s.query.length > 0) {
+                $('#navigate_header').trigger('click');
+                this._search.isActive = s.isActive = this.$layerService.visual.leftPanelVisible = true;
+                this.$messageBusService.publish('search', 'update', s);
+            } else {
+                if ($('#navigate_header').is(':visible')) $('#left_menu_headers li:visible:first').next().trigger('click');
+                this._search.isActive = s.isActive = false;
+                this.$messageBusService.publish('search', 'reset');
+            }
         }
 
         public leftMenuVisible(id: string): boolean {
@@ -165,62 +209,74 @@ module csComp.Services {
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
-            this.$messageBusService.publish('updatelegend', 'removelegend');
-            //this.$layerService.project.activeDashboard = dashboard;
-            this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             this.$location.search('dashboard', dashboard.id);
+            if (!_.isUndefined(dashboard.refreshPage) && dashboard.refreshPage) {
+                location.reload();
+            } else {
+                this.$messageBusService.publish('updatelegend', 'removelegend');
+                //this.$layerService.project.activeDashboard = dashboard;
+                dashboard._initialized = false;
+                this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
+            }
         }
 
-        public closeContainer()
-        {
-            alert('close container'); 
+        public closeContainer() {
+            alert('close container');
         }
 
-        public activateTab(tab: RightPanelTab) {
-            if (!tab.hasOwnProperty('container')) return;
-            var content = tab.container + '-content';
-            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
-                (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
-                return;
-            }
-            this.$layerService.visual.rightPanelVisible = true;
-
-            $('#' + tab.container + '-tab').remove();
-            var c = $('#' + content);
-            try {
-                if (c) c.remove();
-            } catch (e) {
-                return;
-            }
-            var popoverString = '';
-            if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
-                popoverString = 'popover="' + tab.popover + '" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"';
-            }
-            $('#rightpanelTabs').append(
-                this.$compile('<li id="' +
-                    tab.container + '-tab" class="rightPanelTab rightPanelTabAnimated" ' +
-                    popoverString + '><a id="' + tab.container + '-tab-a" data-target="#' +
-                    content + '" data-toggle="tab"><span class="fa fa-' +
-                    tab.icon + ' fa-lg"></span></a></li>')(this.$rootScope));
-            $('#rightpanelTabPanes').append('<div class="tab-pane" style="width:355px" id="' + content + '"></div>');
-            $('#' + tab.container + '-tab-a').click(() => {
+        public activateTab(t: any) {
+            if (typeof t === 'string') {
+                 (<any>$('#rightpanelTabs a[data-target="#' + t + '-content"]')).tab('show');
                 this.$layerService.visual.rightPanelVisible = true;
-                console.log('rp visible');
-                if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); } 
-            });
-            var newScope = this.$rootScope;
-            (<any>newScope).data = tab.data;
-            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
-            $('#' + content).append(widgetElement);
-            if (tab.canClose)
-            {
-                $('#' + content).append('<div id="closebutton-' + tab.container + '" class="fa fa-times rightpanel-closebutton" />');
-                $('#closebutton-' + tab.container).click(() => {
-                   this.deactivateTabContainer(tab.container);
+            } else {
+                var tab = t as RightPanelTab;
+                if (!tab.hasOwnProperty('container')) return;
+                var content = tab.container + '-content';
+                if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
+                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    return;
+                }
+
+                $('#' + tab.container + '-tab').remove();
+                var c = $('#' + content);
+                try {
+                    if (c) c.remove();
+                } catch (e) {
+                    return;
+                }
+                var popoverString = '';
+                if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
+                    popoverString = 'popover="' + tab.popover + '" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"';
+                }
+                $('#rightpanelTabs').append(
+                    this.$compile('<li id="' +
+                        tab.container + '-tab" class="rightPanelTab rightPanelTabAnimated" ' +
+                        popoverString + '><a id="' + tab.container + '-tab-a" data-target="#' +
+                        content + '" data-toggle="tab"><span class="fa fa-' +
+                        tab.icon + ' fa-lg"></span></a></li>')(this.$rootScope));
+                $('#rightpanelTabPanes').append('<div class="tab-pane" style="width:355px" id="' + content + '"></div>');
+                $('#' + tab.container + '-tab-a').click(() => {
+                    this.$layerService.visual.rightPanelVisible = true;
+                    console.log('rp visible');
+                    if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); }
                 });
+                var newScope = this.$rootScope;
+                (<any>newScope).data = tab.data;
+                var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
+                $('#' + content).append(widgetElement);
+                if (tab.canClose) {
+                    $('#' + content).append('<div id="closebutton-' + tab.container + '" class="fa fa-times rightpanel-closebutton" />');
+                    $('#closebutton-' + tab.container).click(() => {
+                        this.deactivateTabContainer(tab.container);
+                    });
+                }
+
+                if (_.isUndefined(tab.open) || tab.open === true) {
+                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    this.$layerService.visual.rightPanelVisible = true;
+                }
+                this.rightPanelTabs[tab.container] = tab;
             }
-            (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
-            this.rightPanelTabs[tab.container] = tab;
         }
 
         public deactivateTabContainer(container: string) {
@@ -238,7 +294,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
-            if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); } 
+            if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); }
         }
 
         public deactivateTab(tab: RightPanelTab) {

@@ -17,16 +17,16 @@ module Legend {
         vm: LegendCtrl;
         data: LegendData;
         legend: csComp.Services.Legend;
+        activeStyleProperty: csComp.Services.IPropertyType;
+        activeStyleGroup: csComp.Services.ProjectGroup;
     }
 
     export class LegendCtrl {
         private scope: ILegendDirectiveScope;
-
         private widget: csComp.Services.IWidget;
-
         private passcount: number = 1;
-
         private subscribeHandle: csComp.Services.MessageBusHandle;
+        private parentWidget: any;
 
         // $inject annotation
         // It provides $injector with information about dependencies to be injected into constructor
@@ -48,12 +48,14 @@ module Legend {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
+            this.parentWidget = $('#' + this.widget.elementId).parent();
             //console.log(JSON.stringify(this.widget.data));
             //$scope.title = this.widget.title;
             //$scope.timestamp = '19:45';
             if (this.widget && this.widget.data) $scope.data = <LegendData>this.widget.data;
             //$scope.s1 = $scope.data.propertyTypeKey;
             if (this.widget && this.widget.data && this.widget.data.hasOwnProperty('propertyTypeKey')) var ptd = this.$layerService.propertyTypeData[$scope.data.propertyTypeKey];
+            $scope.activeStyleProperty = ptd;
             //if (ptd) $scope.s2 = ptd.title;
             //$scope.s3 = 'passcount=' + this.passcount.toString();
             // if ($scope.data.mode = 'lastSelectedStyle') {
@@ -61,15 +63,12 @@ module Legend {
             // }
             if ($scope.data && $scope.data.mode === 'lastSelectedLayer') {
                 this.$messageBus.subscribe("layer", (a, l: csComp.Services.ProjectLayer) => {
-                    if (a === "activated")
-                    { $scope.legend = null;
-                        
-                     if (l && l.defaultLegend) {
-                         $scope.legend = this.$layerService.getLayerLegend(l);
-                        
-                        console.log('activate new layer ' + l.title);
-                        
-                    }
+                    if (a === "activated") {
+                    $scope.legend = null;
+                        if (l && l.defaultLegend) {
+                            $scope.legend = this.$layerService.getLayerLegend(l);
+                            console.log('activate new layer ' + l.title);
+                        }
                     }
                 });
             }
@@ -84,17 +83,22 @@ module Legend {
                 }
 
                 if (!this.subscribeHandle) {
-                    this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, ptdataKey: string) => {
+                    this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, data: any) => {
                         switch (title) {
                             case 'removelegend':
                                 this.$messageBus.unsubscribe(this.subscribeHandle);
                                 break;
+                            case 'hidelegend':
+                                this.parentWidget.hide();
+                                break;
                             default:
+                                this.parentWidget.show();
                                 if (ptd && ptd.legend) {
                                     $scope.legend = ptd.legend;
+                                    $scope.activeStyleProperty = ptd;
                                 }
                                 if ($scope.data.mode = 'lastSelectedStyle') {
-                                    $scope.legend = this.createLegend();
+                                    $scope.legend = this.createLegend(data);
                                     if ($scope.$parent.hasOwnProperty('widget')) {
                                         if (!$scope.legend.hasOwnProperty('legendEntries')) {
                                             (<any>$scope.$parent).widget['enabled'] = false;
@@ -120,20 +124,26 @@ module Legend {
             }
         }
 
-        createLegend(): csComp.Services.Legend {
+        createLegend(activeStyle: csComp.Services.GroupStyle = null): csComp.Services.Legend {
             var leg = new csComp.Services.Legend();
-            var activeStyle: csComp.Services.GroupStyle;
-            this.$layerService.project.groups.forEach((g) => {
-                g.styles.forEach((gs) => {
-                    if (gs.enabled) {
-                        activeStyle = gs;
-                    }
+            if (!activeStyle) {
+                this.$layerService.project.groups.forEach((g) => {
+                    g.styles.forEach((gs) => {
+                        if (gs.enabled) {
+                            activeStyle = gs;
+                            this.$scope.activeStyleGroup = g;
+                        }
+                    });
                 });
-            });
+            } else {
+                this.$scope.activeStyleGroup = activeStyle.group;
+            }
             if (!activeStyle) return leg;
 
             var ptd: csComp.Services.IPropertyType = this.$layerService.propertyTypeData[activeStyle.property];
+            this.$scope.activeStyleProperty = ptd;
             if (!ptd) return leg;
+            if (ptd.legend) return ptd.legend;
             leg.id = ptd.label + 'legendcolors';
             leg.legendKind = 'interpolated';
             leg.description = ptd.title;
@@ -185,6 +195,35 @@ module Legend {
             }
             return style;
         }
-
+        
+        public toggleFilter(legend: csComp.Services.Legend, le: csComp.Services.LegendEntry) {
+            if (!legend || !le) return;
+            var projGroup = this.$scope.activeStyleGroup;
+            var property = this.$scope.activeStyleProperty;
+            if (!projGroup || !property) return;
+            //Check if filter already exists. If so, remove it.
+            var exists: boolean = projGroup.filters.some((f: csComp.Services.GroupFilter) => {
+                if (f.property === property.label) {
+                    this.$layerService.removeFilter(f);
+                    return true;
+                }
+            });
+            if (!exists) {
+                var gf = new csComp.Services.GroupFilter();
+                gf.property = property.label;//prop.split('#').pop();
+                gf.id = 'buttonwidget_filter';
+                gf.group = projGroup;
+                gf.filterType = 'row';
+                gf.title = property.title;
+                gf.rangex = [le.interval.min, le.interval.max];
+                gf.filterLabel = le.label;
+                console.log('Setting filter');
+                this.$layerService.rebuildFilters(projGroup);
+                projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
+                this.$layerService.setFilter(gf, projGroup);
+                this.$layerService.visual.leftPanelVisible = true;
+                $('#filter-tab').click();
+            }
+        }
     }
 }

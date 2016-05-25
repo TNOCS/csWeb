@@ -23,7 +23,7 @@ module LayersDirective {
                 var validator = (value) => {
 
                     var v = (typeof value === 'undefined') || (value.length === 0);
-                    if (!v) {
+                    if (!v) {                                                 
                         if (value.match(/^[a-zA-Z0-9\s]*$/)) {
                             ctrl.$setValidity('validtitle', true);
                             return value;
@@ -38,6 +38,38 @@ module LayersDirective {
                         return undefined;
                     }
 
+                };
+                ctrl.$parsers.unshift(validator);
+                ctrl.$formatters.unshift(validator);
+            }
+        };
+    });
+    
+    myModule.directive('validfeaturetypeid', () => {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: (scope, elm, attrs, ctrl) => {
+                var validator = (value) => {
+
+                    var v = (typeof value === 'undefined') || (value.length === 0);
+                    if (!v) {
+                        var ft = <csComp.Services.IFeatureType>scope.featureType;
+                        if (!ft._isInitialized && ft._resource.featureTypes.hasOwnProperty(value))
+                        {
+                            ctrl.$setValidity('validfeaturetypeid', false);
+                            return undefined;
+                        }
+                        else
+                        {
+                            ctrl.$setValidity('validfeaturetypeid', true);
+                            return value;
+                        }                        
+                    }
+                    else {
+                        ctrl.$setValidity('validfeaturetypeid', false);
+                        return undefined;
+                    }
                 };
                 ctrl.$parsers.unshift(validator);
                 ctrl.$formatters.unshift(validator);

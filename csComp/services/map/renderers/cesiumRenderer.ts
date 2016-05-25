@@ -126,6 +126,7 @@ module csComp.Services {
             }
         }
 
+        /** Create the background image type provider. */
         private createImageLayerProvider(layer: BaseLayer) {
             var mapProvider;
             switch (layer.cesium_maptype.toUpperCase()) {
@@ -230,9 +231,12 @@ module csComp.Services {
             switch (layer.renderType) {
                 case 'geojson':
                     setTimeout(() => {
+                        // console.time('render features');
                         layer.data.features.forEach((f: IFeature) => {
                             this.addFeature(f);
                         });
+                        // this.createLayer(layer);
+                        // console.timeEnd('render features');
                         dfd.resolve();
                     }, 0);
                     break;
@@ -260,10 +264,69 @@ module csComp.Services {
             return dfd.promise();
         }
 
+        // /** Create the layer using geometry instances. */
+        // public createLayer(layer: ProjectLayer) {
+        //     var featureHeight: number,
+        //         heightAboveSea: number,
+        //         effStyle: IFeatureTypeStyle;
+
+        //     /** Hold all geometry instances */
+        //     var instances = [];
+
+        //     layer.data.features.forEach((feature: IFeature) => {
+        //         switch (feature.geometry.type.toUpperCase()) {
+        //             case 'POLYGON':
+        //                 featureHeight  = this.getFeatureHeight(feature);
+        //                 heightAboveSea = this.getHeightAboveSeaLevel(feature);
+        //                 effStyle       = feature.effectiveStyle;
+        //                 var instance = new Cesium.GeometryInstance({
+        //                     id: feature.id,
+        //                     attributes: {
+        //                         color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromRandom({alpha : 0.5}))
+        //                         //Cesium.Color.fromCssColorString(effStyle.fillColor).withAlpha(effStyle.fillOpacity)
+        //                         // "value": {
+        //                         //     "0": 133,
+        //                         //     "1": 31,
+        //                         //     "2": 165,
+        //                         //     "3": 128
+        //                         // }
+        //                     },
+        //                     geometry : new Cesium.PolygonGeometry(heightAboveSea
+        //                     ? {
+        //                         polygonHierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy._value,
+        //                         vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT,
+        //                         heightAboveSea: false,
+        //                         extrudedHeight: heightAboveSea + featureHeight,
+        //                         height: heightAboveSea
+        //                     }
+        //                     : {
+        //                         polygonHierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy._value,
+        //                         vertexFormat: Cesium.EllipsoidSurfaceAppearance.VERTEX_FORMAT,
+        //                         heightAboveSea: true,
+        //                         extrudedHeight: featureHeight
+        //                     })
+        //                 });
+        //                 instances.push(instance);
+        //                 break;
+        //             default:
+        //                 console.log('Skipping feature: ' + feature);
+        //                 break;
+        //         }
+        //     });
+        //     this.viewer.scene.primitives.add(new Cesium.Primitive({
+        //         geometryInstances: instances,
+        //         appearance: new Cesium.PerInstanceColorAppearance()
+        //         // appearance: new Cesium.EllipsoidSurfaceAppearance({
+        //         //     material : Cesium.Material.fromType('Dot')
+        //         // })
+        //     }));
+        // }
+
         public removeLayer(layer: ProjectLayer) {
             var dfd = jQuery.Deferred();
             switch (layer.type.toUpperCase()) {
                 case 'GEOJSON':
+                case 'EDITABLEGEOJSON':
                 case 'DYNAMICGEOJSON':
                 case 'TOPOJSON':
                     setTimeout(() => {
@@ -359,7 +422,7 @@ module csComp.Services {
             });
         }
 
-        /** 
+        /**
          * The feature height is either set in a property as defined in the style (heightProperty), or in a style. Otherwise, it is 0.
          * In either case, the effective style is calculated in LayerService.calculateFeatureStyle.
          */
@@ -473,9 +536,8 @@ module csComp.Services {
                         feature.geometry.coordinates[0],
                         feature.geometry.coordinates[1],
                         feature.geometry.coordinates[2] || this.getHeightAboveSeaLevel(feature));
-                    entity.position    = position;
+                    entity.position = position;
                     //entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(position, effStyle.rotate, 0, 0);
-
                     break;
 
                 case 'MULTIPOINT':
@@ -487,13 +549,12 @@ module csComp.Services {
                             pixelSize: pixelSize,
                             position: Cesium.Cartesian3.fromDegrees(
                                 feature.geometry.coordinates[i][0],
-                                feature.geometry.coordinates[i][1], 
+                                feature.geometry.coordinates[i][1],
                                 feature.geometry.coordinates[i][2] || this.getHeightAboveSeaLevel(feature)),
                             color: fillColor,
                             outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                             outlineWidth: effStyle.strokeWidth
                         };
-
                         this.viewer.entities.add(entity_multi);
                     }
                     this.viewer.entities.remove(entity);

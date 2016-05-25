@@ -1,4 +1,5 @@
 module csComp.Services {
+
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
@@ -54,6 +55,13 @@ module csComp.Services {
                         layer.enabled = true;
                         this.initLayer(data, layer);
                         cb(null, null);
+                    } else if (!layer.url && layer.data && layer.data.type) {
+                        if (!layer.count) layer.count = 0;
+                        layer.enabled = true;
+                        layer.isLoading = false;
+                        layer.isConnected = false;
+                        this.initLayer(layer.data, layer);
+                        cb(null, null);
                     } else {
                         // Open a layer URL
                         layer.isLoading = true;
@@ -68,7 +76,6 @@ module csComp.Services {
                                 layer.isLoading = false;
                                 layer.enabled = true;
                                 this.initLayer(data, layer);
-                                if (layer.fitToMap) this.fitMap(layer);
                                 if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
                             })
@@ -78,7 +85,7 @@ module csComp.Services {
                                 layer.enabled = false;
                                 layer.isConnected = false;
                                 this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                                // this.service.$messageBusService.publish('layer', 'error', layer);
+                                this.service.$messageBusService.publish('layer', 'error', layer);
                                 cb(null, null);
                             });
                     }
@@ -118,16 +125,21 @@ module csComp.Services {
 
             // store raw result in layer
             layer.data = <any>data;
-            if (layer.data.geometries && !layer.data.features) {
-                layer.data.features = layer.data.geometries;
-            }
-            layer.data.features.forEach((f) => {
-                this.service.initFeature(f, layer, false, false);
-            });
-            if (data.features.length > 0) {
-                var firstFeature = data.features[0];
-                var resource = this.service.findResourceByFeature(firstFeature);
-                csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
+            if (!_.isUndefined(layer.data)) {
+                if (layer.data.geometries && !layer.data.features) {
+                    layer.data.features = layer.data.geometries;
+                }
+
+                if (!_.isUndefined(layer.data.features)) {
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer, false, false);
+                    });
+                    if (data.features.length > 0) {
+                        var firstFeature = data.features[0];
+                        var resource = this.service.findResourceByFeature(firstFeature);
+                        csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
+                    }
+                }
             }
 
             layer.isTransparent = false;
@@ -151,6 +163,7 @@ module csComp.Services {
                 });
             }
 
+
             if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
         }
 
@@ -158,10 +171,10 @@ module csComp.Services {
             layer.isTransparent = false;
             if (layer.zoomHandle) this.service.$messageBusService.unsubscribe(layer.zoomHandle);
             //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
-            if (layer.fitToMap) {
-                if (!this.service.solution.viewBounds) return;
-                this.service.$messageBusService.publish('map', 'setextent', this.service.solution.viewBounds);
-            }
+            // if (layer.fitToMap) {
+            //     if (!this.service.project.viewBounds) return;
+            //     this.service.$messageBusService.publish('map', 'setextent', this.service.project.viewBounds);
+            // }
         }
 
         private processAccessibilityReply(data, layer, clbk) {
@@ -245,36 +258,34 @@ module csComp.Services {
         }
     }
 
-    export class DynamicGeoJsonSource extends GeoJsonSource {
-        title = 'dynamicgeojson';
-        connection: Connection;
+    export class EditableGeoJsonSource extends GeoJsonSource {
+        title = 'editablegeojson';
 
         constructor(public service: LayerService, $http: ng.IHttpService) {
             super(service, $http);
             // subscribe
         }
 
-        private updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
+        public updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
             var configSettings = {};
             if (layer.id === 'newsfeed') {
                 configSettings = { titleKey: 'Name', descriptionKey: 'news_title', dateKey: 'news_date' };
             };
             try {
-                var features = (<any>this.layer.data).features;
+                var features = (<any>layer.data).features;
                 if (features == null)
                     return;
                 var done = false;
                 features.some((f: IFeature) => {
                     if (f.hasOwnProperty(key) && f[key] === id) {
                         f.properties = value.properties;
-                        f.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(f);
+                        f.geometry = value.geometry;                        
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
                             this.service.$messageBusService.publish('eventtab', 'updated', { feature: f, config: configSettings });
                         } else {
-                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, f.properties['Name'] + ' updated');
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, f.properties['Name'] + ' updated');
                         }
                         //  console.log('updating feature');
                         return true;
@@ -295,12 +306,12 @@ module csComp.Services {
                         }
                     } else {
                         features.push(value);
-                        this.service.initFeature(value, this.layer);
+                        this.service.initFeature(value, layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
                         if (this.service.project.eventTab) {
                             this.service.$messageBusService.publish('eventtab', 'added', { feature: value, config: configSettings });
                         } else {
-                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
                         }
                     }
                 }
@@ -309,11 +320,11 @@ module csComp.Services {
             }
         }
 
-        private deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
+        public deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
             try {
                 var feature = this.service.findFeature(layer, id);
                 if (feature) {
-                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, feature.properties['Name'] + ' removed');
                     this.service.removeFeature(feature, false);
                 }
             } catch (e) {
@@ -321,6 +332,94 @@ module csComp.Services {
             }
         }
 
+
+
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            layer.isEditable = true;
+            this.baseAddLayer(layer, (layer: ProjectLayer) => {
+                callback(layer);
+
+            }, data);
+        }
+
+        removeLayer(layer: ProjectLayer) {
+            layer.isConnected = false;
+            if (layer._gui['editing']) this.service.stopEditingLayer(layer);
+        }
+
+        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+            var result: [[string, Function]] = [
+                ['Fit map', (($itemScope) => this.fitMap(layer))]];
+            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
+            result.push(null);
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            return result;
+        }
+
+        /** enable edit mode for @layer and disable it for the others */
+        public startEditing(layer: csComp.Services.ProjectLayer) {
+            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                var v = false;
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    if (l === layer) {
+                        v = true;
+                        l._gui['editing'] = true;
+                    } else {
+                        delete l._gui['editing'];
+                    }
+                });
+                g._gui.editing = v;
+            });
+            this.service.editing = true;
+            this.initAvailableFeatureTypesEditing(layer);
+        }
+
+        public stopEditing(layer : csComp.Services.ProjectLayer)
+        {
+            this.service.stopEditingLayer(layer);
+        }
+
+
+
+        /** prepare layer for editing, add featuretypes to temp. _gui object */
+        public initAvailableFeatureTypesEditing(layer: csComp.Services.ProjectLayer) {
+            var featureTypes = {};
+            layer._gui['featureTypes'] = featureTypes;
+
+            if (!layer || !layer.typeUrl || !this.service.typesResources.hasOwnProperty(layer.typeUrl)) return;
+            for (var ft in this.service.typesResources[layer.typeUrl].featureTypes) {
+                var t = this.service.typesResources[layer.typeUrl].featureTypes[ft];
+                if (!t.style.drawingMode) t.style.drawingMode = 'Point';                
+                featureTypes[ft] = this.service.typesResources[layer.typeUrl].featureTypes[ft];
+                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                featureTypes[ft]._guid = csComp.Helpers.getGuid();
+                
+            }
+        }
+
+    }
+
+    export class DynamicGeoJsonSource extends EditableGeoJsonSource {
+        title: "dynamicgeojson";
+        connection: Connection;
+
+        constructor(public service: LayerService, $http: ng.IHttpService) {
+            super(service, $http);
+        }
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            layer.isDynamic = true;
+            super.addLayer(layer, callback, data);
+            if (layer.enabled) {
+                this.initSubscriptions(layer);
+            }
+        }
+
+        removeLayer(layer: ProjectLayer) {
+            super.removeLayer(layer);
+            this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
+        }
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, 'layer', (topic: string, msg: ClientMessage) => {
@@ -335,10 +434,10 @@ module csComp.Services {
                         layer.isConnected = true;
                         //console.log('sucesfully subscribed');
                         break;
-                    case 'msg' :
+                    case 'msg':
                         var d = msg.data;
                         if (d.hasOwnProperty('message')) {
-                            this.service.$messageBusService.notify(this.layer.title,d.message);
+                            this.service.$messageBusService.notify(layer.title, d.message);
                         }
                         break;
                     case 'layer':
@@ -350,7 +449,7 @@ module csComp.Services {
                                         // find feature
                                         var fId = lu.featureId;
                                         var logs: { [key: string]: Log[] } = lu.item;
-                                        var ff = <IFeature[]>(<any>this.layer.data).features;
+                                        var ff = <IFeature[]>(<any>layer.data).features;
                                         ff.forEach((f: IFeature) => {
                                             if (f.id === fId) {
                                                 if (!f.logs) f.logs = {};
@@ -396,7 +495,7 @@ module csComp.Services {
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
                                         if (feature) {
-                                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, feature.properties['Name'] + ' removed');
                                             this.service.removeFeature(feature, false);
                                         }
 
@@ -410,81 +509,12 @@ module csComp.Services {
                             } catch (e) {
                                 console.warn('Error updating feature: ' + JSON.stringify(e, null, 2));
                             }
+                            this.service.$messageBusService.publish('layer', 'updated', layer);
                         }
                         break;
 
                 }
             });
-        }
-
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
-            layer.isDynamic = true;
-            this.baseAddLayer(layer, (layer: ProjectLayer) => {
-                callback(layer);
-                if (layer.enabled) {
-                    this.initSubscriptions(layer);
-                }
-            }, data);
-        }
-
-        removeLayer(layer: ProjectLayer) {
-            layer.isConnected = false;
-            if (layer._gui['editing']) this.stopAddingFeatures(layer);
-            this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
-        }
-
-        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            var result: [[string, Function]] = [
-                ['Fit map', (($itemScope) => this.fitMap(layer))]];
-            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
-            result.push(null);
-            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
-            return result;
-        }
-
-        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                var v = false;
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    if (l === layer) {
-                        v = true;
-                        l._gui['editing'] = true;
-                    } else {
-                        l._gui['editing'] = false;
-                    }
-                });
-                g._gui.editing = v;
-            });
-            this.service.editing = true;
-            this.initAvailableFeatureTypes(layer);
-        }
-
-        public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
-            var featureTypes = {};
-
-            if (layer) {
-                if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
-                    for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                        var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        if (t.style.drawingMode.toLowerCase() === 'point') {
-                            featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                            featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
-                        }
-                    }
-                }
-            }
-            layer._gui['featureTypes'] = featureTypes;
-        }
-
-        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            delete layer._gui['featureTypes'];
-            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g._gui['editing'];
-                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    l._gui['editing'] = false;
-                });
-            });
-            this.service.editing = false;
         }
     }
 
@@ -513,7 +543,7 @@ module csComp.Services {
             // Open a layer URL
 
             layer.isLoading = true;
-            var url = (layer.useProxy) ?  '/api/proxy' : layer.url;
+            var url = (layer.useProxy) ? '/api/proxy' : layer.url;
             this.$http({
                 url: url,
                 method: 'GET',

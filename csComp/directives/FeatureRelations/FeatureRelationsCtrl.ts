@@ -175,7 +175,7 @@ module FeatureRelations {
                                     : feature.fType.style.iconUri;
                                 rg.relations.push(rel);
                             }
-                        });
+                        }); 
                         if (rg.relations.length > 0) {
                             pt.count = 0;
                             rg.relations.forEach((rl) => {

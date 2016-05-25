@@ -12,6 +12,7 @@ module csComp.Services {
         borderRadius:       string;
         opacity:            number;
         disableIfLeftPanel: boolean;
+        shadow:       boolean = true;
     }
 
     export interface IWidgetCtrl {
@@ -38,48 +39,50 @@ module csComp.Services {
         /**
          * title of the widget
          */
-        title?: string;
-        elementId?: string;
-        enabled?: boolean;
-        style?: string;
-        customStyle?: WidgetStyle;
-        effectiveStyle?: WidgetStyle;
-        description?: string;
+        title?:           string;
+        elementId?:       string;
+        enabled?:         boolean;
+        style?:           string;
+        customStyle?:     WidgetStyle;
+        effectiveStyle?:  WidgetStyle;
+        description?:     string;
         parentDashboard?: csComp.Services.Dashboard;
-        renderer?: Function;
-        resize?: Function;
+        renderer?:        Function;
+        resize?:          Function;
 
-        init?: Function;
-        start?: Function;
-        stop?:Function;
-        left?: string;
-        right?: string;
-        top?: string;
-        bottom?: string;
+        init?:              Function;
+        start?:             Function;
+        stop?:              Function;
+        left?:              string;
+        right?:             string;
+        top?:               string;
+        bottom?:            string;
 
-        icon?: string;
-
-        name?: string; id: string;
-        timeDependent?: boolean;
-        properties?: {};
-        dataSets?: DataSet[];
-        range?: csComp.Services.DateRange;
-        updateDateRange?: Function;
-        collapse?: boolean;
-        canCollapse?: boolean;
-        width?: string;
-        height?: string;
-        allowFullscreen?: boolean;
-        hover?: boolean;
+        icon?:              string;
+        /** When true, hide the widget. */
+        hideIfLeftPanel?:   boolean;
+        name?:              string; id: string;
+        timeDependent?:     boolean;
+        properties?:        {};
+        dataSets?:          DataSet[];
+        range?:             csComp.Services.DateRange;
+        updateDateRange?:   Function;
+        collapse?:          boolean;
+        canCollapse?:       boolean;
+        width?:             string;
+        height?:            string;
+        minWidth? :         string;
+        minHeight? :        string
+        allowFullscreen?:   boolean;
+        hover?:             boolean;
         messageBusService?: csComp.Services.MessageBusService;
-        layerService?: csComp.Services.LayerService;
+        layerService?:      csComp.Services.LayerService;
 
-
-        _ctrl?: IWidgetCtrl;
-        _ijs?: any;
+        _ctrl?:        IWidgetCtrl;
+        _ijs?:         any;
         _initialized?: boolean;
         _interaction?: boolean;
-        _isMoving?: boolean;
+        _isMoving?:    boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -112,6 +115,8 @@ module csComp.Services {
         public canCollapse: boolean;
         public width: string;
         public height: string;
+        public minWidth : string;
+        public minHeight : string;
         public allowFullscreen: boolean;
         public messageBusService: csComp.Services.MessageBusService;
         public layerService: csComp.Services.LayerService;
@@ -238,11 +243,15 @@ module csComp.Services {
         baselayer:            string;
         viewBounds:           IBoundingBox;
         timeline:             DateRange;
+        /** this dashboards shows live data, needed for sensor apis */
+        isLive:               boolean;
         id:                   string;
         name:                 string;
         disabled:             boolean;
         parents:              string[];
         _initialized:         boolean;
+        /** complete refresh page on activation */
+        refreshPage: boolean;
 
         constructor() {
             this.widgets = [];
@@ -271,7 +280,8 @@ module csComp.Services {
                 viewBounds:           d.viewBounds,
                 widgets:              csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
                 visibleLeftMenuItems: d.visibleLeftMenuItems,
-                mobile:               d.mobile
+                mobile:               d.mobile,
+                isLive:               d.isLive
             }
         }
 
@@ -279,6 +289,7 @@ module csComp.Services {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
             res.widgets = [];
+            if (typeof input.isLive === 'undefined') input.isLive = false;
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
                 this.addNewWidget(w, res, solution);
             });

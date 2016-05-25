@@ -50,6 +50,12 @@ module FocusTimeWidget {
         public dateFormat : string;
         public timeFormat : string;
         private handle: csComp.Services.MessageBusHandle;
+        public isOpen : boolean = true;
+        
+        private timeOptions = {
+            readonlyInput: false,
+            showMeridian: false
+        };
         
 
         public static $inject = [
@@ -100,14 +106,36 @@ module FocusTimeWidget {
             }
 
         }
+        
+         public openCalendar(e: Event) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        public checkLayerTimestamp() {
+            this.isOpen = true;
+        };
+        
+        public lastHour()
+        {
+            this.layer.sensorLink.liveInterval = "1h";
+            this.layerService.updateLayerSensorLink(this.layer);
             
+        }
+        
+        public lastDay()
+        {
+            this.layer.sensorLink.liveInterval = "24h";
+            this.layerService.updateLayerSensorLink(this.layer);
+            console.log('last 24');
+        }
+        
+       
+
+        public checkLayerTimestamp() {                   
             if (this.layer)
                 if (this.layer._gui.hasOwnProperty("timestamp"))
                     this.$scope.$evalAsync(() => {
-                        this.dateFormat = "dd-MM-yyyy";
-                        this.timeFormat = "hh:mm";
+                        this.dateFormat = "dd-MM-yyyy EEE";
+                        this.timeFormat = "HH:mm ";
                         this.time = this.layer._gui["timestamp"];
                     });
         }

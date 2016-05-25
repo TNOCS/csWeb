@@ -210,7 +210,7 @@ module Indicators {
                         this.$layerService.$messageBusService.serverSubscribe(i.sensor, 'key', (topic: string, msg: csComp.Services.ClientMessage) => {
                             switch (msg.action) {
                                 case 'key':
-                                    this.forceUpdateIndicator(i, i._sensorSet.activeValue);
+                                    this.forceUpdateIndicator(i, msg.data.item); // i._sensorSet.activeValue);
                                     break;
                             }
                         });

@@ -205,7 +205,7 @@ module csComp.Services {
             var s = {
                 fillColor: style.fillColor,
                 weight: style.strokeWidth,
-                opacity: style.opacity,
+                opacity: style.strokeOpacity,
                 fillOpacity: style.fillOpacity
             };
             s['color'] = (typeof style.stroke !== 'undefined' && style.stroke === false)
@@ -301,7 +301,7 @@ module csComp.Services {
                     }
                 }
             }
-            if (feature.layer.isDynamic && marker.dragging) {
+            if (feature.layer.isEditable && marker.dragging) {
                 if (this.canDrag(feature)) {
                     marker.dragging.enable();
                 } else {
@@ -359,6 +359,7 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
+                    if (!feature.geometry.coordinates.length || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
@@ -397,8 +398,16 @@ module csComp.Services {
                         //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
                         //map.panTo(new L.LatLng(position.lat, position.lng))
                     });
-
-
+                    break;
+                case 'Overlay':
+                    if (!feature.properties.hasOwnProperty('imageUrl')) break;
+                    let imageBounds = feature.geometry.coordinates,
+                        imageUrl = feature.properties['imageUrl'],
+                        opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
+                        attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
+                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } );
+                    feature._gui['imageOverlay'] = imageOverlay;
+                    imageOverlay.addTo(this.map);
                     break;
                 default:
                     try {

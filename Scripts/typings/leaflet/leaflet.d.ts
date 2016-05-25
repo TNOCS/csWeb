@@ -1507,6 +1507,10 @@ declare namespace L {
           * The opacity of the image overlay.
           */
         opacity?: number;
+        /**
+         * The attribution text of the image.
+         */
+        attribution?: string;
     }
 }
 

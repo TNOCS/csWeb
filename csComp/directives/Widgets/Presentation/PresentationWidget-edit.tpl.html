@@ -1,0 +1,14 @@
+<div>
+    <h4 class="rightpanel-header">
+        <span><i class="fa fa-cog rightpanel-header-icon"></i>
+            <div translate>PRESENTATION_SETTINGS</div>
+        </span>
+    </h4>
+
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;" resize resize-y="140">
+        <div class="controls">
+            <div>Layer</div>
+            <select ng-options="layer as layer.title for layer in vm.layers track by layer.id" ng-model="vm.selectedLayer"></select>
+            <button class="button" ng-click="vm.update()">update</button>
+    </div>
+</div>

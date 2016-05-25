@@ -1,0 +1,5 @@
+<span>
+    <div class="fa fa-search search-icon" style="font-size:24px;margin-top:12px;float:left"
+    ng-click="sv=!sv;vm.$layerService.visual.leftPanelVisible = true;vm.startSearch()" uib-tooltip="{{ 'SEARCH' | translate }}" tooltip-placement="bottom" tooltip-popup-delay="750"></div>
+    <input type="search" style="margin-top:10px;float:left" id="searchInput" ng-show="sv" ng-model="vm.query" ng-keyup="$event.keyCode == 13 && vm.selectFirst()" placeholder="{{ 'SEARCH_PLACEHOLDER' | translate }}"/>
+</span>

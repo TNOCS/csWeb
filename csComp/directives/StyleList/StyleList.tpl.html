@@ -1,18 +1,15 @@
-<div>
+<div style="padding:5px">
     <style>
         .panel-styles {
             margin-bottom: 0px;
         }
     </style>
-    <h4 class="leftpanel-header" translate="STYLES"></h4>
     <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
-    <div class="scrolling" style="overflow-y: auto; overflow-x: hidden" resize resize-y="95">
+    <div class="scrolling" style="overflow-y: auto;    overflow-x: hidden;    position: absolute;    left: 0;    right: 0;    top: 0;    bottom: 0;">
         <div class="panel" style="margin-bottom:10px">
-            <div role="tab" id="heading-active-styles">
-                <div style="float: left;margin-right:5px" data-toggle="collapse" aria-expanded="true" data-target="#styles_active"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+            <div role="tab" id="heading-active-styles">                
                 <div class="group-title">
-                    <div role="button" data-toggle="collapse" data-parent="#accordion" data-target="#styles_active" aria-expanded="true" aria-controls="styles_groups">Active Styles
-                    </div>
+                    Active Styles                    
                 </div>
             </div>
 
@@ -22,7 +19,7 @@
                     <div data-ng-repeat="style in group.styles">
                         <div class="checkbox checkbox-primary" style="float:left">
                             <input type="checkbox" id="cbstyle{{style.id}}" ng-model="style.enabled" data-ng-change="vm.$layerService.updateStyle(style);">
-                            <label class="style-title" for="cbstyle{{style.id}}" style="width:165px">{{style.title}}</label>
+                            <label class="style-title" for="cbstyle{{style.id}}" style="max-width:300px">{{style.title}}</label>
                         </div>
 
                         <div style="float:right;width: 48px">
@@ -72,7 +69,7 @@
                                 <div class="legend-description">{{style.activeLegend.description}}</div>
                                 <ul class="legend-entry-list" style="position:relative">
                                     <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
-                                        <div class="legend-color-square" style="float: left; background: {{le.color}}"></div>
+                                        <div class="legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                                         <div class="legend-label-d" style="float: left">{{le.label}}</div>
                                         <div>&nbsp;</div>
                                         <!-- die &nbsp; is echt nodig... -->
@@ -102,7 +99,7 @@
         <!-- wizard -->
 
         <p></p>
-        <div id="accordion" role="tablist" aria-multiselectable="false" style="clear:both">
+        <div id="accordion" role="tablist" aria-multiselectable="false" style="clear:both;margin-left:10px">
             <div class="panel" style="margin-bottom:5px">
                 <div role="tab" id="headingLayers">
                     <div style="float: left;margin-right:5px" data-toggle="collapse" aria-expanded="true" data-target="#styles_groups"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
@@ -148,13 +145,12 @@
                 </div>
                 <div id="styles_properties" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingProperties">
                     <div data-ng-repeat="(l,p) in vm.selectedSection.properties">
-                        <div class="btn" ng-click="vm.setStyle(vm.selectedGroup,p)">
+                        <div class="btn" ng-class="{'property-style-selected': vm.activeStyles.indexOf(p.label) > -1}" ng-click="vm.setStyle(vm.selectedGroup,p)">
                             {{p.title}}
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

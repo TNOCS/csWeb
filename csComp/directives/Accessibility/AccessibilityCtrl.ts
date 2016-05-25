@@ -12,9 +12,13 @@ module Accessibility {
         selectFeature(feature: IFeature) {
             console.log('accessibility:feature selected');
         }
-        
-        addLayer(layer : csComp.Services.IProjectLayer) {}
-        removeLayer(layer : csComp.Services.IProjectLayer) {}
+
+        getLayerActions(layer: csComp.Services.IProjectLayer) {
+            return null;
+        }
+
+        addLayer(layer: csComp.Services.IProjectLayer) { }
+        removeLayer(layer: csComp.Services.IProjectLayer) { }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             var accessibilityOption1 = <IActionOption>{
@@ -146,7 +150,7 @@ module Accessibility {
         private time: string;
         private cutoffTimes: number[];
         public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'walkSpeed', 'bikeSpeed',
-             'precisionMeters', 'cutoffSec'];
+            'precisionMeters', 'cutoffSec'];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -170,7 +174,7 @@ module Accessibility {
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
             private $dashboardService: csComp.Services.DashboardService
-            ) {
+        ) {
             this.scope = $scope;
             $scope.vm = this;
             this.layer = $scope.$parent['data'];
@@ -187,11 +191,11 @@ module Accessibility {
 
         public refreshAccessibility() {
             if (this.$layerService.lastSelectedFeature) {
-                var lsf =  this.$layerService.lastSelectedFeature;
+                var lsf = this.$layerService.lastSelectedFeature;
                 if (lsf.geometry && lsf.geometry.type === 'Point') {
                     this.urlParameters['fromPlace'] = lsf.geometry.coordinates[1] + '%2C' + lsf.geometry.coordinates[0];
                 }
-             }
+            }
             this.urlParameters['mode'] = this.transportMode;
             this.urlParameters['time'] = encodeURIComponent(this.time);
             if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);

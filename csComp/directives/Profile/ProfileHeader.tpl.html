@@ -1,0 +1,32 @@
+<div  class="navbar-collapse collapse" ng-show="enabled" >
+    <ul class="nav navbar-nav">
+        <li class="dropdown" style="margin-top:-15px">
+            <a href="" class="navbar-brand dropdown-toggle pull-left" data-toggle="dropdown" style="color:white; margin-left:-10px;">
+                <div class="circle fa fa-user" style="background:gray;font-size:20px">
+                    
+                </div>
+            </a>
+            <ul class="dropdown-menu" role="menu" style="font-size:16px">
+                <li ng-show="!vm.profileService.loggedIn">
+                    <a data-ng-click="vm.startLogin()">
+                        <span class="fa fa-sign-in" style="float:left;margin:5px"></span>
+                        <div>Login</div>
+                    </a>
+                </li>
+                <li ng-show="vm.profileService.loggedIn">
+                    <a data-ng-click="vm.logout()">
+                        <span class="fa fa-sign-out" style="float:left;margin:5px"></span>
+                        <div translate>Logout</div>
+                    </a>
+                </li>
+                <li ng-show="vm.profileService.loggedIn">
+                    <a data-ng-click="vm.showProfile()">
+                        <span class="fa fa-user" style="float:left;margin:5px"></span>
+                        <div translate>Profile</div>
+                    </a>
+                </li>
+                
+            </ul>
+        </li>
+    </ul>
+</div>

@@ -2,6 +2,7 @@ import express = require('express')
 import cors = require('cors')
 import Winston = require('winston');
 import request = require('request');
+import moment = require('moment');
 import path = require('path');
 import fs = require('fs-extra');
 import _ = require('underscore');
@@ -10,15 +11,36 @@ import Api = require('../api/ApiManager');
 import Utils = require('../helpers/Utils');
 
 export interface IRestDataSourceSettings {
+    /** File that contains functions obtain and parse the desired data (e.g. ./crowdtasker) */
     converterFile: string;
+    /** Base url where the data should be obtained from (e.g. http://www.mydatasource.com/endpoint) */
     url: string;
-    /** Parameters to include in the url (e.g. ./endpoint?api_key=value) */
+    /** Parameters to include in the url (e.g. {api_key:"value"} adds to the url: ?api_key=value) */
     urlParams?: { [key: string]: any };
+    /** Time interval in seconds to check for updates */
     pollIntervalSeconds?: number;
+    /** Time period in seconds to keep objects that are not in the obtained data anymore. This is useful when a connection to
+     *  a feature may be lost for short periods, but the feature should remain visible on the map.
+     */
     pruneIntervalSeconds?: number;
+    /** Whether the geometry of features should be ignored when feature diffs are calculated. (default: false) */
     diffIgnoreGeometry?: boolean;
+    /** Properties that should be ignored when calculating feature diffs (can be overridden by whitelist) */
     diffPropertiesBlacklist?: string[];
+    /** Properties that should be used for calculating feature diffs (takes precendence of blacklist) */
     diffPropertiesWhitelist?: string[];
+    /** Date property */
+    dateProperty?: string;
+    /** Time property */
+    timeProperty?: string;
+    /** Date format */
+    dateFormat?: string;
+    /** Time format */
+    timeFormat?: string;
+    /** Ignore aged features */
+    maxFeatureAgeMinutes?: number;
+    /** When filename is given, the retrieved data will be written to that file. Otherwise, logging is disabled */
+    logFile?: string;
 }
 
 export interface IConverter {
@@ -47,6 +69,7 @@ export class RestDataSource {
     private converter: IConverter;
     private restDataSourceOpts: IRestDataSourceSettings = <IRestDataSourceSettings>{};
     private counter: number;
+    private enableLogging: boolean = false;
 
     constructor(public server: express.Express, private apiManager: Api.ApiManager, public layerId: string, public url: string = '/restdatasource') {
         this.restDataSourceUrl = url;
@@ -69,7 +92,13 @@ export class RestDataSource {
         this.restDataSourceOpts.diffIgnoreGeometry = (options.hasOwnProperty('diffIgnoreGeometry')) ? false : options['diffIgnoreGeometry'];
         this.restDataSourceOpts.diffPropertiesBlacklist = options.diffPropertiesBlacklist || [];
         this.restDataSourceOpts.diffPropertiesWhitelist = options.diffPropertiesWhitelist || [];
-
+        this.restDataSourceOpts.dateProperty = options.dateProperty || '';
+        this.restDataSourceOpts.timeProperty = options.timeProperty || '';
+        this.restDataSourceOpts.dateFormat = options.dateFormat || '';
+        this.restDataSourceOpts.timeFormat = options.timeFormat || '';
+        this.restDataSourceOpts.maxFeatureAgeMinutes = options.maxFeatureAgeMinutes || Number.MAX_VALUE;
+        this.restDataSourceOpts.logFile = options.logFile || null;
+        
         if (this.restDataSourceOpts.diffPropertiesBlacklist.length > 0 && this.restDataSourceOpts.diffPropertiesWhitelist.length > 0) {
             Winston.info('Both whitelist and blacklist properties provided, ignoring the blacklist.');
             this.restDataSourceOpts.diffPropertiesBlacklist.length = 0;
@@ -84,6 +113,18 @@ export class RestDataSource {
         if (!this.isConverterValid()) {
             callback(`Provided converterfile not valid. (${path.basename(this.restDataSourceOpts.converterFile)})`);
             return;
+        }
+        
+        if (!!this.restDataSourceOpts.logFile) {
+            fs.createFile(this.restDataSourceOpts.logFile, (err) => {
+                if (!err) {
+                    Winston.info('Log Rest data to ' + this.restDataSourceOpts.logFile);
+                    this.enableLogging = true;
+                } else {
+                    Winston.warn('Error creating log ' + this.restDataSourceOpts.logFile);
+                    this.enableLogging = false;               
+                }
+            });
         }
 
         var urlDataParams = this.restDataSourceOpts.urlParams;
@@ -109,14 +150,51 @@ export class RestDataSource {
         this.converter.getData(request, dataParameters, {apiManager: this.apiManager, fs: fs}, (result) => {
             Winston.info('RestDataSource received ' + result.length || 0 + ' features');
             var featureCollection = GeoJSONHelper.GeoJSONFactory.Create(result);
+            this.filterOldEntries(featureCollection);
             if (!this.features || Object.keys(this.features).length === 0) {
                 this.initFeatures(featureCollection, Date.now());
             } else {
                 this.findFeatureDiff(featureCollection, Date.now());
             }
+            if (this.enableLogging) {
+                var toWrite = 'Time: ' + (new Date()).toISOString() + '\n';
+                toWrite += JSON.stringify(result, null, 2) + '\n';
+                fs.appendFile(this.restDataSourceOpts.logFile, toWrite, 'utf8', (err) => {
+                    if (!err) {
+                        Winston.debug('Logged REST datasource result');
+                    } else {
+                        Winston.warn('Error while logging REST datasource result: ' + err);                        
+                    }
+                });
+            }
         });
-
         setTimeout(() => { this.startRestPolling(dataParameters) }, this.restDataSourceOpts.pollIntervalSeconds * 1000);
+    }
+    
+    private filterOldEntries(fcoll) {
+        if (!fcoll || !fcoll.features || fcoll.features.length === 0) return;
+        console.log("Before filtering: " + fcoll.features.length);
+        var dProp = this.restDataSourceOpts.dateProperty;
+        var tProp = this.restDataSourceOpts.timeProperty;
+        var dFormat = this.restDataSourceOpts.dateFormat;
+        var tFormat = this.restDataSourceOpts.timeFormat;
+        var age = this.restDataSourceOpts.maxFeatureAgeMinutes;
+        fcoll.features = fcoll.features.filter((f: IFeature) => {
+            if (f.properties.hasOwnProperty(dProp) && f.properties.hasOwnProperty(dProp)) {
+                var time = f.properties[tProp].toString();
+                if (time.length === 5) time = '0' + time;
+                var propDate = moment(''.concat(f.properties[dProp],time), ''.concat(dFormat,tFormat));
+                var now = moment();
+                if (Math.abs(now.diff(propDate, 'minutes', true)) > age) {
+                    // console.log("Remove feature: " + propDate.toISOString());
+                    return false;
+                } else {
+                    f.properties['ParsedDate'] = propDate.toDate().getTime();
+                }
+            }
+            return true;
+        });
+        console.log("After filtering: " + fcoll.features.length);
     }
 
     private initFeatures(fCollection: GeoJSONHelper.IGeoJson, updateTime: number) {

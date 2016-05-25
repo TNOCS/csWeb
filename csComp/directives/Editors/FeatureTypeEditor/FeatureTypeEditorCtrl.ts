@@ -33,25 +33,47 @@ module FeatureTypeEditor {
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             this.$scope.vm = this;
-            if (this.$scope.$root.hasOwnProperty('data')) {
-                $scope.featureType = (<any>$scope.$parent.$parent).vm.featureType;
-
-                console.log('feature type editor');
-                console.log($scope.featureType);
-
+            if ((<any>this.$scope.$parent.$parent).vm.hasOwnProperty('selectedFeatureType'))
+            {
+                $scope.featureType = (<any>this.$scope.$parent.$parent).vm.selectedFeatureType;
+            } else if (this.$scope.$root.hasOwnProperty('data')) {
+                $scope.featureType = (<any>$scope.$root).data;                
             }
             else {
                 console.log('no feature type');
             }
-
-
         }
 
-        //** force features to be updated */
+        /** force features to be updated */
         public updateFeatureTypes(ft: csComp.Services.IFeatureType) {
-            console.log('updating ..');
-            this.$layerService.updateFeatureTypes(ft);
+            if (!_.isUndefined(ft._resource)) this.$layerService.saveResource(ft._resource);
+                        
+            console.log('updating ..'); 
+            this.$layerService.updateFeatureTypes(ft);            
         };
+        
+        /** apply updates to features, don't return or save back to api */ 
+        public apply()
+        {
+            this.$layerService.updateFeatureTypes(this.$scope.featureType);            
+        }
+        
+        public cancel()
+        {
+             this.$messageBusService.publish("featuretype","stopEditing");  
+        }
+        
+         /** save a resource (back to api and update features) */
+        public saveFeatureType() {
+            if (!this.$scope.featureType._isInitialized) {
+                this.$scope.featureType.id = this.$scope.featureType.name;
+                this.$layerService.initFeatureType(this.$scope.featureType, null);
+                this.$scope.featureType._resource.featureTypes[this.$scope.featureType.id] = this.$scope.featureType;
+            }
+            this.$layerService.saveResource(this.$scope.featureType._resource);
+            this.$layerService.updateFeatureTypes(this.$scope.featureType);
+            this.$messageBusService.publish("featuretype","stopEditing");            
+        }
 
 
     }

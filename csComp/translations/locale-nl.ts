@@ -3,9 +3,16 @@ module Translations {
         public static locale: ng.translate.ITranslationTable = {
             CANCEL_BTN: 'Annuleren',
             OK_BTN: 'OK',
+            CLOSE: 'Sluit',
             FROM: 'van',
             TO: 'tot',
-            NAVIGATE:'Start',
+            ZOOM_IN: 'Inzoomen',
+            ZOOM_OUT: 'Uitzoomen',
+            ZOOM_LEVEL_LOW: 'Zoom niveau te laag',
+            ZOOM_IN_FOR_CONTOURS: 'Zoom in om de contouren te tonen',
+            NAVIGATE: {
+                TITLE: 'Zoekresultaten'
+            },
             REMOVE: 'Verwijder',
             CREATE_SCATTER: 'Creeer spreidingsdiagram',
             EXPAND_ALL: 'Alles uitklappen',
@@ -184,7 +191,8 @@ module Translations {
             MARVEL_FEATURE_DEP: 'Afhankelijk van',
             STATE: 'Status',
             EVENT_INFO: 'Toon lijst van gebeurtenissen',
-            CLEAR_EVENTS: 'Lijst leegmaken'
+            CLEAR_EVENTS: 'Lijst leegmaken',
+            SEARCH_PLACEHOLDER: 'Gemeente, adres, ...'
         }
     }
 }

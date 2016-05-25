@@ -83,7 +83,8 @@ export interface ILayerTemplate {
 }
 
 export interface IBagContourRequest {
-    bounds: string;
+    bounds?: string;
+    searchProp?: string;
     layer: any;
 }
 
@@ -99,18 +100,20 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager) {
+    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
         if (bag != null) {
             bag.init();
         }
         var fileList: IProperty[] = [];
-        fs.readdir('public/data/templates', function(err, files) {
+        var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
+        fs.readdir(templateFolder, function(err, files) {
             if (err) {
-                console.log('Error while looking for templates');
+                console.log('Error while looking for templates in ' + templateFolder);
             } else {
                 files.forEach((f) => {
-                    fileList[f.replace(/\.[^/.]+$/, '')] = ('public/data/templates/' + f); // Filter extension from key and store in dictionary
+                    fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
                 });
+                console.log(`Loaded ${files.length} templates from ${templateFolder}.` );
             }
         });
         this.templateFiles = fileList;
@@ -190,6 +193,7 @@ export class MapLayerFactory {
             for (var ftName in combinedjson.featureTypes) {
                 if (combinedjson.featureTypes.hasOwnProperty(ftName)) {
                     var defaultFeatureType = combinedjson.featureTypes[ftName];
+                    defaultFeatureType['contourProperty'] = '_bag_contour';
                     if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
                         var propertyTypeObjects = {};
                         var propKeys: string = '';
@@ -223,9 +227,7 @@ export class MapLayerFactory {
 
     public sendResourceThroughApiManager(data: any, resourceId: string) {
         data.id = resourceId;
-        this.apiManager.addResource(data, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
-            console.log(result);
-        });
+        this.apiManager.addResource(data, true, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => { console.log(result); });
     }
 
     public sendLayerThroughApiManager(data: any) {
@@ -305,6 +307,7 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var bu_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
         var getPointFeatures: boolean = false;
         if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('getPointFeatures')) {
@@ -314,7 +317,7 @@ export class MapLayerFactory {
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagArea(bounds, (areas: Location[]) => {
+        this.bag.lookupBagArea(bounds || bu_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
@@ -338,7 +341,8 @@ export class MapLayerFactory {
                     var f: IGeoJsonFeature = {
                         type: 'Feature',
                         geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
-                        properties: props
+                        properties: props,
+                        id: (getPointFeatures) ? 'p_' + props['pandid'] || Utils.newGuid() : 'c_' + props['pandid'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });
@@ -355,7 +359,7 @@ export class MapLayerFactory {
         var template: IBagSearchRequest = req.body;
         var query = template.query;
         var nrItems = template.nrItems;
-        this.bag.searchAddress(query, nrItems, (results) => {
+        this.bag.searchGemeente(query, nrItems, (results) => {
             if (!results || !results.length || results.length === 0) {
                 res.status(200).send({});
             } else {
@@ -381,12 +385,13 @@ export class MapLayerFactory {
         var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
+        var gm_code = template.searchProp;
         var layer: csComp.Services.ProjectLayer = template.layer;
 
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagBuurt(bounds, (areas: Location[]) => {
+        this.bag.lookupBagBuurt(bounds || gm_code, layer.refreshBBOX, (areas: Location[]) => {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
@@ -405,7 +410,8 @@ export class MapLayerFactory {
                     var f: IGeoJsonFeature = {
                         type: 'Feature',
                         geometry: JSON.parse(area.contour),
-                        properties: props
+                        properties: props,
+                        id: props['bu_code'] || Utils.newGuid()
                     };
                     layer.data.features.push(f);
                 });
@@ -427,8 +433,8 @@ export class MapLayerFactory {
         var timestamps = this.convertTimebasedPropertyData(template);
 
         //Add projectID to the icon name to make it unique
-        var iconName = path.join(path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri));
-        ld.iconUri = path.join('data', 'images', iconName);
+        var iconName = path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri);
+        ld.iconUri = ['data', 'images', iconName].join('/');
         var featureTypeName = ld.featureType || 'Default';
         var featureTypeContent = {
             name: featureTypeName,
@@ -678,7 +684,7 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties[templateKey] === p[par1]) {
+                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===) 
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
@@ -877,6 +883,15 @@ export class MapLayerFactory {
             isSearchable: false
         };
         if (section) { propType['section'] = section; }
+        switch (name.toLowerCase()) {
+            case 'oppervlakteverblijfsobject':
+            case 'bouwjaar':
+                propType.type = 'number';
+                break;
+            case '_bag_contour':
+                propType.visibleInCallOut = false;
+                break;
+        }
         propertyTypes.push(propType);
     }
 
@@ -920,13 +935,15 @@ export class MapLayerFactory {
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         if (p[name].substring(0, 3) === 'www') {
-                            p[name] = '[url=http://' + p[name] + ']' + p[name] + '[/url]';
+                            p[name] = '[url=http://' + p[name] + ']' + (pt['stringFormat'] ? pt['stringFormat'] : p[name]) + '[/url]';
                         } else {
-                            p[name] = '[url=' + p[name] + ']' + p[name] + '[/url]';
+                            p[name] = '[url=' + p[name] + ']' + (pt['stringFormat'] ? pt['stringFormat'] : p[name]) + '[/url]';
                         }
                     }
                 });
+                // Prepare propType for use in csWeb-client
                 pt['type'] = 'bbcode';
+                delete pt['stringFormat'];
             }
         });
     }

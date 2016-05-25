@@ -58,6 +58,7 @@ module EventTab {
             };
             var column: KanbanColumn.Column = {
                 title: 'Log',
+                showFeatureTags: true,
                 id: 'eventtab',
                 filters: columnFilter,
                 roles: [],

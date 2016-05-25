@@ -1,10 +1,12 @@
 <ul class="nav navbar-nav" style="margin-top: 0; padding-left: 15px;">
+    <img ng-src="{{vm.$layerService.project.logo}}" class="project-logo">
+    
     <!--Start project dropdown-->
     <li class="dropdown">
-        <a target="_blank" data-ng-href="{{vm.$layerService.project.url}}" class="pull-left" style="padding: 10px; padding-bottom: 0; cursor: pointer">
+        <!--<a target="_blank" data-ng-href="{{vm.$layerService.project.url}}" class="pull-left" style="padding: 10px; padding-bottom: 0; cursor: pointer">
             <img data-ng-src="{{vm.$layerService.project.logo}}" alt="{{vm.$layerService.project.title}}" width="32" height="32" />
-        </a>
-        <a href="" class="navbar-brand dropdown-toggle" data-toggle="dropdown" style="color:white; margin: 5px 0 -5px -5px; padding: 10px; padding-bottom: 0; cursor: pointer" aria-haspopup="true" aria-expanded="false">
+        </a>-->
+        <a href="" class="project-header navbar-brand dropdown-toggle" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
             {{vm.$layerService.project.title}}
             <span class="caret" data-ng-if="vm.$layerService.solution.projects.length > 1"></span>
         </a>

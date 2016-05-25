@@ -25,6 +25,8 @@ module csComp.Services {
         service: string;
         click: Function;
         location?: IGeoJsonGeometry;
+        /** The position the item has in the result, e.g. A, B, or C... */
+        searchIndex?: string;
     }
 
     export declare type SearchResultHandler = (error: Error, result: ISearchResultItem[]) => void;
@@ -43,6 +45,7 @@ module csComp.Services {
         removeLayer(layer: IProjectLayer);
         removeFeature(feature: IFeature);
         selectFeature(feature: IFeature);
+        getLayerActions(layer: IProjectLayer): IActionOption[];
         getFeatureActions(feature: IFeature): IActionOption[];
         getFeatureHoverActions(feature: IFeature): IActionOption[];
         deselectFeature(feature: IFeature);
@@ -58,6 +61,10 @@ module csComp.Services {
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
+
+        getLayerActions(layer: IProjectLayer): IActionOption[] {
+            return [];
+        }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];
@@ -85,6 +92,61 @@ module csComp.Services {
 
     export class LayerActions extends BasicActionService {
         public id: string = 'LayerActions';
+
+        addLayer(layer: ProjectLayer) {
+            if (layer.fitToMap && layer.layerSource && _.isFunction(layer.layerSource.fitMap)) {
+                layer.layerSource.fitMap(layer);
+            }
+        }
+
+        getLayerActions(layer: ProjectLayer): IActionOption[] {
+            if (!layer) return;
+            var res = [];
+
+            if (layer.isEditable && this.layerService.$mapService.isExpert && layer.enabled) res.push({
+                title: 'Edit Layer', icon: 'pencil', callback: (l, ls) => {
+                    this.layerService.$messageBusService.publish('layer', 'startEditing', l);
+                }
+            });
+
+            if (layer.enabled && layer.layerSource) {
+                var refresh = <IActionOption>{ title: 'Refresh Layer', icon: 'refresh' };
+                refresh.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    layer.layerSource.refreshLayer(layer);
+                };
+                res.push(refresh);
+
+                if (_.isFunction(layer.layerSource.fitMap)) {
+                    var fit = <IActionOption>{ title: 'Fit Map', icon: 'map' };
+                    fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        layer.layerSource.fitMap(layer);
+                    };
+                    res.push(fit);
+                }
+            }
+
+            if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
+                var reset = <IActionOption>{ title: 'Reset Layer', icon: 'reset' };
+                reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    console.log('Resetting layer: ' + layer.title);
+                    layer.data.features = [];
+                    layer.layerSource.refreshLayer(layer);
+                };
+                res.push(reset);
+            }
+
+            if (this.layerService.$mapService.isAdminExpert) {
+                var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
+                remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    layerService.$messageBusService.confirm('Delete layer', 'Are you sure', (result) => {
+                        if (result) layerService.removeLayer(layer, true);
+                    })
+                };
+                res.push(remove);
+            }
+            return res;
+
+        }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             var res = [];
@@ -121,13 +183,14 @@ module csComp.Services {
         }
 
         public search(query: ISearchQuery, result: SearchResultHandler) {
+            const scoreMinThreshold = 0.5;
             var r: ISearchResultItem[] = [];
             var temp = [];
             this.layerService.project.features.forEach(f => {
                 var title = csComp.Helpers.getFeatureTitle(f);
                 if (title) {
                     var score = title.toString().score(query.query, null);
-                    temp.push({ score: score, feature: f, title: title });
+                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: title });
                 }
             });
             temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
@@ -143,9 +206,11 @@ module csComp.Services {
                         click: () => {
                             this.layerService.$mapService.zoomTo(f);
                             this.layerService.selectFeature(f);
+                            this.layerService.$messageBusService.publish('search', 'reset');
+                            this.layerService.visual.leftPanelVisible = false;
                         }
                     };
-                    //if (f.fType && f.fType.name!=="default") res.description += " (" + f.fType.name + ")";
+                    //if (f.fType && f.fType.name!=='default') res.description += ' (' + f.fType.name + ')';
                     r.push(res);
                 }
             });

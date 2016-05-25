@@ -8,7 +8,7 @@ module MarkdownWidget {
         url: string;
         /**
          * Allows you to provide a link to a text file containing a list of properties (i.e. key-value pairs). When the keys
-         * are stated in the markdown content (between curly braces {{KEY}}), they will be replaced by the value. 
+         * are stated in the markdown content (between curly braces {{KEY}}), they will be replaced by the value.
          */
         dataSourceUrl: string;
         /**
@@ -42,6 +42,7 @@ module MarkdownWidget {
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
         private dataProperties: { [key: string]: any };
+        private msgBusHandle: csComp.Services.MessageBusHandle;
 
         public static $inject = [
             '$scope',
@@ -72,7 +73,7 @@ module MarkdownWidget {
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
                 this.parentWidget.hide();
-                this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
+                this.msgBusHandle = this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
                         case 'onFeatureDeselect':
                         case 'onFeatureSelect':
@@ -128,6 +129,12 @@ module MarkdownWidget {
 
         private close() {
             this.parentWidget.hide();
+        }
+
+        public stop() {
+            if (this.msgBusHandle) {
+                this.$messageBus.unsubscribe(this.msgBusHandle);
+            }
         }
 
         private escapeRegExp(str: string) {

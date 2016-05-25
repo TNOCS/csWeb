@@ -10,7 +10,6 @@
 
 var gulp = require('gulp'),
     tsconfig = require('gulp-tsconfig'),
-    tsd = require('gulp-tsd'),
     exec = require('child_process').execSync,
     install = require('gulp-install'),
     runSequence = require('run-sequence'),
@@ -32,6 +31,7 @@ var gulp = require('gulp'),
     karma = require('karma'),
     concatCss = require('gulp-concat-css'),
     glob = require('glob');
+    gulpTypings = require("gulp-typings");
 
 // Gulp task upstream...
 // Configure gulp scripts
@@ -61,13 +61,9 @@ gulp.task('bower_useref', ['bower_install'], function(cb){
 });
 
 gulp.task('concat_css', ['include_css'], function (cb) {
-    var assets = useref.assets();
-
     return gulp.src('./csComp/includes/bower_dep/index.html')
-        .pipe(assets)
-        .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest('./dist-bower')); 
+        .pipe(gulp.dest('./dist-bower'));
 });
 
 gulp.task('bower', ['bower_install','bower_useref']);
@@ -106,7 +102,7 @@ gulp.task('tsconfig', function () {
     var config = {
         tsOrder: ['**/*.ts'],
         tsConfig: {
-            version: '1.7.3',
+            version: '1.8.9',
             compilerOptions: {
                 target: 'es5',
                 module: 'commonjs',
@@ -129,12 +125,12 @@ gulp.task('tsc', function (cb) {
     return run('tsc -p .', cb);
 });
 
-// This task runs tsd command on csServerComp folder
-gulp.task('tsd', function (cb) {
-    tsd({
-        command: 'reinstall',
-        config: 'tsd.json',
-    }, cb);
+// This task runs typings command on csServerComp folder
+gulp.task('typings', function (cb) {
+    gulp.src("./typings.json")
+        .pipe(gulpTypings());
+    cb();
+    //will install all typingsfiles in pipeline.
 });
 
 gulp.task('travis', function (cb) {
@@ -258,7 +254,7 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        'tsd',
+        'typings',
         'tsconfig',
         'tsc',
         'built_csComp',
@@ -287,7 +283,7 @@ gulp.task('quick', function (cb) {
 // Initiallize the project and update the npm and bower package folders
 gulp.task('update_packages', [
     'init',
-    'minify_csComp'    
+    'minify_csComp'
 ]);
 
 gulp.task('default', ['update_packages', 'watch']);

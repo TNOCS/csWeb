@@ -30,9 +30,9 @@ module csComp.Services {
         clustering: boolean;
         /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */
         clusterLevel: number;
-        /**  
-         * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. 
-         * Decreasing will make more smaller clusters. You can also use a function that accepts the current map 
+        /**
+         * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80.
+         * Decreasing will make more smaller clusters. You can also use a function that accepts the current map
          * zoom and returns the maximum cluster radius in pixels. */
         maxClusterRadius: number;
         clusterFunction: Function;
@@ -74,9 +74,11 @@ module csComp.Services {
             if (res.owsurl) {
                 res.loadLayersFromOWS();
             }
-            res.layers.forEach(layer => {
-                if (!layer.opacity) layer.opacity = 100;
-            });
+            if (res.layers) {
+                res.layers.forEach(layer => {
+                    if (!layer.opacity) layer.opacity = 100;
+                });
+            }
             return res;
         }
 
@@ -90,23 +92,37 @@ module csComp.Services {
                 $http.get(this.owsurl)
                     .success((xml) => { this.parseXML(xml); })
                     .error((xml, status) => {
-                    console.log('Unable to load OWSurl: ' + this.owsurl);
-                    console.log('          HTTP status: ' + status);
-                });
+                        console.log('Unable to load OWSurl: ' + this.owsurl);
+                        console.log('          HTTP status: ' + status);
+                    });
             });
         }
 
         private parseXML(xml: any): void {
             var theGroup = this;
             var baseurl = this.owsurl.split('?')[0];
-            $(xml).find('Layer').each(function() {
+            $(xml).find('Layer').each(function () {
                 // DO NOT use arrow notation (=>) as it will break this !!!
                 var layerName = $(this).children('Name').text();
                 if (layerName != null && layerName !== '') {
                     var title = $(this).children('Title').text();
+
+                    // If <KeywordList> element has an element <keyword vocabulary="defaultFeatureType">featureType</keyword>
+                    // use featureType as defaultFeatureType
+                    var featureType = $(this).children('KeywordList').children('[vocabulary="defaultFeatureType"]').text();
+                    var resourceURL = $(this).children('KeywordList').children('[vocabulary="typeResourceURL"]').text();
+
                     // TODO: should be using layerService.initLayer(theGroup, layer);
                     // But I don't know how to 'inject' layerService :(
                     var layer = theGroup.buildLayer(baseurl, title, layerName);
+                    if(featureType!='') {
+                        layer.defaultFeatureType = featureType;
+                        layer.typeUrl = 'data/resourceTypes/resources.json';
+                    }
+                    if(resourceURL!='') {
+                        layer.typeUrl = resourceURL;
+                    }
+
                     theGroup.layers.push(layer);
                 }
             });
@@ -114,23 +130,23 @@ module csComp.Services {
 
         private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
             var extraInfo = {
-                'id':        Helpers.getGuid(),
+                'id': Helpers.getGuid(),
                 'reference': layerName,
-                'title':     title,
-                'enabled':   false,
-                'group':     this
+                'title': title,
+                'enabled': false,
+                'group': this
             };
             // Image layers
             if (this.owsgeojson) {
                 extraInfo['type'] = 'geojson';
                 extraInfo['url'] = baseurl + '?service=wfs&request=getFeature' +
-                '&outputFormat=application/json&typeName=' + layerName;
+                    '&outputFormat=application/json&typeName=' + layerName;
             } else {
                 extraInfo['type'] = 'wms';
                 extraInfo['wmsLayers'] = layerName;
                 extraInfo['url'] = baseurl;
             }
-            var layer = <ProjectLayer> jQuery.extend(new ProjectLayer(), extraInfo);
+            var layer = <ProjectLayer>jQuery.extend(new ProjectLayer(), extraInfo);
             return layer;
         }
     }
@@ -139,49 +155,51 @@ module csComp.Services {
      * Filters are used to select a subset of features within a group.
      */
     export class GroupFilter {
-        id:          string;
-        title:       string;
-        enabled:     boolean;
-        filterType:  string;
-        property:    string;
-        property2:   string;
-        criteria:    string;
-        group:       ProjectGroup;
-        dimension:   any;
-        value:       any;
+        id: string;
+        title: string;
+        enabled: boolean;
+        filterType: string;
+        property: string;
+        property2: string;
+        criteria: string;
+        group: ProjectGroup;
+        dimension: any;
+        value: any;
         stringValue: string;
-        rangex:      number[];
-        meta:        IPropertyType;
-        to:          number;
-        from:        number;
+        rangex: number[];
+        meta: IPropertyType;
+        to: number;
+        from: number;
+        filterLabel: string;
+        showInWidget:boolean;
     }
 
     /**
      * Styles determine how features are shown on the map.
      */
     export class GroupStyle {
-        id:               string;
-        title:            string;
-        enabled:          boolean;
-        layers:           string[];
-        visualAspect:     string;
-        property:         string;
-        colors:           string[];
-        group:            ProjectGroup;
+        id: string;
+        title: string;
+        enabled: boolean;
+        layers: string[];
+        visualAspect: string;
+        property: string;
+        colors: string[];
+        group: ProjectGroup;
         availableAspects: string[];
-        canSelectColor:   boolean;
-        colorScales:      any;
-        info:             PropertyInfo;
-        meta:             IPropertyType;
-        legends:          { [key: string]: Legend; };
-        activeLegend:     Legend;
-        fixedColorRange:  boolean;
+        canSelectColor: boolean;
+        colorScales: any;
+        info: PropertyInfo;
+        meta: IPropertyType;
+        legends: { [key: string]: Legend; };
+        activeLegend: Legend;
+        fixedColorRange: boolean;
 
         constructor($translate: ng.translate.ITranslateService) {
             this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth', 'height'];
-            this.colorScales      = {};
-            this.legends          = {};
-            this.fixedColorRange  = false;
+            this.colorScales = {};
+            this.legends = {};
+            this.fixedColorRange = false;
 
             $translate('WHITE_RED').then((translation) => {
                 this.colorScales[translation] = ['white', 'red'];
@@ -227,10 +245,10 @@ module csComp.Services {
      * (see also the function getColor())
     */
     export class Legend {
-        id:            string;
-        description:   string;
-        legendKind:    string;
-        visualAspect:  string;
+        id: string;
+        description: string;
+        legendKind: string;
+        visualAspect: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order

@@ -1,12 +1,17 @@
-<div>
-    <h4 class="leftpanel-header" translate="MAP"></h4>
-    <div data-ng-repeat="(key, value) in vm.$mapService.baseLayers" style="clear:left;">
-        <div ng-click="vm.selectBaseLayer(key);" class="select-basestyle">
-            <img data-ng-src="{{value.preview}}" class="preview-base-layer" style="margin-bottom:5px" />
-            <div style="margin:3px;float:left">
-                <span style="font-size: 18px;font-weight: bold;">{{::key}}</span><br />
-                {{::value.subtitle}}
+    <div style="padding:5px;overflow-y: scroll !important; overflow-x: visible !important;position: absolute;
+    overflow-y: scroll !important;
+    overflow-x: visible !important;
+    top: 0px;
+    bottom: 0;
+    left: 0;
+    right: 0;">
+        <div data-ng-repeat="(key, value) in vm.$mapService.baseLayers" style="clear:left;">
+            <div ng-click="vm.selectBaseLayer(key);" class="select-basestyle">
+                <img data-ng-src="{{value.preview}}" class="preview-base-layer" style="margin-bottom:5px" />
+                <div style="margin:3px;float:left">
+                    <span style="font-size: 18px;font-weight: bold;">{{::key}}</span>
+                    <br /> {{::value.subtitle}}
+                </div>
             </div>
         </div>
     </div>
-</div>

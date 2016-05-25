@@ -29,7 +29,6 @@ module Dashboard {
         };
     }]);
 
-
     myModule.directive('whenReady', ['$interpolate', function($interpolate) {
         return {
             restrict: 'A',
@@ -60,26 +59,28 @@ module Dashboard {
                         var isInterpolated = false;
                         var isReadyCheckTrue = false;
 
-                        if (waitForInterpolation && $element.text().indexOf($interpolate.startSymbol()) >= 0) { // if the text still has {{placeholders}}
+                        if (waitForInterpolation && $element.text().indexOf($interpolate.startSymbol()) >= 0) {
+                            // if the text still has {{placeholders}}
                             isInterpolated = false;
-                        }
-                        else {
+                        } else {
                             isInterpolated = true;
                         }
 
-                        if (hasReadyCheckExpression && !$scope.$eval($attributes.readyCheck)) { // if the ready check expression returns false
+                        if (hasReadyCheckExpression && !$scope.$eval($attributes.readyCheck)) {
+                            // if the ready check expression returns false
                             isReadyCheckTrue = false;
-                        }
-                        else {
+                        } else {
                             isReadyCheckTrue = true;
                         }
 
-                        if (isInterpolated && isReadyCheckTrue) { evalExpressions(expressions); }
-                        else { requestAnimationFrame(checkIfReady); }
+                        if (isInterpolated && isReadyCheckTrue) {
+                            evalExpressions(expressions);
+                        } else {
+                            requestAnimationFrame(checkIfReady);
+                        }
 
                     });
-                }
-                else {
+                } else {
                     evalExpressions(expressions);
                 }
             }
@@ -98,9 +99,10 @@ module Dashboard {
                 scope: {
                     container: '='
                 }, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                //template: html, // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                //template: html, // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file,
+                //FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
                 templateUrl: 'directives/DashboardDirectives/Dashboard/Dashboard.tpl.html',
-                link: (scope: any, element, attrs) => {                    
+                link: (scope: any, element, attrs) => {
                     // Deal with resizing the element list
                     angular.element($window).bind('resize', () => {
                         //scope.onResizeFunction();
@@ -114,8 +116,7 @@ module Dashboard {
                 replace: false,
                 transclude: true, // Add elements and attributes to the template
                 controller: DashboardCtrl
-            }
+            };
         }
     ]);
-
 }

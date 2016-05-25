@@ -6,6 +6,10 @@ module csComp.Services {
         linkid? : string;
         /** url to fetch the sensor data */
         url? : string;
+        /** url to fetch layer kpi data */
+        kpiUrl? : string;
+        /** interval for live link (15m, 1h, 24h, etc) */
+        liveInterval? : string;
     }
 
     /** Interface of a project layer
@@ -29,7 +33,7 @@ module csComp.Services {
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
         /** render type */
-        renderType: string;
+        renderType?: string;
         /** Data source */
         url: string;
         /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
@@ -54,6 +58,8 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        /** indicates that the contents layer of this layer can be changed */
+        isEditable?: boolean;
         /** this layer contains sensor data, updated when focusTime changes */
         hasSensorData? : boolean;
         /**
@@ -61,13 +67,13 @@ module csComp.Services {
          */
         isConnected?: boolean;
         /**
-         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, 
+         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time,
          * otherwise the complete feature with all its properties and geometry is overwritten
          */
         useLog?: boolean;
         /** indicates if features should be shown on timeline */
         showOnTimeline?: boolean;
-        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the 
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the
          * resourceType on every load */
         dynamicResource?: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
@@ -122,13 +128,17 @@ module csComp.Services {
         image?: string;
         /** last updated time */
         updated?: number;
+        /** zoom to layer if it gets activated */
+        fitToMap? : boolean;
+        /** If true, specifies the properties to publish items on the timeline. */
+        timelineConfig?: Timeline.ITimelineConfig;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer implements IProjectLayer {
         /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
-        /** Key of the legend entry **/
+        /** Key of the legend entry (from resource -> legends) **/
         defaultLegend : string;
         /** Title as displayed in the menu */
         title: string;
@@ -208,6 +218,7 @@ module csComp.Services {
         * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
         */
         timestamps: number[];
+        kpiTimestamps: number[];
         /** Internal ID, e.g. for the Excel service */
         id: string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
@@ -215,6 +226,10 @@ module csComp.Services {
         events: Event[];
         /** Language information that can be used to localize the title and description */
         languages: ILanguageData;
+
+        /** layer specific sensors, can be used for kpis */
+        sensors : {[id : string] : number[]}
+
         /** layer original source */
         data: any;
         /**
@@ -243,14 +258,17 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
-        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and 
+        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and
         feature geometry and property values. changes are distributed to all active clients in realtime */
         isDynamic: boolean;
 
-        /** 
-         * Logging mechanism allows you to specify specific property values and geometries in time,  
-         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers 
-         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
+        /** indicates that the contents layer of this layer can be changed */
+        isEditable: boolean;
+
+        /**
+         * Logging mechanism allows you to specify specific property values and geometries in time,
+         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers
+         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers
         */
         useLog: boolean;
         isConnected: boolean;
@@ -262,6 +280,7 @@ module csComp.Services {
          * gui is used for setting temp. values for rendering
          */
         _gui: any = {};
+
         /** image for this layer */
         image: string;
 
@@ -279,7 +298,7 @@ module csComp.Services {
          */
         fitToMap: boolean;
 
-        /** 
+        /**
          * Select a min and max zoom for the layer to be shown.
          * When the zoomlevel is out of range, hide all features using the opacity.
          */
@@ -313,6 +332,7 @@ module csComp.Services {
                 heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
                 url:                   pl.url,
                 typeUrl:               pl.typeUrl,
+                sensors:               pl.sensors,
                 sensorLink :           pl.sensorLink,
                 wmsLayers:             pl.wmsLayers,
                 opacity:               pl.opacity,
@@ -329,6 +349,7 @@ module csComp.Services {
                 defaultLegend:         pl.defaultLegend,
                 useProxy:              pl.useProxy,
                 isDynamic:             pl.isDynamic,
+                isEditable:            pl.isEditable,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
                 hasSensorData:         pl.hasSensorData,
@@ -356,10 +377,10 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
-        /** 
-         * Max native zoom level: 
-         * Maximum zoom number the tiles source has available. 
-         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+        /**
+         * Max native zoom level:
+         * Maximum zoom number the tiles source has available.
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled.
          */
         maxNativeZoom:   number;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
@@ -389,10 +410,10 @@ module csComp.Services {
         maxZoom:        number;
         /** Minimum zoom level */
         minZoom:        number;
-        /** 
-         * Max native zoom level: 
-         * Maximum zoom number the tiles source has available. 
-         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+        /**
+         * Max native zoom level:
+         * Maximum zoom number the tiles source has available.
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled.
          */
         maxNativeZoom = 19;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */

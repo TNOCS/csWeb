@@ -44,7 +44,7 @@ module LayersDirective {
         }
 
         public addGroup() {
-            if (!this.layerService.project.groups.some((g: csComp.Services.ProjectGroup) => g.title == this.groupTitle)) {
+            if (!this.layerService.project.groups.some((g: csComp.Services.ProjectGroup) => g.title === this.groupTitle)) {
                 var gr = new csComp.Services.ProjectGroup();
                 gr.title = this.groupTitle;
                 gr.description = this.groupDescription;
@@ -75,14 +75,14 @@ module LayersDirective {
                 this.layerService.initLayer(group, l);
                 group.layers.push(l);
 
-                var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", l, "Edit layer");
-                this.messageBusService.publish("rightpanel", "activate", rpt);
+                var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', l, 'Edit layer');
+                this.messageBusService.publish('rightpanel', 'activate', rpt);
             }
             this.done();
         }
 
         public done() {
-            this.$modalInstance.close("done");
+            this.$modalInstance.close('done');
         }
 
         public cancel() {

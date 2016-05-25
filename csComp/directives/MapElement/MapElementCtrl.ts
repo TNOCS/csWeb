@@ -10,11 +10,11 @@ module MapElement {
 
     export class MapElementCtrl {
         private scope: IMapElementScope;
-        private locale = "en-us";
-        public options = ["test", "boe"];
+        private locale = 'en-us';
+        public options = ['test', 'boe'];
 
         // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
+        // It provides $injector with information a'bout dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
@@ -31,18 +31,16 @@ module MapElement {
             private $layerService: csComp.Services.LayerService,
             private mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
-            ) {
+        ) {
             $scope.vm = this;
-          
+
             this.initMap();
-            
 
             $scope.initMap = () => this.initMap();
         }
 
         public initMap() {
-            this.$layerService.selectRenderer("leaflet");
-            //alert(this.$scope.mapId);
+            this.$layerService.selectRenderer('leaflet');
         }
     }
 }

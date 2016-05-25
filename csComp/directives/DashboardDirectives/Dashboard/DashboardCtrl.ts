@@ -61,12 +61,11 @@ module Dashboard {
             $scope.initDashboard = () => {
                 //if (!$scope.container) $scope.container = 'main';
                 //$messageBusService.subscribe('dashboard-' + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
-                // In LayerService, you expect the name to be dashboard-main too. 
+                // In LayerService, you expect the name to be dashboard-main too.
                 $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
-                    if (this.project.activeDashboard)
-                    {
-                        this.closeDashboard();                        
+                    if (this.project.activeDashboard) {
+                        this.closeDashboard();
                     }
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
@@ -98,12 +97,23 @@ module Dashboard {
                 //alert($scope.dashboard.name);
             };
         }
-        
-        public closeDashboard()
-        {
-            this.project.activeDashboard.widgets.forEach(w=>{
-                if (w.stop) w.stop();                
-            })
+
+        public closeDashboard() {
+            this.project.activeDashboard.widgets.forEach(w => {
+                if (w.stop) {
+                    w.stop();
+                } else if (w.elementId) {
+                    // The stop() function of a widget sits in the controller. We can reach the controller through the 
+                    // scope of the widget element. 
+                    try {
+                        var wElm = document.getElementById(w.elementId);
+                        var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
+                        if (wScope && wScope.vm && wScope.vm.stop) {
+                            wScope.vm.stop();
+                        }
+                    } catch (e) { }
+                }
+            });
         }
 
         public toggleWidget(widget: csComp.Services.IWidget) {
@@ -115,7 +125,7 @@ module Dashboard {
         public updateWidget(w: csComp.Services.IWidget) {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
-            
+
             w._initialized = true;
             var widgetElement;
             var newScope = this.$scope;
@@ -181,7 +191,7 @@ module Dashboard {
             }
 
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
-                //this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                //this.$messageBusService.publish('map', 'setbaselayer', this.$scope.dashboard.baselayer);
                 var layer: csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.$scope.dashboard.baselayer);
                 this.$layerService.activeMapRenderer.changeBaseLayer(layer);
                 this.$layerService.$mapService.changeBaseLayer(this.$scope.dashboard.baselayer);
@@ -213,33 +223,39 @@ module Dashboard {
         }
 
         public checkTimeline() {
-
-            if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
-                if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
-                    this.$mapService.timelineVisible = true;
-                } else {
-                    this.$mapService.timelineVisible = false;
-                }
+            var d = this.$scope.dashboard;
+            if (d.showTimeline !== this.$mapService.timelineVisible) {
+                this.$mapService.timelineVisible = (d.showTimeline && this.$mapService.isIntermediate);
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                     this.$scope.$root.$apply();
                 }
             }
-            var d = this.$scope.dashboard;     // RS mod January 2016
             if (d.showTimeline && d.timeline) {
-                //console.log("checkTimeline: dashboard has timeline");
+                //console.log('checkTimeline: dashboard has timeline');
+
+                if (!_.isUndefined(d.timeline.fixedRange)) {
+                    switch (d.timeline.fixedRange) {
+                        case '24h' :
+                            d.timeline.end = Date.now();
+                            d.timeline.start = Date.now() - 1000 * 60 * 24;
+                        break;
+                    }
+                }
+
                 this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
+
                 // now move the focustimeContainer to the right position
                 if (d.timeline.focus && d.timeline.start && d.timeline.end &&
                     (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
                     var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
-                    //var w = $("#timeline").width();           // unfortunately, on the first call, 
+                    //var w = $('#timeline').width();           // unfortunately, on the first call,
                     //the timeline has a width of 100 (not resized yet)
-                    //var w = $("#timeline").parent().width();  // does not help: = 0 on first call
-                    var w = $("#map").width();                  // this works but might be dangerous
-                    var newpos = f * w - $("#focustimeContainer").width() / 2;
-                    $("#focustimeContainer").css('left', newpos);
+                    //var w = $('#timeline').parent().width();  // does not help: = 0 on first call
+                    var w = $('#map').width();                  // this works but might be dangerous
+                    var newpos = f * w - $('#focustimeContainer').width() / 2;
+                    $('#focustimeContainer').css('left', newpos);
                 }
-            }                                  // end RS mod
+            }  // end RS mod
         }
 
         private setValue(diff: number, value: string): string {
@@ -256,25 +272,8 @@ module Dashboard {
         }
 
         public isReady(widget: csComp.Services.IWidget) {
-            //this.updateWidget(widget); 
+            //this.updateWidget(widget);
             setTimeout(() => {
-                
-                // select the target node
-                // var target = document.querySelector('#' + widget.elementId + '-parent');
-                //
-                // // create an observer instance
-                // var observer = new MutationObserver((mutations) => {
-                //     mutations.forEach((mutation) => {
-                //         console.log(mutation.type);
-                //     });
-                // });
-                //
-                // // configuration of the observer:
-                // var config = { attributes: true, childList: true, characterData: true };
-                //
-                // // pass in the target node, as well as the observer options
-                // observer.observe(target, config);
-
                 if (!widget._ijs)
                     widget._ijs = interact('#' + widget.elementId + '-parent')
                         .resizable({ inertia: true })
@@ -340,38 +339,15 @@ module Dashboard {
                 w.parentDashboard = d;
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
-                w.left = '10px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : "White", borderColor : "Black", borderWidth : "1px"};                
-                w.top = '20px';
-                w.width = '150px';
+                w.left = '20px';
+                w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
+                w.top = '80px';
+                w.hideIfLeftPanel = true;
+                w.width = '';
                 w.enabled = true;
                 d.widgets.push(w);
-                //this.$dashboardService.
-                //this.$dashboardService.addNewWidget(w, d);
-                //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
             }
         };
-
-        // if (!d.widgets) d.widgets = [];
-        // if (d.showLegend) {
-        //     var legendWidgetPresent = false;
-        //     d.widgets.forEach(w => {
-        //         if(w.id === 'legend') legendWidgetPresent = true;
-        //     });
-        //     if (!legendWidgetPresent) {
-        //         console.log('Create legend');
-        //         var w = <csComp.Services.IWidget>{};
-        //         w.directive = 'legend-directive';
-        //         w.id = 'legend';
-        //         w.title = 'Legenda';
-        //         w.data = {mode: 'lastSelectedStyle'};
-        //         w.left = '10px';
-        //         w.top = '20px';
-        //         w.width = '150px';
-        //         w.enabled = true;
-        //         this.$dashboardService.addNewWidget(w, d);
-        //         //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
-        //     }
 
         public updateDashboard() {
             var d = this.$scope.dashboard;
@@ -383,7 +359,7 @@ module Dashboard {
             this.checkLayers();
             this.checkViewbound();
 
-            //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
+            //this.$messageBusService.publish('leftmenu',(d.showLeftmenu) ? 'show' : 'hide');
             // if (!this.$mapService.isAdminExpert) {
             if (!d._initialized) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
@@ -394,16 +370,15 @@ module Dashboard {
                     w._initialized = false;
                     this.updateWidget(w);
                 });
-                
-                this.$timeout(()=>{
-                    this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                        this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                            this.updateWidget(w);
-                        });
-                    });
-                },300);
-                d._initialized = true;
 
+                // this.$timeout(() => {
+                //     this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                //         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                //             this.updateWidget(w);
+                //         });
+                //     });
+                // }, 300);
+                d._initialized = true;
             }, 500);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;

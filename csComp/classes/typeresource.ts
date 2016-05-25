@@ -8,7 +8,7 @@ module csComp.Services {
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         legends : { [id : string] : Legend}
-        
+        isDynamic : boolean;        
     }
 
     /** Class containing references to feature & property types */
@@ -19,6 +19,7 @@ module csComp.Services {
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         legends : { [id : string] : Legend}
+        isDynamic : boolean;
 
         /**
          * Serialize the project to a JSON string.
