@@ -35,6 +35,7 @@ module MarkdownWidget {
         vm: MarkdownWidgetCtrl;
         data: MarkdownWidgetData;
         minimized: boolean;
+        lastSelectedFeature: IFeature;
     }
 
     export class MarkdownWidgetCtrl {
@@ -43,6 +44,10 @@ module MarkdownWidget {
         private parentWidget: JQuery;
         private dataProperties: { [key: string]: any };
         private msgBusHandle: csComp.Services.MessageBusHandle;
+        /** To export a markdownwidget, jsPDF can be used. Due to its size it is not included in csWeb by default,
+         *  you need to add it to your csWeb-App. When you have added it, a save-icon will appear in the widget.
+         * jsPDF is available from https://github.com/MrRio/jsPDF */
+        private exporterAvailable: boolean;
 
         public static $inject = [
             '$scope',
@@ -67,6 +72,13 @@ module MarkdownWidget {
             $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
             this.dataProperties = {};
+            
+            if ((<any>window).jsPDF) {
+                this.exporterAvailable = true;
+            } else {
+                this.exporterAvailable = false;
+            }
+            
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
 
@@ -75,6 +87,7 @@ module MarkdownWidget {
                 this.parentWidget.hide();
                 this.msgBusHandle = this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
+                        case 'onUpdateWidgets':
                         case 'onFeatureDeselect':
                         case 'onFeatureSelect':
                             this.selectFeature(feature);
@@ -151,6 +164,7 @@ module MarkdownWidget {
                 return;
             }
             this.$timeout(() => {
+                this.$scope.lastSelectedFeature = feature;
                 var md = this.$scope.data.content;
                 var i = 0;
                 this.$scope.data.dynamicProperties.forEach(p => {
@@ -181,6 +195,17 @@ module MarkdownWidget {
                 this.$scope.data.mdText = md;
             }, 0);
         }
+        
+        private exportToPDF() {
+            var jsPDF: any = (<any>window).jsPDF || undefined;
+            if (!jsPDF) return;
+            var doc = new jsPDF('p', 'pt', 'a3');
+            doc.setFontSize(12);
+            doc.fromHTML($('#' + this.widget.elementId).get(0), 15, 15, {
+                'width': +this.widget.width
+            });
+            var fileName = this.$scope.lastSelectedFeature.properties['Name'] || 'markdown-export';
+            doc.save(fileName + '.pdf');
+        }
     }
-
 }

@@ -192,7 +192,9 @@ module Translations {
             STATE: 'Status',
             EVENT_INFO: 'Toon lijst van gebeurtenissen',
             CLEAR_EVENTS: 'Lijst leegmaken',
-            SEARCH_PLACEHOLDER: 'Gemeente, adres, ...'
+            SEARCH_PLACEHOLDER: 'Gemeente, adres, ...',
+            SAVE_AS_IMAGE: 'Opslaan als afbeelding',
+            SAVE_AS_PDF: 'Opslaan als PDF'
         }
     }
 }

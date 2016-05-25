@@ -7,11 +7,16 @@ module Filters {
         options: Function;
         removeString: string;
         createScatterString: string;
+        saveAsImageString: string;
     }
 
     export class RowFilterCtrl {
         private scope: IRowFilterScope;
         private widget: csComp.Services.IWidget;
+        /** To export a filter, canvg can be used. Due to its size it is not included in csWeb by default,
+         *  you need to add it to your csWeb-App. When you have added it, a save-icon will appear in the filter.
+         * canvg is available from https://github.com/gabelerner/canvg */
+        private exporterAvailable: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -42,6 +47,9 @@ module Filters {
             $translate('CREATE_SCATTER').then((translation) => {
                 $scope.createScatterString = translation;
             });
+            $translate('SAVE_AS_IMAGE').then((translation) => {
+                $scope.saveAsImageString = translation;
+            });
 
             var par = <any>$scope.$parent.$parent;
 
@@ -51,6 +59,13 @@ module Filters {
             else {
 
             }
+            
+            if ((<any>window).canvg) {
+                this.exporterAvailable = true;
+            } else {
+                this.exporterAvailable = false;
+            }
+            
             if ($scope && $scope.filter) {
                 setTimeout(() => this.initRowFilter());
                 //$timeout.call(()=>this.initBarFilter());
@@ -63,6 +78,10 @@ module Filters {
                             res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
+                    
+                    if (this.exporterAvailable) {
+                        res.push([$scope.saveAsImageString, () => this.exportToImage()]);
+                    }
 
                     return res;
                 });
@@ -161,9 +180,11 @@ module Filters {
                         group.filterResult = dcDim.top(Infinity);
                         this.$layerService.updateMapFilter(group);
                     }, 100);
-                }).on('filtered', (e) => {
+                })
+                .on('filtered', (e) => {
                     console.log('Filtered rowchart');
-                });
+                })
+                .xAxis().ticks(8);
             this.dcChart.selectAll();
             this.updateRange();
             dc.renderAll();
@@ -226,6 +247,20 @@ module Filters {
             if (this.$scope.filter) {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
+        }
+        
+        public exportToImage() {
+            var canvg = (<any>window).canvg || undefined;
+            if (!canvg) return;
+            var svg = new XMLSerializer().serializeToString(this.dcChart.root().node().firstChild);
+            var canvas = document.createElement('canvas');
+            document.body.appendChild(canvas);
+            canvg(canvas, svg, {renderCallback: () => {
+                var img = canvas.toDataURL("image/png");
+                var fileName = this.$scope.filter.title || 'rowfilter-export';
+                csComp.Helpers.saveImage(img, fileName + '.png', 'png');
+                canvas.parentElement.removeChild(canvas);
+            }});
         }
     }
 }
