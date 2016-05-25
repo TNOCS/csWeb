@@ -72,7 +72,7 @@ module Mca {
 
         constructor(
             private $scope: IMcaScope,
-            private $modal: any,
+            private $uibModal: ng.ui.bootstrap.IModalService,
             private $translate: ng.translate.ITranslateService,
             private $timeout: ng.ITimeoutService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
@@ -231,7 +231,7 @@ module Mca {
         }
 
         private showMcaEditor(newMca: Models.Mca): void {
-            var modalInstance = this.$modal.open({
+            var modalInstance = this.$uibModal.open({
                 templateUrl: 'directives/MCA/McaEditorView.tpl.html',
                 controller: McaEditorCtrl,
                 resolve: {

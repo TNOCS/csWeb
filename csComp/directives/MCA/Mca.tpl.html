@@ -1,4 +1,4 @@
-﻿<div>
+﻿<div style="padding-left:6px">
     <div class="wide-tooltip">
         <span class="pull-right fa fa-info-circle fa-2x"
               uib-tooltip-html-unsafe="{{'MCA.DESCRIPTION' | translate}}"
@@ -14,10 +14,10 @@
                 data-ng-change="vm.updateMca()"
                 style="width: 65%; margin-bottom: 10px;"></select>
         <div data-ng-if="vm.expertMode" class="pull-right">
-            <a href="" data-ng-click="vm.toggleSparkline()" uib-tooltip="{{'MCA.TOGGLE_SPARKLINE' | translate}}" style="margin-right:5px;"><i class="fa fa-bar-chart" data-ng-style="vm.showSparkline ? {} : {color:'lightgray'}"></i></a>
-            <a href="" data-ng-click="vm.createMca()" uib-tooltip="{{'MCA.ADD_MCA' | translate}}" style="margin-right:5px;"><i class="fa fa-plus"></i></a>
-            <a href="" data-ng-click="vm.removeMca(vm.mca)" uib-tooltip="{{'MCA.DELETE_MCA' | translate}}" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-trash"></i></a>
-            <a href="" data-ng-click="vm.editMca(vm.mca)" uib-tooltip="{{'MCA.EDIT_MCA' | translate}}" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
+            <a href="" data-ng-click="vm.toggleSparkline()" uib-tooltip="{{'MCA.TOGGLE_SPARKLINE' | translate}}" tooltip-append-to-body="true" style="margin-right:5px;"><i class="fa fa-bar-chart" data-ng-style="vm.showSparkline ? {} : {color:'lightgray'}"></i></a>
+            <a href="" data-ng-click="vm.createMca()" uib-tooltip="{{'MCA.ADD_MCA' | translate}}" tooltip-append-to-body="true" style="margin-right:5px;"><i class="fa fa-plus"></i></a>
+            <a href="" data-ng-click="vm.removeMca(vm.mca)" uib-tooltip="{{'MCA.DELETE_MCA' | translate}}" tooltip-append-to-body="true" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-trash"></i></a>
+            <a href="" data-ng-click="vm.editMca(vm.mca)" uib-tooltip="{{'MCA.EDIT_MCA' | translate}}" tooltip-append-to-body="true" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
         </div>
     </div>
 
