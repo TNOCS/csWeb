@@ -106,6 +106,7 @@ module csComp.Services {
                 }
             });
         }
+        
 
         private mapClicked(e: L.LeafletMouseEvent) {
             if (this.$messageBusService) this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);

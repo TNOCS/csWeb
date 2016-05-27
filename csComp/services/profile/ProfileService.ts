@@ -10,6 +10,7 @@ module csComp.Services {
         public loggedIn : boolean;
         public validate : Function;
         public logout : Function;
+        public isValidating : boolean;
         
         public static $inject = [
             
@@ -28,9 +29,11 @@ module csComp.Services {
         
         public validateUser(userName, userPassword)
         {
-           if (_.isFunction(this.validate))
+           if (_.isFunction(this.validate) && !this.isValidating)
            {
+               this.isValidating = true;
                this.validate(userName, userPassword,(status : boolean,profile)=>{
+                   this.isValidating = false;
                    this.loggedIn = status;
                    if (!this.loggedIn)
                    {

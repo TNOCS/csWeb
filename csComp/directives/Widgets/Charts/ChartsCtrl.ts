@@ -133,9 +133,11 @@ module ChartsWidget {
                 if (d.lite) vgspec = vl.compile(d._spec);
                 //parse(vgspec);
                 if (vgspec)
+                    
 
                     var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
                         d._view = view;
+                        d._view.renderer('svg').update();
                         //$('.vega-actions').css("display","none");
                         // Callback receiving the View instance and parsed Vega spec...
                         // The View resides under the '#vis' element
@@ -151,7 +153,7 @@ module ChartsWidget {
                 var vgspec = d._spec;
                 if (d.lite) vgspec = vl.compile(d._spec);
                 //if (d._view) d._view.update();
-                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
+                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id, renderer : "svg" }).update(); });
             }
             catch (e) {
 

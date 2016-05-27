@@ -117,11 +117,7 @@ module csComp.Services {
             this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
-            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 500);
 
-            var delayFocusChange = _.debounce((date) => {
-                this.refreshActiveLayers();
-            }, 500);
 
             $('body').keyup(e => {
                 if (e.keyCode === 46 && e.target.localName !== 'input') {
@@ -149,9 +145,9 @@ module csComp.Services {
                     case 'timeSpanUpdated':
                         this.updateSensorLinks();
                         break;
-                    case 'focusChange':
-                        delayFocusChange(date);
-                        break;
+                    // case 'focusChange':
+                    //     delayFocusChange(date);
+                    //     break;
                 }
             });
 
@@ -220,10 +216,13 @@ module csComp.Services {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
+                
+                 var t = this.project.timeLine;
+                if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.kpiUrl;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    link += "?tbox=" + t.start + "," + t.end;
                 }
                 else {
 
@@ -257,10 +256,12 @@ module csComp.Services {
             if (layer.sensorLink) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
+                var t = this.project.timeLine;
+                if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.url;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    link += "?tbox=" + t.start + "," + t.end;
                     //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
                 }
                 else {
@@ -1198,7 +1199,7 @@ module csComp.Services {
                     }
                 }
 
-                if (changed) {                    
+                if (changed) {
                     this.updateFeature(f);
                 }
             }
@@ -1213,9 +1214,15 @@ module csComp.Services {
         }
 
         public getSensorIndex(d: Number, timestamps: Number[]) {
-            for (var i = 1; i < timestamps.length; i++) {
-                if (timestamps[i] > d) {
-                    return i - 1;
+            // check if active dashboard is live, return last value
+            if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
+                return timestamps.length - 1
+            }
+            else {
+                for (var i = 1; i < timestamps.length; i++) {
+                    if (timestamps[i] > d) {
+                        return i - 1;
+                    }
                 }
             }
             return timestamps.length - 1;
@@ -1288,7 +1295,7 @@ module csComp.Services {
 
             for (var ll in this.loadedLayers) {
                 var l = this.loadedLayers[ll];
-                if (this.project.activeDashboard.isLive) {
+                if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
                     if (!_.isUndefined(l.timestamps) && _.isArray(l.timestamps)) {
                         date = l.timestamps[l.timestamps.length - 1];
                         this.updateLayerSensorData(l, date);
@@ -1340,6 +1347,19 @@ module csComp.Services {
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
+                
+                // check if defaultLegends are active
+                if (feature.fType.defaultLegendProperty) {
+                    if (typeof feature.fType.defaultLegendProperty === "string")
+                    {
+                        this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty);    
+                    }
+                    else
+                    {
+                        (<string[]>feature.fType.defaultLegendProperty).forEach(s=>this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty));
+                    }
+                    
+                }
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
                 if (feature.sensors) {
@@ -1463,6 +1483,7 @@ module csComp.Services {
                         var v = Number(feature.properties[gs.property]);
                         try {
                             if (!isNaN(v)) {
+                                
                                 switch (gs.visualAspect) {
                                     case 'strokeColor':
                                         s.strokeColor = csComp.Helpers.getColor(v, gs);
@@ -2092,6 +2113,11 @@ module csComp.Services {
                 var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
+            
+            if (!res)
+            {
+                res = <IPropertyType>{label : property, type : "text", title : property };
+            }
 
             return res;
         }
@@ -2205,7 +2231,7 @@ module csComp.Services {
 
             layer.enabled = false;
             layer.isLoading = false;
-            layer._gui.more = false;
+            if (layer._gui) layer._gui.more = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
@@ -2325,7 +2351,7 @@ module csComp.Services {
                     if (this.openSingleProject) {
                         let projectId = searchParams['project'];
                         // By default, look for an API project
-                        let u  = 'api/projects/' + projectId;
+                        let u = 'api/projects/' + projectId;
                         if (!initialProject) {
                             var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.
@@ -2424,6 +2450,12 @@ module csComp.Services {
                 this.$http.get(solutionProject.url)
                     .success((prj: Project) => {
                         this.parseProject(prj, solutionProject, layerIds);
+
+                        this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, this.project.timeLine.updateDelay);
+
+                        var delayFocusChange = _.debounce((date) => {
+                            this.refreshActiveLayers();
+                        }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
                     })
                     .error(() => {

@@ -43,6 +43,7 @@ module Idv {
         charts?: ChartConfig[];
     }
 
+declare var saveAs;
     declare var gridster;
         declare var vg;
 
@@ -362,6 +363,17 @@ module Idv {
             dc.renderAll();
         }
         
+            public exportCsv()
+        {
+            console.log('exporting..');
+            var data = this.config.charts[0].dimension.filterAll().top(Infinity);
+            var res = d3.csv.format(data);
+            var blob = new Blob([res], {type: "text/plain;charset=utf-8"});
+            saveAs(blob,"export.csv");
+            //csComp.Helpers.saveData(res, "export.csv", 'csv');            
+            
+        }
+        
         public hasFilter(id) :  boolean
         {
             return true;
@@ -637,6 +649,8 @@ module Idv {
                             return d[ci.property] }
                         });
                     })
+                    console.log('table:' + config.elementId);
+                    $("#" + config.elementId).addClass("widget-scrollable");
                     config.chart = dc.dataTable("#" + config.elementId);
                     config.chart  
                         .width(width)
@@ -817,7 +831,7 @@ module Idv {
         private createGridsterItem(config: Idv.ChartConfig)
         {
             var html = "<li style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
-            html+="<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li>"; 
+            html+="<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li><li class='dropdown-item'><a ng-click=\"exportCsv('')\"'>export</a></li>"; 
             html+="</ul>" + config.title + "</header><div id='" + config.elementId + "' ></li>";   
             (<any>this.scope).resetFilter = (id)=>{
                 this.reset(id);                                
@@ -825,6 +839,11 @@ module Idv {
             (<any>this.scope).resetAll = ()=>{
                 this.resetAll();                                
             }
+            (<any>this.scope).exportCsv = ()=>{
+                this.exportCsv();                                
+            }
+            
+            
             (<any>this.scope).disableFilter = (id)=>{
                 var c = _.findWhere(this.config.charts, { id : id});
                 if (!_.isUndefined(c))

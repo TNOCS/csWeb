@@ -309,7 +309,11 @@ module csComp.Services {
         id?: string;
         name?: string;
         style?: IFeatureTypeStyle;
+        
         legendItems?: LegendList.ILegendItem[];
+        
+        /** default property/properties used for legends */
+        defaultLegendProperty? : string | string[];
         /** Optional expressions that are shown in the legend list. */
         legendExpr?: IPropertyType[];
         properties?: {};
