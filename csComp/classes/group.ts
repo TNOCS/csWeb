@@ -248,7 +248,7 @@ module csComp.Services {
         id: string;
         description: string;
         legendKind: string;
-        visualAspect: string | string[];
+        visualAspect: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
