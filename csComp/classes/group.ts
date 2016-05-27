@@ -182,7 +182,7 @@ module csComp.Services {
         title: string;
         enabled: boolean;
         layers: string[];
-        visualAspect: string | string[];
+        visualAspect: string;
         property: string;
         colors: string[];
         group: ProjectGroup;
