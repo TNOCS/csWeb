@@ -239,6 +239,7 @@ module Filters {
                 dc.redrawAll();
                 group.filterResult = filter.dimension.top(Infinity);
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
+                this.$layerService.triggerUpdateFilter(this.$scope.filter.group.id);
                 this.$scope.$apply();
             }, 0);
         }
