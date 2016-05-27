@@ -62,7 +62,7 @@ module csComp.Services {
         startDashboardId: string;
 
         public visual: VisualState = new VisualState();
-        throttleSensorDataUpdate: Function;
+        throttleSensorDataUpdate: Function = () => {};
 
         static $inject = [
             '$location',
