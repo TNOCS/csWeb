@@ -22,15 +22,21 @@ module csComp.Helpers {
     export class GeoExtensions {
 
         static getFeatureBounds(feature: IFeature): L.LatLng[] | L.LatLngBounds {
-            if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
-            var geoType = feature.geometry.type || 'Point';
-            if (!feature.geometry) return null;
-            switch (geoType) {
-                case 'Point':                    
-                    return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
-                default:
-                    var bounds = d3.geo.bounds(feature);
-                    return new L.LatLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
+            try {
+                if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
+                var geoType = feature.geometry.type || 'Point';
+                if (!feature.geometry || !feature.geometry.coordinates || feature.geometry.coordinates.length < 2) return null;
+                switch (geoType) {
+                    case 'Point':
+                        return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
+                    default:
+                        var bounds = d3.geo.bounds(feature);
+                        if (bounds && bounds.length>1) return new L.LatLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
+                        return null;
+                }
+            }
+            catch (e) {
+                return null;
             }
         }
 
