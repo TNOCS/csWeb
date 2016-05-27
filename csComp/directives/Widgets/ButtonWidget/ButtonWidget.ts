@@ -40,7 +40,7 @@ module ButtonWidget {
         title: string;
         description: string;
         action: string;
-        layer: string;        
+        layer: string;
         group: string;
         timerange: string;
         property: string;
@@ -52,8 +52,8 @@ module ButtonWidget {
         zoomLevel: number;
         _legend: csComp.Services.Legend;
         _layer: csComp.Services.ProjectLayer;
-        _feature : csComp.Services.Feature;
-        _featureIcon : string;
+        _feature: csComp.Services.Feature;
+        _featureIcon: string;
         _disabled: boolean;
         _active: boolean;
         _firstLegendLabel: string;
@@ -67,7 +67,7 @@ module ButtonWidget {
         /* Show only one button. Clicking it will execute the according action and then show the next button */
         toggleMode: boolean;
         layerGroup: string;
-        featureLayer : string;
+        featureLayer: string;
     }
 
     export class ButtonWidgetCtrl {
@@ -89,7 +89,7 @@ module ButtonWidget {
             private messageBusService: csComp.Services.MessageBusService,
             private actionService: csComp.Services.ActionService,
             private $timeout: ng.ITimeoutService,
-            private $sce : ng.ISCEService
+            private $sce: ng.ISCEService
         ) {
             $scope.vm = this;
 
@@ -99,16 +99,18 @@ module ButtonWidget {
             if (typeof $scope.data.buttons === 'undefined') {
                 $scope.data.buttons = [];
             }
-            if (!_.isUndefined($scope.data.featureLayer))
-            {
+            if (!_.isUndefined($scope.data.featureLayer)) {
                 this.initFeatureLayer();
-                
+
             } else if (!_.isUndefined($scope.data.layerGroup)) {
                 this.initLayerGroup();
             } else {
                 this.$scope.buttons = this.$scope.data.buttons;
                 this.initButtons();
             }
+            $scope.$watchCollection("buttons", () => {
+                this.initButtons();
+            });
         }
 
         private initButtons() {
@@ -120,7 +122,7 @@ module ButtonWidget {
                             break;
                         case 'activate layer':
                             this.checkLayer(b);
-                            this.messageBusService.subscribe('layer', (a, l) => this.checkLayer(b));
+                            this.messageBusService.subscribe('layer', (a, l) => {this.checkLayer(b);  });
                             break;
                         case 'activate style':
                             this.checkStyle(b);
@@ -137,7 +139,7 @@ module ButtonWidget {
                 }
             });
         }
-        
+
         private initFeatureLayer() {
             this.checkFeatureLayer();
             this.messageBusService.subscribe('layer', (a, l) => this.checkFeatureLayer());
@@ -147,29 +149,26 @@ module ButtonWidget {
             this.checkLayerGroup();
             this.messageBusService.subscribe('layer', (a, l) => this.checkLayerGroup());
         }
-        
-        private checkFeatureLayer()
-        {
+
+        private checkFeatureLayer() {
             this.$scope.buttons = [];
             var pl = this.layerService.findLayer(this.$scope.data.featureLayer);
-            if (pl)
-            {
-                
-                if (pl.data && pl.data.features)
-                {
-                    pl.data.features.forEach((f : IFeature)=>{
+            if (pl) {
+
+                if (pl.data && pl.data.features) {
+                    pl.data.features.forEach((f: IFeature) => {
                         var b = <IButton>{
-                        title: csComp.Helpers.getFeatureTitle(f),
-                        action: 'Activate Feature',
-                        description: 'Snelheid:',
-                        _feature: f,
-                        _featureIcon : this.$sce.trustAsHtml(csComp.Helpers.createIconHtml(f).html)                        
-                    };
-                    this.$scope.buttons.push(b);
-                    });                    
+                            title: csComp.Helpers.getFeatureTitle(f),
+                            action: 'Activate Feature',
+                            description: 'Snelheid:',
+                            _feature: f,
+                            _featureIcon: this.$sce.trustAsHtml(csComp.Helpers.createIconHtml(f).html)
+                        };
+                        this.$scope.buttons.push(b);
+                    });
                 }
             }
-            
+
         }
 
         private checkLayerGroup() {
@@ -214,34 +213,57 @@ module ButtonWidget {
             }
         }
 
+        private updateLegendLabels(b: IButton) {
+            if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length > 0) {
+                b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
+                b._lastLegendLabel = b._legend.legendEntries[0].label;
+            }
+        }
+
         private checkLayer(b: IButton) {
             b._layer = this.layerService.findLayer(b.layer);
 
-            if (b.showLegend && b._layer.defaultLegend) {
-                b._legend = this.layerService.getLayerLegend(b._layer);
-                if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length > 0) {
-                    b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
-                    b._lastLegendLabel = b._legend.legendEntries[0].label;
+            if (b.showLegend) {
+                if (b._layer.defaultLegend) {
+                    b._legend = this.layerService.getLayerLegend(b._layer);
+                    this.updateLegendLabels(b);
+                }
+                else if (b._layer.group.styles.length > 0) {
+                    b._layer.group.styles.forEach(gs => {
+                        if (gs.activeLegend) {
+                            b._legend = gs.activeLegend;
+                            this.updateLegendLabels(b);
+                        }
+                    })
                 }
             }
 
-            if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
+
+                if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
 
 
-            if (!_.isUndefined(b._layer)) {
-                b._disabled = false;
-                b._active = b._layer.enabled;
-                b._canEdit = b._layer.enabled && b._layer.isEditable;
-            } else {
-                b._disabled = true;
-            }
+                if (!_.isUndefined(b._layer)) {
+                    b._disabled = false;
+                    b._active = b._layer.enabled;
+                    b._canEdit = b._layer.enabled && b._layer.isEditable;
+                } else {
+                    b._disabled = true;
+                }
+            
         }
 
         private checkStyle(b: IButton) {
             var group = this.layerService.findGroupById(b.group);
+            if (!group) {
+                b._disabled = true;
+                return;
+            }
+            
+            b._disabled = false;
             var prop = b.property;
             if (prop.indexOf('#') > -1) prop = prop.split('#')[1];
             if (typeof group !== 'undefined') {
+                if (!group.styles) return;
                 var selected = group.styles.filter(gs => {
                     return gs.property === prop;
                 });
