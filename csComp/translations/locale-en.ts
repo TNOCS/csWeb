@@ -192,7 +192,9 @@ module Translations {
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
             CLEAR_EVENTS: 'Clear event log',
-            SEARCH_PLACEHOLDER: 'Municipality, address, ...'
+            SEARCH_PLACEHOLDER: 'Municipality, address, ...',
+            SAVE_AS_IMAGE: 'Save as image',
+            SAVE_AS_PDF: 'Save as PDF'
         };
     }
 }
