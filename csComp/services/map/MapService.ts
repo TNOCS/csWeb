@@ -209,6 +209,14 @@ module csComp.Services {
                 console.log('error zooming to feature');
             }
         }
+        
+        zoomIn() {
+            this.map.zoomIn();
+        }
+        
+        zoomOut() {
+            this.map.zoomOut();
+        }
 
         //private getCentroid(arr) {
         //    return arr.reduce((x, y) => [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length], [0, 0]);

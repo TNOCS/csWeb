@@ -128,7 +128,7 @@ module csComp.Services {
             if (layer.enabled && layer.isEditable && !layer.isDynamic && layer.layerSource) {
                 var reset = <IActionOption>{ title: 'Reset Layer', icon: 'reset' };
                 reset.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
-                    console.log("Resetting layer: "+layer.title);
+                    console.log("Resetting layer: " + layer.title);
                     layer.data.features.forEach(function (f) {
                         layer.layerSource.service.removeFeature(f)
                     });

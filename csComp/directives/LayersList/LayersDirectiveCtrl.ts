@@ -300,10 +300,10 @@ module LayersDirective {
                             }
                             fid = ft.name;
                         }
-                        
+
                         fid += '-'+csComp.Helpers.getGuid();
                         f.properties = { 'featureTypeId': key, 'Name': fid };
-                        
+
                         layer.data.features.push(f);
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);

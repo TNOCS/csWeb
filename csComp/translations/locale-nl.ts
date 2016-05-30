@@ -6,6 +6,8 @@ module Translations {
             CLOSE: 'Sluit',
             FROM: 'van',
             TO: 'tot',
+            ZOOM_IN: 'Inzoomen',
+            ZOOM_OUT: 'Uitzoomen',
             ZOOM_LEVEL_LOW: 'Zoom niveau te laag',
             ZOOM_IN_FOR_CONTOURS: 'Zoom in om de contouren te tonen',
             NAVIGATE: {
