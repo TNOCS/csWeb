@@ -194,7 +194,8 @@ module Translations {
             CLEAR_EVENTS: 'Lijst leegmaken',
             SEARCH_PLACEHOLDER: 'Gemeente, adres, ...',
             SAVE_AS_IMAGE: 'Opslaan als afbeelding',
-            SAVE_AS_PDF: 'Opslaan als PDF'
+            SAVE_AS_PDF: 'Opslaan als PDF',
+            ROW_CHART_HELP: 'Klik op één of meerdere rijen om een filter toe te passen voor de geselecteerde eigenschap.'
         }
     }
 }

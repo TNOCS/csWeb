@@ -194,7 +194,8 @@ module Translations {
             CLEAR_EVENTS: 'Clear event log',
             SEARCH_PLACEHOLDER: 'Municipality, address, ...',
             SAVE_AS_IMAGE: 'Save as image',
-            SAVE_AS_PDF: 'Save as PDF'
+            SAVE_AS_PDF: 'Save as PDF',
+            ROW_CHART_HELP: 'Click one or multiple rows to apply a filter for the selected property.'
         };
     }
 }

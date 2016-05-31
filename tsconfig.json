@@ -15,7 +15,7 @@
         "./csServerComp/**/*.ts", "./test/**/*.ts",
         "!./csComp/includes/**/*.ts", "!./dist-npm", "!./dist-bower",
         "!./docker-dev", "!./docs", "!./csServerComp/OfflineSearch/**/*.ts",
-        "!./node_modules/**/*.ts"
+        "!./node_modules/**/*.ts", "!out/**", "!dist-bower/**"
     ],
     "comment": "! This tsconfig.json file has been generated automatically, please DO NOT edit manually.",
     "files": ["csComp/classes/dashboard.ts", "csComp/classes/datasource.ts",
@@ -142,6 +142,8 @@
         "csComp/directives/Widgets/Filters/ScatterFilterCtrl.ts",
         "csComp/directives/Widgets/Filters/TextFilter.ts",
         "csComp/directives/Widgets/Filters/TextFilterCtrl.ts",
+        "csComp/directives/Widgets/FilterStyleWidget/FilterStyleWidget.ts",
+        "csComp/directives/Widgets/FilterStyleWidget/FilterStyleWidgetCtrl.ts",
         "csComp/directives/Widgets/FocusTimeWidget/FocusTimeWidget.ts",
         "csComp/directives/Widgets/HeaderWidget/HeaderWidget.ts",
         "csComp/directives/Widgets/HeaderWidget/HeaderWidgetCtrl.ts",
