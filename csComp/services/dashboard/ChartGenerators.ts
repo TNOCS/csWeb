@@ -5,7 +5,233 @@ module csComp.Services {
         stop();
     }
 
+export class PropertyBarChartGenerator implements IChartGenerator {
 
+        private ctrl: ChartsWidget.ChartCtrl;
+        private mb: MessageBusService;
+        private options: any;
+
+        constructor(
+            private $layerService: Services.LayerService,
+            private $dashboardService: Services.DashboardService
+        ) {
+            this.mb = this.$layerService.$messageBusService;
+        }
+
+        public start(ctrl: ChartsWidget.ChartCtrl) {
+            this.ctrl = ctrl;
+            this.options = ctrl.$scope.data.generator;
+            ctrl.widget.enabled = false;
+            $("#" + this.ctrl.widget.elementId + "-container").css("display", "none");
+
+
+            this.mb.subscribe('feature', (action: string, feature: any) => {
+                if (this.options.hasOwnProperty('trigger') && this.options['trigger'].toLowerCase() === 'hover' && action === 'onFeatureHover') this.selectFeature(feature);
+                if (this.options.hasOwnProperty('trigger') && this.options['trigger'].toLowerCase() === 'click' && action === 'onFeatureSelect') this.selectFeature(feature);
+            });
+
+            ctrl.initChart();
+        }
+
+        private lastSelectedFeature: Feature;
+
+        private selectFeature(f: Feature) {
+
+            if (!this.options.hasOwnProperty("featureType") || this.options["featureType"] === f.fType.name) {
+                $("#" + this.ctrl.widget.elementId + "-container").css("display", "block");
+                this.lastSelectedFeature = f;
+                var properties = [];
+                if (this.options.hasOwnProperty("properties")) {
+                    // set width/height using the widget width/height (must be set)
+                    var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
+                    var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
+                    // make sure we have an array of properties
+                    if (this.options.properties instanceof Array) {
+                        properties = this.options.properties;
+                    }
+                    else if (this.options.properties instanceof String) {
+                        properties = [this.options.properties];
+                    }
+                    var values = [];
+                    var timestamps = [];
+
+                    properties.forEach(p=>{
+                        if (f.properties.hasOwnProperty(p))
+                        {
+                            values.push({category : p, position:0,value : f.properties[p]});
+                        }
+                    })
+
+
+
+                    this.ctrl.widget.enabled = false;
+
+                    var spec = {
+                           "width": width,
+                        "height": height,
+                        "padding": { "top": 10, "left": 30, "bottom": 30, "right": 10 },
+                            "data": [
+                                {
+                                    "name": "table",
+                                    "values": values
+                                }
+                            ],
+                            "scales": [
+                                {
+                                    "name": "cat",
+                                    "type": "ordinal",
+                                    "domain": {
+                                        "data": "table",
+                                        "field": "category"
+                                    },
+                                    "range": "height",
+                                    "padding": 0.2
+                                },
+                                {
+                                    "name": "val",
+                                    "type": "linear",
+                                    "domain": {
+                                        "data": "table",
+                                        "field": "value"
+                                    },
+                                    "range": "width",
+                                    "round": true,
+                                    "nice": true
+                                },
+                                {
+                                    "name": "color",
+                                    "type": "ordinal",
+                                    "domain": {
+                                        "data": "table",
+                                        "field": "position"
+                                    },
+                                    "range": "category20"
+                                }
+                            ],
+                            "axes": [
+                                {
+                                    "type": "y",
+                                    "scale": "cat",
+                                    "tickSize": 0,
+                                    "tickPadding": 8
+                                }
+                            ],
+                            "marks": [
+                                {
+                                    "type": "group",
+                                    "from": {
+                                        "data": "table",
+                                        "transform": [
+                                            {
+                                                "type": "facet",
+                                                "groupby": [
+                                                    "category"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "properties": {
+                                        "enter": {
+                                            "y": {
+                                                "scale": "cat",
+                                                "field": "key"
+                                            },
+                                            "height": {
+                                                "scale": "cat",
+                                                "band": true
+                                            }
+                                        }
+                                    },
+                                    "scales": [
+                                        {
+                                            "name": "pos",
+                                            "type": "ordinal",
+                                            "range": "height",
+                                            "domain": {
+                                                "field": "position"
+                                            }
+                                        }
+                                    ],
+                                    "marks": [
+                                        {
+                                            "name": "bars",
+                                            "type": "rect",
+                                            "properties": {
+                                                "enter": {
+                                                    "y": {
+                                                        "scale": "pos",
+                                                        "field": "position"
+                                                    },
+                                                    "height": {
+                                                        "scale": "pos",
+                                                        "band": true
+                                                    },
+                                                    "x": {
+                                                        "scale": "val",
+                                                        "field": "value"
+                                                    },
+                                                    "x2": {
+                                                        "scale": "val",
+                                                        "value": 0
+                                                    },
+                                                    "fill": {
+                                                        "scale": "color",
+                                                        "field": "position"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "text",
+                                            "from": {
+                                                "mark": "bars"
+                                            },
+                                            "properties": {
+                                                "enter": {
+                                                    "x": {
+                                                        "field": "x2",
+                                                        "offset": -15
+                                                    },
+                                                    "y": {
+                                                        "field": "y"
+                                                    },
+                                                    "dy": {
+                                                        "field": "height",
+                                                        "mult": 0.5
+                                                    },
+                                                    "fill": {
+                                                        "value": "white"
+                                                    },
+                                                    "align": {
+                                                        "value": "right"
+                                                    },
+                                                    "baseline": {
+                                                        "value": "middle"
+                                                    },
+                                                    "text": {
+                                                        "field": "datum.value"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+
+                    //console.log(JSON.stringify(spec));
+                    this.ctrl.$scope.data._spec = spec;
+                    this.ctrl.updateChart();
+                }
+            }
+
+
+        }
+
+        public stop() {
+            //alert('stop');
+        }
+    }
 
     export class propertySensordataGenerator implements IChartGenerator {
 
@@ -54,7 +280,7 @@ module csComp.Services {
                 this.lastSelectedFeature = f;
                 var properties = [];
                 if (this.options.hasOwnProperty("properties")) {
-                    // set width/height using the widget width/height (must be set) 
+                    // set width/height using the widget width/height (must be set)
                     var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
                     var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties
@@ -69,7 +295,7 @@ module csComp.Services {
 
                     properties.forEach((p: string) => {
                         if (f.sensors.hasOwnProperty(p)) {
-                            var i = 0;                            
+                            var i = 0;
                             if (f.timestamps) {
                                 f.timestamps.forEach(t => {
                                     timestamps = f.timestamps;
@@ -232,7 +458,7 @@ module csComp.Services {
             if (this.options.hasOwnProperty("layer")) {
                 var properties = [];
                 if (this.options.hasOwnProperty("properties")) {
-                    // set width/height using the widget width/height (must be set) 
+                    // set width/height using the widget width/height (must be set)
                     var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
                     var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties
@@ -402,7 +628,7 @@ module csComp.Services {
             if (this.options.hasOwnProperty("layer")) {
                 var sensors = [];
                 if (this.options.hasOwnProperty("sensors")) {
-                    // set width/height using the widget width/height (must be set) 
+                    // set width/height using the widget width/height (must be set)
                     var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
                     var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties

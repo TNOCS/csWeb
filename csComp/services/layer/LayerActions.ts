@@ -62,6 +62,7 @@ module csComp.Services {
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
 
+
         getLayerActions(layer: IProjectLayer): IActionOption[] {
             return [];
         }
@@ -123,7 +124,7 @@ module csComp.Services {
                     };
                     res.push(fit);
                 }
-                
+
                 if (layer.hasSensorData && _.isFunction(layer.layerSource.fitTimeline)) {
                     var fit = <IActionOption>{ title: 'Fit Timeline', icon: 'map' };
                     fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
@@ -210,7 +211,7 @@ module csComp.Services {
                 if (f._gui.hasOwnProperty('searchString')) {
                     var score = f._gui['searchString'].score(query.query, null);
                     if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: title });
-                }            
+                }
             });
         temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
             if (r.length < 10) {
