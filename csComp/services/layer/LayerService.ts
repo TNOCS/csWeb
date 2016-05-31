@@ -216,8 +216,8 @@ module csComp.Services {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
-                
-                 var t = this.project.timeLine;
+
+                var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.kpiUrl;
@@ -1347,18 +1347,16 @@ module csComp.Services {
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
-                
+
                 // check if defaultLegends are active
                 if (feature.fType.defaultLegendProperty) {
-                    if (typeof feature.fType.defaultLegendProperty === "string")
-                    {
-                        this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty);    
+                    if (typeof feature.fType.defaultLegendProperty === "string") {
+                        this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty);
                     }
-                    else
-                    {
-                        (<string[]>feature.fType.defaultLegendProperty).forEach(s=>this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty));
+                    else {
+                        (<string[]>feature.fType.defaultLegendProperty).forEach(s => this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty));
                     }
-                    
+
                 }
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
@@ -1399,7 +1397,7 @@ module csComp.Services {
                 s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction('layer', s);
             }
-            
+
             if (feature.isSelected) {
                 this.lastSelectedFeature = null;
                 this.selectedFeatures.some((f, ind, arr) => {
@@ -1483,7 +1481,7 @@ module csComp.Services {
                         var v = Number(feature.properties[gs.property]);
                         try {
                             if (!isNaN(v)) {
-                                
+
                                 switch (gs.visualAspect) {
                                     case 'strokeColor':
                                         s.strokeColor = csComp.Helpers.getColor(v, gs);
@@ -2113,10 +2111,9 @@ module csComp.Services {
                 var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
-            
-            if (!res)
-            {
-                res = <IPropertyType>{label : property, type : "text", title : property };
+
+            if (!res) {
+                res = <IPropertyType>{ label: property, type: "text", title: property };
             }
 
             return res;
@@ -2226,53 +2223,60 @@ module csComp.Services {
          * deactivate layer
          */
         removeLayer(layer: ProjectLayer, removeFromGroup: boolean = false) {
+
             var m: any;
             var g = layer.group;
 
-            layer.enabled = false;
-            layer.isLoading = false;
-            if (layer._gui) layer._gui.more = false;
-            //if (layer.refreshTimer) layer.stop();
+            try {
 
-            // make sure the timers are disabled
-            this.checkLayerTimer(layer);
+                layer.enabled = false;
+                layer.isLoading = false;
+                if (layer._gui) layer._gui.more = false;
+                //if (layer.refreshTimer) layer.stop();
 
-            delete this.loadedLayers[layer.id];
+                // make sure the timers are disabled
+                this.checkLayerTimer(layer);
 
-            // find layer source, and remove layer
-            if (!layer.layerSource) layer.layerSource = this.layerSources[layer.type.toLowerCase()];
-            layer.layerSource.removeLayer(layer);
+                delete this.loadedLayers[layer.id];
 
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
-                this.lastSelectedFeature = null;
-                this.visual.rightPanelVisible = false;
-                this.$messageBusService.publish('feature', 'onFeatureDeselect');
+                // find layer source, and remove layer
+                if (!layer.layerSource) layer.layerSource = this.layerSources[layer.type.toLowerCase()];
+                layer.layerSource.removeLayer(layer);
+
+                if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
+                    this.lastSelectedFeature = null;
+                    this.visual.rightPanelVisible = false;
+                    this.$messageBusService.publish('feature', 'onFeatureDeselect');
+                }
+                if (this.selectedFeatures.length > 0) {
+                    this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.layerId !== layer.id; });
+                }
+
+                this.activeMapRenderer.removeLayer(layer);
+
+                this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
+                var layerName = layer.id + '_';
+                var featureTypes = this._featureTypes;
+                // EV What should this have done?
+                // for (var poiTypeName in featureTypes) {
+                //     if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
+                // }
+
+                // check if there are no more active layers in group and remove filters/styles
+                this.removeAllFilters(g);
+                this.removeAllStyles(g);
+
+                this.rebuildFilters(g);
+                if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl !== layer);
+                this.apply();
+                this.$messageBusService.publish('layer', 'deactivate', layer);
+                this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
+                if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
+                if (removeFromGroup) this.saveProject();
             }
-            if (this.selectedFeatures.length > 0) {
-                this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.layerId !== layer.id; });
+            catch (e) {
+
             }
-
-            this.activeMapRenderer.removeLayer(layer);
-
-            this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
-            var layerName = layer.id + '_';
-            var featureTypes = this._featureTypes;
-            // EV What should this have done?
-            // for (var poiTypeName in featureTypes) {
-            //     if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-            // }
-
-            // check if there are no more active layers in group and remove filters/styles
-            this.removeAllFilters(g);
-            this.removeAllStyles(g);
-
-            this.rebuildFilters(g);
-            if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl !== layer);
-            this.apply();
-            this.$messageBusService.publish('layer', 'deactivate', layer);
-            this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
-            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
-            if (removeFromGroup) this.saveProject();
         }
 
         public removeAllFilters(g: ProjectGroup) {

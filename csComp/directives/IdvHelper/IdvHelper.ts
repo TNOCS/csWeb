@@ -2,50 +2,50 @@ module Idv {
 
     export interface ChartConfig {
         id?: string;
-        enabled? : boolean;
+        enabled?: boolean;
         elementId?: string;
         containerId?: string;
         title?: string;
-        bins? : number;
+        bins?: number;
         type?: string;
         property?: string;
-        properties? : string[];
-        secondProperty? : string;
+        properties?: string[];
+        secondProperty?: string;
         dimension?: any;
-        columns?:string[];
+        columns?: string[];
         group?: any;
         stat?: string;
         width?: number;
         height?: number;
         chart?: any;
         cap?: number;
-        time? : string;
+        time?: string;
         ordering?: string;
-        propertyTitle? : string;
-        secondPropertyTitle? : string;
-        record? : string;
-        layer? : string;
-        featureProperty? : string;
-        featureTargetProperty? : string;
-        filtered? : Function;
-        _view : any;
-        xaxis? : string;
-        yaxis? : string;
-    } 
+        propertyTitle?: string;
+        secondPropertyTitle?: string;
+        record?: string;
+        layer?: string;
+        featureProperty?: string;
+        featureTargetProperty?: string;
+        filtered?: Function;
+        _view: any;
+        xaxis?: string;
+        yaxis?: string;
+    }
 
     export interface ScanConfig {
-        title? : string;
+        title?: string;
         containerId?: string;
         config?: string;
         data?: string;
-        localStorage? : boolean;
-        refreshTimer? : number;
+        localStorage?: boolean;
+        refreshTimer?: number;
         charts?: ChartConfig[];
     }
 
-declare var saveAs;
+    declare var saveAs;
     declare var gridster;
-        declare var vg;
+    declare var vg;
 
 
     export class Idv {
@@ -55,55 +55,55 @@ declare var saveAs;
         public config: ScanConfig;
         public ndx: CrossFilter.CrossFilter<any>;
         public gridster;
-        public data : any;
-        public state : string;
-        public layerService : csComp.Services.LayerService;
-        
-        public storage : ng.localStorage.ILocalStorageService;
-        
+        public data: any;
+        public state: string;
+        public layerService: csComp.Services.LayerService;
+
+        public storage: ng.localStorage.ILocalStorageService;
+
 
         public defaultWidth = 180;
         public DataLoaded: boolean;
         private scope: ng.IScope;
-        
-            public reduceAddSum(properties : string[]) {
+
+        public reduceAddSum(properties: string[]) {
             return (p, v) => {
                 ++p.count
-                properties.forEach(pr=>{
+                properties.forEach(pr => {
                     var t = parseFloat(v[pr]);
-                    if (t>p.max) p.max = t;
+                    if (t > p.max) p.max = t;
                     p[pr] += t;
-                })                
+                })
                 return p;
             };
         }
-        public reduceRemoveSum(properties : string[]) {
+        public reduceRemoveSum(properties: string[]) {
             return (p, v) => {
                 --p.count
-                properties.forEach(pr=>{
+                properties.forEach(pr => {
                     var t = parseFloat(v[pr]);
-                    if (t>p.max) p.max = t;
+                    if (t > p.max) p.max = t;
                     p[pr] -= t;
-                })                
+                })
                 //p.avg = p.sum / p.count;
                 return p;
             };
         }
-        public reduceInitSum(properties : string[]) {
+        public reduceInitSum(properties: string[]) {
             var r = {};
-            properties.forEach(pr=>{
+            properties.forEach(pr => {
                 r[pr] = 0;
             });
-            return r;            
+            return r;
         }
 
-        
-   
+
+
         public reduceAddAvg(attr) {
             return (p, v) => {
                 ++p.count
                 var t = parseFloat(v[attr]);
-                if (t>p.max) p.max = t;
+                if (t > p.max) p.max = t;
                 p.sum += t;
                 p.avg = p.sum / p.count;
                 return p;
@@ -118,27 +118,27 @@ declare var saveAs;
             };
         }
         public reduceInitAvg() {
-            return { count: 0, sum: 0, avg: 0, max : 0 };
+            return { count: 0, sum: 0, avg: 0, max: 0 };
         }
-        
-        public stop()
-        {
+
+        public stop() {
             this.ndx = null;
             // this.config.charts.forEach(c=>{
             //     if (c.dimension) c.dimension.remove();
             //     if (c.group) c.group.remove();
-                
-               
+
+
             // });
-            
+
         }
-        
+
         public updateCharts() {
-          
+
             if (this.gridster) {
-                $("#" + this.config.containerId).empty(); 
-                this.gridster.destroy(); }
-          
+                $("#" + this.config.containerId).empty();
+                this.gridster.destroy();
+            }
+
 
             $(".chart-title").css("visibility", "visible");
 
@@ -152,7 +152,7 @@ declare var saveAs;
             }
 
             var elastic = true;
- 
+
 
             this.gridster = (<any>$("#" + this.config.containerId)).gridster({
                 widget_margins: [5, 5],
@@ -171,43 +171,40 @@ declare var saveAs;
             this.ndx = crossfilter(this.data);
 
             if (this.config.charts) {
-                this.config.charts.forEach(c=> {
+                this.config.charts.forEach(c => {
                     this.addChart(c)
                 });
             }
 
             dc.renderAll();
-            
+
             this.triggerFilter(this.config.charts[0]);
 
-           
+
             if (this.scope.$root.$$phase !== '$apply' && this.scope.$root.$$phase !== '$digest') { this.scope.$apply(); }
 
 
         }
-        
-        public enums : { [key : string] : string[]};
-        
-        public loadDataSource(done : Function)
-        {
-            
+
+        public enums: { [key: string]: string[] };
+
+        public loadDataSource(done: Function) {
+
             done();
         }
-        
-        private resize()
-        {
-            $("#g-parent").css("height",$(window).height() - 100);   
-              $("#g-parent").css("width",$(window).width() - 100);
+
+        private resize() {
+            $("#g-parent").css("height", $(window).height() - 100);
+            $("#g-parent").css("width", $(window).width() - 100);
         }
-        
-        public loadData(prepare,done)
-        {
-             var store = 'records3';
+
+        public loadData(prepare, done) {
+            var store = 'records3';
             async.series([
                 // get enums
                 (cb) => {
                     if (typeof this.config.config !== 'undefined') {
-                        
+
                         d3.json(this.config.config, (error, result) => {
                             if (!error) this.enums = result.Enums;
                             cb();
@@ -224,35 +221,35 @@ declare var saveAs;
                         window.alert("Deze browser is verouderd. Hierdoor zal de informatie trager laden");
                     }
                     else {
-                        if (this.config.localStorage)
-                        {
-                        var request = window.indexedDB.open(this.config.data, 9);
+                        if (this.config.localStorage) {
+                            var request = window.indexedDB.open(this.config.data, 9);
 
-                        request.onerror = (e=> {
-                            
-                            window.indexedDB.deleteDatabase(this.config.data);
-                        });
-                        request.onsuccess = (e=> {                            
-                            var db = <IDBDatabase>(<any>event.target).result;                            
-                            //if (!db.objectStoreNames.contains(store)) var objStore = db.createObjectStore(store, { autoIncrement : true });
-                            if (db.objectStoreNames.contains(store)) {
-                                
-                                var experiments = [];
-                                async.series(
-                                    [(cb) => {
-                                        db.transaction(store, 'readonly').objectStore(store).openCursor().onsuccess = (d) => {
+                            request.onerror = (e => {
 
-                                            var r = <IDBCursorWithValue>(<IDBRequest>d.target).result;
-                                            if (r) {
-                                                var v = r.value;
-                                                v.data.forEach(d=> experiments.push(d));
-                                                //r.advance(1);                                        
-                                                r.continue();
+                                window.indexedDB.deleteDatabase(this.config.data);
+                            });
+                            request.onsuccess = (e => {
+                                var db = <IDBDatabase>(<any>event.target).result;
+                                //if (!db.objectStoreNames.contains(store)) var objStore = db.createObjectStore(store, { autoIncrement : true });
+                                if (db.objectStoreNames.contains(store)) {
+
+                                    var experiments = [];
+                                    async.series(
+                                        [(cb) => {
+                                            db.transaction(store, 'readonly').objectStore(store).openCursor().onsuccess = (d) => {
+
+                                                var r = <IDBCursorWithValue>(<IDBRequest>d.target).result;
+                                                if (r) {
+                                                    var v = r.value;
+                                                    v.data.forEach(d => experiments.push(d));
+                                                    //r.advance(1);                                        
+                                                    r.continue();
+                                                }
+                                                else {
+                                                    cb();
+                                                }
                                             }
-                                            else {
-                                                cb();
-                                            }
-                                        }},
+                                        },
                                             (cb) => {
                                                 if (experiments.length > 0) {
                                                     this.parseData(experiments, prepare, done);
@@ -265,404 +262,394 @@ declare var saveAs;
                                                         var s = db.transaction(store, "readwrite").objectStore(store);
                                                         var l = [];
                                                         var id = 0;
-                                                        experiments.forEach(e=> {
+                                                        experiments.forEach(e => {
                                                             l.push(e);
                                                             if (l.length > 100000) {
                                                                 s.add({ id: id, data: l });
                                                                 l = [];
                                                                 id += 1;
                                                             }
-                                                        });                                                        
+                                                        });
                                                         this.parseData(experiments, prepare, done);
                                                         cb();
                                                     });
                                                 }
 
                                             }]
-                                    , (done) => {
-                                        cb();
-                                    });                                
-                        }
-                            else {
-                            db.close();                            
+                                        , (done) => {
+                                            cb();
+                                        });
+                                }
+                                else {
+                                    db.close();
 
-                        }
-                    });
+                                }
+                            });
 
-            request.onupgradeneeded = (e=> {
-                var db = <IDBDatabase>(<any>event.target).result;
-                var objStore = db.createObjectStore(store, { keyPath: "id" });
-            });
-                        }
-                        else{
-                            d3.csv(this.config.data, (error, experiments) => {                                
-                               this.parseData(experiments, prepare, done);
-                               cb();                               
+                            request.onupgradeneeded = (e => {
+                                var db = <IDBDatabase>(<any>event.target).result;
+                                var objStore = db.createObjectStore(store, { keyPath: "id" });
                             });
                         }
-        }
-    }], done=> {
-        
-    });
+                        else {
+                            d3.csv(this.config.data, (error, experiments) => {
+                                this.parseData(experiments, prepare, done);
+                                cb();
+                            });
+                        }
+                    }
+                }], done => {
+
+                });
         }
 
 
         public initCharts(scope: ng.IScope, layerService: csComp.Services.LayerService, prepare, done) {
             this.layerService = layerService;
             this.scope = scope;
-           
+
             this.state = "Laden configuratie";
             this.resize();
-            
-             if (this.config.refreshTimer)
-            {
-                setInterval(()=> {
-                    this.loadData(prepare,done);                    
+
+            if (this.config.refreshTimer) {
+                setInterval(() => {
+                    this.loadData(prepare, done);
                 }, (this.config.refreshTimer));
             }
-            
-            this.loadData(prepare,done);
-           
-         
-            
-          $(window).resize(()=> {
-              this.resize();
- });
-            
-            
 
-}
-        
+            this.loadData(prepare, done);
+
+
+
+            $(window).resize(() => {
+                this.resize();
+            });
+
+
+
+        }
+
         public parseData(data, prepare, done) {
-            this.state = "Verwerken data";            
-            if (this.scope.$$phase !== '$apply' && this.scope.$$phase !== '$digest') { this.scope.$apply(); }    
-                    
+            this.state = "Verwerken data";
+            if (this.scope.$$phase !== '$apply' && this.scope.$$phase !== '$digest') { this.scope.$apply(); }
+
             this.data = data;
             this.DataLoaded = true;
             prepare(this.enums, data);
 
-            this.updateCharts(); 
+            this.updateCharts();
             done();
         }
-        
-        public reset(id)
-        {            
-            var cc = _.findWhere(this.config.charts, { id : id });
-            if (!_.isUndefined(cc)) 
-            {
-                cc.chart.filterAll();                
+
+        public reset(id) {
+            var cc = _.findWhere(this.config.charts, { id: id });
+            if (!_.isUndefined(cc)) {
+                cc.chart.filterAll();
                 dc.renderAll();
             }
         }
-        
-        public resetAll()
-        {
-            this.config.charts.forEach(c=>{
+
+        public resetAll() {
+            this.config.charts.forEach(c => {
                 if (!_.isUndefined(c.chart)) c.chart.filterAll();
             });
             dc.renderAll();
         }
-        
-            public exportCsv()
-        {
+
+        public exportCsv() {
             console.log('exporting..');
             var data = this.config.charts[0].dimension.filterAll().top(Infinity);
             var res = d3.csv.format(data);
-            var blob = new Blob([res], {type: "text/plain;charset=utf-8"});
-            saveAs(blob,"export.csv");
+            var blob = new Blob([res], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, "export.csv");
             //csComp.Helpers.saveData(res, "export.csv", 'csv');            
-            
+
         }
-        
-        public hasFilter(id) :  boolean
-        {
+
+        public hasFilter(id): boolean {
             return true;
         }
-        
-        private addSearchWidget(config:Idv.ChartConfig)
-        {
+
+        private addSearchWidget(config: Idv.ChartConfig) {
             this.createGridsterItem(config);
             config.dimension = this.ndx.dimension(d => {
                 if (d.hasOwnProperty(config.property)) {
                     return d[config.property];
-                } else return null;});
-                
-                var searchHtml = "<input class='searchbutton' id='#" + config.id + "'></input><div id='data-count'><span class='filter-count'></span> geselecteerd van de <span class='total-count'></span> " + config.record + "</div>";                
-                 $("#" + config.elementId).html(searchHtml);
-                 
-                 
-                    $(".searchbutton").keyup(e=>{
-                        var id = e.target.id.replace('#','');
-                        var filterString = (<any>e.target).value;
-                        if (_.isUndefined(filterString)) return;
-                        
-                        var chart = <ChartConfig>_.findWhere(this.config.charts, { id : id});
-                        if (!_.isUndefined(chart))
-                        {
-                             chart.dimension.filterFunction((d: string) => {
-                                if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(filterString.toLowerCase()) > -1);
-                                    return false;
-                                });
-                                chart.dimension.top(Infinity);
-                                dc.redrawAll();                            
-                        }                  
-                        this.triggerFilter(config);     
-                           
-                });
-                var all = this.ndx.groupAll();
-                (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
+                } else return null;
+            });
+
+            var searchHtml = "<input class='searchbutton' id='#" + config.id + "'></input><div id='data-count'><span class='filter-count'></span> geselecteerd van de <span class='total-count'></span> " + config.record + "</div>";
+            $("#" + config.elementId).html(searchHtml);
+
+
+            $(".searchbutton").keyup(e => {
+                var id = e.target.id.replace('#', '');
+                var filterString = (<any>e.target).value;
+                if (_.isUndefined(filterString)) return;
+
+                var chart = <ChartConfig>_.findWhere(this.config.charts, { id: id });
+                if (!_.isUndefined(chart)) {
+                    chart.dimension.filterFunction((d: string) => {
+                        if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(filterString.toLowerCase()) > -1);
+                        return false;
+                    });
+                    chart.dimension.top(Infinity);
+                    dc.redrawAll();
+                }
+                this.triggerFilter(config);
+
+            });
+            var all = this.ndx.groupAll();
+            (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
         }
-        
-        public addSumCompare(config : Idv.ChartConfig)
-        {
+
+        public addSumCompare(config: Idv.ChartConfig) {
             this.createGridsterItem(config);
-            
-            var updateChart = (values : number[])=>{
+
+            var updateChart = (values: number[]) => {
                 try {
 
-                var vgspec = {
-                    'width': 200,
-                    'height': 200,
-                    'data': [
-                        {
-                        'name': 'table',
-                        'values': values,
-                        'transform': [{'type': 'pie','field': 'value'}]
-                        }
-                    ],
-                    'scales': [
-                        {
-                        'name': 'r',
-                        'type': 'sqrt',
-                        'domain': {'data': 'table','field': 'value'},
-                        'range': [20,100]
-                        } ,
-                         {
-      "name": "color",
-      "type": "ordinal",
-      "domain": {"data": "table", "field": "position"},
-      "range": "category20"
-    }
-                    ],
-                    'marks': [
-                        {
-                        'type': 'arc',
-                        'from': {'data': 'table'},
-                        'properties': {
-                            'enter': {
-                            'x': {'field': {'group': 'width'},'mult': 0.5},
-                            'y': {'field': {'group': 'height'},'mult': 0.5},
-                            'startAngle': {'field': 'layout_start'},
-                            'endAngle': {'field': 'layout_end'},
-                            'innerRadius': {'value': 20},
-                            'outerRadius': {'scale': 'r','field': 'value'},
-                            'stroke': {'value': '#fff'}
+                    var vgspec = {
+                        'width': 200,
+                        'height': 200,
+                        'data': [
+                            {
+                                'name': 'table',
+                                'values': values,
+                                'transform': [{ 'type': 'pie', 'field': 'value' }]
+                            }
+                        ],
+                        'scales': [
+                            {
+                                'name': 'r',
+                                'type': 'sqrt',
+                                'domain': { 'data': 'table', 'field': 'value' },
+                                'range': [20, 100]
                             },
-                            'update': {'fill': {"scale": "color", "field": "position"}},
-                            'hover': {'fill': {'value': 'pink'}}
-                        }
-                        },
-                        {
-                        'type': 'text',
-                        'from': {'data': 'table'},
-                        'properties': {
-                            'enter': {
-                            'x': {'field': {'group': 'width'},'mult': 0.5},
-                            'y': {'field': {'group': 'height'},'mult': 0.5},
-                            'radius': {'scale': 'r','field': 'value','offset': 8},
-                            'theta': {'field': 'layout_mid'},
-                            'fill': {'value': '#000'},
-                            'align': {'value': 'center'},
-                            'baseline': {'value': 'middle'},
-                            'text': {'field': 'title'}
+                            {
+                                "name": "color",
+                                "type": "ordinal",
+                                "domain": { "data": "table", "field": "position" },
+                                "range": "category20"
                             }
-                        }
-                        },
-                        {
-                        'type': 'text',
-                        'from': {'data': 'table'},
-                        'properties': {
-                            'enter': {
-                            'x': {'field': {'group': 'width'},'mult': 0.5},
-                            'y': {'field': {'group': 'height'},'mult': 0.5,'offset':-10},                            
-                            'radius': {'scale': 'r','field': 'value','offset': 8},
-                            'theta': {'field': 'layout_mid'},
-                            'fill': {'value': '#000'},
-                            'align': {'value': 'center'},
-                            'baseline': {'value': 'middle'},
-                            'text': {'field': 'value'}
+                        ],
+                        'marks': [
+                            {
+                                'type': 'arc',
+                                'from': { 'data': 'table' },
+                                'properties': {
+                                    'enter': {
+                                        'x': { 'field': { 'group': 'width' }, 'mult': 0.5 },
+                                        'y': { 'field': { 'group': 'height' }, 'mult': 0.5 },
+                                        'startAngle': { 'field': 'layout_start' },
+                                        'endAngle': { 'field': 'layout_end' },
+                                        'innerRadius': { 'value': 20 },
+                                        'outerRadius': { 'scale': 'r', 'field': 'value' },
+                                        'stroke': { 'value': '#fff' }
+                                    },
+                                    'update': { 'fill': { "scale": "color", "field": "position" } },
+                                    'hover': { 'fill': { 'value': 'pink' } }
+                                }
+                            },
+                            {
+                                'type': 'text',
+                                'from': { 'data': 'table' },
+                                'properties': {
+                                    'enter': {
+                                        'x': { 'field': { 'group': 'width' }, 'mult': 0.5 },
+                                        'y': { 'field': { 'group': 'height' }, 'mult': 0.5 },
+                                        'radius': { 'scale': 'r', 'field': 'value', 'offset': 8 },
+                                        'theta': { 'field': 'layout_mid' },
+                                        'fill': { 'value': '#000' },
+                                        'align': { 'value': 'center' },
+                                        'baseline': { 'value': 'middle' },
+                                        'text': { 'field': 'title' }
+                                    }
+                                }
+                            },
+                            {
+                                'type': 'text',
+                                'from': { 'data': 'table' },
+                                'properties': {
+                                    'enter': {
+                                        'x': { 'field': { 'group': 'width' }, 'mult': 0.5 },
+                                        'y': { 'field': { 'group': 'height' }, 'mult': 0.5, 'offset': -10 },
+                                        'radius': { 'scale': 'r', 'field': 'value', 'offset': 8 },
+                                        'theta': { 'field': 'layout_mid' },
+                                        'fill': { 'value': '#000' },
+                                        'align': { 'value': 'center' },
+                                        'baseline': { 'value': 'middle' },
+                                        'text': { 'field': 'value' }
+                                    }
+                                }
                             }
-                        }
-                        }
-                    ]
-                };
-                
-                //parse(vgspec);
-                if (vgspec)
+                        ]
+                    };
 
-                    var res = vg.embed("#" + config.elementId, vgspec, (view, vega_spec) => {
-                        config._view = view;
-                        $("#" + config.elementId).css("margin-left","30px");
-                        //$('.vega-actions').css("display","none");
-                        // Callback receiving the View instance and parsed Vega spec...
-                        // The View resides under the '#vis' element
-                    });
-            } catch (e) {
+                    //parse(vgspec);
+                    if (vgspec)
 
+                        var res = vg.embed("#" + config.elementId, vgspec, (view, vega_spec) => {
+                            config._view = view;
+                            $("#" + config.elementId).css("margin-left", "30px");
+                            //$('.vega-actions').css("display","none");
+                            // Callback receiving the View instance and parsed Vega spec...
+                            // The View resides under the '#vis' element
+                        });
+                } catch (e) {
+
+                }
             }
-            }
-             
+
             updateChart([]);
-             
-                                
-            config.filtered = (result)=>{
-                var res = { };
-                config.properties.forEach(p=>res[p] = 0);
-                result.forEach(i=>{
-                   config.properties.forEach(p=>{ if (i.hasOwnProperty(p)) res[p] += Math.round(+i[p]) });                   
-                }); 
+
+
+            config.filtered = (result) => {
+                var res = {};
+                config.properties.forEach(p => res[p] = 0);
+                result.forEach(i => {
+                    config.properties.forEach(p => { if (i.hasOwnProperty(p)) res[p] += Math.round(+i[p]) });
+                });
                 var values = [];
                 var pos = 0;
                 for (var i in res) {
-                    if (res[i]>0) values.push({ title : i, value : res[i], position : pos});
-                    pos+=1;
+                    if (res[i] > 0) values.push({ title: i, value: res[i], position: pos });
+                    pos += 1;
                 }
-                updateChart(values); 
+                updateChart(values);
             };
         }
-        
-        public addLayerLink(config : Idv.ChartConfig)
-        {
-            config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
+
+        public addLayerLink(config: Idv.ChartConfig) {
+            config.dimension = this.ndx.dimension((d) => { return d[config.property] });
             config.group = config.dimension.group().reduceCount();
-                    
-            config.filtered = (result)=>{   
-                if (!_.isUndefined(config.layer))
-                {
+
+            config.filtered = (result) => {
+                if (!_.isUndefined(config.layer)) {
                     var l = this.layerService.findLayer(config.layer);
-                    if (!_.isUndefined(l) && l.enabled)
-                    {
+                    if (!_.isUndefined(l) && l.enabled) {
                         var mapping = {};
-                        l.data.features.forEach(f=>{
+                        l.data.features.forEach(f => {
                             if (f.properties.hasOwnProperty(config.featureProperty)) mapping[f.properties[config.featureProperty]] = f;
-                            delete f.properties[config.featureTargetProperty]; 
-                        }); 
-                                        
-                    
+                            delete f.properties[config.featureTargetProperty];
+                        });
+
+
                         var res = config.group.all();
-                        res.forEach(r=>{
-                            if (mapping.hasOwnProperty(r.key))
-                            {
+                        res.forEach(r => {
+                            if (mapping.hasOwnProperty(r.key)) {
                                 var f = mapping[r.key];
-                                f.properties[config.featureTargetProperty] = r.value;                                
-                            }                         
+                                f.properties[config.featureTargetProperty] = r.value;
+                            }
                         });
                         this.layerService.updateLayerFeatures(l);
-                        l.group.styles.forEach(s=>{
+                        l.group.styles.forEach(s => {
                             this.layerService.removeStyle(s);
                         })
-                        this.layerService.setStyleForProperty(l,config.featureTargetProperty);
+                        this.layerService.setStyleForProperty(l, config.featureTargetProperty);
                     }
-                }                              
+                }
                 console.log('do filter with result');
             };
         }
-        
-        private addChartItem(config : Idv.ChartConfig)
-        {
+
+        private addChartItem(config: Idv.ChartConfig) {
             this.createGridsterItem(config);
             if (!config.stat) config.stat = "count";
             switch (config.stat) {
-                case "sum" :
-                 config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
-                 config.group = config.dimension.group().reduceSum((d)=> {                     
-                     return {totaal_mensen_auto : +d[config.property] };
+                case "sum":
+                    config.dimension = this.ndx.dimension((d) => { return d[config.property] });
+                    config.group = config.dimension.group().reduceSum((d) => {
+                        return { totaal_mensen_auto: +d[config.property] };
                     });
-                    switch (config.type)
-                    {
-                        case "pie": 
-                            config.dimension = this.ndx.dimension(function(d) { return d; });
+                    switch (config.type) {
+                        case "pie":
+                            config.dimension = this.ndx.dimension(function (d) { return d; });
                             config.group = config.dimension.group().reduce(this.reduceAddSum(config.properties), this.reduceRemoveSum(config.properties), this.reduceInitSum(config.properties));
-                            break;                        
-                    } 
+                            break;
+                    }
                     break;
                 case "average":
-                    switch (config.type)
-                    {
+                    switch (config.type) {
                         case "row":
-                            config.dimension = this.ndx.dimension(function(d) { return d[config.property] });
+                            config.dimension = this.ndx.dimension(function (d) { return d[config.property] });
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.secondProperty), this.reduceRemoveAvg(config.secondProperty), this.reduceInitAvg);
                             break;
                         case "line":
                         case "bar":
-                            config.dimension = this.ndx.dimension((d) =>{ return d[config.time] });
+                            config.dimension = this.ndx.dimension((d) => { return d[config.time] });
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.property), this.reduceRemoveAvg(config.property), this.reduceInitAvg);
                         case "time":
-                            config.dimension = this.ndx.dimension((d) =>{ return d[config.time] });
+                            config.dimension = this.ndx.dimension((d) => { return d[config.time] });
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.property), this.reduceRemoveAvg(config.property), this.reduceInitAvg);
                             break;
-                    }                    
+                    }
                     break;
-                case "pie" :
+                case "pie":
                     config.dimension = config.dimension;
-                    config.group = config.group; 
+                    config.group = config.group;
                     break;
-                case "scatter" :
-                    config.dimension = this.ndx.dimension((d)=> {
-                        var r =+d[config.property]  
-                        return r });
+                case "scatter":
+                    config.dimension = this.ndx.dimension((d) => {
+                        var r = +d[config.property]
+                        return r
+                    });
                     config.group = config.dimension.group();
                     break;
                 case "time":
-                    config.dimension = this.ndx.dimension((d) =>{ return d[config.time] });
-                    break;  
+                    config.dimension = this.ndx.dimension((d) => { return d[config.time] });
+                    break;
                 case "group":
                     if (!config.bins) config.bins = 20;
                     var n_bins = config.bins;
                     var xExtent = d3.extent(this.data, (d) => { return parseFloat(d[config.property]); });
                     var binWidth = (xExtent[1] - xExtent[0]) / n_bins;
                     config.dimension = this.ndx.dimension((d) => {
-                        var c = Math.floor(parseFloat(d[config.property]) / binWidth) * binWidth; 
-                        return c;    
-                    }                         );
+                        var c = Math.floor(parseFloat(d[config.property]) / binWidth) * binWidth;
+                        return c;
+                    });
                     config.group = config.dimension.group().reduceCount();
-                    break;                              
+                    break;
                 case "count":
-                    config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
+                    config.dimension = this.ndx.dimension((d) => { return d[config.property] });
                     config.group = config.dimension.group().reduceCount();
                     break;
             }
 
 
-            var width = (config.width * this.defaultWidth)-25;
-            var height = (config.height * 125)-25;
-            
-            
+            var width = (config.width * this.defaultWidth) - 25;
+            var height = (config.height * 125) - 25;
+
+
 
             switch (config.type) {
-                
+
                 case "table":
                     var c = [];
-                    config.columns.forEach((ci : any)=>{
-                        c.push({ label : ci.title, format : (d)=> {
-                            if (ci.hasOwnProperty("type") && ci["type"] === "number") return d3.round(d[ci.property],1);                                 
-                            return d[ci.property] }
+                    config.columns.forEach((ci: any) => {
+                        c.push({
+                            label: ci.title, format: (d) => {
+                                if (ci.hasOwnProperty("type") && ci["type"] === "number") return d3.round(d[ci.property], 1);
+                                return d[ci.property]
+                            }
                         });
                     })
                     console.log('table:' + config.elementId);
                     $("#" + config.elementId).addClass("widget-scrollable");
+                    $("body")
                     config.chart = dc.dataTable("#" + config.elementId);
-                    config.chart  
+                    config.chart
                         .width(width)
-                        .height(height)                   
-                        .dimension(config.dimension) 
-                        .group((d)=> {                    
+                        .height(height)
+                        .dimension(config.dimension)
+                        .group((d) => {
                             var date = d[config.time];
                             return "";
-                        })                        
-                        .size(1000)                                 
-                        .columns(c);
-                               
+                        })
+                        .size(1000)
+                        .columns(c);                                            
+                        
+
                     break;
                 case "time":
                     config.chart = dc.lineChart("#" + config.elementId);
@@ -675,15 +662,15 @@ declare var saveAs;
                         .mouseZoomable(true)
                         .renderHorizontalGridLines(true)
                         .brushOn(true)
-                       
+
                         .dimension(config.dimension)
                         .group(function (d) {
-                          //var format = d3.format('02d');
+                            //var format = d3.format('02d');
                             return d[config.time];
-                        })                        
+                        })
                         .renderHorizontalGridLines(true)
-                        .on('renderlet', function(chart) {
-                            chart.selectAll('rect').on("click", function(d) {
+                        .on('renderlet', function (chart) {
+                            chart.selectAll('rect').on("click", function (d) {
                                 // console.log("click!", d);
                             });
                         });
@@ -694,15 +681,15 @@ declare var saveAs;
                         .width(width)
                         .height(height)
                         .x(d3.scale.linear())
-                        .elasticX(true)                         
-                        .elasticY(true)                        
+                        .elasticX(true)
+                        .elasticY(true)
                         .renderHorizontalGridLines(false)
                         .dimension(config.dimension)
                         .group(config.group)
                         .mouseZoomable(true)
-                        .on('renderlet', function(chart) {
-                            chart.selectAll('rect').on("click", function(d) {
-                                
+                        .on('renderlet', function (chart) {
+                            chart.selectAll('rect').on("click", function (d) {
+
                                 // console.log("click!", d);
                             });
                         });
@@ -715,52 +702,52 @@ declare var saveAs;
                         .slicesCap(10)
                         .innerRadius(10)
                         .dimension(config.dimension)
-                        .group(config.group)                                                
+                        .group(config.group)
                     break;
-                 case "bar":
+                case "bar":
                     config.chart = dc.barChart("#" + config.elementId);
                     config.chart
                         .width(width)
                         .height(height)
-                        .x(d3.scale.linear())      
+                        .x(d3.scale.linear())
                         .centerBar(true)
-                        .xUnits(function(){return 20;})                                          
-                        .elasticX(true)                                                                                                
-                        .elasticY(true)                                                                  
+                        .xUnits(function () { return 20; })
+                        .elasticX(true)
+                        .elasticY(true)
                         .renderHorizontalGridLines(true)
                         .dimension(config.dimension)
-                        .group(config.group)                    
-                        break;
-                   case "stackedbar":
+                        .group(config.group)
+                    break;
+                case "stackedbar":
                     config.chart = dc.barChart("#" + config.elementId);
                     config.chart
                         .width(width)
                         .height(height)
-                        .x(d3.scale.linear())      
+                        .x(d3.scale.linear())
                         .centerBar(false)
-                        .xUnits(function(){return 20;})                                          
-                        .elasticX(true)                                                                                                
-                        .elasticY(true)                                                                  
+                        .xUnits(function () { return 20; })
+                        .elasticX(true)
+                        .elasticY(true)
                         .renderHorizontalGridLines(true)
                         .dimension(config.dimension)
-                        .group(config.group)                    
-                        break;
-                    case "scatter":
-                      config.chart = dc.scatterPlot("#" + config.elementId);
-                      config.chart
+                        .group(config.group)
+                    break;
+                case "scatter":
+                    config.chart = dc.scatterPlot("#" + config.elementId);
+                    config.chart
                         .width(width)
                         .height(height)
                         .symbolSize(3)
                         .x(d3.scale.linear())
-                        .y(d3.scale.linear())                         
+                        .y(d3.scale.linear())
                         .elasticX(true)
-                        .elasticY(true)                                                                                                
+                        .elasticY(true)
                         .dimension(config.dimension)
                         .group(config.group)
 
-                    
+
                     break;
-         
+
                 case "row":
                     config.chart = dc.rowChart("#" + config.elementId);
                     config.chart
@@ -777,100 +764,95 @@ declare var saveAs;
                     switch (config.ordering) {
 
                         case "days":
-                            config.chart.ordering(function(d) {
+                            config.chart.ordering(function (d) {
                                 return Idv.days.indexOf(d.key);
                             });
                             break;
-                            case "months":
-                            config.chart.ordering(function(d) {
+                        case "months":
+                            config.chart.ordering(function (d) {
                                 return Idv.months.indexOf(d.key);
                             });
                             break;
                         case "value":
-                            config.chart.ordering(function(d) {
+                            config.chart.ordering(function (d) {
                                 return -d.value;
                             });
                             break;
                     }
-                    
-                    
+
+
 
                     if (config.cap) config.chart.cap(config.cap);
                     break;
             }
-            
-            if (!_.isUndefined(config.xaxis)) { config.chart.xAxisLabel(config.xaxis);  }
-            if (!_.isUndefined(config.yaxis)) { config.chart.yAxisLabel(config.yaxis);  }
-            
-            config.chart.on("filtered", (chart, filter)=>{
-                    this.triggerFilter(config);     
+
+            if (!_.isUndefined(config.xaxis)) { config.chart.xAxisLabel(config.xaxis); }
+            if (!_.isUndefined(config.yaxis)) { config.chart.yAxisLabel(config.yaxis); }
+
+            config.chart.on("filtered", (chart, filter) => {
+                this.triggerFilter(config);
             })
-            
-            if (config.stat === "average")
-                    {
-                        config.chart.valueAccessor(function(d) {
-                            return d.value.avg;
-                        })
-                    }
+
+            if (config.stat === "average") {
+                config.chart.valueAccessor(function (d) {
+                    return d.value.avg;
+                })
+            }
 
 
             console.log("Add chart " + config.title);
         }
-        
-        private triggerFilter(config)
-        {             
-                var res = config.dimension.top(Infinity);
-                 this.config.charts.forEach(c=> {
-                     if (!_.isUndefined(c.filtered) && _.isFunction(c.filtered)){
-                         c.filtered(res);
-                     } 
-                    //this.addChart(c)
-                });        
-        }        
-                
-        private createGridsterItem(config: Idv.ChartConfig)
-        {
-            var html = "<li style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
-            html+="<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li><li class='dropdown-item'><a ng-click=\"exportCsv('')\"'>export</a></li>"; 
-            html+="</ul>" + config.title + "</header><div id='" + config.elementId + "' ></li>";   
-            (<any>this.scope).resetFilter = (id)=>{
-                this.reset(id);                                
-            }
-            (<any>this.scope).resetAll = ()=>{
-                this.resetAll();                                
-            }
-            (<any>this.scope).exportCsv = ()=>{
-                this.exportCsv();                                
-            }
-            
-            
-            (<any>this.scope).disableFilter = (id)=>{
-                var c = _.findWhere(this.config.charts, { id : id});
-                if (!_.isUndefined(c))
-                {
-                    c.enabled = false;
-                    this.updateCharts();                    
-                }                
-            }
-            var w = this.layerService.$compile(html)(this.scope);
-            this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
+
+        private triggerFilter(config) {
+            var res = config.dimension.top(Infinity);
+            this.config.charts.forEach(c => {
+                if (!_.isUndefined(c.filtered) && _.isFunction(c.filtered)) {
+                    c.filtered(res);
+                }
+                //this.addChart(c)
+            });
         }
 
-        
+        private createGridsterItem(config: Idv.ChartConfig) {
+            var html = "<li style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
+            html += "<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li><li class='dropdown-item'><a ng-click=\"exportCsv('')\"'>export</a></li>";
+            html += "</ul>" + config.title + "</header><div id='" + config.elementId + "' ></li>";
+            (<any>this.scope).resetFilter = (id) => {
+                this.reset(id);
+            }
+            (<any>this.scope).resetAll = () => {
+                this.resetAll();
+            }
+            (<any>this.scope).exportCsv = () => {
+                this.exportCsv();
+            }
+
+
+            (<any>this.scope).disableFilter = (id) => {
+                var c = _.findWhere(this.config.charts, { id: id });
+                if (!_.isUndefined(c)) {
+                    c.enabled = false;
+                    this.updateCharts();
+                }
+            }
+            var w = this.layerService.$compile(html)(this.scope);
+            this.gridster.add_widget(w, config.width, config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
+        }
+
+
         public addChart(config: Idv.ChartConfig) {
-            
+
             if (typeof config.enabled === 'undefined') config.enabled = true;
-            
+
             if (!config.enabled) return;
 
             if (!config.id) config.id = csComp.Helpers.getGuid();
             if (!config.containerId) config.containerId = this.config.containerId;
             config.elementId = "ddchart-" + config.id;
-            if (!config.title) config.title = config.property;             
+            if (!config.title) config.title = config.property;
             if (!config.type) config.type = "row";
-            
-            switch (config.type)
-            {
+
+            switch (config.type) {
                 case "search":
                     this.addSearchWidget(config);
                     break;
@@ -880,11 +862,11 @@ declare var saveAs;
                 case "sumcompare":
                     this.addSumCompare(config);
                     break;
-                    
+
                 default:
                     this.addChartItem(config);
-                break;
-            }            
+                    break;
+            }
         }
 
     }
