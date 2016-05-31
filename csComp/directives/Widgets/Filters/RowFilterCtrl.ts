@@ -100,7 +100,13 @@ module Filters {
             var group = filter.group;
             var divid = 'filter_' + filter.id;
 
-            this.dcChart = <any>dc.rowChart('#' + divid);
+            // Use the default dc-rowChart, unless a customRowChart is available
+            if ((<any>window).customRowChart) {
+                (<any>dc).customRowChart = (<any>window).customRowChart;
+                this.dcChart = (<any>dc).customRowChart('#' + divid);
+            } else {
+                this.dcChart = <any>dc.rowChart('#' + divid);
+            }
 
             this.$scope.$apply();
 
@@ -140,7 +146,7 @@ module Filters {
             var dcGroup = dcDim.group();
             
             // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
-            if (pt.legend) {
+            if (pt && pt.legend) {
                 var allEntries = [];
                 _.each(<any>pt.legend.legendEntries, (le: csComp.Services.LegendEntry) => { allEntries.push(le.label); });
                 var fakeNdx = crossfilter(allEntries);
@@ -183,8 +189,8 @@ module Filters {
                 })
                 .on('filtered', (e) => {
                     console.log('Filtered rowchart');
-                })
-                .xAxis().ticks(8);
+                });
+            this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
             this.updateRange();
             dc.renderAll();
