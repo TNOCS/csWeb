@@ -186,6 +186,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
                 description: 'Show reverse geocode info.'
             };
+            this.widgetTypes['filterstylewidget'] = <IWidget>{
+                id: 'filterstylewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
+                description: 'A widget combining legend, style and filter.'
+            };
         }
 
         public get search(): ISearch { return this._search; };
