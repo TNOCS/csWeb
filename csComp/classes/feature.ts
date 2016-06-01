@@ -189,6 +189,8 @@ module csComp.Services {
         maxValue?: number;
         /** always show in edit mode */
         alwaysEditable?: boolean;
+        /** show image inline in featureprops callout */
+        inlineImage?: boolean;
         defaultValue?: number;
         count?: number;
         calculation?: string;
