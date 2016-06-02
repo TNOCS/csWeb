@@ -4,12 +4,12 @@
         {
             list-style: none;
         }
-        
+
         .chart-list-item
         {
             margin-left: -20px
         }
-        
+
         .chart-list-title
         {
             font-weight: 600;
@@ -23,15 +23,17 @@
             <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button"  ng-click="vm.update()" />
         </div>
     </h4>
-    <div>
+    <div style="margin-top:30px;margin-left:10px">
+        <div class="btn btn-primary" ng-click="vm.export()">Export to CSV</div>
+        <div class="h2">Charts</div>
         <ul class="chart-list">
             <li class="chart-list-item" ng-repeat="c in vm.scan.config.charts">
                   <div class="checkbox checkbox-primary">
-                                <input id="cbchart{{c.id}}" type="checkbox" ng-model="c.enabled">                                
+                                <input id="cbchart{{c.id}}" type="checkbox" ng-model="c.enabled"> </input>
                                 <label class="chart-list-title" for="cbchart{{c.id}}">
                                     {{c.title}}
                                 </label>
-                
+
                 </div>
             </li>
         </ul>

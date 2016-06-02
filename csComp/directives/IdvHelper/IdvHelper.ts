@@ -46,6 +46,7 @@ module Idv {
     declare var saveAs;
     declare var gridster;
     declare var vg;
+    declare var domtoimage;
 
 
     export class Idv {
@@ -242,7 +243,7 @@ module Idv {
                                                 if (r) {
                                                     var v = r.value;
                                                     v.data.forEach(d => experiments.push(d));
-                                                    //r.advance(1);                                        
+                                                    //r.advance(1);
                                                     r.continue();
                                                 }
                                                 else {
@@ -356,13 +357,30 @@ module Idv {
             dc.renderAll();
         }
 
+        public savePng(title : string,elementId: string) {
+            domtoimage.toPng(document.querySelector('#' + elementId))
+                .then(function (image) {
+                    //image = image.replace('image/png;base64', '');
+                    csComp.Helpers.saveImage(image,title,"png");
+
+                    // var img = new Image();
+                    // img.src = dataUrl;
+                    // document.body.appendChild(img);
+                })
+                .catch(function (error) {
+                    this.layerService.$messageBusService.notify("Error saving chart","When saving charts, only the latest version of chrome is supported");
+
+                });
+        }
+
         public exportCsv() {
-            console.log('exporting..');
+            this.layerService.$messageBusService.notify("Export to CSV", "Export started, your download will start in a little while");
             var data = this.config.charts[0].dimension.filterAll().top(Infinity);
             var res = d3.csv.format(data);
             var blob = new Blob([res], { type: "text/plain;charset=utf-8" });
-            saveAs(blob, "export.csv");
-            //csComp.Helpers.saveData(res, "export.csv", 'csv');            
+
+            saveAs(blob, this.config.title + "_export.csv");
+            //csComp.Helpers.saveData(res, "export.csv", 'csv');
 
         }
 
@@ -400,7 +418,7 @@ module Idv {
 
             });
             var all = this.ndx.groupAll();
-            (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
+            (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()
         }
 
         public addSumCompare(config: Idv.ChartConfig) {
@@ -647,8 +665,8 @@ module Idv {
                             return "";
                         })
                         .size(1000)
-                        .columns(c);                                            
-                        
+                        .columns(c);
+
 
                     break;
                 case "time":
@@ -814,8 +832,9 @@ module Idv {
         }
 
         private createGridsterItem(config: Idv.ChartConfig) {
-            var html = "<li style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
-            html += "<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li><li class='dropdown-item'><a ng-click=\"exportCsv('')\"'>export</a></li>";
+
+            var html = "<li id='li" + config.id + "'  style='padding:4px'><header class='chart-title'><div class='fa fa-ellipsis-v dropdown-toggle' data-toggle='dropdown'  style='float:right;cursor:pointer' type='button'></div>";
+            html += "<ul class='dropdown-menu pull-right'><li class='dropdown-item'><a ng-click=\"resetFilter('" + config.id + "')\"'>reset filter</a></li><li class='dropdown-item'><a ng-click=\"resetAll()\">reset all filters</a></li><li class='dropdown-item'><a ng-click=\"disableFilter('" + config.id + "')\">disable filter</a></li><li class='dropdown-item'><a ng-click=\"savePng('" + config.title + "','" + config.elementId + "')\"'>save image</a></li>";
             html += "</ul>" + config.title + "</header><div id='" + config.elementId + "' ></li>";
             (<any>this.scope).resetFilter = (id) => {
                 this.reset(id);
@@ -823,8 +842,8 @@ module Idv {
             (<any>this.scope).resetAll = () => {
                 this.resetAll();
             }
-            (<any>this.scope).exportCsv = () => {
-                this.exportCsv();
+            (<any>this.scope).savePng = (title,elementId) => {
+                this.savePng(title,elementId);
             }
 
 
