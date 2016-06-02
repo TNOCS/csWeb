@@ -62,7 +62,7 @@ module csComp.Services {
         startDashboardId: string;
 
         public visual: VisualState = new VisualState();
-        throttleSensorDataUpdate: Function = () => {};
+        throttleSensorDataUpdate: Function = () => { };
 
         static $inject = [
             '$location',
@@ -219,6 +219,8 @@ module csComp.Services {
 
                 var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
+                var range = (this.timeline.range.end - this.timeline.range.start);
+
 
                 var link = layer.sensorLink.kpiUrl;
                 if (!this.project.activeDashboard.isLive) {
@@ -256,6 +258,11 @@ module csComp.Services {
             if (layer.sensorLink) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
+                var range = (this.timeline.range.end - this.timeline.range.start)
+                layer.sensorLink._outOfRange = layer._gui.outOfRange = (!this.project.activeDashboard.isLive && range > layer.sensorLink.zoomMaxTimeline);
+
+                if (layer.sensorLink._outOfRange) return;
+
                 var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
@@ -325,8 +332,9 @@ module csComp.Services {
                         layer._gui["loadingSensorLink"] = false;
                         console.log('error loading sensor data');
                     });
+                    this.updateLayerKpiLink(layer);
             }
-            this.updateLayerKpiLink(layer);
+
         }
 
 
@@ -1767,6 +1775,7 @@ module csComp.Services {
             gs.group = group;
             if (property.legend) {
                 gs.activeLegend = property.legend;
+                if (gs.activeLegend.visualAspect) gs.visualAspect = gs.activeLegend.visualAspect;
             } else {
                 gs.colors = ['white', '#FF5500'];
             }
@@ -2456,10 +2465,7 @@ module csComp.Services {
                         this.parseProject(prj, solutionProject, layerIds);
 
                         this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, this.project.timeLine.updateDelay);
-
-                        var delayFocusChange = _.debounce((date) => {
-                            this.refreshActiveLayers();
-                        }, this.project.timeLine.updateDelay);
+                        var delayFocusChange = _.debounce((date) => { this.refreshActiveLayers(); }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
                     })
                     .error(() => {
@@ -2704,7 +2710,7 @@ module csComp.Services {
                                             if (r) {
                                                 this.openProject(solutionProject, null, project);
                                             }
-                                        });
+                                        }, false);
                                         // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
                                         //     this.openProject(solutionProject, null, project);
                                         // });
@@ -3191,7 +3197,7 @@ module csComp.Services {
 
         /** Create a new feature and save it to the server. */
         createFeature(feature: Feature, layer: ProjectLayer) {
-            if (!layer.isDynamic) return;
+            if (!layer || !layer.isDynamic || !layer.data || !layer.data.features) return;
             layer.data.features.push(feature);
             this.initFeature(feature, layer);
             this.activeMapRenderer.addFeature(feature);

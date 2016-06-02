@@ -10,6 +10,10 @@ module csComp.Services {
         kpiUrl? : string;
         /** interval for live link (15m, 1h, 24h, etc) */
         liveInterval? : string;
+        /** maximum timeline zoom level */
+        zoomMaxTimeline? : number;
+
+        _outOfRange? : boolean;
     }
 
     /** Interface of a project layer
