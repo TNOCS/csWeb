@@ -2853,6 +2853,9 @@ module csComp.Services {
                         data.messageBus = this.$messageBusService;
                         this.addActionService(new OpenCageDataSearchAction(this.$http, searchProvider.key, searchProvider.url, data));
                         break;
+                    case 'esribagsearch':
+                        this.addActionService(new EsriBagSearchAction(this.$http, searchProvider.key, searchProvider.url, searchProvider.data));
+                        break;
                 }
             });
         }

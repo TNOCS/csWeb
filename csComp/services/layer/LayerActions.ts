@@ -206,11 +206,17 @@ module csComp.Services {
 
                     if (inp.length > 0) {
                         f._gui["searchString"] = inp.join(' ');
+                        f._gui["title"] = title;
                     }
                 }
-                if (f._gui.hasOwnProperty('searchString')) {
-                    var score = f._gui['searchString'].score(query.query, null);
-                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: title });
+                if (f._gui.hasOwnProperty('searchString') && f._gui.hasOwnProperty('title')) {
+                    var score;
+                    if (query.query.toLowerCase() === f._gui['title'].toLowerCase()) {
+                        score = 1;
+                    } else {
+                        score = f._gui['searchString'].score(query.query, null);
+                    }
+                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: f._gui['title'] });
                 }
             });
         temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {

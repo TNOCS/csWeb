@@ -260,8 +260,9 @@ module DataTable {
                         }
                     }
                 }
+                var isAdmin: boolean = this.$layerService.$mapService.isAdminExpert;
                 mis.forEach(mi => {
-                    if ((mi.visibleInCallOut || mi.label === 'Name') && titles.indexOf(mi.title) < 0) {
+                    if ((mi.visibleInCallOut || mi.label === 'Name' || isAdmin) && titles.indexOf(mi.title) < 0) {
                         titles.push(mi.title);
                         this.propertyTypes.push(mi);
                     }
@@ -424,7 +425,7 @@ module DataTable {
             csvRows.push(this.headers.join(';'));
 
             for (var i = 0; i < this.rows.length; i++) {
-                csvRows.push(this.rows[i].map((f) => { return f.originalValue; }).join(';'));
+                csvRows.push(this.rows[i].map((f) => { return f.displayValue; }).join(';'));
             }
 
             var csvString = csvRows.join('\r\n');

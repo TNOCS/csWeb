@@ -65,7 +65,7 @@ module FilterStyleWidget {
 
             this.mBusHandles.push(this.$messageBus.subscribe('layer', (title, l: csComp.Services.ProjectLayer) => {
                 if (title === 'activated') {
-                    if ($scope.filter) {
+                    if ($scope.filter && $scope.filter.group) {
                         this.updateChart();
                     }
                 }
@@ -155,6 +155,7 @@ module FilterStyleWidget {
         }
 
         private updateRowFilterScope(gf: csComp.Services.GroupFilter) {
+            if (!gf) return;
             var rowFilterElm = angular.element($("#filter_" + this.widget.id));
             if (!rowFilterElm) {
                 console.log('rowFilterElm not found.');

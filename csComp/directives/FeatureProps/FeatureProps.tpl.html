@@ -126,7 +126,8 @@
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div style="cursor:pointer" ng-click="vm.openImage(media)" ng-repeat="media in item.feature.properties[item.property] track by $index">
-                                                <img ng-src="{{media}}" style="width:300px;float:left;margin:5px">
+                                                <img ng-hide="item.propertyType.inlineImage" ng-src="{{media}}" style="width:300px;float:left;margin:5px">
+                                                <img ng-show="item.propertyType.inlineImage" ng-src="{{media}}" class="feature-prop-value-align-right">
                                             </div>
                                         </div>
                                         <div ng-switch-default class="feature-prop-value-align-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>

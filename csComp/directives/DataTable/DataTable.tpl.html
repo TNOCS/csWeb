@@ -14,7 +14,7 @@
                 </li>
                 <!-- PropertyTypes -->
                 <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
-                    <label>
+                    <label ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}">
                         <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1" data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
                     </label>
                     <!--<div class="checkbox">
