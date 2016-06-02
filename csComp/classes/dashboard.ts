@@ -57,6 +57,7 @@ module csComp.Services {
         right?: string;
         top?: string;
         bottom?: string;
+        padding? : string;
 
         icon?: string;
         /** When true, hide the widget. */
@@ -157,6 +158,7 @@ module csComp.Services {
                 right: w.right,
                 top: w.top,
                 bottom: w.bottom,
+                padding: w.padding,
                 width: w.width,
                 height: w.height,
                 allowFullscreen: w.allowFullscreen,
@@ -322,7 +324,7 @@ module csComp.Services {
             setTimeout(() => {
                 //if (w != null) w.renderer(this.$compile, this.$rootScope);
                 this.updateWidget(widget);
-      
+
             }, 50);*/
             //this.editWidget(w);
             return widget;
