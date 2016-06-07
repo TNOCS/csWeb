@@ -367,6 +367,7 @@ module csComp.Services {
                 hide: true
             };
             if (typeof duration != 'undefined') opts['delay'] = duration;
+            if (notifyType != NotifyType.Normal) opts['type'] = NotifyType[notifyType].toLowerCase();
 
             var PNot = new PNotify(opts);
             this.notifications.push(PNot);
