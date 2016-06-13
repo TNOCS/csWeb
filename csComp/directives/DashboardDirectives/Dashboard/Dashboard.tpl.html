@@ -23,10 +23,10 @@
         }
     </style>
     <div style="position:relative;width:100%; height:100%">
-        <img ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
+        <img id="dashboard-background" ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
         <ul style="padding:0;height:100%" id="dashboardwidgets">
-            <li ng-repeat="widget in dashboard.widgets" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"  ng-class="{widgethover : widget.hover}" ng-show="!(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">  
-                <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-class="{widgetShadow : widget.effectiveStyle.shadow === true}" ng-hide="widget.collapse" style="position:absolute"" ng-style="{'background' : widget.effectiveStyle.background,'border-color':widget.effectiveStyle.borderColor,'top':widget.top,'bottom':widget.bottom,'left':widget.left,'right':widget.right,'border-width':widget.effectiveStyle.borderWidth,'border-radius':widget.effectiveStyle.borderRadius,'width':widget.width,'height':widget.height,'opacity' : widget.effectiveStyle.opacity}">
+            <li ng-repeat="widget in dashboard.widgets" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"  ng-class="{widgethover : widget.hover}" ng-show="!(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
+                <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-class="{widgetShadow : widget.effectiveStyle.shadow === true}" ng-hide="widget.collapse" style="position:absolute"" ng-style="{'background' : widget.effectiveStyle.background,'border-color':widget.effectiveStyle.borderColor,'top':widget.top,'bottom':widget.bottom,'left':widget.left,'right':widget.right,'border-width':widget.effectiveStyle.borderWidth,'border-radius':widget.effectiveStyle.borderRadius,'width':widget.width,'height':widget.height,'opacity' : widget.effectiveStyle.opacity,'padding':widget.padding}">
                     <div ng-show="widget._interaction" style="position:absolute;width:100%;height:100%">
                         <div ng-show="widget.left" class="fa fa-chevron-left" style="color:blue;left:-5px;top:50%;position:absolute"></div>
                         <div ng-show="widget.right" class="fa fa-chevron-right" style="color:blue;right:0px;top:50%;position:absolute"></div>

@@ -176,7 +176,8 @@ module LegendList {
             // Loop over all features on the map
             this.layerService.project.features.forEach((f) => {
                 if (!f._gui.included) return;
-                if (this.bbox && !this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
+                var bounds = csComp.Helpers.GeoExtensions.getFeatureBounds(f);
+                if (this.bbox && bounds && !this.bbox.contains(bounds)) return;
                 var ft: csComp.Services.IFeatureType = f.fType;
                 if (!ft) ft = this.layerService.getFeatureType(f);
                 if (!ft || processedFeatureTypes.hasOwnProperty(ft.name)) return;

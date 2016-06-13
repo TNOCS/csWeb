@@ -161,12 +161,13 @@ module Mca.Models {
         /**
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function,
          * which translates a property value to a MCA value in the range [0,1] using all features.
+         * The 'force' parameter forces the PLA to be updated.
          */
-        updatePla(features: IFeature[]) {
-            if (this.isPlaUpdated) { return; }
+        updatePla(features: IFeature[], force: boolean = false) {
+            if (this.isPlaUpdated && !force) { return; }
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => {
-                    c.updatePla(features);
+                    c.updatePla(features, force);
                 });
                 this.isPlaUpdated = true;
                 return;
@@ -216,6 +217,8 @@ module Mca.Models {
             if (pla.length % 2 !== 0) {
                 throw Error(this.label + ' does not have an even (x,y) pair in scores.');
             }
+            this._x.length = 0;
+            this._y.length = 0;
             for (var i = 0; i < pla.length / 2; i++) {
                 var x = parseFloat(pla[2 * i]);
                 if (this.isPlaScaled) {
@@ -266,6 +269,7 @@ module Mca.Models {
                         }
                     }
                 } else {
+                    // If the feature does not have a value for the selected property, return zero.                    
                     return 0;
                 }
             } else {

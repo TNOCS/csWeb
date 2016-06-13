@@ -5,6 +5,8 @@ module Timeline {
         vm: TimelineCtrl;
         numberOfItems: number;
         timeline: any;
+        datePickerOptions: any;
+        datePickerDate : Date;
     }
 
     /** Interface for the timeline configuration, may be part of the {csComp.Services.IFeatureType} or {csComp.Services.IProjectLayer}. */
@@ -87,14 +89,15 @@ module Timeline {
         public line2: string;
         public startDate: Date;
         public endDate: Date;
-        public expanded: boolean = false;
         public timer: any;
         public isPlaying: boolean;
         public showControl: boolean;
         public isPinned: boolean = true;
+        public activeDateRange: csComp.Services.DateRange;
 
         public options: any;
         public expandButtonBottom = 52;
+        public datePickerBottom = 120;
         public items = new vis.DataSet();
         private debounceUpdate: Function;
         private debounceSetItems: Function;
@@ -123,11 +126,29 @@ module Timeline {
 
             this.debounceUpdate = _.debounce(this.updateFeatures, 500);
             this.debounceSetItems = _.debounce((items) => { this.addItems(items); }, 500);
+            
+            $scope.$watch("datePickerDate",(d : string)=>{
+                if (typeof d !== 'undefined')
+                {
+                    var date = new Date(d);                
+                    this.updateTimeline(date,new Date(date.getTime() + 1000 * 60 * 60 * 24));
+                }
+            })
 
             $scope.vm = this;
 
+            $scope.datePickerOptions = {
+                customClass: this.getDayClass,
+                minDate: new Date(2015,1,1),
+                maxDate: new Date()
+                
+            };
+
             this.$messageBusService.subscribe('dashboard-main', (s: string, data: any) => {
-                if (s === 'activated') this.updatePanelHeights();
+                if (s === 'activated') {
+                    this.updatePanelHeights();
+                    this.updateTimelineHeight();
+                }
             });
 
             this.$messageBusService.subscribe('project', (s: string, data: any) => {
@@ -135,16 +156,16 @@ module Timeline {
                     this.$scope.timeline.setItems(this.timelineItems);
                     this.$scope.timeline.setGroups(this.timelineGroups);
                     // set min/max zoom levels if available
-                    if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
-                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMax)) this.$scope.timeline.options['zoomMax'] = this.$layerService.project.timeLine.zoomMax;
-                        if (!_.isUndefined(this.$layerService.project.timeLine.zoomMin)) this.$scope.timeline.options['zoomMin'] = this.$layerService.project.timeLine.zoomMin;
+                    if (this.activeDateRange !== null) {
+                        if (!_.isUndefined(this.activeDateRange.zoomMax)) this.$scope.timeline.options['zoomMax'] = this.activeDateRange.zoomMax;
+                        if (!_.isUndefined(this.activeDateRange.zoomMin)) this.$scope.timeline.options['zoomMin'] = this.activeDateRange.zoomMin;
                     }
 
                     this.updateFocusTime();
                     this.updateDragging();
                     this.myTimer();
 
-                    if (this.$layerService.project.timeLine.isLive) this.goLive();
+                    if (this.activeDateRange && this.activeDateRange.isLive) this.goLive();
                 }, 0);
             });
 
@@ -182,6 +203,32 @@ module Timeline {
                         break;
                 }
             });
+        }
+        
+             public updateTimeline(start : Date, end : Date)
+        {
+            var d = this.$layerService.project.activeDashboard;
+            if (d.showTimeline && (d.timeline || this.$layerService.project.timeLine)) {
+                //console.log('checkTimeline: dashboard has timeline');
+                var t = (d.timeline) ? d.timeline : this.$layerService.project.timeLine;
+
+                t.start = start.getTime();
+                t.end = end.getTime();
+                
+                this.$messageBusService.publish('timeline', 'updateTimerange', t);
+            }
+        }
+
+        private getDayClass(data) {
+            var date = data.date,
+                mode = data.mode;
+            if (mode === 'day') {
+                var dayToCheck = new Date(date).setHours(0, 0, 0, 0);
+
+
+            }
+
+            return '';
         }
 
         /** Check whether the layer contains timeline items, and if so, add them to the timeline. */
@@ -341,9 +388,9 @@ module Timeline {
             this.$layerService.timeline.redraw();
 
 
-            if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
-                this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
-                if (this.$layerService.project.timeLine.isLive) this.goLive();
+            if (this.$layerService.project && this.activeDateRange !== null) {
+                this.$scope.timeline.setWindow(this.activeDateRange.start, this.activeDateRange.end);
+                if (this.activeDateRange && this.activeDateRange.isLive) this.goLive();
             }
             this.updateDragging();
             this.updateFocusTime();
@@ -363,9 +410,14 @@ module Timeline {
             this.$scope.timeline.addEventListener('rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
             //this.addEventListener('featureschanged', _.throttle((prop) => this.updateFeatures(), 200));
         }
+        
+        public selectDate()
+        {
+            
+        }
 
         public updateDragging() {
-            if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
+            if (this.activeDateRange && this.activeDateRange.isLive) {
                 (<any>$('#focustimeContainer')).draggable('disable');
             } else {
                 (<any>$('#focustimeContainer')).draggable({
@@ -378,19 +430,32 @@ module Timeline {
         }
 
         public expandToggle() {
-            this.expanded = !this.expanded;
+
+            this.activeDateRange.isExpanded = !this.activeDateRange.isExpanded;
+
+
+            this.updateTimelineHeight();
             //    this.options.margin = {};
             //    this.options.margin['item'] = (this.expanded) ? 65 : 0;
-            this.options.height = (this.expanded) ? this.$layerService.project.timeLine.expandHeight : 54;
-            this.expandButtonBottom = (this.expanded) ? this.$layerService.project.timeLine.expandHeight - 1 : 52;
-            this.$layerService.timeline.setOptions(this.options);
-            this.$layerService.timeline.redraw();
+
             this.updatePanelHeights();
 
         }
 
-        public updatePanelHeights() {
-            var height = (this.expanded) ? this.$layerService.project.timeLine.expandHeight : 54;
+        private updateTimelineHeight() {
+            this.options.height = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight : 54;
+            this.expandButtonBottom = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight - 1 : 52;
+            this.datePickerBottom = this.expandButtonBottom + 170;
+            this.$layerService.timeline.setOptions(this.options);
+            this.$layerService.timeline.redraw();
+
+        }
+
+        private updatePanelHeights() {
+
+            this.activeDateRange = (this.$layerService.project.activeDashboard.timeline) ? this.$layerService.project.activeDashboard.timeline : this.$layerService.project.timeLine;
+
+            var height = (this.activeDateRange.isExpanded && this.$layerService.project.activeDashboard.showTimeline) ? this.activeDateRange.expandHeight : 54;
             $('.leftpanel-container').css('bottom', height + 20);
             $('.rightpanel').css('bottom', height);
         }
@@ -421,9 +486,9 @@ module Timeline {
 
         public goLive() {
             this.stop();
-            this.$layerService.project.timeLine.isLive = true;
+            this.activeDateRange.isLive = true;
             this.isPlaying = false;
-            if (this.$layerService.project.timeLine.isLive) {
+            if (this.activeDateRange.isLive) {
                 this.myTimer();
                 this.start();
             }
@@ -431,16 +496,16 @@ module Timeline {
         }
 
         public stopLive() {
-            if (!this.$layerService.project) return;
+            if (!this.activeDateRange) return;
             this.stop();
-            this.$layerService.project.timeLine.isLive = false;
+            this.activeDateRange.isLive = false;
             this.isPlaying = false;
             this.updateDragging();
         }
 
         public myTimer() {
             var tl = this.$scope.timeline;
-            if (this.$layerService.project.timeLine.isLive) {
+            if (this.activeDateRange.isLive) {
                 var pos = tl._toScreen(new Date());
                 $('#focustimeContainer').css('left', pos - 65);
                 if (this.isPinned)
@@ -486,6 +551,10 @@ module Timeline {
             if (this.timer) clearInterval(this.timer);
         }
 
+        public timelineSelect() {
+
+        }
+
         public updateFocusTimeContainer(time: Date) {
             this.$scope.timeline.moveTo(time);
             this.$scope.timeline.redraw();
@@ -511,7 +580,7 @@ module Timeline {
                 //tl.calcConversionFactor();
                 var pos = $('#focustimeContainer').position().left + $('#focustimeContainer').width() / 2;
 
-                if (this.$layerService.project.timeLine.isLive) {
+                if (this.activeDateRange.isLive) {
                     this.focusDate = new Date();
                 } else {
                     this.focusDate = new Date(this.$scope.timeline._toTime(pos));
@@ -520,12 +589,13 @@ module Timeline {
                 this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
                 this.endDate = range.end; //new Date(this.$scope.timeline.screenToTime(end));
 
-                if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
-                    var projecttime = this.$layerService.project.timeLine;
-                    projecttime.setFocus(this.focusDate, this.startDate, this.endDate);
+                if (this.activeDateRange != null) {
+
+                    this.activeDateRange.setFocus(this.focusDate, this.startDate, this.endDate);
+                    this.$layerService.project.timeLine.setFocus(this.focusDate, this.startDate, this.endDate);
                     var month = (<any>this.focusDate).toLocaleString(this.locale, { month: 'long' });
 
-                    switch (projecttime.zoomLevelName) {
+                    switch (this.activeDateRange.zoomLevelName) {
                         case 'decades':
                             this.line1 = this.focusDate.getFullYear().toString();
                             this.line2 = '';

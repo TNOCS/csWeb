@@ -106,6 +106,7 @@ module csComp.Services {
                 }
             });
         }
+        
 
         private mapClicked(e: L.LeafletMouseEvent) {
             if (this.$messageBusService) this.$messageBusService.publish('geocoding', 'reverselookup', e.latlng);
@@ -208,6 +209,14 @@ module csComp.Services {
             } catch (e) {
                 console.log('error zooming to feature');
             }
+        }
+        
+        zoomIn() {
+            this.map.zoomIn();
+        }
+        
+        zoomOut() {
+            this.map.zoomOut();
         }
 
         //private getCentroid(arr) {

@@ -230,24 +230,25 @@ module Dashboard {
                     this.$scope.$root.$apply();
                 }
             }
-            if (d.showTimeline && d.timeline) {
+            if (d.showTimeline && (d.timeline || this.project.timeLine)) {
                 //console.log('checkTimeline: dashboard has timeline');
+                var t = (d.timeline) ? d.timeline : this.project.timeLine;
 
-                if (!_.isUndefined(d.timeline.fixedRange)) {
-                    switch (d.timeline.fixedRange) {
+                if (!_.isUndefined(t.fixedRange)) {
+                    switch (t.fixedRange) {
                         case '24h' :
-                            d.timeline.end = Date.now();
-                            d.timeline.start = Date.now() - 1000 * 60 * 24;
+                            t.end = Date.now();
+                            t.start = Date.now() - 1000 * 60 * 24;
                         break;
                     }
                 }
 
-                this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
+                this.$messageBusService.publish('timeline', 'updateTimerange', t);
 
                 // now move the focustimeContainer to the right position
-                if (d.timeline.focus && d.timeline.start && d.timeline.end &&
-                    (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
-                    var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
+                if (t.focus && t.start && t.end &&
+                    (t.focus > t.start) && (t.focus < t.end)) {
+                    var f = (t.focus - t.start) / (t.end - t.start);
                     //var w = $('#timeline').width();           // unfortunately, on the first call,
                     //the timeline has a width of 100 (not resized yet)
                     //var w = $('#timeline').parent().width();  // does not help: = 0 on first call
@@ -255,6 +256,12 @@ module Dashboard {
                     var newpos = f * w - $('#focustimeContainer').width() / 2;
                     $('#focustimeContainer').css('left', newpos);
                 }
+                
+                if (t.isExpanded)
+                {
+                    t.enableEvents = true;
+                }
+                
             }  // end RS mod
         }
 

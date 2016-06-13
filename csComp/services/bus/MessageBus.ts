@@ -222,6 +222,7 @@ module csComp.Services {
 
         private connections: { [id: string]: Connection } = {};
         private notifications: any[] = [];
+        private confirms: any[] = [];
 
         constructor(private $translate: ng.translate.ITranslateService) {
             PNotify.prototype.options.styling = 'fontawesome';
@@ -271,7 +272,8 @@ module csComp.Services {
             if (c == null) return null;
 
             var sub = c.subscribe(target, type, callback);
-            return new MessageBusHandle(sub.id, callback);
+            if (sub) return new MessageBusHandle(sub.id, callback);
+            return null;
         }
 
         public serverUnsubscribe(handle: MessageBusHandle, serverId: string = '') {
@@ -377,7 +379,7 @@ module csComp.Services {
             var c = [];
             // buttons.forEach(b=>{
             //     c.push({ text: c, addClass: "", promptTrigger: true, click: (notice, value) =>{ notice.remove(); notice.get().trigger("pnotify.confirm", [notice, value]); } })
-            // })            
+            // })
             var options = {
                 title: title,
                 text: text,
@@ -402,13 +404,13 @@ module csComp.Services {
             };
 
             var pn = new PNotify(options).get()
-                .on('pnotify.confirm', (notice,value) => { 
+                .on('pnotify.confirm', (notice,value) => {
                     callback("ok"); })
                 .on('pnotify.cancel', () => { callback(null); });
             return pn;
-            
-            
-            
+
+
+
         }
 
 		/**
@@ -417,7 +419,10 @@ module csComp.Services {
          * @text            : the contents of the notification
          * @callback        : the callback that will be called after the confirmation has been answered.
 		 */
-        public confirm(title: string, text: string, callback: (result: boolean) => any) : any {
+        public confirm(title: string, text: string, callback: (result: boolean) => any, allowDuplicate = true) : any {
+            if (!allowDuplicate && this.confirms && _.any(this.confirms,
+                (n) => { return (!n.options.closed && n.options.title === title && n.options.text === text ); })) return;
+
             var options = {
                 title: title,
                 text: text,
@@ -425,6 +430,7 @@ module csComp.Services {
                 width: "500px",
                 animation: "fade",
                 hide: false,
+                closed : false,
                 confirm: {
                     confirm: true
                 },
@@ -442,8 +448,12 @@ module csComp.Services {
             };
 
             var pn = new PNotify(options).get()
-                .on('pnotify.confirm', () => { callback(true); })
-                .on('pnotify.cancel', () => { callback(false); });
+                .on('pnotify.confirm', (n) => {
+                    options.closed = true;  callback(true); })
+                .on('pnotify.cancel', (n) => { options.closed = true; callback(false); });
+            pn.options = options;
+
+            this.confirms.push(pn);
             return pn;
         }
 

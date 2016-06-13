@@ -72,7 +72,7 @@ module Mca {
 
         constructor(
             private $scope: IMcaScope,
-            private $modal: any,
+            private $uibModal: ng.ui.bootstrap.IModalService,
             private $translate: ng.translate.ITranslateService,
             private $timeout: ng.ITimeoutService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
@@ -96,11 +96,7 @@ module Mca {
             messageBusService.subscribe('project', (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'loaded':
-                        this.expertMode = layerService.project != null
-                        && layerService.project.hasOwnProperty('userPrivileges')
-                        && layerService.project.userPrivileges.hasOwnProperty('mca')
-                        && layerService.project.userPrivileges.mca.hasOwnProperty('expertMode')
-                        && layerService.project.userPrivileges.mca.expertMode;
+                        this.expertMode = layerService.project != null && layerService.$mapService.isExpert;
 
                         if (typeof layerService.project.mcas === 'undefined' || layerService.project.mcas == null) {
                             layerService.project.mcas = [];
@@ -118,6 +114,8 @@ module Mca {
             });
 
             messageBusService.subscribe('feature', this.featureMessageReceived);
+            
+            messageBusService.subscribe('filters', this.filtersMessageReceived);
 
             $translate('MCA.DELETE_MSG').then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
@@ -231,7 +229,7 @@ module Mca {
         }
 
         private showMcaEditor(newMca: Models.Mca): void {
-            var modalInstance = this.$modal.open({
+            var modalInstance = this.$uibModal.open({
                 templateUrl: 'directives/MCA/McaEditorView.tpl.html',
                 controller: McaEditorCtrl,
                 resolve: {
@@ -324,6 +322,19 @@ module Mca {
                     this.showFeature = false;
                     this.selectedFeature = null;
                     this.drawChart();
+                    break;
+                default:
+                    //console.log(title);
+                    break;
+            }
+            this.scopeApply();
+        };
+        
+        public filtersMessageReceived = (title: string, groupId: string): void => {
+            if (!this.mca) return;
+            switch (title) {
+                case 'updated':
+                    this.updateMca(this.selectedCriterion || this.mca.criteria[0]);
                     break;
                 default:
                     //console.log(title);
@@ -520,13 +531,26 @@ module Mca {
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
                 this.addPropertyInfo(featureId, mca);
-                this.layerService.project.features.forEach((feature) => {
-                    if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
-                        this.features.push(feature);
+                // If a filterresult is active, calculate MCA over the filtered features.
+                // Else, use all active features.
+                this.layerService.project.groups.forEach((g) => { 
+                    if (g.filterResult && g.filterResult.length > 0) {
+                        g.filterResult.forEach((feature) => {
+                            if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                this.features.push(feature);
+                            }
+                        });
                     }
                 });
+                if (this.features.length === 0) {
+                    this.layerService.selectedFeatures.forEach((feature) => {
+                        if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                            this.features.push(feature);
+                        }
+                    });
+                }                
                 if (this.features.length === 0) { return; }
-                mca.updatePla(this.features);
+                mca.updatePla(this.features, true);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
                 var index = 0;
@@ -631,6 +655,7 @@ module Mca {
             if (this.groupStyle
                 && this.groupStyle.group != null
                 && this.groupStyle.group.styles != null
+                && this.groupStyle.group.styles.length > 0                
                 && this.groupStyle.group.styles.filter((s) => { return s.visualAspect === 'fillColor'; })[0].property === this.mca.label) {
                 this.layerService.updateStyle(this.groupStyle);
             } else {

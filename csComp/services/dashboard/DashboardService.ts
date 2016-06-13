@@ -74,6 +74,7 @@ module csComp.Services {
             this.dashboards['main'] = this.mainDashboard;
             this.touchMode = $localStorageService.get("touchmode");
 
+            this.chartGenerators['propertyBarChart'] = () => { return new csComp.Services.PropertyBarChartGenerator(this.$layerService,this);}
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
             this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService, this); }
             this.chartGenerators['kpi'] = () => { return new csComp.Services.layerKpiGenerator(this.$layerService, this); }
@@ -185,6 +186,11 @@ module csComp.Services {
                 id: 'locationwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
                 description: 'Show reverse geocode info.'
+            };
+            this.widgetTypes['filterstylewidget'] = <IWidget>{
+                id: 'filterstylewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
+                description: 'A widget combining legend, style and filter.'
             };
         }
 

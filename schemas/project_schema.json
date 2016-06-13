@@ -1,0 +1,600 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://jsonschema.net",
+    "type": "object",
+    "title": "Schema for csWeb-based projects.",
+    "description": "Projects based on the csWeb framework are very configurable. Most configuration is done in the project.json file, and this is the schema that belongs to it.",
+    "name": "/",
+    "properties": {
+        "id": {
+            "id": "http://jsonschema.net/id",
+            "type": "string",
+            "title": "Id of the project.",
+            "description": "The project id is used when the solution (website) has multiple projects, e.g. one for each user role.",
+            "name": "id",
+            "default": "csWeb"
+        },
+        "title": {
+            "id": "http://jsonschema.net/title",
+            "type": "string",
+            "description": "Title of the project as displayed in the navigation bar."
+        },
+        "logo": {
+            "id": "http://jsonschema.net/logo",
+            "type": "string",
+            "description": "The project logo as displayed in the navigation bar."
+        },
+        "url": {
+            "id": "http://jsonschema.net/url",
+            "type": "string",
+            "description": "(External) URL of the project as used in the navigation bar."
+        },
+        "isDynamic": {
+            "id": "http://jsonschema.net/isDynamic",
+            "type": "boolean",
+            "description": "When true, the project may be updated dynamically, i.e. receive notifications via Socket.io."
+        },
+        "timeLine": {
+            "id": "http://jsonschema.net/timeLine",
+            "type": "object",
+            "properties": {
+                "enableLive": {
+                    "id": "http://jsonschema.net/timeLine/enableLive",
+                    "type": "boolean"
+                },
+                "enablePlay": {
+                    "id": "http://jsonschema.net/timeLine/enablePlay",
+                    "type": "boolean",
+                    "description": "When true, add a play button to the timeline focus"
+                },
+                "enableEvents": {
+                    "id": "http://jsonschema.net/timeLine/enableEvents",
+                    "type": "boolean",
+                    "description": "When true, show events on the timeline."
+                },
+                "enableFocus": {
+                    "id": "http://jsonschema.net/timeLine/enableFocus",
+                    "type": "boolean"
+                },
+                "focus": {
+                    "id": "http://jsonschema.net/timeLine/focus",
+                    "type": "integer",
+                    "description": "Current focus time in JavaScript time ticks."
+                },
+                "start": {
+                    "id": "http://jsonschema.net/timeLine/start",
+                    "type": "integer",
+                    "description": "Start time of the timeline."
+                },
+                "end": {
+                    "id": "http://jsonschema.net/timeLine/end",
+                    "type": "integer",
+                    "description": "End time of the timeline."
+                },
+                "range": {
+                    "id": "http://jsonschema.net/timeLine/range",
+                    "type": "integer",
+                    "description": "Alternatively, specify the initial time range."
+                },
+                "zoomLevel": {
+                    "id": "http://jsonschema.net/timeLine/zoomLevel",
+                    "type": "integer"
+                },
+                "zoomLevelName": {
+                    "id": "http://jsonschema.net/timeLine/zoomLevelName",
+                    "type": "string"
+                },
+                "expandHeight": {
+                    "id": "http://jsonschema.net/timeLine/expandHeight",
+                    "type": "integer"
+                }
+            }
+        },
+        "mcas": {
+            "id": "http://jsonschema.net/mcas",
+            "type": "array",
+            "description": "Multi-Criteria Analysis specification",
+            "items": {
+                "id": "http://jsonschema.net/mcas/0",
+                "type": "object",
+                "properties": {
+                    "userWeight": {
+                        "id": "http://jsonschema.net/mcas/0/userWeight",
+                        "type": "integer",
+                        "description": "User specified weight (in rating)."
+                    },
+                    "criteria": {
+                        "id": "http://jsonschema.net/mcas/0/criteria",
+                        "type": "array",
+                        "items": [],
+                        "description": "List of criteria to use for the MCA"
+                    },
+                    "isPlaUpdated": {
+                        "id": "http://jsonschema.net/mcas/0/isPlaUpdated",
+                        "type": "boolean",
+                        "description": "Internal property: is the PLA (Piecewise-Linear Approximation) updated."
+                    },
+                    "isPlaScaled": {
+                        "id": "http://jsonschema.net/mcas/0/isPlaScaled",
+                        "type": "boolean",
+                        "description": "Internal property: Is the PLA scaled."
+                    },
+                    "id": {
+                        "id": "http://jsonschema.net/mcas/0/id",
+                        "type": "string"
+                    },
+                    "userWeightMax": {
+                        "id": "http://jsonschema.net/mcas/0/userWeightMax",
+                        "type": "integer",
+                        "description": "Max user weight (default 5)."
+                    },
+                    "featureIds": {
+                        "id": "http://jsonschema.net/mcas/0/featureIds",
+                        "type": "array",
+                        "description": "List of feature IDs to use.",
+                        "items": {
+                            "id": "http://jsonschema.net/mcas/0/featureIds/0",
+                            "type": "string"
+                        }
+                    },
+                    "stringFormat": {
+                        "id": "http://jsonschema.net/mcas/0/stringFormat",
+                        "type": "string",
+                        "description": "Similar to the string format used in .NET and in the property types."
+                    },
+                    "title": {
+                        "id": "http://jsonschema.net/mcas/0/title",
+                        "type": "string",
+                        "description": "Title to display"
+                    },
+                    "label": {
+                        "id": "http://jsonschema.net/mcas/0/label",
+                        "type": "string",
+                        "description": "Label to use for the new calculated property (starts with mca_)."
+                    },
+                    "weight": {
+                        "id": "http://jsonschema.net/mcas/0/weight",
+                        "type": "integer",
+                        "description": "Computed weight, based on specified user weight, but make sure that the sum of all weights is 1."
+                    }
+                }
+            }
+        },
+        "profile": {
+            "id": "http://jsonschema.net/profile",
+            "type": "object",
+            "properties": {
+                "authenticationMethod": {
+                    "id": "http://jsonschema.net/profile/authenticationMethod",
+                    "type": "integer"
+                }
+            }
+        },
+        "datasources": {
+            "id": "http://jsonschema.net/datasources",
+            "type": "null"
+        },
+        "dashboards": {
+            "id": "http://jsonschema.net/dashboards",
+            "type": "array",
+            "description": "Dashboards or tabs in the navigation menu, used to describe the separate views.",
+            "items": [{
+                "id": "http://jsonschema.net/dashboards/0",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "id": "http://jsonschema.net/dashboards/0/id",
+                        "type": "string"
+                    },
+                    "name": {
+                        "id": "http://jsonschema.net/dashboards/0/name",
+                        "type": "string",
+                        "description": "Name as displayed in the navbar."
+                    },
+                    "editMode": {
+                        "id": "http://jsonschema.net/dashboards/0/editMode",
+                        "type": "boolean"
+                    },
+                    "showMap": {
+                        "id": "http://jsonschema.net/dashboards/0/showMap",
+                        "type": "boolean",
+                        "description": "When true (default), show the map."
+                    },
+                    "mapWidth": {
+                        "id": "http://jsonschema.net/dashboards/0/mapWidth",
+                        "type": "string",
+                        "description": "Specify the width of the map."
+                    },
+                    "alignMapRight": {
+                        "id": "http://jsonschema.net/dashboards/0/alignMapRight",
+                        "type": "boolean",
+                        "description": "If false (default), align the map to the left."
+                    },
+                    "showTimeline": {
+                        "id": "http://jsonschema.net/dashboards/0/showTimeline",
+                        "type": "boolean",
+                        "description": "If true (default), show the timeline."
+                    },
+                    "showLeftmenu": {
+                        "id": "http://jsonschema.net/dashboards/0/showLeftmenu",
+                        "type": "boolean",
+                        "description": "If true (default), show the left menu when opening the dashboard."
+                    },
+                    "showLegend": {
+                        "id": "http://jsonschema.net/dashboards/0/showLegend",
+                        "type": "boolean",
+                        "description": "If true (default false), show a legend."
+                    },
+                    "showRightmenu": {
+                        "id": "http://jsonschema.net/dashboards/0/showRightmenu",
+                        "type": "boolean",
+                        "description": "If true (default false), show the right menu when opening the dashboard."
+                    },
+                    "showBackgroundImage": {
+                        "id": "http://jsonschema.net/dashboards/0/showBackgroundImage",
+                        "type": "boolean",
+                        "description": "If true (default false), show a background image (e.g. instead of the map)."
+                    },
+                    "visiblelayers": {
+                        "id": "http://jsonschema.net/dashboards/1/visiblelayers",
+                        "type": "array",
+                        "description": "List of layer IDs that should be visible when the dashboard is activated.",
+                        "items": {
+                            "id": "http://jsonschema.net/dashboards/1/visiblelayers/0",
+                            "type": "string"
+                        }
+                    },
+                    "widgets": {
+                        "id": "http://jsonschema.net/dashboards/0/widgets",
+                        "type": "array",
+                        "description": "Widgets display additional content, such as a legend, text (in markdown), grahps etc..",
+                        "items": {
+                            "id": "http://jsonschema.net/dashboards/0/widgets/0",
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/id",
+                                    "type": "string"
+                                },
+                                "directive": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/directive",
+                                    "type": "string",
+                                    "description": "Name of the widget (e.g. agenda, button, chart, etc.)."
+                                },
+                                "enabled": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/enabled",
+                                    "type": "boolean",
+                                    "description": "If true (default), the widget is enabled."
+                                },
+                                "style": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/style",
+                                    "type": "string"
+                                },
+                                "left": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/left",
+                                    "type": "string",
+                                    "description": "Distance in pixels to the left border."
+                                },
+                                "right": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/right",
+                                    "type": "string",
+                                    "description": "Distance in pixels to the right border."
+                                },
+                                "top": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/top",
+                                    "type": "string",
+                                    "description": "Distance in pixels to the top border."
+                                },
+                                "width": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/width",
+                                    "type": "string",
+                                    "description": "Width in pixels."
+                                },
+                                "data": {
+                                    "id": "http://jsonschema.net/dashboards/0/widgets/0/data",
+                                    "type": "object",
+                                    "description": "Widget-specific data.",
+                                    "properties": {
+                                        "layerGroup": {
+                                            "id": "http://jsonschema.net/dashboards/0/widgets/0/data/layerGroup",
+                                            "type": "string"
+                                        },
+                                        "buttons": {
+                                            "id": "http://jsonschema.net/dashboards/0/widgets/0/data/buttons",
+                                            "type": "array",
+                                            "items": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "mobile": {
+                        "id": "http://jsonschema.net/dashboards/0/mobile",
+                        "type": "boolean",
+                        "description": "If true (default false), also show on mobile."
+                    }
+                }
+            }]
+        },
+        "viewBounds": {
+            "id": "http://jsonschema.net/viewBounds",
+            "type": "object",
+            "description": "When loading the web app, zoom the map to within these bounds.",
+            "properties": {
+                "southWest": {
+                    "id": "http://jsonschema.net/viewBounds/southWest",
+                    "type": "array",
+                    "items": [{
+                        "id": "http://jsonschema.net/viewBounds/southWest/0",
+                        "type": "number"
+                    }, {
+                        "id": "http://jsonschema.net/viewBounds/southWest/1",
+                        "type": "number"
+                    }],
+                    "description": "Coordinates in latitude, longitude (WGS84)."
+                },
+                "northEast": {
+                    "id": "http://jsonschema.net/viewBounds/northEast",
+                    "type": "array",
+                    "items": [{
+                        "id": "http://jsonschema.net/viewBounds/northEast/0",
+                        "type": "number"
+                    }, {
+                        "id": "http://jsonschema.net/viewBounds/northEast/1",
+                        "type": "number"
+                    }],
+                    "description": "Coordinates in latitude, longitude (WGS84)."
+                }
+            }
+        },
+        "userPrivileges": {
+            "id": "http://jsonschema.net/userPrivileges",
+            "type": "object",
+            "properties": {
+                "mca": {
+                    "id": "http://jsonschema.net/userPrivileges/mca",
+                    "type": "object",
+                    "properties": {
+                        "expertMode": {
+                            "id": "http://jsonschema.net/userPrivileges/mca/expertMode",
+                            "type": "boolean",
+                            "description": "If true (default false), the user is allowed to create new MCA criteria."
+                        }
+                    }
+                }
+            }
+        },
+        "modeSelection": {
+            "id": "http://jsonschema.net/modeSelection",
+            "type": "boolean"
+        },
+        "expertMode": {
+            "id": "http://jsonschema.net/expertMode",
+            "type": "integer",
+            "description": "If true (default false), determines what the user sees (e.g. timeline is for experts)."
+        },
+        "groups": {
+            "id": "http://jsonschema.net/groups",
+            "type": "array",
+            "description": "Group the map layers: layers in a group share the filter and style property, and, if enabled, are clustered together.",
+            "items": [{
+                "id": "http://jsonschema.net/groups/0",
+                "type": "object",
+                "description": "Specify a group.",
+                "properties": {
+                    "id": {
+                        "id": "http://jsonschema.net/groups/0/id",
+                        "type": "string"
+                    },
+                    "oneLayerActive": {
+                        "id": "http://jsonschema.net/groups/3/oneLayerActive",
+                        "type": "boolean",
+                        "description": "If true (default false), you can only select one layer at a time (radio button instead of checkboxes). Typically used for layers that overlap each other."
+                    },
+                    "clustering": {
+                        "id": "http://jsonschema.net/groups/1/clustering",
+                        "type": "boolean",
+                        "description": "If true, clusters features at a specific zoom level (the clusterLevel)."
+                    },
+                    "clusterLevel": {
+                        "id": "http://jsonschema.net/groups/1/clusterLevel",
+                        "type": "integer",
+                        "description": "Cluster features starting at this zoom level, only applicable when clustering is true."
+                    },
+                    "languages": {
+                        "id": "http://jsonschema.net/groups/1/languages",
+                        "type": "object",
+                        "description": "For localization, specify the languages that you support",
+                        "properties": {
+                            "en": {
+                                "id": "http://jsonschema.net/groups/1/languages/en",
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "id": "http://jsonschema.net/groups/3/languages/en/title",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "id": "http://jsonschema.net/groups/1/languages/en/description",
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "nl": {
+                                "id": "http://jsonschema.net/groups/1/languages/nl",
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "id": "http://jsonschema.net/groups/3/languages/en/title",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "id": "http://jsonschema.net/groups/1/languages/nl/description",
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "title": {
+                        "id": "http://jsonschema.net/groups/0/title",
+                        "type": "string",
+                        "description": "Title of the group."
+                    },
+                    "layers": {
+                        "id": "http://jsonschema.net/groups/0/layers",
+                        "type": "array",
+                        "description": "Layers that are part of the group (and that share the filter, style and cluster settings).",
+                        "items": {
+                            "id": "http://jsonschema.net/groups/0/layers/0",
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/id",
+                                    "type": "string"
+                                },
+                                "title": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/title",
+                                    "type": "string",
+                                    "description": "Title of the layer."
+                                },
+                                "type": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/type",
+                                    "enum": ["geojson", "topojson", "dynamicgeojson", "editablegeojson", "grid", "database", "rss", "esrijson", "gpx", "vectortile", "hierarchy", "kml", "daynight", "heatmap"],
+                                    "description": "Source type, e.g. dynamicgeojson (is synched with a server), editablegeojson (is editable but not synched)."
+                                },
+                                "renderType": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/renderType",
+                                    "enum": ["geojson", "tilelayer", "wms", "gridlayer", "heatmap"],
+                                    "description": "Render type, i.e. how to render the map layer. Default is geojson."
+                                },
+                                "url": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/url",
+                                    "type": "string",
+                                    "description": "URL where to find the data."
+                                },
+                                "typeUrl": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/typeUrl",
+                                    "type": "string",
+                                    "description": "Resource type URL, i.e. where to find the description of the layer. A resource type describes for each feature the look-and-feel, e.g. icon, icon size, properties to show and their name and formatting."
+                                },
+                                "defaultFeatureType": {
+                                    "id": "http://jsonschema.net/groups/9/layers/3/defaultFeatureType",
+                                    "type": "string",
+                                    "description": "Specify the default feature type that we use (specified in the resource type/typeUrl). If none is given, we assume that the feature contains a property featureTypeId, which is the name of the feature type in resource type file."
+                                },
+                                "dataSourceParameters": {
+                                    "id": "http://jsonschema.net/groups/9/layers/3/dataSourceParameters",
+                                    "type": "object",
+                                    "description": "List of properties that is used to convert the data source."
+                                },
+                                "isDynamic": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/isDynamic",
+                                    "type": "boolean",
+                                    "description": "If true (default false), the layer can be updated externally (e.g. via MQTT or REST call to the API manager)"
+                                },
+                                "isEditable": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/isEditable",
+                                    "type": "boolean",
+                                    "description": "If true (default false), the layer can be edited."
+                                },
+                                "opacity": {
+                                    "id": "http://jsonschema.net/groups/1/layers/0/opacity",
+                                    "type": "integer",
+                                    "description": "Opacity of the layer between 0 (transparent) and 100 (opaque)."
+                                },
+                                "tags": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/tags",
+                                    "type": "string",
+                                    "description": "Rarely used, sometimes for describing a layer and filtering features (e.g. in the Kanban board)"
+                                },
+                                "timeAware": {
+                                    "id": "http://jsonschema.net/groups/0/layers/0/timeAware",
+                                    "type": "boolean",
+                                    "description": "If true, listen and recalculate the layer when the time changes. As this is an expensive operation, preferably only use it for layers with few features or turn it off."
+                                }
+                            }
+                        }
+                    }
+                }
+            }]
+        },
+        "layerDirectory": {
+            "id": "http://jsonschema.net/layerDirectory",
+            "type": "string"
+        },
+        "eventTab": {
+            "id": "http://jsonschema.net/eventTab",
+            "type": "boolean",
+            "description": "If true, show the event tab."
+        },
+        "searchProviders": {
+            "id": "http://jsonschema.net/searchProviders",
+            "type": "array",
+            "description": "Search providers to lookup addresses online.",
+            "items": {
+                "id": "http://jsonschema.net/searchProviders/0",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "id": "http://jsonschema.net/searchProviders/0/name",
+                        "type": "string"
+                    },
+                    "url": {
+                        "id": "http://jsonschema.net/searchProviders/0/url",
+                        "type": "string",
+                        "description": "URL of the search provider."
+                    },
+                    "key": {
+                        "id": "http://jsonschema.net/searchProviders/0/key",
+                        "type": "string",
+                        "description": "API key to use."
+                    },
+                    "data": {
+                        "id": "http://jsonschema.net/searchProviders/0/data",
+                        "type": "object",
+                        "description": "Additional properties to append to the query.",
+                        "properties": {
+                            "culture": {
+                                "id": "http://jsonschema.net/searchProviders/0/data/culture",
+                                "type": "string"
+                            },
+                            "userLocation": {
+                                "id": "http://jsonschema.net/searchProviders/0/data/userLocation",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "storage": {
+            "id": "http://jsonschema.net/storage",
+            "type": "string"
+        }
+    },
+    "required": [
+        "$schema",
+        "id",
+        "title",
+        "logo",
+        "url",
+        "isDynamic",
+        "timeLine",
+        "mcas",
+        "profile",
+        "datasources",
+        "dashboards",
+        "viewBounds",
+        "userPrivileges",
+        "modeSelection",
+        "expertMode",
+        "propertyTypeData",
+        "groups",
+        "layerDirectory",
+        "eventTab",
+        "searchProviders",
+        "storage"
+    ]
+}

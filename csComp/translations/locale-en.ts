@@ -3,8 +3,11 @@ module Translations {
         public static locale: ng.translate.ITranslationTable = {
             CANCEL_BTN: 'Cancel',
             OK_BTN: 'OK',
+            CLOSE: 'Close',
             FROM: 'from',
             TO: 'to',
+            ZOOM_IN: 'Zoom in',
+            ZOOM_OUT: 'Zoom out',
             ZOOM_LEVEL_LOW: 'Zoom level too low',
             ZOOM_IN_FOR_CONTOURS: 'Zoom in to show contours',
             NAVIGATE: {
@@ -189,7 +192,10 @@ module Translations {
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
             CLEAR_EVENTS: 'Clear event log',
-            SEARCH_PLACEHOLDER: 'Municipality, address, ...'
+            SEARCH_PLACEHOLDER: 'Municipality, address, ...',
+            SAVE_AS_IMAGE: 'Save as image',
+            SAVE_AS_PDF: 'Save as PDF',
+            ROW_CHART_HELP: 'Click one or multiple rows to apply a filter for the selected property.'
         };
     }
 }

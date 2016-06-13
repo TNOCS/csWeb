@@ -189,6 +189,8 @@ module csComp.Services {
         maxValue?: number;
         /** always show in edit mode */
         alwaysEditable?: boolean;
+        /** show image inline in featureprops callout */
+        inlineImage?: boolean;
         defaultValue?: number;
         count?: number;
         calculation?: string;
@@ -309,7 +311,11 @@ module csComp.Services {
         id?: string;
         name?: string;
         style?: IFeatureTypeStyle;
+        
         legendItems?: LegendList.ILegendItem[];
+        
+        /** default property/properties used for legends */
+        defaultLegendProperty? : string | string[];
         /** Optional expressions that are shown in the legend list. */
         legendExpr?: IPropertyType[];
         properties?: {};

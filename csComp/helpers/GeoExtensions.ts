@@ -22,14 +22,21 @@ module csComp.Helpers {
     export class GeoExtensions {
 
         static getFeatureBounds(feature: IFeature): L.LatLng[] | L.LatLngBounds {
-            if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
-            var geoType = feature.geometry.type || 'Point';
-            switch (geoType) {
-                case 'Point':
-                    return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
-                default:
-                    var bounds = d3.geo.bounds(feature);
-                    return new L.LatLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
+            try {
+                if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
+                var geoType = feature.geometry.type || 'Point';
+                if (!feature.geometry || !feature.geometry.coordinates || (feature.geometry.coordinates.length < 2 && feature.geometry.type.toLowerCase() === 'point')) return null;
+                switch (geoType) {
+                    case 'Point':
+                        return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
+                    default:
+                        var bounds = d3.geo.bounds(feature);
+                        if (bounds && bounds.length>1) return new L.LatLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
+                        return null;
+                }
+            }
+            catch (e) {
+                return null;
             }
         }
 
@@ -99,14 +106,64 @@ module csComp.Helpers {
             if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
             if (arr[0] instanceof Array) {
                 if (arr[0][0] instanceof Array) {
-                    arr = arr[0][0];
-                } else {
-                    arr = arr[0];
+                    if (arr[0][0][0] instanceof Array) {
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
+                    } else {
+                        arr = arr[0];
+                    }
                 }
             }
             // http://stackoverflow.com/questions/22796520/finding-the-center-of-leaflet-polygon
             var centroid = arr.reduce(function (x, y) {
                 return [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length];
+            }, [0, 0]);
+            return { type: 'Point', coordinates: centroid };
+        }
+        
+        /** Get the most northern coordinate of a polygon */
+        static getNorthmostCoordinate(arr): csComp.Services.IGeoJsonGeometry {
+            if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
+            if (arr[0] instanceof Array) {
+                if (arr[0][0] instanceof Array) {
+                    if (arr[0][0][0] instanceof Array) {
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
+                    } else {
+                        arr = arr[0];
+                    }
+                }
+            }
+            var centroid = arr.reduce(function (x, y) {
+                return (x[1] > y[1] ? [x[0], x[1]] : [y[0], y[1]]);
+            }, [0, 0]);
+            return { type: 'Point', coordinates: centroid };
+        }
+        
+        /** Get the most Eastern coordinate of a polygon */
+        static getEastmostCoordinate(arr): csComp.Services.IGeoJsonGeometry {
+            if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
+            if (arr[0] instanceof Array) {
+                if (arr[0][0] instanceof Array) {
+                    if (arr[0][0][0] instanceof Array) {
+                        var all = [];
+                        arr.forEach(function (part) {
+                            all = all.concat(part[0]);
+                        });
+                        arr = all;
+                    } else {
+                        arr = arr[0];
+                    }
+                }
+            }
+            var centroid = arr.reduce(function (x, y) {
+                return (x[0] > y[0] ? [x[0], x[1]] : [y[0], y[1]]);
             }, [0, 0]);
             return { type: 'Point', coordinates: centroid };
         }
