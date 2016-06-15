@@ -442,6 +442,11 @@
                         "type": "string",
                         "description": "Title of the group."
                     },
+                    "defaultLegendProperty": {
+                        "id": "http://jsonschema.net/groups/0/defaultLegendProperty",
+                        "type": "string",
+                        "description": "Supply the name of the property for which you wish to display a legend."
+                    },
                     "layers": {
                         "id": "http://jsonschema.net/groups/0/layers",
                         "type": "array",
