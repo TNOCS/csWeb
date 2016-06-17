@@ -10,6 +10,8 @@ module csComp.Services {
         kpiUrl? : string;
         /** interval for live link (15m, 1h, 24h, etc) */
         liveInterval? : string;
+        /** specify different interval for live KPI data (15m, 1h, 24h, etc) */
+        liveIntervalKPI? : string;
         /** maximum timeline zoom level */
         zoomMaxTimeline? : number;
 

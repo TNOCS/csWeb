@@ -227,13 +227,14 @@ module csComp.Services {
                     link += "?tbox=" + t.start + "," + t.end;
                 }
                 else {
-
-                    if (_.isUndefined(layer.sensorLink.liveInterval)) {
-                        link += "?tbox=1h";
+                    var interval = "1h";
+                    if (!_.isUndefined(layer.sensorLink.liveIntervalKPI)) {
+                        interval = layer.sensorLink.liveIntervalKPI;
                     }
-                    else {
-                        link += "?tbox=" + layer.sensorLink.liveInterval;
+                    else if (!_.isUndefined(layer.sensorLink.liveInterval)) {
+                        interval = layer.sensorLink.liveInterval;
                     }
+                    link += "?tbox=" + interval;
                 }
                 console.log('kpi:' + link);
                 layer._gui["loadingKpiLink"] = true;
@@ -332,7 +333,7 @@ module csComp.Services {
                         layer._gui["loadingSensorLink"] = false;
                         console.log('error loading sensor data');
                     });
-                    this.updateLayerKpiLink(layer);
+                this.updateLayerKpiLink(layer);
             }
 
         }
