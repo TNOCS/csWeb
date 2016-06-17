@@ -237,9 +237,12 @@ module csComp.Services {
         showRightmenu: boolean = false;
         showLegend: boolean = false;
         showBackgroundImage: boolean = false;
+        /** don't show hamburger menu for this dashboard */
+        hideleftPanelToggle : boolean = false;
         background: string;
         backgroundimage: string;
         disabledFeatures: string[];
+        showDateSelector : boolean = true;
         visiblelayers: string[];
         visibleLeftMenuItems: string[];
         baselayer: string;
@@ -272,6 +275,8 @@ module csComp.Services {
                 alignMapRight: d.alignMapRight,
                 timeline: d.timeline,
                 showTimeline: d.showTimeline,
+                hideleftPanelToggle : d.hideleftPanelToggle,
+                showDateselector : d.showDateSelector,
                 showLeftmenu: d.showLeftmenu,
                 showLegend: d.showLegend,
                 showRightmenu: d.showRightmenu,
