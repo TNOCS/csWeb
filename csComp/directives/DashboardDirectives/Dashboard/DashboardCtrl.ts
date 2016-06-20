@@ -103,8 +103,8 @@ module Dashboard {
                 if (w.stop) {
                     w.stop();
                 } else if (w.elementId) {
-                    // The stop() function of a widget sits in the controller. We can reach the controller through the 
-                    // scope of the widget element. 
+                    // The stop() function of a widget sits in the controller. We can reach the controller through the
+                    // scope of the widget element.
                     try {
                         var wElm = document.getElementById(w.elementId);
                         var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
@@ -120,6 +120,27 @@ module Dashboard {
             if (widget.canCollapse) {
                 widget.collapse = !widget.collapse;
             }
+        }
+
+        public getOptions(widget: csComp.Services.IWidget) {
+            var options = [];
+            if (widget._ctrl && widget._ctrl.getOptions) {
+                widget._ctrl.getOptions().forEach(o => options.push(o));
+            }
+            if (this.$mapService.isAdminExpert) {
+                options.push({ title: "Widget Settings", action: (w) => this.$dashboardService.editWidget(w) });
+                if (widget._interaction) {
+                    options.push({ title: "Disable drag", action: (w) => this.toggleInteract(w) });
+                } else {
+                    options.push({ title: "Enable drag", action: (w) => this.toggleInteract(w) });
+                }
+
+            }
+            widget._options = options;
+        }
+
+        public triggerOption(o: any, w: csComp.Services.IWidget) {
+            if (_.isFunction(o.action)) o.action(w);
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
@@ -139,10 +160,12 @@ module Dashboard {
                 //var newScope : ng.IScope;
                 widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
             } else {
-                widgetElement = this.$compile('<h1>hoi</h1>')(this.$scope);
+                widgetElement = this.$compile('<div></div>')(this.$scope);
             }
 
-            var resized = function() {
+            this.getOptions(w);
+
+            var resized = function () {
                 //alert('resize');
                 /* do something */
             };
@@ -236,10 +259,10 @@ module Dashboard {
 
                 if (!_.isUndefined(t.fixedRange)) {
                     switch (t.fixedRange) {
-                        case '24h' :
+                        case '24h':
                             t.end = Date.now();
                             t.start = Date.now() - 1000 * 60 * 24;
-                        break;
+                            break;
                     }
                 }
 
@@ -256,12 +279,11 @@ module Dashboard {
                     var newpos = f * w - $('#focustimeContainer').width() / 2;
                     $('#focustimeContainer').css('left', newpos);
                 }
-                
-                if (t.isExpanded)
-                {
+
+                if (t.isExpanded) {
                     t.enableEvents = true;
                 }
-                
+
             }  // end RS mod
         }
 
@@ -347,7 +369,7 @@ module Dashboard {
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
                 w.left = '20px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
+                w.customStyle = <csComp.Services.WidgetStyle>{ background: 'White', borderColor: 'Black', borderWidth: '1px' };
                 w.top = '80px';
                 w.hideIfLeftPanel = true;
                 w.width = '';

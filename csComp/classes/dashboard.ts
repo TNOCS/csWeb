@@ -17,6 +17,7 @@ module csComp.Services {
 
     export interface IWidgetCtrl {
         startEdit: Function;
+        getOptions? : Function;
     }
 
     export interface IWidget {
@@ -79,6 +80,7 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
+        _options? : any;
         _ctrl?: IWidgetCtrl;
         _ijs?: any;
         _initialized?: boolean;
