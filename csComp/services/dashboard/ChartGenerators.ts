@@ -292,6 +292,7 @@ export class PropertyBarChartGenerator implements IChartGenerator {
                     }
                     var values = [];
                     var timestamps = [];
+                    this.ctrl.$scope.data._csv = "";
 
                     properties.forEach((p: string) => {
                         if (f.sensors.hasOwnProperty(p)) {
@@ -301,7 +302,11 @@ export class PropertyBarChartGenerator implements IChartGenerator {
                                     timestamps = f.timestamps;
                                     var s = f.sensors[p][i];
                                     if (s === -1) s = null;
-                                    if (f.sensors[p].length > i) values.push({ x: t, y: s, c: 0 });
+                                    if (f.sensors[p].length > i)
+                                    {
+                                        values.push({ x: t, y: s, c: 0 });
+                                        this.ctrl.$scope.data._csv += new Date(t).toLocaleString() + ',' + s + '\n';
+                                    }
                                     i += 1;
                                 });
                             }
@@ -310,7 +315,10 @@ export class PropertyBarChartGenerator implements IChartGenerator {
                                     timestamps = f.layer.timestamps;
                                     var s = f.sensors[p][i];
                                     if (s === -1) s = null;
-                                    if (f.sensors[p].length > i) values.push({ x: t, y: s, c: 0 });
+                                    if (f.sensors[p].length > i) {
+                                        values.push({ x: t, y: s, c: 0 });
+                                        this.ctrl.$scope.data._csv += new Date(t).toLocaleString() + ',' + s + '\n';
+                                    }
                                     i += 1;
                                 });
                             }
@@ -624,6 +632,7 @@ export class PropertyBarChartGenerator implements IChartGenerator {
         private selectLayer(layer: ProjectLayer) {
             this.layer = layer;
             if (!layer) return;
+            this.ctrl.$scope.data._csv = "";
             if (!_.isArray(layer.kpiTimestamps)) return;
             if (this.options.hasOwnProperty("layer")) {
                 var sensors = [];
@@ -641,15 +650,19 @@ export class PropertyBarChartGenerator implements IChartGenerator {
                     var values = [];
                     if (!sensors) return;
                     sensors.forEach((p: string) => {
+                        var csvRow = "";
                         if (layer.sensors && layer.sensors.hasOwnProperty(p)) {
                             var i = 0;
                             layer.kpiTimestamps.forEach(t => {
                                 var s = layer.sensors[p][i];
                                 if (s === -1) s = null;
-                                if (layer.sensors[p].length > i) values.push({ x: t, y: s, c: 0 });
+                                if (layer.sensors[p].length > i) {
+                                    values.push({ x: t, y: s, c: 0 });
+                                    csvRow+=new Date(t).toLocaleString()+',' + s + '\n';
+                                }
                                 i += 1;
                             });
-
+                            this.ctrl.$scope.data._csv += csvRow + '\n';
                             //   f.sensors[p].forEach()
                         }
 
