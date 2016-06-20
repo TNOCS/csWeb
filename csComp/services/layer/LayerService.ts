@@ -74,7 +74,8 @@ module csComp.Services {
             'geoService',
             '$http',
             'expressionService',
-            'actionService'
+            'actionService',
+            'localStorageService'
         ];
 
         constructor(
@@ -87,7 +88,8 @@ module csComp.Services {
             public geoService: GeoService,
             public $http: ng.IHttpService,
             private expressionService: ExpressionService,
-            public actionService: ActionService
+            public actionService: ActionService,
+            public $storage : ng.localStorage.ILocalStorageService
         ) {
             this.actionService.init(this);
 
@@ -514,13 +516,13 @@ module csComp.Services {
             this.layerSources = {};
 
             // add a topo/geojson source
-            var geojsonsource = new GeoJsonSource(this, this.$http);
+            var geojsonsource = new GeoJsonSource(this, this.$http, this.$storage);
 
             this.layerSources['geojson'] = geojsonsource;
             this.layerSources['topojson'] = geojsonsource;
-            this.layerSources['editablegeojson'] = new EditableGeoJsonSource(this, this.$http);
-            this.layerSources['dynamicgeojson'] = new DynamicGeoJsonSource(this, this.$http);
-            this.layerSources['esrijson'] = new EsriJsonSource(this, this.$http);
+            this.layerSources['editablegeojson'] = new EditableGeoJsonSource(this, this.$http, this.$storage);
+            this.layerSources['dynamicgeojson'] = new DynamicGeoJsonSource(this, this.$http, this.$storage);
+            this.layerSources['esrijson'] = new EsriJsonSource(this, this.$http, this.$storage);
 
             // add kml source
             var kmlDataSource = new KmlDataSource(this, this.$http);

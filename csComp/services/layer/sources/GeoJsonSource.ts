@@ -1,12 +1,14 @@
 module csComp.Services {
 
+    declare var LargeLocalStorage;
+
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
         requiresLayer = false;
         $http: ng.IHttpService;
 
-        public constructor(public service: LayerService, $http: ng.IHttpService) {
+        public constructor(public service: LayerService, $http: ng.IHttpService, public $storage: ng.localStorage.ILocalStorageService) {
             this.$http = $http;
         }
 
@@ -41,11 +43,11 @@ module csComp.Services {
 
                     layer.data.features.forEach((f: Feature) => {
                         if (f.timestamps) {
-                            if (min === null)  { min = f.timestamps[0]; } else { if (min > f.timestamps[0]) min = f.timestamps[0]} 
-                            if (max === null) { max = f.timestamps[f.timestamps.length-1]; } else { if (max < f.timestamps[f.timestamps.length-1]) max = f.timestamps[f.timestamps.length-1]};                            
+                            if (min === null) { min = f.timestamps[0]; } else { if (min > f.timestamps[0]) min = f.timestamps[0] }
+                            if (max === null) { max = f.timestamps[f.timestamps.length - 1]; } else { if (max < f.timestamps[f.timestamps.length - 1]) max = f.timestamps[f.timestamps.length - 1] };
                         }
                     });
-                    
+
                     if (min !== null && max !== null) this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
 
                 }
@@ -86,24 +88,45 @@ module csComp.Services {
                         // check proxy
                         if (layer.useProxy) u = '/api/proxy?url=' + u;
 
-                        this.$http.get(u)
-                            .success((data) => {
+                        // check local storage
+
+                        if (layer.localStorage) {
+                            var d = window.localStorage.getItem('layer.' + layer.id);
+                            if (d) {
                                 layer.count = 0;
                                 layer.isLoading = false;
                                 layer.enabled = true;
-                                this.initLayer(data, layer);
+                                this.initLayer(JSON.parse(d), layer);
                                 if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
-                            })
-                            .error(() => {
-                                layer.count = 0;
-                                layer.isLoading = false;
-                                layer.enabled = false;
-                                layer.isConnected = false;
-                                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                                this.service.$messageBusService.publish('layer', 'error', layer);
-                                cb(null, null);
-                            });
+                            }
+                        }
+                        if (layer.isLoading) {
+
+                            this.$http.get(u)
+                                .success((data) => {
+                                    layer.count = 0;
+                                    layer.isLoading = false;
+                                    layer.enabled = true;
+                                    if (layer.localStorage) {
+                                        var d = JSON.stringify(data);
+                                        window.localStorage.setItem('layer.' + layer.id, d);
+                                        //this.$storage.set('layer.' + layer.id, JSON.stringify(data));
+                                    }
+                                    this.initLayer(data, layer);
+                                    if (layer.hasSensorData) this.fitTimeline(layer);
+                                    cb(null, null);
+                                })
+                                .error(() => {
+                                    layer.count = 0;
+                                    layer.isLoading = false;
+                                    layer.enabled = false;
+                                    layer.isConnected = false;
+                                    this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                                    this.service.$messageBusService.publish('layer', 'error', layer);
+                                    cb(null, null);
+                                });
+                        }
                     }
                 },
                 // Callback
@@ -277,8 +300,8 @@ module csComp.Services {
     export class EditableGeoJsonSource extends GeoJsonSource {
         title = 'editablegeojson';
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
             // subscribe
         }
 
@@ -419,8 +442,8 @@ module csComp.Services {
         title: "dynamicgeojson";
         connection: Connection;
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
@@ -548,8 +571,8 @@ module csComp.Services {
         connection: Connection;
         $http: ng.IHttpService;
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
             // subscribe
         }
 
