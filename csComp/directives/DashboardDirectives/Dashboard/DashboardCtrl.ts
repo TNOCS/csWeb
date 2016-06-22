@@ -221,6 +221,15 @@ module Dashboard {
             }
         }
 
+        public checkDescription() {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.description) {
+                var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', { title : db.name, mdText : db.description }, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question', true, false);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                //this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+            }
+        }
+
         public checkLayers() {
             var db = this.$layerService.project.activeDashboard;
             if (db.visiblelayers && db.visiblelayers.length > 0 && this.$layerService.project.groups) {
@@ -387,6 +396,7 @@ module Dashboard {
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
+            this.checkDescription();
 
             //this.$messageBusService.publish('leftmenu',(d.showLeftmenu) ? 'show' : 'hide');
             // if (!this.$mapService.isAdminExpert) {

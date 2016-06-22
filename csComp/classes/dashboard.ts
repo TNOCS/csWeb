@@ -230,6 +230,7 @@ module csComp.Services {
         editMode: boolean;
         showMap: boolean;
         mapWidth: string = '100%';
+        description : string;
         alignMapRight: boolean = false;
         mobile: boolean = true;
         showTimeline: boolean = true;
@@ -274,6 +275,7 @@ module csComp.Services {
                 editMode: d.editMode,
                 showMap: d.showMap,
                 mapWidth: d.mapWidth,
+                description : d.description,
                 alignMapRight: d.alignMapRight,
                 timeline: d.timeline,
                 showTimeline: d.showTimeline,
