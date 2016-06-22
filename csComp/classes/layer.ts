@@ -140,6 +140,8 @@ module csComp.Services {
         timelineConfig?: Timeline.ITimelineConfig;
         /** if true, use local storage to save/retrieve layer data */
         localStorage? : boolean;
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -321,6 +323,9 @@ module csComp.Services {
 
         /** if true, use local storage to save/retrieve layer data */
         localStorage : boolean;
+
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
 
         /** Get the features from the layer's original source, if present. */
         public static getFeatures(layer: ProjectLayer) {

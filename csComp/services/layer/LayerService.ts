@@ -64,6 +64,8 @@ module csComp.Services {
         public visual: VisualState = new VisualState();
         throttleSensorDataUpdate: Function = () => { };
 
+        throttleBBOXUpdate = _.debounce(this.updateBBOX, 1000);
+
         static $inject = [
             '$location',
             '$compile',
@@ -89,7 +91,7 @@ module csComp.Services {
             public $http: ng.IHttpService,
             private expressionService: ExpressionService,
             public actionService: ActionService,
-            public $storage : ng.localStorage.ILocalStorageService
+            public $storage: ng.localStorage.ILocalStorageService
         ) {
             this.actionService.init(this);
 
@@ -119,6 +121,7 @@ module csComp.Services {
             this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
+
 
 
             $('body').keyup(e => {
@@ -160,26 +163,14 @@ module csComp.Services {
                 this.openProject(this.projectUrl);
             });
 
+
+
             $messageBusService.subscribe('mapbbox', (title: string, bbox: string) => {
                 if (title !== 'update') return;
-                for (var l in this.loadedLayers) {
-                    var layer = this.loadedLayers[l];
-                    if (layer.refreshBBOX) {
-                        // When any groupstyle(s) present, store and re-apply after refreshing the layer
-                        // var oldStyles;
-                        // if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
-                        //     oldStyles = layer.group.styles;
-                        // }
-                        layer.BBOX = bbox;
-                        layer.layerSource.refreshLayer(layer);
-                        // if (layer.group && oldStyles) {
-                        //     oldStyles.forEach((gs) => {
-                        //         this.saveStyle(layer.group, gs);
-                        //     });
-                        //     this.updateGroupFeatures(layer.group);
-                        // }
-                    }
-                }
+                let a = [];
+                bbox.split(',').forEach(s => a.push(parseFloat(s)));
+                this.throttleBBOXUpdate(bbox, [[a[0], a[1]], [a[2], a[1]], [a[2], a[3]], [a[0], a[3]]]);
+
             });
 
             $messageBusService.subscribe('menu', (title, data) => {
@@ -210,6 +201,35 @@ module csComp.Services {
                 var layer = <ProjectLayer>this.loadedLayers[l];
                 if (layer.timeDependent) {
                     layer.layerSource.refreshLayer(layer);
+                }
+            }
+        }
+
+        public updateBBOX(bbox: string, bboxarray: number[][]) {
+            for (var l in this.loadedLayers) {
+                var layer = this.loadedLayers[l];
+                layer.BBOX = bbox;
+                if (layer.refreshBBOX) {
+                    // When any groupstyle(s) present, store and re-apply after refreshing the layer
+                    // var oldStyles;
+                    // if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
+                    //     oldStyles = layer.group.styles;
+                    // }
+
+                    layer.layerSource.refreshLayer(layer);
+                    // if (layer.group && oldStyles) {
+                    //     oldStyles.forEach((gs) => {
+                    //         this.saveStyle(layer.group, gs);
+                    //     });
+                    //     this.updateGroupFeatures(layer.group);
+                    // }
+                }
+                if (layer.partialBoundingBoxUpdates) {
+                    layer.data.features.forEach(f => {
+
+                        f._gui.insideBBOX = csComp.Helpers.GeoExtensions.featureInsideBoundingBox(f, bboxarray);
+
+                    });
                 }
             }
         }
@@ -1239,11 +1259,12 @@ module csComp.Services {
             return timestamps.length - 1;
         };
 
+
         /// calculate sensor data for a specific feature
         public updateFeatureSensorData(f: IFeature, date: number) {
             var l = f.layer;
             if (f.sensors || f.coordinates) {
-
+                let changed = false;
                 var pos = 0;
                 if (f.timestamps) { // check if feature contains timestamps
                     pos = this.getSensorIndex(date, f.timestamps);
@@ -1270,12 +1291,17 @@ module csComp.Services {
                     for (var sensorTitle in f.sensors) {
                         var sensor = f.sensors[sensorTitle];
                         var value = sensor[pos];
-                        f.properties[sensorTitle] = value;
+                        if (value != f.properties[sensorTitle]) {
+                            f.properties[sensorTitle] = value;
+                            changed = true;
+                        }
                     }
-                    this.calculateFeatureStyle(f);
-                    this.activeMapRenderer.updateFeature(f);
-
-                    if (f.isSelected) this.$messageBusService.publish('feature', 'onFeatureUpdated', f);
+                    // only update feature if data actually has changed
+                    if (changed) {
+                        this.calculateFeatureStyle(f);
+                        this.activeMapRenderer.updateFeature(f);
+                        if (f.isSelected) this.$messageBusService.publish('feature', 'onFeatureUpdated', f);
+                    }
                 }
             }
         }
@@ -1286,7 +1312,7 @@ module csComp.Services {
             if ((l.hasSensorData || l.sensorLink) && l.data.features) {
 
                 l.data.features.forEach((f: IFeature) => {
-                    this.updateFeatureSensorData(f, date);
+                    if ((l.partialBoundingBoxUpdates && f._gui.insideBBOX) || !l.partialBoundingBoxUpdates) this.updateFeatureSensorData(f, date);
                 });
 
                 this.mb.publish("layer", "sensordataUpdated", l);
@@ -1920,6 +1946,7 @@ module csComp.Services {
                 if (pos !== -1) group.filters.slice(pos, 1);
 
             }
+            this.visual.leftPanelVisible = true;
             (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
         }
 
@@ -1929,6 +1956,7 @@ module csComp.Services {
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
             filter.group = group;
             group.filters.push(filter);
+            this.visual.leftPanelVisible = true;
             (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
