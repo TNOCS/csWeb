@@ -225,11 +225,15 @@ module csComp.Services {
                     // }
                 }
                 if (layer.partialBoundingBoxUpdates) {
+                    let changed = false;
                     layer.data.features.forEach(f => {
-
-                        f._gui.insideBBOX = csComp.Helpers.GeoExtensions.featureInsideBoundingBox(f, bboxarray);
-
+                        let inside = csComp.Helpers.GeoExtensions.featureInsideBoundingBox(f, bboxarray);
+                        if (f._gui.insideBBOX !== inside) {
+                            f._gui.insideBBOX = inside;
+                            changed = true;
+                        }
                     });
+                    if (changed) this.updateLayerSensorData(layer);
                 }
             }
         }
@@ -733,7 +737,7 @@ module csComp.Services {
                             });
 
                             this.updateLayerSensorLink(layer);
-                            this.updateLayerSensorData(layer, this.project.timeLine.focusDate());
+                            this.updateLayerSensorDataWithDate(layer, this.project.timeLine.focusDate());
 
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
@@ -1306,7 +1310,7 @@ module csComp.Services {
             }
         }
 
-        public updateLayerSensorData(l: ProjectLayer, date) {
+        public updateLayerSensorDataWithDate(l: ProjectLayer, date) {
             delete l._gui["timestampIndex"];
             delete l._gui["timestamp"];
             if ((l.hasSensorData || l.sensorLink) && l.data.features) {
@@ -1328,20 +1332,25 @@ module csComp.Services {
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
-            var date = this.project.timeLine.focus;
 
             for (var ll in this.loadedLayers) {
                 var l = this.loadedLayers[ll];
-                if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
-                    if (!_.isUndefined(l.timestamps) && _.isArray(l.timestamps)) {
-                        date = l.timestamps[l.timestamps.length - 1];
-                        this.updateLayerSensorData(l, date);
-                    }
-                }
-                else {
-                    this.updateLayerSensorData(l, date);
-                }
+                this.updateLayerSensorData(l);
             };
+        }
+
+        /** update sensor data for a layer */
+        public updateLayerSensorData(l: ProjectLayer) {
+            var date = this.project.timeLine.focus;
+            if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
+                if (!_.isUndefined(l.timestamps) && _.isArray(l.timestamps)) {
+                    date = l.timestamps[l.timestamps.length - 1];
+                    this.updateLayerSensorDataWithDate(l, date);
+                }
+            }
+            else {
+                this.updateLayerSensorDataWithDate(l, date);
+            }
         }
 
         /***
