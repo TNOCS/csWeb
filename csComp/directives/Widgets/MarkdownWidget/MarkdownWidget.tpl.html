@@ -1,10 +1,10 @@
-<div style="margin: 2px 5px;overflow:auto;height:100%">
-    <div class="row" style="display: inline-block; margin-left: 2px;">
+<div style="margin: 20px 5px 2px 5px;overflow:auto;height:95%">
+    <div style="display: inline-block; margin-left: 2px;">
         <div style="display: inline-block; font-size:16px; font-weight:bold; margin-bottom:2px;">{{data.title}}</div>
         <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
             <a class="widget-min-max-close" ng-click="vm.close()" ng-if="vm.canClose()"><i class="fa fa-times"></i></a>
-            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="minimized"> <i class="fa fa-plus"></i></a>
-            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-hide="minimized"> <i class="fa fa-minus"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="vm.canMinimize() && minimized"> <i class="fa fa-plus"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="vm.canMinimize() && !minimized"> <i class="fa fa-minus"></i></a>
             <a class="widget-min-max-close" ng-click="vm.exportToPDF()"><i class="fa fa-save" uib-tooltip="{{'SAVE_AS_PDF' | translate}}" tooltip-trigger="mouseenter" tooltip-append-to-body="true" ng-show="vm.exporterAvailable&&!minimized"></i></a>
         </div>
         <!--<div class="display:inline-block; margin-right:10px; btn-group btn-group-sm" role="group">
@@ -16,7 +16,7 @@
             <button type="button" class="btn btn-secondary makeNarrow fa fa-times leftpanel-header-button" ng-if="vm.canClose()" ng-click="vm.close()" />
         </div>-->
     </div>
-    <div class="row" style="padding:0px;font-size:12px;margin:0px;" ng-hide="minimized">
+    <div style="padding:0px;font-size:12px;margin:0px;" ng-hide="minimized">
         <wiz-markdown class="active-text" content="data.mdText" style="margin-left:15px;margin-right:15px"></wiz-markdown>
     </div>
 </div>
