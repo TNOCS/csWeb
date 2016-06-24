@@ -1,5 +1,5 @@
 <div style="margin: 20px 5px 2px 5px;overflow:auto;height:95%">
-    <div style="display: inline-block; margin-left: 2px;">
+    <div style="display: inline-block; margin-left: 2px;" ng-hide="data.hideTitle">
         <div style="display: inline-block; font-size:16px; font-weight:bold; margin-bottom:2px;">{{data.title}}</div>
         <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
             <a class="widget-min-max-close" ng-click="vm.close()" ng-if="vm.canClose()"><i class="fa fa-times"></i></a>

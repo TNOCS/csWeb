@@ -74,6 +74,7 @@ module csComp.Services {
             this.dashboards['main'] = this.mainDashboard;
             this.touchMode = $localStorageService.get("touchmode");
 
+            this.chartGenerators['propertyBarChart'] = () => { return new csComp.Services.PropertyBarChartGenerator(this.$layerService,this);}
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
             this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService, this); }
             this.chartGenerators['kpi'] = () => { return new csComp.Services.layerKpiGenerator(this.$layerService, this); }

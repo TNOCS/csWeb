@@ -622,6 +622,8 @@ module csComp.Services {
                     ha.callback(feature, this.service);
                 }
             });
+
+            this.$messageBusService.publish('feature', 'onFeatureHover', feature);
         }
 
         hideFeatureTooltip(e: L.LeafletMouseEvent) {
