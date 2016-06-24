@@ -143,7 +143,7 @@ module Filters {
                                         return true;
                                     }
                                 });
-                                if (!label) label = 'other';
+                                if (!label) label = 'onbekend';
                                 return label;
                             } else if (pt.type === 'text' || pt.type === 'textarea') {
                                 return a;
@@ -167,9 +167,11 @@ module Filters {
             }
             
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
+            var h = (ensuredGroup && ensuredGroup.size() < 6) ? 180 : 240;
 
-            this.dcChart.width(380)
-                .height(285)                
+            this.dcChart.width(300)
+                .height(h)        
+                .margins({top: 5, right: 5, bottom: 5, left: 5})        
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {
@@ -203,7 +205,6 @@ module Filters {
             this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
             this.updateRange();
-            dc.renderAll();
         }
         
         private ensureAllBins(source_group, fake_group) { // (source_group, bins...}

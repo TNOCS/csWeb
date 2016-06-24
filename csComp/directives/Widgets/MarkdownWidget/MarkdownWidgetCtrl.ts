@@ -87,6 +87,11 @@ module MarkdownWidget {
                 this.parentWidget.hide();
                 this.msgBusHandle = this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
+                        case 'justShowThisWidget':
+                            if (this.$scope.data.featureTypeName === "Dummy") {
+                                this.justShowThisWidget();
+                            }
+                            break;
                         case 'onUpdateWidgets':
                         case 'onFeatureDeselect':
                         case 'onFeatureSelect':
@@ -154,6 +159,11 @@ module MarkdownWidget {
             if (this.msgBusHandle) {
                 this.$messageBus.unsubscribe(this.msgBusHandle);
             }
+        }
+
+        private justShowThisWidget() {
+            this.widget.enabled = true;
+            this.parentWidget.show();
         }
 
         private escapeRegExp(str: string) {

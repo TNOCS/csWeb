@@ -1,0 +1,18 @@
+<div uib-popover="Vul een waarde in om buurten met een klein aantal woningen te verbergen" popover-trigger="mouseenter" popover-append-to-body="true" popover-placement="right">
+    <div class="row" style="display: inline-block; margin-left: 2px; margin-right: 40px;">
+        <div style="display: inline-block; font-size:16px; font-weight:bold; margin-bottom:2px;">{{data.title}}</div>
+        <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
+            <a class="widget-min-max-close" ng-click="vm.close()" ng-if="vm.canClose()"><i class="fa fa-times"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="minimized"> <i class="fa fa-plus"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-hide="minimized"> <i class="fa fa-minus"></i></a>
+        </div>
+    </div>
+    <div ng-hide="minimized" style="margin:8px">
+        <label for="min-value">Minimum aantal woningen</label>
+        <input type="number" label="min-value" min="0" max="100000" ng-model="vm.filterValue" style="max-width: 72px">
+    </div>
+    <div ng-hide="minimized" style="margin:8px">
+        <button class="btn btn-primary" ng-click="vm.filterValue=0;vm.applyFilter()">Reset filter</button>
+        <span><button class="btn btn-primary" ng-click="vm.applyFilter()" style="float:right">Pas filter toe</button></span>
+    </div>
+</div>

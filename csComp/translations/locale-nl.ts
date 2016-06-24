@@ -192,7 +192,7 @@ module Translations {
             STATE: 'Status',
             EVENT_INFO: 'Toon lijst van gebeurtenissen',
             CLEAR_EVENTS: 'Lijst leegmaken',
-            SEARCH_PLACEHOLDER: 'Gemeente, adres, ...',
+            SEARCH_PLACEHOLDER: 'Voer gemeente in',
             SAVE_AS_IMAGE: 'Opslaan als afbeelding',
             SAVE_AS_PDF: 'Opslaan als PDF',
             ROW_CHART_HELP: 'Klik op één of meerdere rijen om een filter toe te passen voor de geselecteerde eigenschap.'

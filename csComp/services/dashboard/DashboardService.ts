@@ -191,6 +191,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
                 description: 'A widget combining legend, style and filter.'
             };
+            this.widgetTypes['rangewidget'] = <IWidget> {
+               id: 'rangewidget',
+               icon: 'bower_components/csweb/dist-bower/images/widgets/range.png',
+               description: 'Show rangewidget'
+           }   
         }
 
         public get search(): ISearch { return this._search; };
@@ -198,7 +203,8 @@ module csComp.Services {
             this._search = s;
             if (s.query && s.query.length > 0) {
                 $('#navigate_header').trigger('click');
-                this._search.isActive = s.isActive = this.$layerService.visual.leftPanelVisible = true;
+                // this._search.isActive = s.isActive = this.$layerService.visual.leftPanelVisible = true;
+                this._search.isActive = s.isActive = true;
                 this.$messageBusService.publish('search', 'update', s);
             } else {
                 if ($('#navigate_header').is(':visible')) $('#left_menu_headers li:visible:first').next().trigger('click');

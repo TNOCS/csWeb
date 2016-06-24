@@ -48,8 +48,11 @@ module Search {
         ) {
             $scope.vm = this;
 
-            $scope.$watch('vm.query', _.throttle(search => {
-                this.$dashboardService.search = { query: search };
+            $scope.$watch('vm.query', _.throttle((search, oldVal) => {
+                //only update on change, not on the initial event
+                if (search != oldVal) {
+                    this.$dashboardService.search = { query: search };
+                }
             }, 700, { leading: false }));
 
             this.$messageBusService.subscribe('search', (title, search: csComp.Services.ISearch) => {
