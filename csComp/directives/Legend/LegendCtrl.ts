@@ -158,8 +158,15 @@ module Legend {
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.min + activeStyle.info.max) / 4));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.min + activeStyle.info.max) / 4));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.max));
-                leg.legendEntries = leg.legendEntries.sort((a, b) => { return (a.value - b.value) });
             }
+            leg.legendEntries = leg.legendEntries.sort((a, b) => {
+                if (a.hasOwnProperty('sortKey') && b.hasOwnProperty('sortKey')) {
+                    return ((a.sortKey < b.sortKey) ? 1 : -1);
+                } else if (a.hasOwnProperty('value') && b.hasOwnProperty('value')) {
+                    return (a.value - b.value);
+                }
+                return 0;
+            });
             return leg;
         }
 

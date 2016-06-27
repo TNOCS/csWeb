@@ -133,6 +133,9 @@ module FilterStyleWidget {
             gf.property = this.$scope.style.property;
             gf.id = this.widget.id;
             gf.group = this.$scope.style.group;
+            if (gf.group.ndx) {
+                gf.group.ndx.remove();
+            }
             gf.group.ndx = crossfilter([]);
             gf.group.ndx.add(_.map(gf.group.markers, (item: any, key) => { return item.feature; }));
             gf.title = this.$scope.style.title;

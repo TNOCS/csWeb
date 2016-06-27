@@ -121,36 +121,40 @@ module Filters {
             this.$scope.$apply();
 
             var pt : csComp.Services.IPropertyType;
-            
-           
+            var orderList: {[key: string]: {nr: number, sortKey: string}} = {};          
+
             var dcDim = group.ndx.dimension(d => {
-                if (!d.properties.hasOwnProperty(filter.property)) return null;
-                else {
-                    if (!pt) pt = this.$layerService.getPropertyType(d,filter.property);
-                        if (d.properties[filter.property] != null) {
-                            var a = d.properties[filter.property];
-                            if (pt.type === 'options') {
-                                var r;
-                                if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                                    r = a + "." + pt.options[a];
-                                } else { r = a + "." + a}
-                                return r;
-                            } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
-                                var label;
-                                pt.legend.legendEntries.some((le) => {
-                                    if (a >= le.interval.min && le.interval.max >= a) {
-                                        label = le.label;
-                                        return true;
-                                    }
-                                });
-                                if (!label) label = 'onbekend';
-                                return label;
-                            } else if (pt.type === 'text' || pt.type === 'textarea') {
-                                return a;
+                if (!d.properties.hasOwnProperty(filter.property)) {
+                    // return null;
+                    return 'Onbekend';
+                } else {
+                    if (!pt) pt = this.$layerService.getPropertyType(d, filter.property);
+                    if (d.properties[filter.property] != null) {
+                        var a = d.properties[filter.property];
+                        if (pt.type === 'options') {
+                            var r;
+                            if (pt && pt.options && pt.options.hasOwnProperty(a)) {
+                                r = pt.options[a];
+                            } else {
+                                r = a;
                             }
+                            return r;
+                        } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
+                            var label;
+                            pt.legend.legendEntries.some((le) => {
+                                if (a >= le.interval.min && le.interval.max >= a) {
+                                    label = le.label;
+                                    return true;
+                                }
+                            });
+                            if (!label) label = 'Onbekend';
+                            return label;
+                        } else if (pt.type === 'text' || pt.type === 'textarea') {
+                            return a;
                         }
-                        return null;
                     }
+                    return null;
+                }
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
@@ -164,6 +168,19 @@ module Filters {
                     return d;
                 });
                 var fakeGroup = fakeDim.group();
+
+                //Sort ordering
+                pt.legend.legendEntries.forEach((le) => {
+                    if (le.hasOwnProperty('sortKey')) {
+                        let sk = le.sortKey;
+                        if (!orderList.hasOwnProperty(sk)) {
+                            orderList[le.label] = {nr: Object.keys(orderList).length, sortKey: sk};
+                        }
+                    }
+                });
+                var sortKeys = _.map(orderList, (item) => { return item.sortKey});
+                sortKeys = sortKeys.sort();
+                _.each(orderList, (val, key) => { val.nr = sortKeys.indexOf(val.sortKey)});
             }
             
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
@@ -179,7 +196,13 @@ module Filters {
                 .elasticX(true)                
                 .colors(d=>{
                     if (pt && pt.legend) {
-                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
+                        if (pt.options) {
+                            if (false && typeof d === 'string' && d.indexOf('.') > -1) {
+                                return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
+                            } else {
+                                return csComp.Helpers.getColorFromLegend(d, pt.legend);
+                            }
+                        }
                         if (!pt.options) {
                             var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
                             return (arr.length > 0 ? arr[0].color : '#444444');
@@ -190,6 +213,17 @@ module Filters {
                     }
                 })
                 .cap(10)
+                .ordering(d => {
+                    if (pt && pt.legend) {
+                        if (orderList.hasOwnProperty(d.key)) {
+                            return orderList[d.key].nr;
+                        } else {
+                            return d.key || d.value;
+                        }
+                    } else {
+                        return d.key || d.value;
+                    }
+                })
                 .on('renderlet', (e) => {
                     dc.events.trigger(() => {
                         this.$layerService.updateFilterGroupCount(group);
