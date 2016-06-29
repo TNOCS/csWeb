@@ -250,6 +250,7 @@ module csComp.Services {
         legendKind: string;
         visualAspect: string;
         legendEntries: LegendEntry[];
+        defaultLabel: string;
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
     }
@@ -265,5 +266,4 @@ module csComp.Services {
         color: string;  // hex string; rgb
         sortKey: string; // Sort entries based on this key 
     }
-
 }

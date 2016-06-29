@@ -124,11 +124,14 @@ module Filters {
             var orderList: {[key: string]: {nr: number, sortKey: string}} = {};          
 
             var dcDim = group.ndx.dimension(d => {
+                if (!pt) pt = this.$layerService.getPropertyType(d, filter.property);
                 if (!d.properties.hasOwnProperty(filter.property)) {
-                    // return null;
-                    return 'Onbekend';
+                    if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
+                        return pt.legend.defaultLabel;
+                    } else {
+                        return null;
+                    }
                 } else {
-                    if (!pt) pt = this.$layerService.getPropertyType(d, filter.property);
                     if (d.properties[filter.property] != null) {
                         var a = d.properties[filter.property];
                         if (pt.type === 'options') {
@@ -147,7 +150,13 @@ module Filters {
                                     return true;
                                 }
                             });
-                            if (!label) label = 'Onbekend';
+                            if (!label) {
+                                if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
+                                    label = pt.legend.defaultLabel;
+                                } else {
+                                    label = 'Onbekend';
+                                }
+                            }
                             return label;
                         } else if (pt.type === 'text' || pt.type === 'textarea') {
                             return a;
