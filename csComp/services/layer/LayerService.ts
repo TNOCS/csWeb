@@ -1351,11 +1351,14 @@ module csComp.Services {
                 // add feature to global list of features
                 this.project.features.push(feature);
 
-                // add to crossfilter
-                layer.group.ndx.add([feature]);
-
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
+                
+                // evaluate expressions
+                this.evaluateFeatureExpressions(<Feature>feature);
+
+                // add to crossfilter
+                layer.group.ndx.add([feature]);
 
                 // check if defaultLegends are active
                 if (feature.fType.defaultLegendProperty) {
