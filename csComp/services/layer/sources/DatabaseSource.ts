@@ -153,7 +153,7 @@ module csComp.Services {
                 var fType = this.service.getFeatureTypeById(featureTypeName);
                 var fTypes: {[key: string]: any} = {};
                 fTypes[featureTypeName] = fType;
-                this.service.evaluateLayerExpressions(projLayer, fTypes);
+                // this.service.evaluateLayerExpressions(projLayer, fTypes);
                 if (fType._propertyTypeData && fType._propertyTypeData.length > 0) {
                     fType._propertyTypeData.forEach(pt => {
                         csComp.Helpers.updateSection(projLayer, pt);
@@ -184,7 +184,7 @@ module csComp.Services {
                         projLayer.data.features.push(f);
                         count += 1;
                         this.service.initFeature(f, projLayer, false, false);
-                        this.service.evaluateFeatureExpressions(f);
+                        // this.service.evaluateFeatureExpressions(f);
                         this.service.calculateFeatureStyle(f);
                         this.service.activeMapRenderer.addFeature(f);
                     }

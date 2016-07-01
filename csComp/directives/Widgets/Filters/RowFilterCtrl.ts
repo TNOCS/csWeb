@@ -195,7 +195,7 @@ module Filters {
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
             var h = (ensuredGroup && ensuredGroup.size() < 6) ? 180 : 240;
 
-            this.dcChart.width(250)
+            this.dcChart.width(275)
                 .height(h)        
                 .margins({top: 2, right: 2, bottom: 2, left: 2})        
                 .dimension(dcDim)
