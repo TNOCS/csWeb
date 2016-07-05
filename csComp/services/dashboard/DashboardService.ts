@@ -191,11 +191,6 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
                 description: 'A widget combining legend, style and filter.'
             };
-            this.widgetTypes['rangewidget'] = <IWidget> {
-               id: 'rangewidget',
-               icon: 'bower_components/csweb/dist-bower/images/widgets/range.png',
-               description: 'Show rangewidget'
-           }   
         }
 
         public get search(): ISearch { return this._search; };

@@ -171,8 +171,6 @@
         "csComp/directives/Widgets/Presentation/PresentationService.ts",
         "csComp/directives/Widgets/Presentation/PresentationWidget-edit.ts",
         "csComp/directives/Widgets/Presentation/PresentationWidget.ts",
-        "csComp/directives/Widgets/RangeWidget/RangeWidget.ts",
-        "csComp/directives/Widgets/RangeWidget/RangeWidgetCtrl.ts",
         "csComp/directives/Widgets/SimState/SimState-edit.ts",
         "csComp/directives/Widgets/SimState/SimState.ts",
         "csComp/directives/Widgets/SimTimeController/SimTimeController-edit.ts",
