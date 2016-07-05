@@ -39,6 +39,7 @@ module ButtonWidget {
     export interface IButton {
         title: string;
         description: string;
+        moreInfo : string;
         action: string;
         layer: string;
         group: string;
@@ -249,7 +250,7 @@ module ButtonWidget {
                 } else {
                     b._disabled = true;
                 }
-            
+
         }
 
         private checkStyle(b: IButton) {
@@ -258,7 +259,7 @@ module ButtonWidget {
                 b._disabled = true;
                 return;
             }
-            
+
             b._disabled = false;
             var prop = b.property;
             if (prop.indexOf('#') > -1) prop = prop.split('#')[1];
@@ -278,6 +279,7 @@ module ButtonWidget {
                 }
                 if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
+                    b.moreInfo = b._legend.description;
                     this.checkLegend(b);
                 } else {
                     b._legend = null;

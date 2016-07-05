@@ -2,7 +2,7 @@
     <!-- Extended layout (vertical orientation, description & legend options, etc.) -->
     <div ng-if="!data.minimalLayout">
         <div ng-repeat="b in $parent.buttons" ng-hide="b._disabled" class="s3d button-container" ng-class="{'button-container-down': b._active}">
-            <div class="button-widget-content"  ng-click="$parent.$parent.vm.click(b)" > 
+            <div class="button-widget-content" uib-popover="{{b.moreInfo}}"  popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"  ng-click="$parent.$parent.vm.click(b)" >
                 <img ng-class="{'button-widget-image': (!b._active || !b.showLegend), 'button-widget-image-active': (b._active && b.showLegend)}"
                     ng-if="b.image" ng-src="{{b.image}}"></img>
                      <div ng-show="b._featureIcon" ng-bind-html="b._featureIcon" style="float:left;margin:5px"></div>
