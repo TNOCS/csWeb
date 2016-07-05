@@ -109,8 +109,8 @@ module csComp.Services {
         title = "grid";
         gridParams: IGridDataSourceParameters;
 
-        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {

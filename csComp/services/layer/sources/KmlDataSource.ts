@@ -4,8 +4,8 @@ module csComp.Services {
     export class KmlDataSource extends csComp.Services.GeoJsonSource {
         title = "kml";
 
-        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         private get(x, y) { return x.getElementsByTagName(y); }

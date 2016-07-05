@@ -171,7 +171,7 @@ module csComp.Services {
         }
 
         evalSensorExpression(expression: string, features: IFeature[], feature?: IFeature, timeIndex? : number) {
-            if (!feature.sensors || feature.sensors.length===0) return null;
+            if (!feature.sensors || _.keys(feature.sensors).length === 0) return null;
             var parsedExpression = this.$parse(expression);
             var scope = {
                 timeIndex : timeIndex,

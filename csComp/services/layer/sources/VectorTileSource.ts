@@ -10,8 +10,8 @@ module csComp.Services {
         /** The urls that are cached (in order to keep the cache from only growing). */
         cachedUrls: string[] = [];
 
-        public constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        public constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {

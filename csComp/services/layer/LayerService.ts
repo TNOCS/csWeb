@@ -587,7 +587,7 @@ module csComp.Services {
             this.layerSources['esrijson'] = new EsriJsonSource(this, this.$http, this.$storage);
 
             // add kml source
-            var kmlDataSource = new KmlDataSource(this, this.$http);
+            var kmlDataSource = new KmlDataSource(this, this.$http, this.$storage);
             this.layerSources['kml'] = kmlDataSource;
             this.layerSources['gpx'] = kmlDataSource;
 
@@ -604,19 +604,19 @@ module csComp.Services {
             this.layerSources['hierarchy'] = new HierarchySource(this, this.$http);
 
             //add grid layer
-            this.layerSources['grid'] = new GridDataSource(this, this.$http);
+            this.layerSources['grid'] = new GridDataSource(this, this.$http, this.$storage);
 
             //add day or night data source
-            this.layerSources['daynight'] = new NightDayDataSource(this, this.$http);
+            this.layerSources['daynight'] = new NightDayDataSource(this, this.$http, this.$storage);
 
             // add RSS data source
-            this.layerSources['rss'] = new RssDataSource(this, this.$http);
+            this.layerSources['rss'] = new RssDataSource(this, this.$http, this.$storage);
 
             // add Database data source
             this.layerSources['database'] = new DatabaseSource(this);
 
             // add VectorTile data source
-            this.layerSources['vectortile'] = new VectorTileSource(this, this.$http);
+            this.layerSources['vectortile'] = new VectorTileSource(this, this.$http, this.$storage);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
