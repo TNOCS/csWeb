@@ -2,6 +2,7 @@ import express = require('express');
 import http = require('http');
 import path = require('path');
 import Winston = require('winston');
+var compress = require('compression');
 
 import csweb = require('./index');
 
@@ -35,12 +36,13 @@ export class csServer {
         this.messageBus = new csweb.MessageBusService();
         this.config = new csweb.ConfigurationService(path.join(this.dir, 'configuration.json'));
 
-        // all environments 
+        // all environments
         this.server.set('port', this.options.port);
         this.server.use(favicon(this.dir + '/public/favicon.ico'));
         //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
         this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
         this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true })); // support encoded bodies
+        this.server.use(compress());
 
         if (this.options.corrsEnabled) {
             // CORRS: see http://stackoverflow.com/a/25148861/319711
@@ -66,7 +68,7 @@ export class csServer {
 
         this.httpServer.listen(this.server.get('port'), () => {
             Winston.info('Express server listening on port ' + this.server.get('port'));
-            /* 
+            /*
              * API platform
              */
             this.api = new csweb.ApiManager('cs', 'cs');
@@ -79,7 +81,7 @@ export class csServer {
                 ];
 
                 if (c.hasOwnProperty('mqtt')) connectors.push({ key: 'mqtt', s: new csweb.MqttAPI(c['mqtt'].server, c['mqtt'].port), options: {} });
-                //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });                
+                //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });
 
                 this.api.addConnectors(connectors, () => {
                     started();
