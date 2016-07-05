@@ -66,6 +66,16 @@ module Filters {
                 this.exporterAvailable = false;
             }
 
+            this.$messageBus.subscribe('filters', (title: string, groupId) => {
+                switch (title) {
+                    case 'updateGroup': 
+                        if ($scope.filter && $scope.filter.group.id === groupId) {
+                            this.updateFilter();
+                        }
+                        break;
+                }
+            })
+            
             if ($scope && $scope.filter) {
                 setTimeout(() => this.initRowFilter());
                 //$timeout.call(()=>this.initBarFilter());
@@ -223,6 +233,9 @@ module Filters {
                             result.push({ key: d.key, value: 0 });
                     });
                     return result.slice(0, n);
+                },
+                size: function () {
+                    return bins.length;
                 }
             };
         };

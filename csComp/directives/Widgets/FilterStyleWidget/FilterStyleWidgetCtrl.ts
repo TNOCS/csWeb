@@ -65,7 +65,7 @@ module FilterStyleWidget {
 
             this.mBusHandles.push(this.$messageBus.subscribe('layer', (title, l: csComp.Services.ProjectLayer) => {
                 if (title === 'activated') {
-                    if ($scope.filter && $scope.filter.group) {
+                    if ($scope.filter) {
                         this.updateChart();
                     }
                 }
@@ -85,6 +85,12 @@ module FilterStyleWidget {
                         break;
                 }
             }));
+        }
+
+        private canMinimize() {
+            return (this.$scope.data.hasOwnProperty('canMinimize'))
+                ? this.$scope.data['canMinimize']
+                : true;
         }
 
         private minimize() {
@@ -155,7 +161,10 @@ module FilterStyleWidget {
         }
 
         private updateRowFilterScope(gf: csComp.Services.GroupFilter) {
-            if (!gf) return;
+            if (!gf || !gf.group) {
+                console.log('No filter provided.');
+                return;
+            }
             var rowFilterElm = angular.element($("#filter_" + this.widget.id));
             if (!rowFilterElm) {
                 console.log('rowFilterElm not found.');

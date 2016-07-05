@@ -125,6 +125,12 @@ module MarkdownWidget {
             }
         }
 
+        private canMinimize() {
+            return (this.$scope.data.hasOwnProperty('canMinimize'))
+                ? this.$scope.data['canMinimize']
+                : true;
+        }
+
         private minimize() {
             this.$scope.minimized = !this.$scope.minimized;
             if (this.$scope.minimized) {

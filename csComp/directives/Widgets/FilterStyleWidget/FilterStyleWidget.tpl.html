@@ -1,14 +1,17 @@
 <div uib-popover="{{'ROW_CHART_HELP' | translate}}" popover-trigger="mouseenter" popover-append-to-body="false" popover-placement="right">
-    <div class="row" style="display: inline-block; margin-left: 2px;">
+    <div class="row" style="display: inline-block; margin-left: 2px; margin-right: 40px;">
         <div style="display: inline-block; font-size:16px; font-weight:bold; margin-bottom:2px;">{{filter.title}}</div>
         <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
             <a class="widget-min-max-close" ng-click="vm.close()" ng-if="vm.canClose()"><i class="fa fa-times"></i></a>
-            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="minimized"> <i class="fa fa-plus"></i></a>
-            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-hide="minimized"> <i class="fa fa-minus"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="vm.canMinimize() && minimized"> <i class="fa fa-plus"></i></a>
+            <a class="widget-min-max-close" ng-click="vm.minimize()" ng-show="vm.canMinimize() && !minimized"> <i class="fa fa-minus"></i></a>
             <a class="widget-min-max-close" ng-click="vm.exportToImage()"><i class="fa fa-save" uib-tooltip="{{'SAVE_AS_IMAGE' | translate}}" tooltip-trigger="mouseenter" tooltip-append-to-body="true" ng-show="vm.exporterAvailable&&!minimized"></i></a>
         </div>
     </div>
     <div ng-hide="minimized">
-        <row-filter ng-if="filter && filter.filterType=='row'" style="margin-left:25px"></row-filter>
+        <row-filter ng-if="filter && filter.filterType=='row'"></row-filter>
+    </div>
+    <div style="float:right;cursor:pointer;clear:both">
+        <a ng-click="vm.$messageBus.publish('feature','justShowThisWidget')">Toelichting methodiek</a>
     </div>
 </div>
