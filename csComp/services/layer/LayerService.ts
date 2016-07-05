@@ -164,7 +164,6 @@ module csComp.Services {
             });
 
 
-
             $messageBusService.subscribe('mapbbox', (title: string, bbox: string) => {
                 if (title !== 'update') return;
                 let a = [];
@@ -241,7 +240,7 @@ module csComp.Services {
         public updateLayerKpiLink(layer: ProjectLayer) {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
-                if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
+                if (!_.isUndefined(layer._gui['loadingKpiLink']) && layer._gui['loadingKpiLink']) return;
 
                 var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
@@ -250,69 +249,85 @@ module csComp.Services {
 
                 var link = layer.sensorLink.kpiUrl;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + t.start + "," + t.end;
+                    link += '?tbox=' + t.start + ',' + t.end;
                 }
                 else {
-                    var interval = "1h";
+                    var interval = '1h';
                     if (!_.isUndefined(layer.sensorLink.liveIntervalKPI)) {
                         interval = layer.sensorLink.liveIntervalKPI;
                     }
                     else if (!_.isUndefined(layer.sensorLink.liveInterval)) {
                         interval = layer.sensorLink.liveInterval;
                     }
-                    link += "?tbox=" + interval;
+                    link += '?tbox=' + interval;
                 }
                 console.log('kpi:' + link);
-                layer._gui["loadingKpiLink"] = true;
+                layer._gui['loadingKpiLink'] = true;
                 this.$http.get(link)
                     .success((data: ISensorLinkResult) => {
-                        layer._gui["loadingKpiLink"] = false;
+                        layer._gui['loadingKpiLink'] = false;
 
                         layer.kpiTimestamps = data.timestamps;
                         if (typeof data.kpis !== 'undefined') {
                             layer.sensors = data.kpis;
                         }
-                        this.$messageBusService.publish("timeline", "sensorLinkUpdated");
+
+                        this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
                     })
                     .error((e) => {
-                        layer._gui["loadingKpiLink"] = false;
+                        layer._gui['loadingKpiLink'] = false;
                         console.log('error loading sensor data');
                     });
             }
         }
 
+        /** update sensor data using an external sensor link */
         public updateLayerSensorLink(layer: ProjectLayer) {
             if (layer.sensorLink) {
                 // create sensorlink
-                if (!_.isUndefined(layer._gui["loadingSensorLink"]) && layer._gui["loadingSensorLink"]) return;
-                var range = (this.timeline.range.end - this.timeline.range.start)
-                layer.sensorLink._outOfRange = layer._gui.outOfRange = (!this.project.activeDashboard.isLive && range > layer.sensorLink.zoomMaxTimeline);
+                if (!_.isUndefined(layer._gui['loadingSensorLink']) && layer._gui['loadingSensorLink']) return;
+                var range = (this.timeline.range.end - this.timeline.range.start);
 
+                // check if timeline is within range
+                layer.sensorLink._outOfRange = layer._gui.outOfRange = (!this.project.activeDashboard.isLive && range > layer.sensorLink.zoomMaxTimeline);
                 if (layer.sensorLink._outOfRange) return;
 
+                // get project timeline, or use dashboard timeline if avaiable
                 var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
+                // create link
                 var link = layer.sensorLink.url;
                 if (!this.project.activeDashboard.isLive) {
-                    link += "?tbox=" + t.start + "," + t.end;
+                    link += '?tbox=' + t.start + ',' + t.end;
                     //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
-                }
-                else {
-
+                } else {
                     if (_.isUndefined(layer.sensorLink.liveInterval)) {
-                        link += "?tbox=15m";
-                    }
-                    else {
-                        link += "?tbox=" + layer.sensorLink.liveInterval;
+                        link += '?tbox=15m';
+                    } else {
+                        link += '?tbox=' + layer.sensorLink.liveInterval;
                     }
                 }
                 layer._gui['lastSensorLink'] = link;
+                let timeStarted = new Date().getTime();
                 console.log('downloading ' + link);
-                layer._gui["loadingSensorLink"] = true;
+                layer._gui['loadingSensorLink'] = true;
                 this.$http.get(link)
                     .success((data: ISensorLinkResult) => {
-                        layer._gui["loadingSensorLink"] = false;
+                        let timeLoaded = new Date().getTime();
+                        console.log('sensor data loaded ' + (timeLoaded - timeStarted).toString());
+                        layer._gui['loadingSensorLink'] = false;
+                        switch (data.timeAggregation) {
+                            case 'minute':
+                                layer.sensorLink.actualInterval = 1000 * 60;
+                                break;
+                            case 'hour':
+                                layer.sensorLink.actualInterval = 1000 * 60 * 60;
+                                break;
+                            case 'day':
+                                layer.sensorLink.actualInterval = 1000 * 60 * 60 * 24;
+                                break;
+                        }
 
                         layer.timestamps = data.timestamps;
                         layer.data.features.forEach((f: IFeature) => {
@@ -321,7 +336,7 @@ module csComp.Services {
                         });
                         var t = 0;
 
-                        var featureLookup = []
+                        var featureLookup = [];
                         var p = 0;
 
                         data.features.forEach(f => {
@@ -330,6 +345,8 @@ module csComp.Services {
                             featureLookup.push(p);
                             p += 1;
                         });
+
+                        console.log('sensor data processed ' + (new Date().getTime() - timeLoaded).toString());
 
                         for (var s in data.data) {
                             var sensordata = data.data[s];
@@ -351,12 +368,33 @@ module csComp.Services {
                             }
                         }
 
+                        // check features
+                        // layer.data.features.forEach((f: IFeature) => {
+                        //     // check expressions
+                        //     f.fType._expressions.forEach(ex => {
+                        //         if (ex.isSensor && ex.label) {
+                        //             f.sensors[ex.label] = [];
+                        //             for (var i = 0; i < data.timestamps.length; i++) {
+                        //                 try {
+                        //                     f.sensors[ex.label].push(this.expressionService.evalSensorExpression(ex.expression, f.layer.data.features, f, i));
+                        //                 }
+                        //                 catch (ec) {
+                        //                     f.sensors[ex.label].push(-1);
+                        //                 }
+
+                        //             }
+                        //         }
+                        //     });
+                        // });
+
+
+
 
                         this.throttleSensorDataUpdate();
-                        this.$messageBusService.publish("timeline", "sensorLinkUpdated");
+                        this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
                     })
                     .error((e) => {
-                        layer._gui["loadingSensorLink"] = false;
+                        layer._gui['loadingSensorLink'] = false;
                         console.log('error loading sensor data');
                     });
                 this.updateLayerKpiLink(layer);
@@ -879,7 +917,7 @@ module csComp.Services {
             if (!source.title) source.title = source.url;
 
             // if url starts with  'api/' this is a dynamic resource
-            if (typeof (source.isDynamic) === "undefined") {
+            if (typeof (source.isDynamic) === 'undefined') {
                 source.isDynamic = (source.url.indexOf('api/') === 0) || (source.url.indexOf('/api/') === 0);
             }
 
@@ -888,7 +926,7 @@ module csComp.Services {
                 for (var key in source.propertyTypeData) {
                     var propertyType: IPropertyType = source.propertyTypeData[key];
                     propertyType.id = source.url + '#' + key;
-                    this.initPropertyType(propertyType);
+                    this.initPropertyType(propertyType, source.legends);
                     if (!propertyType.label) propertyType.label = key;
                     // EV Check that this doesn't cause errors when two different resource files define the same key. Shouldn't we use the id?
                     this.propertyTypeData[key] = propertyType;
@@ -900,7 +938,7 @@ module csComp.Services {
                     //if (!this._featureTypes.hasOwnProperty(tn)) continue;
                     var featureType: IFeatureType = featureTypes[typeName];
                     featureType.id = tn;
-                    this.initFeatureType(featureType, source.propertyTypeData);
+                    this.initFeatureType(featureType, source);
                     this._featureTypes[tn] = featureType;
                 }
             }
@@ -1174,7 +1212,7 @@ module csComp.Services {
                     feature.fType.selectActions.forEach(action => {
                         this.actionService.execute(action, {
                             layerId: feature.layerId
-                        })
+                        });
                     });
                 }
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', true);
@@ -1251,7 +1289,7 @@ module csComp.Services {
         public getSensorIndex(d: Number, timestamps: Number[]) {
             // check if active dashboard is live, return last value
             if (this.project.activeDashboard && this.project.activeDashboard.isLive) {
-                return timestamps.length - 1
+                return timestamps.length - 1;
             }
             else {
                 for (var i = 1; i < timestamps.length; i++) {
@@ -1267,22 +1305,23 @@ module csComp.Services {
         /// calculate sensor data for a specific feature
         public updateFeatureSensorData(f: IFeature, date: number) {
             var l = f.layer;
+            var timeStamps = f.timestamps ? f.timestamps : l.timestamps;
             if (f.sensors || f.coordinates) {
                 let changed = false;
                 var pos = 0;
                 if (f.timestamps) { // check if feature contains timestamps
                     pos = this.getSensorIndex(date, f.timestamps);
                 } else if (l.timestamps) {
-                    if (l._gui.hasOwnProperty("timestampIndex")) {
-                        pos = l._gui["timestampIndex"];
+                    if (l._gui.hasOwnProperty('timestampIndex')) {
+                        pos = l._gui['timestampIndex'];
                     } else {
                         pos = this.getSensorIndex(date, l.timestamps);
-                        l._gui["timestampIndex"] = pos;
-                        l._gui["timestamp"] = l.timestamps[pos];
+                        l._gui['timestampIndex'] = pos;
+                        l._gui['timestamp'] = l.timestamps[pos];
                     }
                 }
                 // check if a new coordinate is avaiable
-                if (f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] !== f.geometry.coordinates) {
+                if (pos >= 0 && f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] !== f.geometry.coordinates) {
                     f.geometry.coordinates = f.coordinates[pos];
                     // get marker
                     if (l.group.markers.hasOwnProperty(f.id)) {
@@ -1294,12 +1333,18 @@ module csComp.Services {
                 if (f.sensors) {
                     for (var sensorTitle in f.sensors) {
                         var sensor = f.sensors[sensorTitle];
-                        var value = sensor[pos];
-                        if (value != f.properties[sensorTitle]) {
-                            f.properties[sensorTitle] = value;
-                            changed = true;
+                        if (sensor.length > 0) {
+                            var value = sensor[pos];
+                            if (value !== f.properties[sensorTitle]) {
+                                f.properties[sensorTitle] = value;
+                                changed = true;
+                            }
                         }
                     }
+
+
+
+
                     // only update feature if data actually has changed
                     if (changed) {
                         this.calculateFeatureStyle(f);
@@ -1311,15 +1356,15 @@ module csComp.Services {
         }
 
         public updateLayerSensorDataWithDate(l: ProjectLayer, date) {
-            delete l._gui["timestampIndex"];
-            delete l._gui["timestamp"];
+            delete l._gui['timestampIndex'];
+            delete l._gui['timestamp'];
             if ((l.hasSensorData || l.sensorLink) && l.data.features) {
 
                 l.data.features.forEach((f: IFeature) => {
                     if ((l.partialBoundingBoxUpdates && f._gui.insideBBOX) || !l.partialBoundingBoxUpdates) this.updateFeatureSensorData(f, date);
                 });
 
-                this.mb.publish("layer", "sensordataUpdated", l);
+                this.mb.publish('layer', 'sensordataUpdated', l);
 
             }
             if (l.isDynamic && l.useLog) {
@@ -1372,9 +1417,10 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
-                feature.type = "Feature";
+                feature.type = 'Feature';
                 feature._gui = {
-                    included: true
+                    included: true,
+                    insideBBOX: true
                 };
 
                 if (!feature.logs) feature.logs = {};
@@ -1396,7 +1442,7 @@ module csComp.Services {
 
                 // check if defaultLegends are active
                 if (feature.fType.defaultLegendProperty) {
-                    if (typeof feature.fType.defaultLegendProperty === "string") {
+                    if (typeof feature.fType.defaultLegendProperty === 'string') {
                         this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty);
                     }
                     else {
@@ -1579,7 +1625,7 @@ module csComp.Services {
         /**
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
-        public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
+        public initFeatureType(ft: IFeatureType, source:  ITypesResource) {
             if (ft._isInitialized) return;
             ft._isInitialized = true;
             this.initIconUri(ft);
@@ -1591,10 +1637,33 @@ module csComp.Services {
                 ft._propertyTypeData = [];
                 if (ft.propertyTypeKeys && ft.propertyTypeKeys.length > 0) {
                     ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
-                        if (propertyTypes && propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
+                        if (source.propertyTypeData) {
+                            // check if property type already exists
+                            if (source.propertyTypeData.hasOwnProperty(key))
+                            {
+                                ft._propertyTypeData.push(source.propertyTypeData[key]);
+                            } else // if not create a new one with the key as label/property and title
+                            {
+                                let pt = <IPropertyType> { label : key, title : key, type : 'text'};
+                                source.propertyTypeData[key] = pt;
+
+                                ft._propertyTypeData.push(pt);
+                            }
+                        }
                     });
                 }
+
+                ft._expressions = [];
+                ft._propertyTypeData.forEach(pt => {
+                    if (pt.expression) {
+                        ft._expressions.push(pt);
+                    }
+                });
             }
+
+
+
+
         }
 
         /** Set the iconUri for remote servers (newIconUri = server/oldIconUri) */
@@ -1610,8 +1679,9 @@ module csComp.Services {
         /**
         * Initialize the property type with default values, and, if applicable, localize it.
         */
-        private initPropertyType(pt: IPropertyType) {
+        private initPropertyType(pt: IPropertyType, legends: any) {
             this.setDefaultPropertyType(pt);
+            if (pt.legendType && legends && legends.hasOwnProperty(pt.legendType)) pt.legend = legends[pt.legendType];
             if (pt.languages != null) this.localizePropertyType(pt);
         }
 
@@ -2162,7 +2232,7 @@ module csComp.Services {
             }
 
             if (!res) {
-                res = <IPropertyType>{ label: property, type: "text", title: property };
+                res = <IPropertyType>{ label: property, type: 'text', title: property };
             }
 
             return res;
@@ -2579,6 +2649,7 @@ module csComp.Services {
                         d.widgets.forEach((w) => {
                             if (!w.id) w.id = Helpers.getGuid();
                             if (!w.enabled) w.enabled = true;
+                            if (!w.position) w.position = 'dashboard';
                         });
                 });
             }
@@ -2908,7 +2979,7 @@ module csComp.Services {
         public toggleLayer(layer: ProjectLayer, loaded?: Function) {
             if (_.isUndefined(layer.enabled) || layer.enabled === false) {
                 layer.enabled = true;
-                this.addLayer(layer, () => { if (loaded) loaded() });
+                this.addLayer(layer, () => { if (loaded) loaded(); });
             } else {
                 layer.enabled = !layer.enabled;
                 this.removeLayer(layer);
@@ -2918,7 +2989,7 @@ module csComp.Services {
 
         public enableLayer(layer: ProjectLayer, loaded?: Function) {
             layer.enabled = true;
-            this.addLayer(layer, () => { if (loaded) loaded() });
+            this.addLayer(layer, () => { if (loaded) loaded(); });
         }
 
         public removeGroup(group: ProjectGroup) {
@@ -3199,7 +3270,7 @@ module csComp.Services {
                             delete f._gui['editMode'];
                             this.updateFeature(f);
                             this.saveFeature(f);
-                        })
+                        });
                     }
                 });
             });

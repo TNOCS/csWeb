@@ -14,6 +14,8 @@ module csComp.Services {
         liveIntervalKPI? : string;
         /** maximum timeline zoom level */
         zoomMaxTimeline? : number;
+        /** actual interval in ms */
+        actualInterval? : number;
 
         _outOfRange? : boolean;
     }

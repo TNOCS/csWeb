@@ -70,7 +70,7 @@ module csComp.Services {
         htmlStyle: string;
         featureTypeName: string;
         lastUpdated: number;
-        _gui: IGuiObject = { included: true };
+        _gui: IGuiObject = { included: true, insideBBOX : true };
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
@@ -212,6 +212,7 @@ module csComp.Services {
         categories?: string[];
         languages?: ILanguageData;
         legend?: Legend;
+        legendType? : string;
         /** if defined, this sensor value will be removed. this can be usefull for sensor data that uses -1 or -999999 as empty sensor data */
         sensorNull?: Object;
         hideValue?: boolean;
@@ -223,6 +224,7 @@ module csComp.Services {
         targetid?: string;
         /** Angular expression */
         expression?: string;
+        isSensor? : boolean;
     }
 
     export interface IPropertyTypeData {
@@ -336,6 +338,7 @@ module csComp.Services {
         /** If true, specifies the properties to publish items on the timeline. */
         timelineConfig?: Timeline.ITimelineConfig;
         _propertyTypeData?: IPropertyType[];
+        _expressions? : IPropertyType[];
         _isInitialized?: boolean;
         _resource?: ITypesResource;
     }
