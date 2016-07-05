@@ -317,56 +317,61 @@ module csComp.Services {
                         let timeLoaded = new Date().getTime();
                         console.log('sensor data loaded ' + (timeLoaded - timeStarted).toString());
                         layer._gui['loadingSensorLink'] = false;
-                        switch (data.timeAggregation) {
-                            case 'minute':
-                                layer.sensorLink.actualInterval = 1000 * 60;
-                                break;
-                            case 'hour':
-                                layer.sensorLink.actualInterval = 1000 * 60 * 60;
-                                break;
-                            case 'day':
-                                layer.sensorLink.actualInterval = 1000 * 60 * 60 * 24;
-                                break;
-                        }
+                        layer.sensorLink.actualInterval = data['timewindow'] * 1000 * 60;
+                        // switch (data.timeAggregation) {
+                        //     case 'minute':
+                        //         layer.sensorLink.actualInterval = 1000 * 60;
+                        //         break;
+                        //     case 'hour':
+                        //         layer.sensorLink.actualInterval = 1000 * 60 * 60;
+                        //         break;
+                        //     case 'day':
+                        //         layer.sensorLink.actualInterval = 1000 * 60 * 60 * 24;
+                        //         break;
+                        // }
 
                         layer.timestamps = data.timestamps;
                         layer.data.features.forEach((f: IFeature) => {
                             f.sensors = {};
-                            data.properties.forEach(s => f.sensors[s] = []);
+                            if (data.features.hasOwnProperty(f.id))
+                            {
+                                f.sensors = data.features[f.id];
+                            }
                         });
-                        var t = 0;
+                        // var t = 0;
 
-                        var featureLookup = [];
-                        var p = 0;
+                        // var featureLookup = [];
+                        // var p = 0;
 
-                        data.features.forEach(f => {
-                            //var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
-                            //if (index !== -1) featureLookup.push(index);
-                            featureLookup.push(p);
-                            p += 1;
-                        });
+                        // data.features.forEach(f => {
+
+                        //     //var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
+                        //     //if (index !== -1) featureLookup.push(index);
+                        //     featureLookup.push(p);
+                        //     p += 1;
+                        // });
 
                         console.log('sensor data processed ' + (new Date().getTime() - timeLoaded).toString());
 
-                        for (var s in data.data) {
-                            var sensordata = data.data[s];
-                            for (var ti = 0; ti < data.timestamps.length; ti++) {
-                                if (sensordata.length > ti) {
-                                    for (var fi = 0; fi < sensordata[ti].length; fi++) {
-                                        // get feature
-                                        var findex = featureLookup[fi];
-                                        if (findex >= 0) {
-                                            var f = layer.data.features[findex];
-                                            if (f) {
-                                                var value = sensordata[ti][fi];
-                                                //if (value === -1) value = null;
-                                                f.sensors[s].push(value);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        // for (var s in data.data) {
+                        //     var sensordata = data.data[s];
+                        //     for (var ti = 0; ti < data.timestamps.length; ti++) {
+                        //         if (sensordata.length > ti) {
+                        //             for (var fi = 0; fi < sensordata[ti].length; fi++) {
+                        //                 // get feature
+                        //                 var findex = featureLookup[fi];
+                        //                 if (findex >= 0) {
+                        //                     var f = layer.data.features[findex];
+                        //                     if (f) {
+                        //                         var value = sensordata[ti][fi];
+                        //                         //if (value === -1) value = null;
+                        //                         f.sensors[s].push(value);
+                        //                     }
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
+                        // }
 
                         // check features
                         // layer.data.features.forEach((f: IFeature) => {
