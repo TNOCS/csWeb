@@ -89,7 +89,7 @@ module LayersDirective {
         public dropLayer(layer: csComp.Services.ProjectLayer) {
             this.initGroups();
             this.initResources();
-
+            this.$layerService.visual.leftPanelVisible = true;
             (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
             this.state = 'createlayer';
             this.newLayer = layer;
@@ -288,7 +288,7 @@ module LayersDirective {
                         if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
                             if (!ft._isInitialized) {
-                                this.$layerService.initFeatureType(ft, tr.propertyTypeData);
+                                this.$layerService.initFeatureType(ft, tr);
                             }
                             if (_.isArray(ft._propertyTypeData)) {
                                 for (var k in ft._propertyTypeData) {
