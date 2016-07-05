@@ -140,7 +140,13 @@ module FocusTimeWidget {
                         if (this.layer.sensorLink.actualInterval)
                         {
                             this.endTime = this.layer._gui["timestamp"];
-                            this.time = this.layer._gui["timestamp"] -this.layer.sensorLink.actualInterval;
+                            this.time = this.layer._gui["timestamp"] + this.layer.sensorLink.actualInterval;
+
+                            if (this.time > this.endTime) {
+                                let et = this.endTime;
+                                this.endTime = this.time;
+                                this.time = et;
+                            }
                             //this.time = new Date(this.endTime.getTime() -this.layer.sensorLink.actualInterval);
                         }
                         else

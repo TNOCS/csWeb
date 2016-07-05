@@ -10,18 +10,19 @@
             <div ng-show="vm.time">
                 <div class="focustime-widget-date">{{vm.time | date:vm.dateFormat}}</div>
                 <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}
-                <span ng-if="vm.endTime" class="focustime-widget-time"> - {{vm.endTime | date:vm.timeFormat}}</span>
+                    <span ng-if="vm.endTime" class="focustime-widget-time"> - {{vm.endTime | date:vm.timeFormat}}</span>
                 </div>
-                <div class="focustime-widget-compare">Vergelijk met<br/><select name="compare">
+                <!--<div class="focustime-widget-compare">Vergelijk met<br/><select name="compare">
   <option value="avg">Gemiddeld</option>
   <option value="date">Datum</option>
   <option value="none">Niet</option>
 </select>
+
+            </div>-->
                 <!--<div style="margin:10px"><button class="button" ng-click="vm.lastHour()" style="margin-right:5px">laatste uur</button><button ng-click="vm.lastDay()" class="button">laatste 24 uur</button></div>-->
-            </div>
-            <div ng-hide="vm.time">
-                <span>Momenteel is er geen sensor data beschikbaar</span>
+                <div ng-hide="vm.time">
+                    <span>Momenteel is er geen sensor data beschikbaar</span>
+                </div>
             </div>
         </div>
     </div>
-</div>
