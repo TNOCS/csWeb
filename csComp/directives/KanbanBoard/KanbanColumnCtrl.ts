@@ -9,8 +9,8 @@ module KanbanColumn {
         fields: any;
         layer: csComp.Services.ProjectLayer;
         /** In case the KanbanColumn should use a temporary layer instead of a project layer, this should be set
-         *  to true and the layer should be passed through the scope variables. One example where this is used, 
-         *  is in the EventTab. 
+         *  to true and the layer should be passed through the scope variables. One example where this is used,
+         *  is in the EventTab.
          */
         providedlayer: boolean;
     }
@@ -80,6 +80,14 @@ module KanbanColumn {
 
             // check if layers should be enabled
             this.initLayers();
+
+            this.$messageBus.subscribe("layer",(a : string, pl : csComp.Services.ProjectLayer) =>
+            {
+                if (a === "activated")
+                {
+                    this.initLayers();
+                }
+            });
 
             if (!this.column.hasOwnProperty('canShare')) this.column.canShare = true;
 
@@ -190,14 +198,15 @@ module KanbanColumn {
 
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
-                if (feature.properties.hasOwnProperty('date')) {
+                var dateProp = this.column.fields["date"];
+                if (feature.properties.hasOwnProperty(dateProp)) {
                     // Select a timereference to use, e.g., actual date or the timeline's focusdate
                     if (this.column.timeReference && this.column.timeReference.toLowerCase() === 'timeline') {
-                        var d = feature.properties['date'];
+                        var d = feature.properties[dateProp];
                         if (!feature.hasOwnProperty('_gui')) feature._gui = <csComp.Services.IGuiObject>{};
                         feature._gui['relativeTime'] = moment(d).from(moment(new Date(this.$layerService.project.timeLine.focus)));
                     } else {
-                        var d = feature.properties['date'];
+                        var d = feature.properties[dateProp];
                         if (!feature.hasOwnProperty('_gui')) feature._gui = <csComp.Services.IGuiObject>{};
                         feature._gui['relativeTime'] = moment(d).fromNow();
                     }
@@ -271,6 +280,7 @@ module KanbanColumn {
         we only use the first one for now
          */
         initLayers() {
+            if (this.layer) return;
             var providedLayer = this.$scope.providedlayer;
             if (providedLayer) {
                 this.layer = this.$scope.layer;
