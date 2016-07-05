@@ -804,8 +804,8 @@ module Idv {
                     break;
             }
 
-            if (!_.isUndefined(config.xaxis)) { config.chart.xAxisLabel(config.xaxis); }
-            if (!_.isUndefined(config.yaxis)) { config.chart.yAxisLabel(config.yaxis); }
+            if (!_.isUndefined(config.xaxis) && _.isFunction(config.chart.xAxisLabel)) { config.chart.xAxisLabel(config.xaxis); }
+            if (!_.isUndefined(config.yaxis) && _.isFunction(config.chart.yAxisLabel)) { config.chart.yAxisLabel(config.yaxis); }
 
             config.chart.on("filtered", (chart, filter) => {
                 this.triggerFilter(config);
