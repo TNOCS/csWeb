@@ -128,13 +128,14 @@ module Dashboard {
                 widget._ctrl.getOptions().forEach(o => options.push(o));
             }
             if (this.$mapService.isAdminExpert) {
-                options.push({ title: "Widget Settings", action: (w) => this.$dashboardService.editWidget(w) });
-                if (widget._interaction) {
-                    options.push({ title: "Disable drag", action: (w) => this.toggleInteract(w) });
-                } else {
-                    options.push({ title: "Enable drag", action: (w) => this.toggleInteract(w) });
+                options.push({ title: 'Widget Settings', action: (w) => this.$dashboardService.editWidget(w) });
+                if (widget.position === 'dashboard') {
+                    if (widget._interaction) {
+                        options.push({ title: 'Disable drag', action: (w) => this.toggleInteract(w) });
+                    } else {
+                        options.push({ title: 'Enable drag', action: (w) => this.toggleInteract(w) });
+                    }
                 }
-
             }
             widget._options = options;
         }
@@ -152,26 +153,31 @@ module Dashboard {
             var newScope = this.$scope;
             (<any>newScope).widget = w;
 
-            if (w.template) {
-                widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
-            } else if (w.url) {
-                widgetElement = this.$compile('<div>url</div>')(this.$scope);
-            } else if (w.directive) {
-                //var newScope : ng.IScope;
-                widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
-            } else {
-                widgetElement = this.$compile('<div></div>')(this.$scope);
+            if (w.position === 'rightpanel') {
+                var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
+                rpt.open = false;
+            	this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            }
+            else {
+                if (w.template) {
+                    widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
+                } else if (w.url) {
+                    widgetElement = this.$compile('<div>url</div>')(this.$scope);
+                } else if (w.directive) {
+                    //var newScope : ng.IScope;
+                    widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
+                } else {
+                    widgetElement = this.$compile('<div></div>')(this.$scope);
+                }
             }
 
             this.getOptions(w);
 
-            var resized = function () {
-                //alert('resize');
-                /* do something */
-            };
-            if (widgetElement) {
-                widgetElement.resize(resized);
 
+
+
+
+            if (widgetElement) {
                 //alert(w.elementId);
                 var el = $('#' + w.elementId);
                 el.empty();
@@ -224,7 +230,7 @@ module Dashboard {
         public checkDescription() {
             var db = this.$layerService.project.activeDashboard;
             if (db.description) {
-                var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', { title : db.name, mdText : db.description }, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question', true, false);
+                var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', { title: db.name, mdText: db.description }, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question', true, false);
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 //this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
             }

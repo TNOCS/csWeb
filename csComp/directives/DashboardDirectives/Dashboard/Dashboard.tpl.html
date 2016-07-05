@@ -22,7 +22,7 @@
     <div style="position:relative;width:100%; height:100%">
         <img id="dashboard-background" ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
         <ul style="padding:0;height:100%" id="dashboardwidgets">
-            <li ng-repeat="widget in dashboard.widgets" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"
+            <li ng-repeat="widget in dashboard.widgets | filter:{position:'dashboard'}" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"
                 ng-class="{widgethover : widget.hover}" ng-show="!(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
                 <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-class="{widgetShadow : widget.effectiveStyle.shadow === true}"
                     ng-hide="widget.collapse" style="position:absolute" " ng-style="{ 'background' : widget.effectiveStyle.background,

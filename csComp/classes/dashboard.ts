@@ -37,6 +37,9 @@ module csComp.Services {
          * name of the template that should be shown as widget
          */
         template?: string;
+
+        /** default on dashboard, other options: rightpanel */
+        position? : string;
         /**
          * title of the widget
          */
@@ -125,6 +128,8 @@ module csComp.Services {
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
         public effectiveStyle: WidgetStyle;
+        /** default on dashboard, other options: rightpanel */
+        public position : string = 'dashboard';
 
         public _ctrl: IWidgetCtrl;
         public _initialized: boolean;
@@ -161,6 +166,8 @@ module csComp.Services {
                 top: w.top,
                 bottom: w.bottom,
                 padding: w.padding,
+                position : w.position,
+                icon : w.icon,
                 width: w.width,
                 height: w.height,
                 allowFullscreen: w.allowFullscreen,
