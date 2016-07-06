@@ -1067,7 +1067,7 @@ module csComp.Services {
                 center = csComp.Helpers.GeoExtensions.getCentroid(f.geometry.coordinates).coordinates;
             }
             if (!center || center.length < 2) return;
-            this.map.getMap().panTo(new L.LatLng(center[1], center[0]));
+            this.map.getMap().flyTo(new L.LatLng(center[1], center[0]));
         }
 
         public editFeature(feature: IFeature, select = true) {
@@ -1089,6 +1089,7 @@ module csComp.Services {
             } else {
                 feature.isSelected = !feature.isSelected;
             }
+            if (!feature.hasOwnProperty('_gui')) feature['_gui'];
             feature._gui['title'] = Helpers.getFeatureTitle(feature);
 
             // deselect last feature and also update

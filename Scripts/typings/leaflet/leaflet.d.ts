@@ -2256,6 +2256,11 @@ declare namespace L {
         panTo(latlng: LatLngExpression, options?: PanOptions): Map;
 
         /**
+          * Flies the map to a given center. Makes an animated pan.
+          */
+        flyTo(latlng: LatLngExpression, options?: PanOptions): Map;
+
+        /**
           * Pans the map to the closest view that would lie inside the given bounds (if
           * it's not already).
           */
