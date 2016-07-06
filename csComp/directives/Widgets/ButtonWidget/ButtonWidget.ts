@@ -39,7 +39,7 @@ module ButtonWidget {
     export interface IButton {
         title: string;
         description: string;
-        moreInfo : string;
+        moreInfo: string;
         action: string;
         layer: string;
         group: string;
@@ -123,7 +123,7 @@ module ButtonWidget {
                             break;
                         case 'activate layer':
                             this.checkLayer(b);
-                            this.messageBusService.subscribe('layer', (a, l) => {this.checkLayer(b);  });
+                            this.messageBusService.subscribe('layer', (a, l) => { this.checkLayer(b); });
                             break;
                         case 'activate style':
                             this.checkStyle(b);
@@ -240,16 +240,16 @@ module ButtonWidget {
             }
 
 
-                if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
+            if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
 
 
-                if (!_.isUndefined(b._layer)) {
-                    b._disabled = false;
-                    b._active = b._layer.enabled;
-                    b._canEdit = b._layer.enabled && b._layer.isEditable;
-                } else {
-                    b._disabled = true;
-                }
+            if (!_.isUndefined(b._layer)) {
+                b._disabled = false;
+                b._active = b._layer.enabled;
+                b._canEdit = b._layer.enabled && b._layer.isEditable;
+            } else {
+                b._disabled = true;
+            }
 
         }
 
@@ -282,6 +282,10 @@ module ButtonWidget {
                     b.moreInfo = b._legend.description;
                     this.checkLegend(b);
                 } else {
+                    var pt = this.layerService.findPropertyTypeById(prop);
+                    if (pt && pt.legend) {
+                        b.moreInfo = pt.legend.description;
+                    }
                     b._legend = null;
                 }
             }
@@ -338,7 +342,7 @@ module ButtonWidget {
                 projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
                 this.layerService.setFilter(gf, projGroup);
                 this.layerService.visual.leftPanelVisible = true;
-                $('#filter-tab').click();
+                $('#filter-tab').tab('show');
             }
         }
     }
