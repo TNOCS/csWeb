@@ -122,12 +122,16 @@ module ChartsWidget {
             $('#' + this.widget.elementId).on('remove', () => {
                 if (this.generator) this.generator.stop();
             });
-            //$scope.$on('destroy', () => {
         }
 
         private keyHandle;
 
         public startEdit() {
+
+        }
+
+        public goFullscreen() {
+
 
         }
 

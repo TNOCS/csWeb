@@ -264,6 +264,8 @@ module csComp.Services {
                 }
             });
 
+            if (this.$layerService.lastSelectedFeature) this.selectFeature(<Feature>this.$layerService.lastSelectedFeature);
+
             ctrl.initChart();
         }
 
@@ -280,8 +282,8 @@ module csComp.Services {
                 var properties = [];
                 if (this.options.hasOwnProperty("properties")) {
                     // set width/height using the widget width/height (must be set)
-                    var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
-                    var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
+                    var width = parseInt(this.ctrl.widget._width.toLowerCase().replace('px', '').replace('%', '')) - 50;
+                    var height = parseInt(this.ctrl.widget._height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties
                     if (this.options.properties instanceof Array) {
                         properties = this.options.properties;
@@ -640,16 +642,22 @@ module csComp.Services {
                 if (action === "sensorLinkUpdated") this.selectLayer(this.layer);
             });
 
-            this.mb.subscribe('layer', (action: string, layer: any) => {
-
+            this.mb.subscribe('layer', (action: string, layer: ProjectLayer) => {
                 switch (action) {
-                    default:
+                    case 'activated':
                         this.selectLayer(layer);
                         break;
                 }
             });
 
+            if (this.options.hasOwnProperty('layer'))
+            {
+                let l = this.$layerService.findLayer(this.options['layer']);
+                this.selectLayer(l);
+            }
+
             ctrl.initChart();
+
         }
 
         private selectLayer(layer: ProjectLayer) {
@@ -657,12 +665,12 @@ module csComp.Services {
             if (!layer) return;
             this.ctrl.$scope.data._csv = "";
             if (!_.isArray(layer.kpiTimestamps)) return;
-            if (this.options.hasOwnProperty("layer")) {
+            if (this.options.hasOwnProperty("layer") && this.options["layer"] === layer.id) {
                 var sensors = [];
                 if (this.options.hasOwnProperty("sensors")) {
                     // set width/height using the widget width/height (must be set)
-                    var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
-                    var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
+                    var width = parseInt(this.ctrl.widget._width.toLowerCase().replace('px', '').replace('%', '')) - 50;
+                    var height = parseInt(this.ctrl.widget._height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties
                     if (this.options.sensors instanceof Array) {
                         sensors = this.options.sensors;
@@ -731,6 +739,8 @@ module csComp.Services {
                                 "type": "time",
                                 "range": "width",
                                 "points": true,
+                                "format": "dd-MM-YY",
+                                "nice" : true,
 
                                 "domain": { "data": "table", "field": "x" },
                                 "domainMin": layer.kpiTimestamps[0],
