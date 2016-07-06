@@ -62,7 +62,7 @@ module csComp.Services {
         startDashboardId: string;
 
         public visual: VisualState = new VisualState();
-        throttleSensorDataUpdate: Function = () => {};
+        throttleSensorDataUpdate: Function = () => { };
 
         static $inject = [
             '$location',
@@ -216,8 +216,8 @@ module csComp.Services {
             if (layer.sensorLink && layer.sensorLink.kpiUrl) {
                 // create sensorlink
                 if (!_.isUndefined(layer._gui["loadingKpiLink"]) && layer._gui["loadingKpiLink"]) return;
-                
-                 var t = this.project.timeLine;
+
+                var t = this.project.timeLine;
                 if (this.project.activeDashboard.timeline) t = this.project.activeDashboard.timeline;
 
                 var link = layer.sensorLink.kpiUrl;
@@ -1344,7 +1344,7 @@ module csComp.Services {
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
-                
+
                 // evaluate expressions
                 this.evaluateFeatureExpressions(<Feature>feature);
 
@@ -1353,15 +1353,13 @@ module csComp.Services {
 
                 // check if defaultLegends are active
                 if (feature.fType.defaultLegendProperty) {
-                    if (typeof feature.fType.defaultLegendProperty === "string")
-                    {
-                        this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty);    
+                    if (typeof feature.fType.defaultLegendProperty === "string") {
+                        this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty);
                     }
-                    else
-                    {
-                        (<string[]>feature.fType.defaultLegendProperty).forEach(s=>this.checkLayerLegend(layer,<string>feature.fType.defaultLegendProperty));
+                    else {
+                        (<string[]>feature.fType.defaultLegendProperty).forEach(s => this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty));
                     }
-                    
+
                 }
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
@@ -1402,7 +1400,7 @@ module csComp.Services {
                 s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction('layer', s);
             }
-            
+
             if (feature.isSelected) {
                 this.lastSelectedFeature = null;
                 this.selectedFeatures.some((f, ind, arr) => {
@@ -1486,7 +1484,7 @@ module csComp.Services {
                         var v = Number(feature.properties[gs.property]);
                         try {
                             if (!isNaN(v)) {
-                                
+
                                 switch (gs.visualAspect) {
                                     case 'strokeColor':
                                         s.strokeColor = csComp.Helpers.getColor(v, gs);
@@ -2116,10 +2114,9 @@ module csComp.Services {
                 var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
-            
-            if (!res)
-            {
-                res = <IPropertyType>{label : property, type : "text", title : property };
+
+            if (!res) {
+                res = <IPropertyType>{ label: property, type: "text", title: property };
             }
 
             return res;
