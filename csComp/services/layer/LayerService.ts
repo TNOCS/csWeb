@@ -1670,12 +1670,26 @@ module csComp.Services {
         }
 
         /**
-         * Find a feature by layerId and FeatureId.
+         * Find a feature by searching its properties for the provided value.
          * @property {string}
-         * @value {number}
+         * @value {Object}
          */
         public findFeatureByPropertyValue(property: string, value: Object): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
+        }
+
+        /**
+         * Find all features containing (not equalling!) the provided value as property.
+         * @property {string} The property to search through
+         * @value {string} The string to look for
+         */
+        public filterFeaturesByPropertyValue(property: string, value: string): IFeature[] {
+            return _.filter(this.project.features, (f: IFeature) => {
+                if (f.properties.hasOwnProperty(property) && typeof f.properties[property] === 'string' && f.properties[property].toLowerCase().indexOf(value.toLowerCase()) > -1) {
+                    return true;
+                }
+                return false;
+            });
         }
 
         /**
