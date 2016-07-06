@@ -63,9 +63,12 @@ module ButtonWidget {
 
     export interface IButtonData {
         buttons: IButton[];
+        /** The minimal layout just displays a button, without a legend */
         minimalLayout: boolean;
         /* Show only one button. Clicking it will execute the according action and then show the next button */
         toggleMode: boolean;
+        /** Apply extended style information to image, e.g. add rounded corners */
+        extStyle: Object;
         layerGroup: string;
         featureLayer: string;
     }
@@ -249,7 +252,7 @@ module ButtonWidget {
                 } else {
                     b._disabled = true;
                 }
-            
+
         }
 
         private checkStyle(b: IButton) {
@@ -258,7 +261,7 @@ module ButtonWidget {
                 b._disabled = true;
                 return;
             }
-            
+
             b._disabled = false;
             var prop = b.property;
             if (prop.indexOf('#') > -1) prop = prop.split('#')[1];
