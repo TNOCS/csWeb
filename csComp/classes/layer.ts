@@ -18,6 +18,7 @@ module csComp.Services {
         actualInterval? : number;
 
         _outOfRange? : boolean;
+        _cancelPromise? : any;
     }
 
     /** Interface of a project layer

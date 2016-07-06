@@ -284,6 +284,12 @@ module csComp.Services {
         /** update sensor data using an external sensor link */
         public updateLayerSensorLink(layer: ProjectLayer) {
             if (layer.sensorLink) {
+                if (layer.sensorLink._cancelPromise) {
+                    console.log('aborting request');
+                    layer.sensorLink._cancelPromise.abort();
+                    layer.sensorLink._cancelPromise = null;
+                    layer._gui['loadingSensorLink'] = false;
+                }
                 // create sensorlink
                 if (!_.isUndefined(layer._gui['loadingSensorLink']) && layer._gui['loadingSensorLink']) return;
                 var range = (this.timeline.range.end - this.timeline.range.start);
@@ -312,96 +318,59 @@ module csComp.Services {
                 let timeStarted = new Date().getTime();
                 console.log('downloading ' + link);
                 layer._gui['loadingSensorLink'] = true;
-                this.$http.get(link)
-                    .success((data: ISensorLinkResult) => {
+                layer.sensorLink._cancelPromise = $.ajax({
+                    type: 'GET',
+                    url: link,
+                    success: (data: ISensorLinkResult) => {
+                        layer.sensorLink._cancelPromise = null;
                         let timeLoaded = new Date().getTime();
                         console.log('sensor data loaded ' + (timeLoaded - timeStarted).toString());
                         layer._gui['loadingSensorLink'] = false;
                         layer.sensorLink.actualInterval = data['timewindow'] * 1000 * 60;
-                        // switch (data.timeAggregation) {
-                        //     case 'minute':
-                        //         layer.sensorLink.actualInterval = 1000 * 60;
-                        //         break;
-                        //     case 'hour':
-                        //         layer.sensorLink.actualInterval = 1000 * 60 * 60;
-                        //         break;
-                        //     case 'day':
-                        //         layer.sensorLink.actualInterval = 1000 * 60 * 60 * 24;
-                        //         break;
-                        // }
 
                         layer.timestamps = data.timestamps;
                         layer.data.features.forEach((f: IFeature) => {
                             f.sensors = {};
-                            if (data.features.hasOwnProperty(f.id))
-                            {
+                            if (data.features && data.features.hasOwnProperty(f.id)) {
                                 f.sensors = data.features[f.id];
                             }
                         });
-                        // var t = 0;
-
-                        // var featureLookup = [];
-                        // var p = 0;
-
-                        // data.features.forEach(f => {
-
-                        //     //var index = _.findIndex(layer.data.features, ((p: csComp.Services.IFeature) => p.properties[layer.sensorLink.linkid] === f));
-                        //     //if (index !== -1) featureLookup.push(index);
-                        //     featureLookup.push(p);
-                        //     p += 1;
-                        // });
 
                         console.log('sensor data processed ' + (new Date().getTime() - timeLoaded).toString());
 
-                        // for (var s in data.data) {
-                        //     var sensordata = data.data[s];
-                        //     for (var ti = 0; ti < data.timestamps.length; ti++) {
-                        //         if (sensordata.length > ti) {
-                        //             for (var fi = 0; fi < sensordata[ti].length; fi++) {
-                        //                 // get feature
-                        //                 var findex = featureLookup[fi];
-                        //                 if (findex >= 0) {
-                        //                     var f = layer.data.features[findex];
-                        //                     if (f) {
-                        //                         var value = sensordata[ti][fi];
-                        //                         //if (value === -1) value = null;
-                        //                         f.sensors[s].push(value);
-                        //                     }
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
-                        // }
-
                         // check features
-                        // layer.data.features.forEach((f: IFeature) => {
-                        //     // check expressions
-                        //     f.fType._expressions.forEach(ex => {
-                        //         if (ex.isSensor && ex.label) {
-                        //             f.sensors[ex.label] = [];
-                        //             for (var i = 0; i < data.timestamps.length; i++) {
-                        //                 try {
-                        //                     f.sensors[ex.label].push(this.expressionService.evalSensorExpression(ex.expression, f.layer.data.features, f, i));
-                        //                 }
-                        //                 catch (ec) {
-                        //                     f.sensors[ex.label].push(-1);
-                        //                 }
-
-                        //             }
-                        //         }
-                        //     });
-                        // });
+                        if (data.timestamps) {
+                            layer.data.features.forEach((f: IFeature) => {
+                                // check expressions
+                                f.fType._expressions.forEach(ex => {
+                                    if (ex.isSensor && ex.label) {
+                                        f.sensors[ex.label] = [];
+                                        for (var i = 0; i < data.timestamps.length; i++) {
+                                            try {
+                                                f.sensors[ex.label].push(this.expressionService.evalSensorExpression(ex.expression, f.layer.data.features, f, i));
+                                            } catch (ec) {
+                                                f.sensors[ex.label].push(-1);
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        }
 
 
 
 
                         this.throttleSensorDataUpdate();
                         this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
-                    })
-                    .error((e) => {
+                    },
+                    error: (e) => {
                         layer._gui['loadingSensorLink'] = false;
                         console.log('error loading sensor data');
-                    });
+                    }
+
+                });
+
+
                 this.updateLayerKpiLink(layer);
             }
 
@@ -1630,7 +1599,7 @@ module csComp.Services {
         /**
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
-        public initFeatureType(ft: IFeatureType, source:  ITypesResource) {
+        public initFeatureType(ft: IFeatureType, source: ITypesResource) {
             if (ft._isInitialized) return;
             ft._isInitialized = true;
             this.initIconUri(ft);
@@ -1644,12 +1613,11 @@ module csComp.Services {
                     ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
                         if (source.propertyTypeData) {
                             // check if property type already exists
-                            if (source.propertyTypeData.hasOwnProperty(key))
-                            {
+                            if (source.propertyTypeData.hasOwnProperty(key)) {
                                 ft._propertyTypeData.push(source.propertyTypeData[key]);
                             } else // if not create a new one with the key as label/property and title
                             {
-                                let pt = <IPropertyType> { label : key, title : key, type : 'text'};
+                                let pt = <IPropertyType>{ label: key, title: key, type: 'text' };
                                 source.propertyTypeData[key] = pt;
 
                                 ft._propertyTypeData.push(pt);
