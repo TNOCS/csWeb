@@ -116,6 +116,27 @@ module Dashboard {
             });
         }
 
+        public updateWidgetPosition(widget: csComp.Services.IWidget) {
+            if (widget._isFullscreen) {
+                var el = $('#dashboard-main');
+                widget._top = '10px';
+                widget._bottom = '10px';
+                widget._width = el.width() - 20 + 'px';
+                widget._height = el.height() - 20 + 'px';
+                widget._left = '10px';
+                widget._right = '10px';
+                widget._zindex = '100';
+            } else {
+                widget._width = widget.width;
+                widget._height = widget.height;
+                widget._top = widget.top;
+                widget._bottom = widget.bottom;
+                widget._left = widget.left;
+                widget._right = widget.right;
+                widget._zindex = '1';
+            }
+        }
+
         public toggleWidget(widget: csComp.Services.IWidget) {
             if (widget.canCollapse) {
                 widget.collapse = !widget.collapse;
@@ -137,6 +158,29 @@ module Dashboard {
                     }
                 }
             }
+            if (widget.allowFullscreen) {
+                if (widget._isFullscreen) {
+                    options.push({
+                        title: 'Minimize', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = null;
+                            w._isFullscreen = false;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                } else {
+                    options.push({
+                        title: 'Fullscreen', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = w;
+                            w._isFullscreen = true;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                }
+            }
             widget._options = options;
         }
 
@@ -156,7 +200,7 @@ module Dashboard {
             if (w.position === 'rightpanel') {
                 var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
                 rpt.open = false;
-            	this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
             else {
                 if (w.template) {
@@ -173,13 +217,11 @@ module Dashboard {
 
             this.getOptions(w);
 
-
-
-
-
             if (widgetElement) {
                 //alert(w.elementId);
+                this.updateWidgetPosition(w);
                 var el = $('#' + w.elementId);
+                //if (w._isFullscreen) el = $('#dashboard-widget-fullscreen');
                 el.empty();
                 el.append(widgetElement);
             }

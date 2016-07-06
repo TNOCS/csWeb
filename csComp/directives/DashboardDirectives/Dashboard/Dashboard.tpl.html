@@ -1,4 +1,4 @@
-<div class="dashboard-main">
+<div id="dashboard-main" class="dashboard-main">
     <style>
         .backgroundImage {
             /* Set rules to fill background */
@@ -21,14 +21,15 @@
     </style>
     <div style="position:relative;width:100%; height:100%">
         <img id="dashboard-background" ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
+
         <ul style="padding:0;height:100%" id="dashboardwidgets">
             <li ng-repeat="widget in dashboard.widgets | filter:{position:'dashboard'}" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"
                 ng-class="{widgethover : widget.hover}" ng-show="!(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
                 <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-class="{widgetShadow : widget.effectiveStyle.shadow === true}"
                     ng-hide="widget.collapse" style="position:absolute" " ng-style="{ 'background' : widget.effectiveStyle.background,
-                    'border-color':widget.effectiveStyle.borderColor, 'top':widget.top, 'bottom':widget.bottom, 'left':widget.left,
-                    'right':widget.right, 'border-width':widget.effectiveStyle.borderWidth, 'border-radius':widget.effectiveStyle.borderRadius,
-                    'width':widget.width, 'height':widget.height, 'opacity' : widget.effectiveStyle.opacity, 'padding':widget.padding} ">
+                    'border-color':widget.effectiveStyle.borderColor, 'top':widget._top, 'bottom':widget._bottom, 'left':widget._left, 'z-index' : widget._zindex,
+                    'right':widget._right, 'border-width':widget.effectiveStyle.borderWidth, 'border-radius':widget.effectiveStyle.borderRadius,
+                    'width':widget._width, 'height':widget._height, 'opacity' : widget.effectiveStyle.opacity, 'padding':widget.padding} ">
                     <div ng-show="widget._interaction " style="position:absolute;width:100%;height:100% ">
                         <div ng-show="widget.left " class="fa fa-chevron-left " style="color:blue;left:-5px;top:50%;position:absolute "></div>
                         <div ng-show="widget.right " class="fa fa-chevron-right " style="color:blue;right:0px;top:50%;position:absolute "></div>
@@ -45,7 +46,7 @@
 
                         </div>
                         <div ng-if="widget.data.description" uib-popover="{{widget.data.description}}"  popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" style="position:absolute;right:20px;top:3px;width:30px;height:25px;padding:5px;cursor:pointer" class="fa fa-info"></div>
-                        <div style="position:absolute;right:-5px;top:3px " ng-if="widget._options">
+                        <div style="position:absolute;right:-5px;top:3px " ng-hide="widget._options.length==0">
                            <div class="fa fa-ellipsis-v dropdown-toggle pull-right" style="width:30px;height:25px;padding:5px;cursor:pointer" ng-click="vm.getOptions(widget)" data-toggle="dropdown">
                            </div>
                            <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;margin-top:-5px">
@@ -57,5 +58,8 @@
                 </div>
             </li>
         </ul>
+        <!--<div id="dashboard-widget-fullscreen" class="widget-fullscreen" ng-show="dashboard._fullScreenWidget">
+
+        </div>-->
     </div>
 </div>

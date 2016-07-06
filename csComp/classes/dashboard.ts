@@ -18,6 +18,7 @@ module csComp.Services {
     export interface IWidgetCtrl {
         startEdit: Function;
         getOptions? : Function;
+        goFullscreen? : Function;
     }
 
     export interface IWidget {
@@ -89,6 +90,14 @@ module csComp.Services {
         _initialized?: boolean;
         _interaction?: boolean;
         _isMoving?: boolean;
+        _width?: string;
+        _height?: string;
+        _left?: string;
+        _top?: string;
+        _bottom?: string;
+        _right?: string;
+        _zindex? : string;
+        _isFullscreen? : boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -130,11 +139,19 @@ module csComp.Services {
         public effectiveStyle: WidgetStyle;
         /** default on dashboard, other options: rightpanel */
         public position : string = 'dashboard';
-
+        public _isFullscreen : boolean;
         public _ctrl: IWidgetCtrl;
         public _initialized: boolean;
         public _interaction: boolean;
         public _isMoving: boolean;
+
+           _width: string;
+        _height: string;
+        _left: string;
+        _top: string;
+        _bottom: string;
+        _right: string;
+        _zindex: string;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -265,6 +282,9 @@ module csComp.Services {
         disabled: boolean;
         parents: string[];
         _initialized: boolean;
+        /** set if a a fullscreen widget is active */
+        _fullScreenWidget : IWidget;
+
         /** complete refresh page on activation */
         refreshPage: boolean;
 
