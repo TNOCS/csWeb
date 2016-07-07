@@ -168,6 +168,9 @@ module csComp.Services {
         }
 
         private updateLayer(layer: ProjectLayer, callback: Function) {
+            if (!layer.id) {
+                console.log('No layer id found');
+            }
             var projLayer = this.service.findLayer(layer.id);
             if (!projLayer || !projLayer.data || !projLayer.data.features) {
                 this.initLayer(layer, callback);

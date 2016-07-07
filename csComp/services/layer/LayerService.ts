@@ -1639,7 +1639,7 @@ module csComp.Services {
         /**
          * find a filter for a specific group/property combination
          */
-        private findFilter(group: ProjectGroup, property: string): GroupFilter {
+        public findFilter(group: ProjectGroup, property: string): GroupFilter {
             if (!group || !property) return;
             if (group.filters == null) group.filters = [];
             var r = group.filters.filter((f: GroupFilter) => f.property === property);
@@ -2098,8 +2098,10 @@ module csComp.Services {
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
             // dispose crossfilter dimension
-            filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
-            filter.dimension.dispose();
+            if (filter.dimension) {
+                filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
+                filter.dimension.dispose();
+            }
             filter.group.filters = filter.group.filters.filter(f => { return f !== filter; });
             this.resetMapFilter(filter.group);
             this.updateMapFilter(filter.group);
