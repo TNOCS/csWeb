@@ -1,0 +1,45 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+        <i class="layersIcon rightpanel-header-icon" />Effects Server Parameters
+    </h4>
+
+    <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
+        <div>
+            <div style="padding: 5px 0;" class="row-fluid">
+                <span>
+                    <label>Model</label>
+                    <select id="selectModel" ng-init="vm.current_model = vm.models[0].key" ng-model="vm.current_model" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="key as key for (key, value) in vm.models" ng-change="vm.updateOptions()">
+                    </select>
+                </span>
+            </div>
+
+            <div style="padding: 5px 0;" class="row-fluid">
+                <span>
+                    <label>Transformation</label>
+                    <select id="selectTransformation" ng-init="vm.current_transformation = vm.transformations[0]" ng-model="vm.current_transformation" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="key as value for (key, value) in vm.transformations">
+                    </select>
+                </span>
+            </div>
+
+            <div style="padding: 5px 0;" class="row-fluid" ng-if="vm.current_model !== undefined">
+                <span>
+                    <label>Result Parameter (Toxic dose outdoors grid)</label>
+                    <select id="selectResultParameter" ng-init="vm.current_result_parameter" ng-model="vm.current_result_parameter" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="item.Name for item in vm.models[vm.current_model] | filterResults:item">
+                    </select>
+                </span>
+            </div>
+            <hr>
+            <div style="padding: 5px 0;" class="row-fluid" ng-repeat="item in vm.models[vm.current_model]" ng-if="!item.IsResult">
+                <span>
+                    <label>{{item.Name}}</label>
+                    <input id="{{item.Name}}" class="form-control tt-input editor-text-input" ng-model="item.Data.Value" style="display:inline-block" />
+                </span>
+            </div>
+
+            <div class="controls" style="margin-top:10px; margin-left:10px;">
+                <button class="btn" ng-click="vm.refreshEffectsServer()">Calculate Model</button>
+            </div>
+        </div>
+
+    </div> 
+</div>

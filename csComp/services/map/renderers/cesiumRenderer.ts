@@ -34,10 +34,14 @@ module csComp.Services {
                     navigationHelpButton: false,
                     imageryProvider:      imageProvider
                 });
+
                 this.setTerrainProvider(baseLayer);
                 this.camera = this.viewer.camera;
                 this.scene  = this.viewer.scene;
-                this.scene.globe.enableLighting = true;
+
+                // dit staat uit vanwege de nadelen dat dit heeft op scientific visualisatie (kleuren afhankelijk van perspectief, schaduw als het ergens nacht is)
+                // this.scene.globe.enableLighting = false;
+
                 // Only depth test when we are dealing with our own terrain (https://cesiumjs.org/Cesium/Build/Documentation/Globe.html)
                 this.scene.globe.depthTestAgainstTerrain = typeof baseLayer.cesium_tileUrl !== 'undefined';
 
@@ -85,16 +89,37 @@ module csComp.Services {
             this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
             this.handler.setInputAction((click) => {
                 var pickedObject = this.scene.pick(click.position);
-                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
+                if (pickedObject !== undefined && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
                     this.service.selectFeature(pickedObject.id.feature);
                 }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+            this.handler.setInputAction((click) => {
+
+                var pickedObject = this.scene.pick(click.position);
+                if (pickedObject !== undefined && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
+                    var feature = pickedObject.id.feature;
+                    this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
+
+                    //e.stopPropagation();
+                    var button: any = $("#map-contextmenu-button");
+                    var menu: any = $("#map-contextmenu");
+                    button.dropdown('toggle');
+                    // var mapSize = this.map.getSize();
+                    menu.css("left", click.position.x + 5);
+                    menu.css("top", click.position.y - 35);
+                    if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+
+                }
+            }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
             this.handler.setInputAction((movement) => {
                 var pickedObject = this.scene.pick(movement.endPosition);
-                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
+
+                if (pickedObject !== undefined && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
                     this.showFeatureTooltip(pickedObject.id.feature, movement.endPosition);
                 } else {
+                    this.popupShownFor = undefined;
                     $('.cesiumPopup').fadeOut('fast').remove();
                 }
             }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -170,76 +195,93 @@ module csComp.Services {
         }
 
         public showFeatureTooltip(feature: IFeature, endPosition) {
-            if (this.popupShownFor !== undefined && feature.id === this.popupShownFor.id) return;
-            $('.cesiumPopup').fadeOut('fast').remove();
+            if (this.popupShownFor !== undefined && feature.id === this.popupShownFor.id)
+            {
+                var widthInPixels = $('.cesiumPopup').find('table').width();
+                var heightInPixels = $('.cesiumPopup').find('table').height();
+
+                $('.cesiumPopup').css({ position: 'absolute', top: endPosition.y - heightInPixels - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels })
+            }
+            else
+            {
+                var layer = feature.layer;
+                var group = layer.group;
+                // var feature = <Feature>layer.feature;
+                // add title
+                var title = feature.properties['Name'];
+                var rowLength = (title) ? title.length : 1;
+                var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+                // add filter values
+                if (group.filters != null && group.filters.length > 0) {
+                    group.filters.forEach((f: GroupFilter) => {
+                        if (!feature.properties.hasOwnProperty(f.property)) return;
+                        var value = feature.properties[f.property];
+                        if (value) {
+                            var valueLength = value.toString().length;
+                            if (f.meta != null) {
+                                value = Helpers.convertPropertyInfo(f.meta, value);
+                                if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                            }
+                            rowLength = Math.max(rowLength, valueLength + f.title.length);
+                            content += '<tr><td><div class="fa fa-filter makeNarrow"></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+
+                // add style values, only in case they haven't been added already as filter
+                if (group.styles != null && group.styles.length > 0) {
+                    group.styles.forEach((s: GroupStyle) => {
+                        if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                            var value = feature.properties[s.property];
+                            var valueLength = value.toString().length;
+                            if (s.meta != null) {
+                                value = Helpers.convertPropertyInfo(s.meta, value);
+                                if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
+                            }
+                            var tl = s.title ? s.title.length : 10;
+                            rowLength = Math.max(rowLength, valueLength + tl);
+                            content += '<tr><td><div class="fa fa-paint-brush makeNarrow"></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+                var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+                content = '<table style="width:' + widthInPixels + 'px;">' + content + '</table>';
+
+                // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
+                if ($('.cesiumPopup').length == 0)
+                    $('body').append('<div class="cesiumPopup featureTooltip"></div>');
+
+                $('.cesiumPopup').html(content);
+
+                var heightInPixels = $('.cesiumPopup').find('table').height();
+                $('.cesiumPopup').css({ position: 'absolute', top: endPosition.y - heightInPixels - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels });
+            }
+
             this.popupShownFor = feature;
-
-            var layer = feature.layer;
-            var group = layer.group;
-            // var feature = <Feature>layer.feature;
-            // add title
-            var title = feature.properties['Name'];
-            var rowLength = (title) ? title.length : 1;
-            var content = '<td colspan=\'3\'>' + title + '</td></tr>';
-            // add filter values
-            if (group.filters != null && group.filters.length > 0) {
-                group.filters.forEach((f: GroupFilter) => {
-                    if (!feature.properties.hasOwnProperty(f.property)) return;
-                    var value = feature.properties[f.property];
-                    if (value) {
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class="fa fa-filter makeNarrow"></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                    }
-                });
-            }
-
-            // add style values, only in case they haven't been added already as filter
-            if (group.styles != null && group.styles.length > 0) {
-                group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        var value = feature.properties[s.property];
-                        var valueLength = value.toString().length;
-                        if (s.meta != null) {
-                            value = Helpers.convertPropertyInfo(s.meta, value);
-                            if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        var tl = s.title ? s.title.length : 10;
-                        rowLength = Math.max(rowLength, valueLength + tl);
-                        content += '<tr><td><div class="fa fa-paint-brush makeNarrow"></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
-                    }
-                });
-            }
-            var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = '<table style="width:' + widthInPixels + 'px;">' + content + '</table>';
-
-            // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
-            this.popup = $('<div class="cesiumPopup featureTooltip"></div>')
-                .html(content)
-                .css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels })
-                .hide().fadeIn('fast');
-            $('body').append(this.popup);
         }
 
         public addLayer(layer: ProjectLayer) {
             // console.log(layer);
             var dfd = jQuery.Deferred();
+
             switch (layer.renderType) {
                 case 'geojson':
+
                     setTimeout(() => {
-                        // console.time('render features');
-                        layer.data.features.forEach((f: IFeature) => {
-                            this.addFeature(f);
-                        });
+                        if (layer.id.substr(0,7) === "effects")
+                        {
+                            this.createInstancedLayer(layer);
+                        } else {
+                            // console.time('render features');
+                            layer.data.features.forEach((f: IFeature) => {
+                                this.addFeature(f);
+                            });
+                        }
                         // this.createLayer(layer);
                         // console.timeEnd('render features');
                         dfd.resolve();
                     }, 0);
-                    break;
+                break;
 
                 case 'wms':
                     var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
@@ -254,14 +296,285 @@ module csComp.Services {
                     wms_layer.alpha = layer.opacity / 100;
 
                     dfd.resolve();
-                    break;
+                break;
+
 
                 default:
                     alert('unknown layertype: ' + layer.type);
                     dfd.resolve();
-                    break;
+                break;
             }
             return dfd.promise();
+        }
+        public removeInstancedLayer(layer: ProjectLayer)
+        {
+            this.scene.primitives.forEach((primitive) => {
+                primitive.show = false;
+            });
+        }
+
+        public createInstancedLayer(layer: ProjectLayer)
+        {
+            var effStyle: IFeatureTypeStyle;
+
+            // find the min, max of all properties in the pointcloud
+            var numUniformX = 0;
+            var numUniformY = 0;
+            var numUniformZ = 0;
+            var minNumUniformX = 999999;
+            var minNumUniformY = 999999;
+            var minNumUniformZ = 999999;
+            var maxConcentration = 0;
+
+            var minLon = 9999, minLat = 9999, minHeight = 9999;
+            var maxLon = -9999, maxLat = -9999, maxHeight = -9999;
+            console.log('loading layer with ' + layer.data.features.length + ' features');
+            layer.data.features.forEach((feature: IFeature) => {
+                numUniformX = Math.max(numUniformX, feature.properties['uniform_lon']);
+                numUniformY = Math.max(numUniformY, feature.properties['uniform_lat']);
+                numUniformZ = Math.max(numUniformZ, feature.properties['uniform_z']);
+                minNumUniformX = Math.min(minNumUniformX, feature.properties['uniform_lon']);
+                minNumUniformY = Math.min(minNumUniformY, feature.properties['uniform_lat']);
+                minNumUniformZ = Math.min(minNumUniformZ, feature.properties['uniform_z']);
+
+                minLon = Math.min(minLon, feature.geometry.coordinates[0]);
+                minLat = Math.min(minLat, feature.geometry.coordinates[1]);
+                minHeight = Math.min(minHeight, feature.geometry.coordinates[2]);
+                maxLon = Math.max(maxLon, feature.geometry.coordinates[0]);
+                maxLat = Math.max(maxLat, feature.geometry.coordinates[1]);
+                maxHeight = Math.max(maxHeight, feature.geometry.coordinates[2]);
+
+                maxConcentration = Math.max(maxConcentration, feature.properties['v']);
+
+                // create feature: disabled because of performance and duplicate rendering
+                // this.updateFeature(feature);
+            });
+
+            var height = (numUniformZ-minNumUniformZ+1) > 1 ? (numUniformZ-minNumUniformZ+1) : 1;
+            var width = (numUniformX-minNumUniformX+1) > 1 ? (numUniformX-minNumUniformX+1) : 1;
+            var length = (numUniformY-minNumUniformY+1) > 1 ? (numUniformY-minNumUniformY+1) : 1;
+
+            // create an unsigned byte array in order to support linear interpolation on the GPU in webGL
+            var pointcloud = new Uint8Array(length * width * height);
+
+            var position_min = new Cesium.Cartesian3.fromDegrees(minLon, minLat, minHeight);
+            var position_max = new Cesium.Cartesian3.fromDegrees(maxLon, maxLat, maxHeight);
+
+            layer.data.features.forEach((feature: IFeature) => {
+                var x = feature.properties['uniform_lon'];
+                var y = feature.properties['uniform_lat'];
+                var z = feature.properties['uniform_z'];
+                pointcloud[((z-minNumUniformZ) * width * length) + ((y) * width) + (x)] = (feature.properties['v'] / maxConcentration) * 256;
+            });
+
+            // this is to trick Cesium into loading the texture directly from the Float32Array
+            var source:any = new Object();
+            source.arrayBufferView = pointcloud;
+
+            // Create a texture with 1 channel in order to store the luminance, which is normalized because it is clipped between 0 and 1
+            var tex = new Cesium.Texture({
+                context : this.scene.context,
+                width : width,
+                height : length * height,
+                pixelFormat : Cesium.PixelFormat.LUMINANCE,
+                pixelDatatype : Cesium.PixelDatatype.UNSIGNED_BYTE,
+                source: source,
+                sampler: new Cesium.Sampler({
+                    wrapS : Cesium.TextureWrap.CLAMP_TO_EDGE,
+                    wrapT : Cesium.TextureWrap.CLAMP_TO_EDGE,
+                    minificationFilter : Cesium.TextureMinificationFilter.LINEAR,
+                    magnificationFilter : Cesium.TextureMagnificationFilter.LINEAR
+                })
+            });
+
+            var shader_source = `
+#define FACE_FORWARD
+struct Ray {
+    vec3 Origin;
+    vec3 Dir;
+};
+
+struct AABB {
+    vec3 Min;
+    vec3 Max;
+};
+
+bool IntersectBox(Ray r, AABB aabb, out float t0, out float t1)
+{
+    vec3 invR = 1.0 / r.Dir;
+    vec3 tbot = invR * (aabb.Min-r.Origin);
+    vec3 ttop = invR * (aabb.Max-r.Origin);
+    vec3 tmin = min(ttop, tbot);
+    vec3 tmax = max(ttop, tbot);
+    vec2 t = max(tmin.xx, tmin.yz);
+    t0 = max(t.x, t.y);
+    t = min(tmax.xx, tmax.yz);
+    t1 = min(t.x, t.y);
+    return t0 <= t1;
+}
+
+float getDensity(sampler2D sampler, vec3 position, float size)
+{
+    if (size > 1.0)
+    {
+        float sliceSize = 1.0 / size;
+        float slicePixelSize = sliceSize / size;              // space of 1 pixel
+        float sliceInnerSize = slicePixelSize * (size - 1.0); // space of size pixels
+        float zSlice0 = min(floor(position.z * size), size - 1.0);
+        float zSlice1 = min(zSlice0 + 1.0, size - 1.0);
+        float xOffset = slicePixelSize * 0.5 + position.x * sliceInnerSize;
+        float s0 = xOffset + (zSlice0 * sliceSize);
+        float s1 = xOffset + (zSlice1 * sliceSize);
+        float slice0Color = texture2D(sampler, vec2(position.y, s0)).r / 256.0;
+        float slice1Color = texture2D(sampler, vec2(position.y, s1)).r / 256.0;
+        float zOffset = mod(position.z * size, 1.0);
+        return mix(slice0Color, slice1Color, zOffset);
+    }
+    vec2 textureCoords = vec2(position.y, (position.x / size));
+    return texture2D(sampler, textureCoords).r / 256.0;
+}
+
+czm_material czm_getMaterial(czm_materialInput materialInput)
+{
+    // set up the material for the return type cesium needs
+    czm_material m = czm_getDefaultMaterial(materialInput);
+    m.emission = vec3(0.0, 0.0, 0.0);
+
+    //raycasting lighting properties
+    vec3 LightIntensity = vec3(10.0);
+    float Absorption = 15.0 * pc_height;
+
+    // Bounding Box coordinates in World Coordinates
+    vec3 minPosition = position_min;
+    vec3 maxPosition = position_max;
+
+    //convert to a local Fixed Frame
+    minPosition = (fixedFrameTransformation * vec4(minPosition, 1.0)).xyz;
+    maxPosition = (fixedFrameTransformation * vec4(maxPosition, 1.0)).xyz;
+
+    //compute the center for the light
+    vec3 center = (minPosition + maxPosition) / 2.0;
+    vec3 LightPosition = center;
+
+    // raycast sampling properties
+    float maxDist = distance(minPosition, maxPosition);
+    const int numSamples = 1536;
+    float stepSize = maxDist/float(numSamples);
+    const int numLightSamples = 32;
+    float lscale = maxDist / float(numLightSamples);
+
+    // Camera in World Coordinates (even though MC = WC because czm_model = czm_inverseModel = I)
+    vec3 rayOrigin = czm_encodedCameraPositionMCHigh + czm_encodedCameraPositionMCLow;
+    vec3 rayDirection = (czm_inverseView * vec4((-(materialInput.positionToEyeEC)), 0.0)).xyz;
+
+    // convert to a local Fixed Frame
+    rayOrigin = (fixedFrameTransformation * vec4(rayOrigin, 1.0)).xyz;
+    rayDirection = (fixedFrameTransformation * vec4(rayDirection, 0.0)).xyz;
+
+    // box intersection
+    Ray eye = Ray(rayOrigin, normalize(rayDirection));
+    AABB aabb = AABB(minPosition, maxPosition);
+
+    float tnear, tfar;
+    bool hit = IntersectBox(eye, aabb, tnear, tfar);
+    if (tnear < 0.0) tnear = 0.0;
+
+    vec3 rayStart = eye.Origin + eye.Dir * tnear;
+    vec3 rayStop = eye.Origin + eye.Dir * tfar;
+
+    // Transform from object space to texture coordinate space:
+    rayStart = (rayStart - minPosition) / (maxPosition - minPosition);
+    rayStop = (rayStop - minPosition) / (maxPosition - minPosition);
+
+    // Perform the ray marching:
+    vec3 pos = rayStart;
+    vec3 step = normalize(rayStop-rayStart) * stepSize;
+    float travel = distance(rayStop, rayStart);
+    float T = 1.0;
+    vec3 Lo = vec3(0.0);
+
+    for (int i=0; i < numSamples; ++i) {
+        // webgl does not allow us to put this in the for loop guard
+        if (travel <= 0.0) break;
+
+        float density = getDensity(pointcloud, pos, pc_height);
+
+        if (density <= 0.0)
+            continue;
+
+        T *= 1.0-density*stepSize*Absorption;
+        if (T <= 0.01)
+            break;
+
+        vec3 lightDir = normalize(LightPosition-pos)*lscale;
+        float Tl = 1.0;
+        vec3 lpos = pos + lightDir;
+
+        for (int s=0; s < numLightSamples; ++s) {
+            float ld = getDensity(pointcloud, lpos, pc_height);
+
+            Tl *= 1.0-Absorption*stepSize*ld;
+            if (Tl <= 0.01)
+            lpos += lightDir;
+        }
+
+        vec3 Li = LightIntensity*Tl;
+        Lo += Li*T*density*stepSize;
+
+        pos += step;
+        travel -= stepSize;
+    }
+
+    m.diffuse = vec3(1.0 - Lo.x, 0.0, 0.0);
+    m.alpha = 1.0-T;
+
+    return m;
+}
+
+`;
+
+            var polygon = new Cesium.PolygonGeometry({
+                polygonHierarchy : new Cesium.PolygonHierarchy(
+                    Cesium.Cartesian3.fromDegreesArray([
+                        minLon, minLat,
+                        minLon, maxLat,
+                        maxLon, maxLat,
+                        maxLon, minLat
+                    ])
+                ),
+                height: minNumUniformX,
+                extrudedHeight: numUniformZ
+            });
+
+            var fixedFrameTransformationMatrix = Cesium.Transforms.northEastDownToFixedFrame(position_min, Cesium.Ellipsoid.WGS84, new Cesium.Matrix4());
+            var inverseFixedFrameTransformationMatrix = Cesium.Matrix4.inverse(fixedFrameTransformationMatrix, new Cesium.Matrix4());
+            var fixedFrameTransformationArray = Cesium.Matrix4.toArray(inverseFixedFrameTransformationMatrix);
+
+            var geometry = Cesium.PolygonGeometry.createGeometry(polygon);
+            var instance = new Cesium.Primitive({
+                asynchronous: false,
+                geometryInstances: new Cesium.GeometryInstance({
+                    geometry: geometry
+                }),
+                appearance : new Cesium.MaterialAppearance({
+                    closed: true,
+                    material : new Cesium.Material({
+                        fabric : {
+                            uniforms : {
+                                pointcloud:                 tex,
+                                pc_height:                  height,
+                                position_min:               position_min,
+                                position_max:               position_max,
+                                fixedFrameTransformation:   fixedFrameTransformationArray
+                            },
+                            source : shader_source
+                        }
+                    })
+
+                })
+            });
+
+            this.scene.primitives.add(instance);
         }
 
         // /** Create the layer using geometry instances. */
@@ -324,16 +637,19 @@ module csComp.Services {
 
         public removeLayer(layer: ProjectLayer) {
             var dfd = jQuery.Deferred();
-            switch (layer.type.toUpperCase()) {
+            switch (layer.renderType.toUpperCase()) {
                 case 'GEOJSON':
                 case 'EDITABLEGEOJSON':
                 case 'DYNAMICGEOJSON':
                 case 'TOPOJSON':
                     setTimeout(() => {
-                        if (!layer.data || !layer.data.features) return dfd.resolve();
-                        layer.data.features.forEach((f: IFeature) => {
-                            this.removeFeature(f);
-                        });
+                        if (layer.id.substr(0,7) === "effects")
+                        {
+                            this.removeInstancedLayer(layer);
+                        } else {
+                            if (!layer.data || !layer.data.features) return dfd.resolve();
+                            this.removeFeatures(layer.data.features);
+                        }
                         dfd.resolve();
                     }, 0);
                     break;
@@ -357,15 +673,17 @@ module csComp.Services {
         public updateMapFilter(group: ProjectGroup) {
             var dfd = jQuery.Deferred();
             setTimeout(() => {
+
                 this.viewer.entities.values.forEach((entity) => {
-                    var included;
-                    if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === entity.feature.id).length > 0;
-                    if (included) {
-                        entity.show = true;
-                    } else {
-                        entity.show = false;
-                    }
+                    entity.show = false;
                 });
+
+                group.filterResult.forEach((feature) => {
+                    feature.entities.forEach((entity) => {
+                        entity.show = true;
+                    });
+                })
+
                 dfd.resolve();
             }, 0);
             return dfd.promise();
@@ -382,10 +700,11 @@ module csComp.Services {
         public removeFeature(feature: IFeature) {
             //console.log('removeFeature called');
             var toRemove = [];
-            this.viewer.entities.values.forEach((entity) => {
-                if (entity.feature.id === feature.id) {
-                    toRemove.push(entity);
-                }
+            if (feature.entities === undefined) return;
+
+            feature.entities.forEach((entity) => {
+                //entity.show = false;
+                toRemove.push(entity);
             });
 
             toRemove.forEach(entity => {
@@ -398,14 +717,14 @@ module csComp.Services {
 
             setTimeout(() => {
                 var toRemove = [];
-                this.viewer.entities.values.forEach((entity) => {
-                    features.forEach(feature => {
-                        if (entity.feature.id === feature.id) {
-                            entity.show(false);
-                            //toRemove.push(entity);
-                        }
+
+                features.forEach(feature => {
+                    feature.entities.forEach((entity) => {
+                        entity.show = false;
+                        //toRemove.push(entity);
                     });
                 });
+
                 toRemove.forEach(entity => {
                     this.viewer.entities.remove(entity);
                 });
@@ -416,10 +735,10 @@ module csComp.Services {
         }
 
         public updateFeature(feature: IFeature) {
-            this.viewer.entities.values.forEach(entity => {
-                if (entity.feature.id === feature.id)
-                    this.updateEntity(entity, feature);
-            });
+            if (feature.entities === undefined)
+                this.addFeature(feature);
+            else
+                this.updateEntityStyle(feature.entities[0], feature);
         }
 
         /**
@@ -427,7 +746,7 @@ module csComp.Services {
          * In either case, the effective style is calculated in LayerService.calculateFeatureStyle.
          */
         private getFeatureHeight(feature: IFeature) {
-            return feature.effectiveStyle.height || 0;
+            return feature.effectiveStyle.height || feature.properties['mediaan_hoogte'] || 0;
         }
 
         private getHeightAboveSeaLevel(feature: IFeature) {
@@ -436,84 +755,16 @@ module csComp.Services {
                 : undefined;
         }
 
-        private updateEntity(entity, feature: IFeature) {
-            var effStyle = feature.effectiveStyle;
-            if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
-                entity.billboard.width  = effStyle.iconWidth;
-                entity.billboard.height = effStyle.iconHeight;
-            }
-
-            var fillColor = Cesium.Color.fromCssColorString(effStyle.fillColor);
-
-            switch (feature.geometry.type.toUpperCase()) {
-                case 'POINT':
-                case 'MULTIPOINT':
-                    let position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                    entity.position = position;
-                    if (entity.point) {
-                        entity.point.position     = position;
-                        entity.point.color        = fillColor;
-                        entity.point.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
-                        entity.point.outlineWidth = effStyle.strokeWidth;
-                    }
-                    break;
-
-                case 'POLYGON':
-                case 'MULTIPOLYGON':
-                    entity.polygon.material     = fillColor;
-                    entity.polygon.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
-                    // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                    entity.polygon.outlineWidth = effStyle.strokeWidth;
-                    var featureHeight  = this.getFeatureHeight(feature);
-                    var heightAboveSea = this.getHeightAboveSeaLevel(feature);
-                    if (heightAboveSea) {
-                        entity.polygon.perPositionHeight = false;
-                        entity.polygon.extrudedHeight    = heightAboveSea + featureHeight;
-                        entity.polygon.height            = heightAboveSea;
-                    } else {
-                        entity.polygon.perPositionHeight = true;
-                        entity.polygon.extrudedHeight    = featureHeight;
-                    }
-                    break;
-
-                case 'LINESTRING':
-                case 'MULTILINESTRING':
-                    entity.polyline.material = fillColor;
-                    entity.polyline.width = effStyle.strokeWidth;
-                    break;
-
-                default:
-                    alert('unknown geometry type: ' + feature.geometry.type);
-                    break;
-            }
-        }
-
-        public addFeature(feature: IFeature) {
-            var entity = this.createFeature(feature);
-        }
-
-        public selectFeature(feature: IFeature) {
-            // TODO
-            console.log('CesiumRenderer warning: selectFeature is not implemented!');
-        }
-
-        public createFeature(feature: IFeature) {
-            var featureHeight, heightAboveSea: number;
-            var entity = this.viewer.entities.getOrCreateEntity(feature.id);
-
-            // link the feature to the entity for CommonSense.selectFeature
-            entity.feature = feature;
-
-            //if (feature.properties['Name'] !== undefined)
-            entity.name = feature.properties['Name'];
-
+        private updateEntityStyle(entity, feature: IFeature) {
             var pixelSize = 5;
             var style     = feature.fType.style;
             var effStyle  = feature.effectiveStyle;
-            var fillColor = Cesium.Color.fromCssColorString(effStyle.fillColor).withAlpha(effStyle.fillOpacity);
-            switch (feature.geometry.type.toUpperCase()) {
+            var fillColor = feature.effectiveStyle.height > 0 ? Cesium.Color.fromCssColorString(effStyle.fillColor) : Cesium.Color.fromCssColorString(effStyle.fillColor).withAlpha(effStyle.fillOpacity);
+            var featureHeight, heightAboveSea: number;
+
+            switch (entity.geometrytype.toUpperCase()) {
                 case 'POINT':
-                    if (typeof style.iconUri !== 'undefined' && !effStyle.modelUri) {
+                    if (typeof feature.effectiveStyle.iconUri !== 'undefined' && !feature.effectiveStyle.modelUri) {
                         // a billboard is an icon for a feature
                         entity.billboard = {
                             image:  style.iconUri,
@@ -522,13 +773,8 @@ module csComp.Services {
                         };
                         // we draw this point very large because it serves as a background for the billboards
                         pixelSize = 35;
-                    } else {
-                        entity.point = {
-                            pixelSize: pixelSize,
-                            color: fillColor,
-                            outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
-                            outlineWidth: effStyle.strokeWidth
-                        };
+
+
                     }
 
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
@@ -536,14 +782,21 @@ module csComp.Services {
                         feature.geometry.coordinates[0],
                         feature.geometry.coordinates[1],
                         feature.geometry.coordinates[2] || this.getHeightAboveSeaLevel(feature));
+
+                    entity.point = {
+                        pixelSize: pixelSize,
+                        color: fillColor,
+                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                        outlineWidth: effStyle.strokeWidth
+                    };
+
                     entity.position = position;
-                    //entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(position, effStyle.rotate, 0, 0);
+
                     break;
 
                 case 'MULTIPOINT':
                     for (var i = 0; i < feature.geometry.coordinates.length; i++) {
-                        var entity_multi = new Cesium.Entity();
-                        entity_multi.feature = feature;
+                        var entity_multi = this.getOrCreateEntity(feature, i+1);
 
                         entity_multi.point = {
                             pixelSize: pixelSize,
@@ -555,9 +808,7 @@ module csComp.Services {
                             outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                             outlineWidth: effStyle.strokeWidth
                         };
-                        this.viewer.entities.add(entity_multi);
                     }
-                    this.viewer.entities.remove(entity);
                     break;
 
                 case 'POLYGON':
@@ -566,50 +817,73 @@ module csComp.Services {
                     entity.polygon = new Cesium.PolygonGraphics({
                         hierarchy:    this.createPolygon(feature.geometry.coordinates).hierarchy,
                         material:     fillColor,
-                        outline:      style.stroke,
-                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
-                        // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                        outlineWidth: effStyle.strokeWidth
+                        outline:      false
                     });
+
                     if (heightAboveSea) {
                         entity.polygon.perPositionHeight = false;
                         entity.polygon.extrudedHeight    = heightAboveSea + featureHeight;
                         entity.polygon.height            = heightAboveSea;
                     } else {
-                        entity.polygon.perPositionHeight = true;
+                        entity.polygon.perPositionHeight = false;
                         entity.polygon.extrudedHeight    = featureHeight;
                     }
-                    break;
+
+                    var entity_outline = this.getOrCreateEntity(feature, 1);
+
+                    var outline_positions = feature.geometry.coordinates[0];
+                    if (entity.polygon.extrudedHeight !== undefined)
+                        for (var i = 0; i < outline_positions.length; ++i)
+                            outline_positions[i][2] = heightAboveSea ? heightAboveSea + featureHeight : featureHeight;
+
+                    entity_outline.polyline = {
+                            positions : this.coordinatesArrayToCartesianArray(outline_positions),
+                            width : effStyle.strokeWidth,
+                            material : Cesium.Color.fromCssColorString(effStyle.strokeColor)
+                    };
+
+                break;
 
                 case 'MULTIPOLYGON':
                     featureHeight = this.getFeatureHeight(feature);
                     heightAboveSea = this.getHeightAboveSeaLevel(feature);
                     var polygons = this.createMultiPolygon(feature.geometry.coordinates);
-                    for (var i = 0; i < polygons.length; ++i) {
-                        var entity_multi = new Cesium.Entity();
-                        entity_multi.feature = feature;
 
-                        var polygon = new Cesium.PolygonGraphics({
+                    for (var i = 0; i < polygons.length; ++i) {
+                        var entity_multi = this.getOrCreateEntity(feature, i*2+1);
+
+                        entity_multi.polygon = new Cesium.PolygonGraphics({
                             hierarchy:    polygons[i].hierarchy,
                             material:     fillColor,
-                            outline:      style.stroke,
-                            outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
-                            outlineWidth: effStyle.strokeWidth
+                            outline:      false
                         });
-                        if (heightAboveSea) {
-                            polygon.perPositionHeight = false;
-                            polygon.extrudedHeight    = heightAboveSea + featureHeight;
-                            polygon.height            = heightAboveSea;
-                        } else {
-                            polygon.perPositionHeight = true;
-                            polygon.extrudedHeight    = featureHeight;
-                        }
-                        entity_multi.polygon = polygon;
 
-                        this.viewer.entities.add(entity_multi);
+                        if (heightAboveSea) {
+                            entity_multi.polygon.perPositionHeight = false;
+                            entity_multi.polygon.extrudedHeight    = heightAboveSea + featureHeight;
+                            entity_multi.polygon.height            = heightAboveSea;
+                        } else {
+                            entity_multi.polygon.perPositionHeight = false;
+                            entity_multi.polygon.extrudedHeight    = featureHeight;
+                        }
+
+                        var entity_multi_outline = this.getOrCreateEntity(feature, i*2+2);
+
+                        var outline_positions = feature.geometry.coordinates[i][0];
+
+                        if (entity_multi.polygon.extrudedHeight !== undefined)
+                            for (var j = 0; j < outline_positions.length; ++j)
+                                outline_positions[j][2] = heightAboveSea ? heightAboveSea + featureHeight : featureHeight;
+
+                        // add a seperate outline
+                        entity_multi_outline.polyline = {
+                                positions : this.coordinatesArrayToCartesianArray(outline_positions),
+                                width : effStyle.strokeWidth,
+                                material : Cesium.Color.fromCssColorString(effStyle.strokeColor)
+                        }
                     }
-                    this.viewer.entities.remove(entity);
-                    break;
+
+                break;
 
                 case 'LINESTRING':
                     entity.polyline = new Cesium.PolylineGraphics({
@@ -617,27 +891,23 @@ module csComp.Services {
                         material: fillColor,
                         width: effStyle.strokeWidth
                     });
-                    break;
+                break;
 
                 case 'MULTILINESTRING':
                     for (var i = 0; i < feature.geometry.coordinates.length; i++) {
-                        var entity_multi = new Cesium.Entity();
-                        entity_multi.feature = feature;
+                        var entity = this.getOrCreateEntity(feature, i+1);
 
                         entity.polyline = new Cesium.PolylineGraphics({
                             positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
                             material: fillColor,
                             width: effStyle.strokeWidth
                         });
-
-                        this.viewer.entities.add(entity_multi);
                     }
-                    this.viewer.entities.remove(entity);
-                    break;
+                break;
 
                 default:
                     alert('unknown geometry type: ' + feature.geometry.type);
-                    break;
+                break;
             }
 
             // add a 3D model if we have one
@@ -664,7 +934,52 @@ module csComp.Services {
                 entity.orientation = headingQuaternion;
             }
 
+        }
+
+        private getOrCreateEntity(feature, index)
+        {
+            var entity;
+            if (feature.entities[index] === undefined)
+            {
+                entity = new Cesium.Entity();
+                entity.feature = feature;
+                feature.entities[index] = entity;
+                this.viewer.entities.add(entity);
+            } else {
+                entity = feature.entities[index];
+            }
             return entity;
+        }
+
+        public addFeature(feature: IFeature) {
+            var entity = this.createFeature(feature);
+        }
+
+        public selectFeature(feature: IFeature) {
+            // TODO
+            console.log('CesiumRenderer warning: selectFeature is not implemented!');
+        }
+
+        public createFeature(feature: IFeature) {
+            var featureHeight, heightAboveSea: number;
+
+            var entity = this.viewer.entities.getOrCreateEntity(feature.id);
+
+            // save a list of entity references to the feature for updating / deleting later
+            if (feature.entities === undefined) feature.entities = [];
+            feature.entities[0] = entity;
+
+            // link the feature to the entity for CommonSense.selectFeature
+            entity.feature = feature;
+
+            //if (feature.properties['Name'] !== undefined
+            entity.name = feature.properties['Name'];
+
+            entity.geometrytype = feature.geometry.type;
+
+            this.updateEntityStyle(entity, feature);
+
+            return feature.entities;
         }
 
         private createPolygon(coordinates) {

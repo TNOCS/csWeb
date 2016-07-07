@@ -16,7 +16,7 @@
             <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 10px;clear:left;">
                 <div>
 
-                    <div data-ng-repeat="style in group.styles">
+                    <div data-ng-repeat="style in group.styles" style="height: 41px;">
                         <div class="checkbox checkbox-primary" style="float:left">
                             <input type="checkbox" id="cbstyle{{style.id}}" ng-model="style.enabled" data-ng-change="vm.$layerService.updateStyle(style);">
                             <label class="style-title" for="cbstyle{{style.id}}" style="max-width:300px">{{style.title}}</label>

@@ -48,6 +48,9 @@ module csComp.Services {
          */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
         languages?: { [key: string]: ILocalisedData };
+
+        /* list of cesium entities that have been created based on this feature */ 
+        entities: any[];
     }
 
     /**
@@ -78,7 +81,7 @@ module csComp.Services {
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates: IGeoJsonGeometry[];          // used for temporal data
         logs: { [id: string]: Log[] } = {};
-
+        entities: any[];
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};
             res.id = f.id;

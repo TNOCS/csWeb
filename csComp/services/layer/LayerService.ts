@@ -187,7 +187,8 @@ module csComp.Services {
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
             this.addActionService(new RelationAction.RelationActionModel());
-
+            this.addActionService(new EffectsServer.EffectsServerModel());
+            
             // var delayFocusChange = _.debounce((date) => {
             //     this.refreshActiveLayers();
             // }, 500);

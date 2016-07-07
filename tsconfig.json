@@ -61,6 +61,8 @@
         "csComp/directives/Editors/LayerEditor/LayerSettingsCtrl.ts",
         "csComp/directives/Editors/PropertyTypeEditor/PropertyTypes.ts",
         "csComp/directives/Editors/PropertyTypeEditor/PropertyTypesCtrl.ts",
+        "csComp/directives/EffectsServer/EffectsServer.ts",
+        "csComp/directives/EffectsServer/EffectsServerCtrl.ts",
         "csComp/directives/EventTab/EventTab.ts",
         "csComp/directives/EventTab/EventTabCtrl.ts",
         "csComp/directives/ExpertMode/ExpertMode.ts",
