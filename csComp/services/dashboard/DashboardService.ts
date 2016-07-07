@@ -215,6 +215,7 @@ module csComp.Services {
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
+            if (!dashboard) return;
             this.$location.search('dashboard', dashboard.id);
             if (!_.isUndefined(dashboard.refreshPage) && dashboard.refreshPage) {
                 location.reload();
