@@ -1484,6 +1484,9 @@ module csComp.Services {
             if (feature.layer) {
                 s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
                 s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
+                s.iconHeight = (feature.layer.isTransparent) ? 0 : s.iconHeight;
+                s.iconWidth = (feature.layer.isTransparent) ? 0 : s.iconWidth;
+                s.strokeWidth = (feature.layer.isTransparent) ? 0 : s.strokeWidth;
             }
 
             if (feature.layer && feature.layer.group && feature.layer.group.styles) {
@@ -2092,6 +2095,7 @@ module csComp.Services {
 
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
+            if (!filter) return;
             // dispose crossfilter dimension
             filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
             filter.dimension.dispose();
