@@ -368,6 +368,7 @@ module csComp.Services {
 
                     marker.on('contextmenu', (e: any) => {
                         this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
+                        if (!this.service._activeContextMenu || this.service._activeContextMenu.length === 0) return;
 
                         //e.stopPropagation();
                         var button: any = $('#map-contextmenu-button');
@@ -416,7 +417,8 @@ module csComp.Services {
 
                         marker.on('contextmenu', (e: any) => {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
-
+                            if (!this.service._activeContextMenu || this.service._activeContextMenu.length === 0) return;
+                            
                             //e.stopPropagation();
                             var button: any = $('#map-contextmenu-button');
                             var menu: any = $('#map-contextmenu');
