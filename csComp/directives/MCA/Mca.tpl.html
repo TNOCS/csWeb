@@ -44,7 +44,7 @@
             <div data-ng-if="criterion.criteria.length > 0" id="criterion_{{$parent.$index}}" class="collapse out" style="margin-left: 19px">
                 <div data-ng-repeat="crit in criterion.criteria">
                     <div data-ng-style="{'display': 'inline-block', 'margin-bottom': '6px', 'width':'10px', 'height':'10px', 'border':'solid 1px black', 'background-color': crit.color}"></div>
-                    <div class="truncate" data-ng-class="{true: 'ignoredCriteria'}[crit.userWeight == 0 || criterion.userWeight == 0]" style="display: inline-block; width: 150px;">{{crit.getTitle()}}</div>
+                    <div class="truncate" data-ng-class="{true: 'ignoredCriteria'}[crit.userWeight == 0 || criterion.userWeight == 0]" style="display: inline-block; width: 270px;">{{crit.getTitle()}}</div>
                     <div class="pull-right" style="margin-right: 15px;">{{Math.abs(crit.userWeight)}}</div>
                     <voting class="pull-right"
                             data-ng-class="vm.getVotingClass(crit)"
