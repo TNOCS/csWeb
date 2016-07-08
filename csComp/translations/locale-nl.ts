@@ -23,7 +23,7 @@ module Translations {
             SELECT_A_FEATURE: 'Selecteer een feature',
             DISABLE_LOCATION_FILTER: 'Deactiveer locatiefilter',
             SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
-            SELECT_FEATURE_FOR_STYLE: 'Selecteer een gebied om de stijl te activeren.',
+            SELECT_FEATURE_FOR_STYLE: 'Selecteer eerst een gebied, dan pas kan de stijl geactiveerd worden.',
             SELECT_LAYER_GROUP : 'Selecteer lagen',
             SELECT_CATEGORY: 'Selecteer categorie',
             SELECT_PROPERTIES: 'Selecteer eigenschappen',

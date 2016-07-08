@@ -9,11 +9,17 @@ module MCAWidget {
          * The available mca's
          */
         availableMcas: Mca.Models.Mca[];
+        /**
+         * Instead of listing all available mca's, filter those that have a featureId that equals the
+         * defaultFeatureType of an enabled layer.
+         */
+        filterByDefaultFeatureType: boolean;
     }
 
     export interface IMCAWidgetScope extends ng.IScope {
         vm: MCAWidgetCtrl;
         data: MCAWidgetData;
+        activateTab: function;
     }
 
     export class MCAWidgetCtrl {
@@ -38,12 +44,17 @@ module MCAWidget {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService
-            ) {
+        ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
 
+            $scope.activateTab = (nr) => {
+                (<any>$('#mcawidget-' + nr)).tab('show')
+            }
+
             $scope.data = <MCAWidgetData>this.widget.data;
+            $scope.data.filterByDefaultFeatureType = $scope.data.filterByDefaultFeatureType || false;
 
             if (typeof $scope.data.layerId !== 'undefined') {
                 // Hide widget
@@ -86,27 +97,37 @@ module MCAWidget {
                 console.log('Mca controller scope not found.');
                 return;
             } else {
-                this.$scope.data.availableMcas = mcaScope.vm.availableMcas;
-                return mcaScope;
+                var l = this.$layerService.findLoadedLayer(this.$scope.data.layerId);
+                if (l && this.$scope.data.filterByDefaultFeatureType) {
+                    this.$scope.data.availableMcas = mcaScope.vm.availableMcas.filter((mca) => {
+                        return mca.featureIds[0].split('#').pop() === l.defaultFeatureType;
+                    });
+                } else {
+                    this.$scope.data.availableMcas = mcaScope.vm.availableMcas;
+                }
             }
+            return mcaScope;
         }
 
-        private setMcaAsStyle(mcaNr: number) {
+        private setMcaAsStyle(mcaId: string) {
             if (!this.mcaScope || !this.mcaScope.vm.mca) {
                 console.log('Mca controller scope not found.');
                 return;
             } else {
+                if (!this.$layerService.lastSelectedFeature) {
+                    this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
+                    return;
+                }
                 var vm = this.mcaScope.vm;
+                var mca = vm.findMcaById(mcaId);
+                vm.updateAvailableMcas(mca);
+                vm.updateSelectedFeature(this.$layerService.lastSelectedFeature);
                 if (!vm.showFeature) {
                     this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
                     return;
                 }
                 if (vm.properties.length > 0) {
-                    var availableMcas = vm.availableMcas.length;
-                    if (mcaNr <= availableMcas) {
-                        vm.mca = vm.availableMcas[mcaNr];
-                        vm.updateMca();
-                    }
+                    vm.updateMca();
                     console.log('Set mca style.');
                     vm.setStyle(vm.properties[0]);
                 }
