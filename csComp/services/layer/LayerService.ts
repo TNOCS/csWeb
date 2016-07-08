@@ -3249,12 +3249,19 @@ module csComp.Services {
          * In all other cases, it is true. */
         private updateFilterStatusFeature(group: ProjectGroup) {
             //console.time('Filter');
-            this.project.features.forEach(f => {
-                if (f.layer.group === group) f._gui.included = false;
+            if (!group.filterResult) {
+                this.project.features.forEach(f => {
+                if (f.layer.group === group) f._gui.included = true;
             });
-            group.filterResult.forEach(f => {
-                f._gui.included = true;
-            });
+            } else {
+                this.project.features.forEach(f => {
+                    if (f.layer.group === group) f._gui.included = false;
+                });
+                group.filterResult.forEach(f => {
+                    if (!f._gui) f._gui = <any>{};
+                    f._gui.included = true;
+                });
+            }
             //console.timeEnd('Filter');
         }
 
