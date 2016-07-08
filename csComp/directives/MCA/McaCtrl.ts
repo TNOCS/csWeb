@@ -532,6 +532,7 @@ module Mca {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
                 this.addPropertyInfo(featureId, mca);
                 // If a filterresult is active, calculate MCA over the filtered features.
+                // Else if more than one feature is selected, use the selection.
                 // Else, use all active features.
                 this.layerService.project.groups.forEach((g) => { 
                     if (g.filters && g.filters.length > 0 && g.filterResult && g.filterResult.length > 0) {
@@ -542,13 +543,20 @@ module Mca {
                         });
                     }
                 });
-                if (this.features.length === 0) {
+                if (this.features.length === 0 && this.layerService.selectedFeatures.length > 1) {
                     this.layerService.selectedFeatures.forEach((feature) => {
                         if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
                             this.features.push(feature);
                         }
                     });
-                }                
+                }
+                if (this.features.length === 0) {
+                    this.layerService.project.features.forEach((feature) => {
+                        if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                            this.features.push(feature);
+                        }
+                    });
+                }
                 if (this.features.length === 0) { return; }
                 mca.updatePla(this.features, true);
                 mca.update();

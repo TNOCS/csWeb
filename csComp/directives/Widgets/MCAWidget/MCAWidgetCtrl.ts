@@ -19,7 +19,6 @@ module MCAWidget {
     export interface IMCAWidgetScope extends ng.IScope {
         vm: MCAWidgetCtrl;
         data: MCAWidgetData;
-        activateTab: function;
     }
 
     export class MCAWidgetCtrl {
@@ -48,10 +47,6 @@ module MCAWidget {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
-
-            $scope.activateTab = (nr) => {
-                (<any>$('#mcawidget-' + nr)).tab('show')
-            }
 
             $scope.data = <MCAWidgetData>this.widget.data;
             $scope.data.filterByDefaultFeatureType = $scope.data.filterByDefaultFeatureType || false;
