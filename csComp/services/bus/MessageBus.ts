@@ -258,7 +258,7 @@ module csComp.Services {
 
         public serverSendMessage(msg: ClientMessage, serverId = '') {
             var c = this.getConnection(serverId);
-            if (c == null) return null;
+            if (c === null || c.socket === null) return null;
             c.socket.emit('msg', msg);
         }
 

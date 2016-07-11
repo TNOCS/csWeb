@@ -1,11 +1,9 @@
 <div style="width:100%;height:100%">
     <!-- Extended layout (vertical orientation, description & legend options, etc.) -->
     <div ng-if="!data.minimalLayout">
-        <div ng-repeat="b in $parent.buttons" ng-if="b._visible===true" ng-hide="b._disabled" class="s3d button-container" ng-class="{'button-container-down': b._active}">
-            <div class="button-widget-content" uib-popover="{{b.moreInfo}}" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"
-                ng-click="$parent.$parent.vm.click(b)">
-                <img ng-class="{'button-widget-image': (!b._active || !b.showLegend), 'button-widget-image-active': (b._active && b.showLegend)}"
-                    ng-if="b.image" ng-src="{{b.image}}"></img>
+        <div ng-repeat="b in $parent.buttons" ng-hide="b._disabled" class="s3d button-container" ng-class="{'button-container-down': b._active}">
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)">
+                <img ng-if="b.image" ng-src="{{b.image}}" ng-class="{'button-widget-image': (!b._active || !b.showLegend), 'button-widget-image-active': (b._active && b.showLegend)}" ng-style="data.extStyle"></img>
                 <div ng-show="b._featureIcon" ng-bind-html="b._featureIcon" style="float:left;margin:5px"></div>
 
                 {{b.title}}
@@ -15,15 +13,6 @@
                     <div class="bounce2" style="background:white"></div>
                     <div class="bounce3" style="background:white"></div>
                 </div>
-                <!--<div ng-show="b.buttongroup" style="position:absolute;right:10px;top:5px">
-                    <div class="fa fa-chevron-down dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer;font-size:16px" aria-expanded="false">
-                    </div>
-                    <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;margin-top:-5px">
-                        <li class="dropdown-item"><a ng-click="vm.clickAction(o,layer)">Test</a></li>
-                        <li class="dropdown-item"><a ng-click="vm.clickAction(o,layer)">Test</a></li>
-                    </ul>
-
-                </div>-->
 
                 <layereditor ng-show="b._layer._gui['editing']" layer="b._layer" view="icons" class="button-layer-editor" />
 
@@ -41,8 +30,7 @@
                         </div>
                         <div data-ng-if="b._legend.legendKind === 'interpolated'">
                             <span class="button-legend-label">{{b._lastLegendLabel}}</span>
-                            <div data-ng-repeat="le in b._legend.legendEntries" ng-click="$parent.$parent.$parent.$parent.$parent.$parent.vm.toggleFilter(le, b.group, b.property);$event.stopPropagation();"
-                                style="float:left;margin-right:4px;margin-top:3px">
+                            <div data-ng-repeat="le in b._legend.legendEntries" ng-click="$parent.$parent.$parent.$parent.$parent.$parent.vm.toggleFilter(le, b.group, b.property);$event.stopPropagation();" style="float:left;margin-right:4px;margin-top:3px">
                                 <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
                             </div>
 
@@ -51,34 +39,25 @@
                     </div>
                 </div>
             </div>
-            <div ng-if="b._canEdit" class="button-edit-button" ng-click="$parent.$parent.vm.toggleEditLayer(b)">
+            <div ng-show="b._canEdit" class="button-edit-button" ng-click="$parent.$parent.vm.toggleEditLayer(b)">
                 <span ng-if="!b._layer._gui.editing" class="fa fa-pencil" />
                 <span ng-if="b._layer._gui.editing" class="fa fa-save" />
             </div>
-
-            <!--<div ng-if="b.buttongroup" class="button-toggle-button" ng-click="$parent.$parent.vm.switchButtonGroup(b)">
-                 <div class="fa fa-chevron-down dropdown-toggle" data-toggle="dropdown"  aria-haspopup="true" style="width:18px;cursor:pointer;" aria-expanded="false">
-                    </div>
-                    <ul class="dropdown-menu pull-right" style="height: auto !important;overflow: visible !important;margin-top:-5px">
-                        <li data-ng-repeat="bt in b._groupbuttons">bla</li>
-
-                    </ul>
-            </div>-->
         </div>
     </div>
     <!-- Minimalistic layout (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
     <div ng-if="data.minimalLayout&&!data.toggleMode" style="width:100%;height:100%;display:inline-block;">
         <div ng-repeat="b in $parent.buttons" class="button-container-minimal" ng-style="{'width': (98 / $parent.buttons.length)+'%'}">
-            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.title}}" popover-trigger="mouseenter">
-                <img class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-if="b.image" ng-src="{{b.image}}">
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.title}}" popover-trigger="mouseenter" popover-placement="top-left">
+                <img ng-if="b.image" ng-src="{{b.image}}" class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-style="data.extStyle">
             </div>
         </div>
     </div>
-    <!-- Minimalistic layout (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
+    <!-- Minimalistic layout in toggle mode (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
     <div ng-if="data.minimalLayout&&data.toggleMode" style="width:100%;height:100%;display:inline-block;" ng-init="$parent.activeIndex=0">
         <div ng-repeat="b in $parent.buttons track by $index" class="button-container-minimal" style="width:100%" ng-show="$index==$parent.$parent.activeIndex">
-            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b);" uib-popover="{{b.title}}" popover-trigger="mouseenter">
-                <img class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-if="b.image" ng-src="{{b.image}}" />
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b);" uib-popover="{{b.title}}" popover-trigger="mouseenter" popover-placement="top-left">
+                <img ng-if="b.image" ng-src="{{b.image}}" class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-style="data.extStyle" />
             </div>
         </div>
     </div>

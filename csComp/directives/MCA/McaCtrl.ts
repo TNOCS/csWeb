@@ -313,7 +313,7 @@ module Mca {
 
         public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
-            if (!this.mca || !feature || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
+            if (!this.mca || !feature) return;
             switch (title) {
                 case 'onFeatureSelect':
                     this.updateSelectedFeature(feature, true);
@@ -349,7 +349,7 @@ module Mca {
             }
         }
 
-        private updateSelectedFeature(feature: IFeature, drawCharts = false) {
+        public updateSelectedFeature(feature: IFeature, drawCharts = false) {
             if (typeof feature === 'undefined' || feature == null) {
                 this.featureIcon = '';
                 return;
@@ -358,7 +358,7 @@ module Mca {
             this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
                 ? this.selectedFeature.fType.style.iconUri
                 : '';
-            if (!feature.properties.hasOwnProperty(this.mca.label)) { return; }
+            if (!feature.properties.hasOwnProperty(this.mca.label)) { feature.properties[this.mca.label] = null; }
 
             this.showFeature = true;
             this.properties = [];
@@ -532,9 +532,10 @@ module Mca {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
                 this.addPropertyInfo(featureId, mca);
                 // If a filterresult is active, calculate MCA over the filtered features.
+                // Else if more than one feature is selected, use the selection.
                 // Else, use all active features.
                 this.layerService.project.groups.forEach((g) => { 
-                    if (g.filterResult && g.filterResult.length > 0) {
+                    if (g.filters && g.filters.length > 0 && g.filterResult && g.filterResult.length > 0) {
                         g.filterResult.forEach((feature) => {
                             if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
                                 this.features.push(feature);
@@ -542,13 +543,20 @@ module Mca {
                         });
                     }
                 });
-                if (this.features.length === 0) {
+                if (this.features.length === 0 && this.layerService.selectedFeatures.length > 1) {
                     this.layerService.selectedFeatures.forEach((feature) => {
                         if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
                             this.features.push(feature);
                         }
                     });
-                }                
+                }
+                if (this.features.length === 0) {
+                    this.layerService.project.features.forEach((feature) => {
+                        if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                            this.features.push(feature);
+                        }
+                    });
+                }
                 if (this.features.length === 0) { return; }
                 mca.updatePla(this.features, true);
                 mca.update();
@@ -663,6 +671,17 @@ module Mca {
                 this.groupStyle.colors = ['#F04030', '#3040F0'];
                 this.layerService.updateStyle(this.groupStyle);
             }
+        }
+
+        /**
+         * Return the first MCA having an id equal to the mcaId parameter.
+         */
+        public findMcaById(mcaId: string): Models.Mca {
+            var result: Models.Mca;
+            if (this.availableMcas && this.availableMcas.length > 0) {
+                result = _.find(this.availableMcas, (m) => { return m.id === mcaId; });
+            }
+            return result;
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {

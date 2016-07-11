@@ -171,6 +171,7 @@ module Filters {
 
             this.dcChart.width(380)
                 .height(285)
+                .margins({top: 2, right: 2, bottom: 2, left: 2})
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {

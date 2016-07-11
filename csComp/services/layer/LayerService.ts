@@ -1410,11 +1410,14 @@ module csComp.Services {
                 // add feature to global list of features
                 this.project.features.push(feature);
 
-                // add to crossfilter
-                layer.group.ndx.add([feature]);
-
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
+                
+                // evaluate expressions
+                this.evaluateFeatureExpressions(<Feature>feature);
+
+                // add to crossfilter
+                layer.group.ndx.add([feature]);
 
                 // check if defaultLegends are active
                 if (feature.fType.defaultLegendProperty) {
@@ -1545,6 +1548,9 @@ module csComp.Services {
             if (feature.layer) {
                 s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
                 s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
+                s.iconHeight = (feature.layer.isTransparent) ? 0 : s.iconHeight;
+                s.iconWidth = (feature.layer.isTransparent) ? 0 : s.iconWidth;
+                s.strokeWidth = (feature.layer.isTransparent) ? 0 : s.strokeWidth;
             }
 
             if (feature.layer && feature.layer.group && feature.layer.group.styles) {
@@ -2178,6 +2184,7 @@ module csComp.Services {
 
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
+            if (!filter) return;
             // dispose crossfilter dimension
             filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
             filter.dimension.dispose();

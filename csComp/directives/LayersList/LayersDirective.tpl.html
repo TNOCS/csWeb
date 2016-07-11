@@ -76,12 +76,12 @@
                 ng-mouseleave="group._gui.mo = false" data-ng-repeat="group in vm.$layerService.project.groups | filter: vm.filterHiddenGroups" style="margin-left: 5px;position:relative;cursor:pointer">
                 <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px;margin-right:5px;cursor:pointer" data-toggle="collapse"
                     data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
-                <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
+                <div uib-popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
                     popover-append-to-body="true" class="group-title">{{group.title}}</div>
                 <div ng-show="vm.$mapService.isAdminExpert && group._gui.mo" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer"
                     ng-click="vm.editGroup(group)"></div>
                 <div id="layergroup_{{group.id}}" class="collapse in">
-                    <div ng-class="{false : '', true:'layer-more'}[layer._gui.more==true]" popover="{{(layer.description) ? layer.description : ''}}"
+                    <div ng-class="{false : '', true:'layer-more'}[layer._gui.more==true]" uib-popover="{{(layer.description) ? layer.description : ''}}"
                         popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers | filter: { title:vm.layerfilter}">
                         <!--bs-popover>-->
                         <div class="layer" context-menu="options(layer)" style="list-style-type: none;" data-ng-class="{indent: layer.isSublayer}">
