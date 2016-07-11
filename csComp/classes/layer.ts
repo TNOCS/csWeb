@@ -14,11 +14,14 @@ module csComp.Services {
         liveIntervalKPI? : string;
         /** maximum timeline zoom level */
         zoomMaxTimeline? : number;
+
+        /** minimum timeline zoom level */
+        zoomMinTimeline? : number;
         /** actual interval in ms */
         actualInterval? : number;
 
         _outOfRange? : boolean;
-        _cancelPromise? : any;
+        _requestReference? : any;
     }
 
     /** Interface of a project layer

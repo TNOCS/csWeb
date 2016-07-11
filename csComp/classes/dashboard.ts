@@ -327,8 +327,10 @@ module csComp.Services {
         public static deserialize(input: Dashboard, solution: Solution): Dashboard {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
+
             res.widgets = [];
             if (typeof input.isLive === 'undefined') input.isLive = false;
+
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
                 this.addNewWidget(w, res, solution);
             });

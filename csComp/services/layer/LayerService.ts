@@ -284,10 +284,10 @@ module csComp.Services {
         /** update sensor data using an external sensor link */
         public updateLayerSensorLink(layer: ProjectLayer) {
             if (layer.sensorLink) {
-                if (layer.sensorLink._cancelPromise) {
+                if (layer.sensorLink._requestReference) {
                     console.log('aborting request');
-                    layer.sensorLink._cancelPromise.abort();
-                    layer.sensorLink._cancelPromise = null;
+                    layer.sensorLink._requestReference.abort();
+                    layer.sensorLink._requestReference = null;
                     layer._gui['loadingSensorLink'] = false;
                 }
                 // create sensorlink
@@ -295,7 +295,7 @@ module csComp.Services {
                 var range = (this.timeline.range.end - this.timeline.range.start);
 
                 // check if timeline is within range
-                layer.sensorLink._outOfRange = layer._gui.outOfRange = (!this.project.activeDashboard.isLive && range > layer.sensorLink.zoomMaxTimeline);
+                layer.sensorLink._outOfRange = layer._gui.outOfRange = (!this.project.activeDashboard.isLive && range > layer.sensorLink.zoomMaxTimeline && range < layer.sensorLink.zoomMaxTimeline);
                 if (layer.sensorLink._outOfRange) return;
 
                 // get project timeline, or use dashboard timeline if avaiable
@@ -318,11 +318,12 @@ module csComp.Services {
                 let timeStarted = new Date().getTime();
                 console.log('downloading ' + link);
                 layer._gui['loadingSensorLink'] = true;
-                layer.sensorLink._cancelPromise = $.ajax({
+                layer.sensorLink._requestReference = $.ajax({
                     type: 'GET',
                     url: link,
-                    success: (data: ISensorLinkResult) => {
-                        layer.sensorLink._cancelPromise = null;
+                    success: (d: string) => {
+                        let data = <ISensorLinkResult>JSON.parse(d);
+                        layer.sensorLink._requestReference = null;
                         let timeLoaded = new Date().getTime();
                         console.log('sensor data loaded ' + (timeLoaded - timeStarted).toString());
                         layer._gui['loadingSensorLink'] = false;
@@ -333,6 +334,9 @@ module csComp.Services {
                             f.sensors = {};
                             if (data.features && data.features.hasOwnProperty(f.id)) {
                                 f.sensors = data.features[f.id];
+                                // for (var s in f.sensors) {
+                                //     this.cleanSensorData(f, s);
+                                // }
                             }
                         });
 
@@ -349,7 +353,7 @@ module csComp.Services {
                                             try {
                                                 f.sensors[ex.label].push(this.expressionService.evalSensorExpression(ex.expression, f.layer.data.features, f, i));
                                             } catch (ec) {
-                                                f.sensors[ex.label].push(-1);
+                                                f.sensors[ex.label].push(null);
                                             }
                                         }
                                     }
@@ -357,11 +361,9 @@ module csComp.Services {
                             });
                         }
 
-
-
-
                         this.throttleSensorDataUpdate();
                         this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
+
                     },
                     error: (e) => {
                         layer._gui['loadingSensorLink'] = false;
@@ -1428,11 +1430,7 @@ module csComp.Services {
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
                 if (feature.sensors) {
                     for (var s in feature.sensors) {
-                        var propType = this.getPropertyType(feature, s);
-                        if (propType && propType.sensorNull)
-                            for (var i = 0; i < feature.sensors[s].length; i++) {
-                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
-                            }
+                        this.cleanSensorData(feature, s);
                     }
                 }
 
@@ -1443,6 +1441,15 @@ module csComp.Services {
                 if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
             return feature.fType;
+        }
+
+        public cleanSensorData(feature: IFeature, s: string) {
+            // var propType = this.getPropertyType(feature, s);
+            // if (propType && propType.sensorNull)
+            for (var i = 0; i < feature.sensors[s].length; i++) {
+                if (feature.sensors[s][i] === -1) feature.sensors[s][i] = NaN;
+            }
+
         }
 
         /** remove feature */
@@ -1568,7 +1575,7 @@ module csComp.Services {
                                         break;
                                 }
                             } else {
-                                var ss = feature.properties[gs.property];
+                                var ss = feature.properties[gs.property].toString();
                                 switch (gs.visualAspect) {
                                     case 'strokeColor':
                                         s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
@@ -2617,9 +2624,11 @@ module csComp.Services {
             } else {
                 // initialize dashboards
                 this.project.dashboards.forEach((d) => {
+                    d = csComp.Helpers.translateObject(d, this.currentLocale, false);
                     if (!d.id) { d.id = Helpers.getGuid(); }
                     if (d.widgets && d.widgets.length > 0)
                         d.widgets.forEach((w) => {
+                            w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
                             if (!w.id) w.id = Helpers.getGuid();
                             if (!w.enabled) w.enabled = true;
                             if (!w.position) w.position = 'dashboard';

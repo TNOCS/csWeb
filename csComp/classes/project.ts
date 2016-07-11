@@ -58,6 +58,7 @@ module csComp.Services {
         enableFocus:   boolean = true;
         expandHeight:        number;
         updateDelay : number;
+        ismoveable : boolean = true;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());

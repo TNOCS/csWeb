@@ -1,6 +1,20 @@
 module csComp.Helpers {
-    /** 
-     * Either get the color from the string value by using the active legend, or else return 
+
+    export function translateObject(obj: any, language: string, recursive = false): any {
+        if (obj.hasOwnProperty('languages') && obj.languages.hasOwnProperty(language)) {
+            for (var p in obj.languages[language]) {
+                obj[p] = obj.languages[language][p];
+            }
+        }
+        if (recursive) {
+            for (var key in obj) {
+                if (_.isObject(obj[key])) obj[key] = translateObject(obj[key], language, recursive);
+            }
+        }
+        return obj;
+    }
+    /**
+     * Either get the color from the string value by using the active legend, or else return
      * the current value (e.g. assuming that the current property contains a color).
      */
     export function getColorFromStringValue(v: string, gs: csComp.Services.GroupStyle) {
@@ -10,18 +24,19 @@ module csComp.Helpers {
             var s: String = l.id;
             var n = l.legendEntries.length;
             if (n === 0) return (defaultcolor);
-            if (l.legendKind.toLowerCase() === 'discretestrings') {
-                var i: number = 0;
-                while (i < n) {
-                    var e = l.legendEntries[i];
-                    if (v === e.stringValue) {
-                        return e.color;
-                    }
-                    i++;
+            //if (l.legendKind.toLowerCase() === 'discretestrings' || l.legendKind.toLowerCase() === 'discrete') {
+            var i: number = 0;
+            while (i < n) {
+                var e = l.legendEntries[i];
+                if (v === e.stringValue) {
+                    return e.color;
                 }
-                return defaultcolor;
+                i++;
             }
             return defaultcolor;
+            //}
+
+            //return defaultcolor;
         }
         return v;
     }

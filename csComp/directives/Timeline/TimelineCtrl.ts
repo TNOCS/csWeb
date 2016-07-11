@@ -119,6 +119,7 @@ module Timeline {
                 'editable': false,
                 'margin': 0,
                 'height': 54,
+                'moveable' : false,
                 'zoomMax': 172800000000,
                 'zoomMin': 3600000
                 //'layout': 'box'
@@ -455,6 +456,7 @@ module Timeline {
         }
 
         private updateTimelineHeight() {
+            this.options.moveable = false; //(this.activeDateRange.ismoveable);
             this.options.height = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight : 54;
             this.expandButtonBottom = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight - 1 : 52;
             this.datePickerBottom = this.expandButtonBottom + 170;
