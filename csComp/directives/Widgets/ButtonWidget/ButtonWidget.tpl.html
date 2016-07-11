@@ -1,7 +1,7 @@
 <div style="width:100%;height:100%">
     <!-- Extended layout (vertical orientation, description & legend options, etc.) -->
     <div ng-if="!data.minimalLayout">
-        <div ng-repeat="b in $parent.buttons" ng-hide="b._disabled" class="s3d button-container" ng-class="{'button-container-down': b._active}">
+        <div ng-repeat="b in $parent.buttons" ng-hide="b._disabled || !b._visible" class="s3d button-container" ng-class="{'button-container-down': b._active}">
             <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)">
                 <img ng-if="b.image" ng-src="{{b.image}}" ng-class="{'button-widget-image': (!b._active || !b.showLegend), 'button-widget-image-active': (b._active && b.showLegend)}" ng-style="data.extStyle"></img>
                 <div ng-show="b._featureIcon" ng-bind-html="b._featureIcon" style="float:left;margin:5px"></div>
