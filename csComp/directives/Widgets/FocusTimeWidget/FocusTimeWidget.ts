@@ -12,7 +12,7 @@ module FocusTimeWidget {
     }
 
     /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    myModule.directive('focustimewidget', [function(): ng.IDirective {
+    myModule.directive('focustimewidget', [function (): ng.IDirective {
         return {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
@@ -38,6 +38,8 @@ module FocusTimeWidget {
     export interface IFocusTimeData {
         mode: string;
         layer: string;
+        tags : any[];
+        activeTag : string;
 
     }
 
@@ -47,11 +49,11 @@ module FocusTimeWidget {
         public active = false;
         public layer: csComp.Services.ProjectLayer;
         public time: number;
-        public endTime : number;
-        public dateFormat : string;
-        public timeFormat : string;
+        public endTime: number;
+        public dateFormat: string;
+        public timeFormat: string;
         private handle: csComp.Services.MessageBusHandle;
-        public isOpen : boolean = true;
+        public isOpen: boolean = true;
 
         private timeOptions = {
             readonlyInput: false,
@@ -108,28 +110,30 @@ module FocusTimeWidget {
 
         }
 
-         public openCalendar(e: Event) {
+        public openCalendar(e: Event) {
             e.preventDefault();
             e.stopPropagation();
 
             this.isOpen = true;
         };
 
-        public lastHour()
-        {
+        public lastHour() {
             this.layer.sensorLink.liveInterval = "1h";
             this.layerService.updateLayerSensorLink(this.layer);
 
         }
 
-        public lastDay()
-        {
+        public lastDay() {
             this.layer.sensorLink.liveInterval = "24h";
             this.layerService.updateLayerSensorLink(this.layer);
             console.log('last 24');
         }
 
 
+        public setTag(tag: string) {
+            this.layerService.$messageBusService.publish('viewmode', 'tag', tag);
+            this.$scope.data.activeTag = tag;
+        }
 
         public checkLayerTimestamp() {
             if (this.layer)
@@ -137,8 +141,7 @@ module FocusTimeWidget {
                     this.$scope.$evalAsync(() => {
                         this.dateFormat = "dd-MM-yyyy EEE";
                         this.timeFormat = "HH:mm ";
-                        if (this.layer.sensorLink.actualInterval)
-                        {
+                        if (this.layer.sensorLink.actualInterval) {
                             this.endTime = this.layer._gui["timestamp"];
                             this.time = this.layer._gui["timestamp"] + this.layer.sensorLink.actualInterval;
 
@@ -149,8 +152,7 @@ module FocusTimeWidget {
                             }
                             //this.time = new Date(this.endTime.getTime() -this.layer.sensorLink.actualInterval);
                         }
-                        else
-                        {
+                        else {
                             this.time = this.layer._gui["timestamp"];
                         }
                     });
