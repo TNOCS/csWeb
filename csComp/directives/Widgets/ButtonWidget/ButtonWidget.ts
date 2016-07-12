@@ -384,7 +384,7 @@ module ButtonWidget {
                 projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
                 this.layerService.setFilter(gf, projGroup);
                 this.layerService.visual.leftPanelVisible = true;
-                $('#filter-tab').tab('show');
+                (<any>$('#filter-tab')).tab('show');
             }
         }
     }
