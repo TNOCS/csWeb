@@ -108,7 +108,6 @@ module csComp.Services {
             this._featureTypes = {};
             this.propertyTypeData = {};
             this.selectedFeatures = [];
-            this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
             this.visual = new VisualState();
@@ -193,6 +192,17 @@ module csComp.Services {
 
             this.checkMobile();
             this.enableDrop();
+        }
+
+        private setLanguage(project : Project) {
+            let params = this.$location.search();
+            if (params.hasOwnProperty('language')) {
+                this.currentLocale = params['language'];
+            } else if (project && project.preferedLanguage) {
+                this.currentLocale = project.preferedLanguage;
+            } else {
+            this.currentLocale = this.$translate.preferredLanguage();
+            }
         }
 
         public refreshActiveLayers() {
@@ -2575,7 +2585,10 @@ module csComp.Services {
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
+            this.setLanguage(prj);
             this.project = new Project().deserialize(prj);
+
+
 
             this.$mapService.initDraw(this);
 
