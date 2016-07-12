@@ -51,7 +51,8 @@ module Idv {
 
     export class Idv {
 
-        public static days = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+        public static days_nl = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+        public static days_en = ["sunday","monday","tuesday","wednesday","thursday","friday","saterday"];
         public static months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
         public config: ScanConfig;
         public ndx: CrossFilter.CrossFilter<any>;
@@ -783,7 +784,7 @@ module Idv {
 
                         case "days":
                             config.chart.ordering(function (d) {
-                                return Idv.days.indexOf(d.key);
+                                return Idv.days_en.indexOf(d.key);
                             });
                             break;
                         case "months":
