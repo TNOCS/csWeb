@@ -77,6 +77,11 @@ module Translations {
             DONE: 'klaar',
             CONFIG: 'config',
             EDIT: 'aanpassen',
+            FOCUSTIME : {
+                OUT_OF_RANGE : 'De tijdscope is te groot. Gebruik de tijdbalk om deze te verkleinen',
+                NOT_AVAILABLE : 'Momenteel is er geen sensor data beschikbaar',
+                LOADING : 'Sensor data wordt geladen, even geduld'
+            },
             STATS: {
                 COUNT: '#',
                 COUNT_TOOLTIP: 'Aantal geselecteerde items',
@@ -196,6 +201,6 @@ module Translations {
             SAVE_AS_IMAGE: 'Opslaan als afbeelding',
             SAVE_AS_PDF: 'Opslaan als PDF',
             ROW_CHART_HELP: 'Klik op één of meerdere rijen om een filter toe te passen voor de geselecteerde eigenschap.'
-        }
+        };
     }
 }
