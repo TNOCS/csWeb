@@ -30,6 +30,12 @@ module csComp.Services {
          * json object that can hold parameters for the directive
          */
         data?: Object;
+
+        /**
+         * if defined it will find a widget with this id and copy it data (usefull if you want to reuse the data on multiple dashboards)
+         * @type {string}
+         */
+        datasource? : string;
         /**
          * url of the html page that should be used as widget
          */

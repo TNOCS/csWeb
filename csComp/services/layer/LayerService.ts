@@ -1412,7 +1412,7 @@ module csComp.Services {
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
-                
+
                 // evaluate expressions
                 this.evaluateFeatureExpressions(<Feature>feature);
 
@@ -2635,7 +2635,12 @@ module csComp.Services {
                     if (!d.id) { d.id = Helpers.getGuid(); }
                     if (d.widgets && d.widgets.length > 0)
                         d.widgets.forEach((w) => {
-                            w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
+                            if (w.datasource) {
+                                let source = this.findWidgetById(w.datasource);
+                                w.data = csComp.Helpers.translateObject(source.data, this.currentLocale, true);
+                            } else {
+                                w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
+                            }
                             if (!w.id) w.id = Helpers.getGuid();
                             if (!w.enabled) w.enabled = true;
                             if (!w.position) w.position = 'dashboard';
