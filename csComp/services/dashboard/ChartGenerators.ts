@@ -385,8 +385,8 @@ module csComp.Services {
                             }
                         ],
                         "axes": [
-                            { "type": "x", "scale": "x", "ticks": 4 },
-                            { "type": "y", "scale": "y","ticks": 4 }
+                            { "type": "x", "scale": "x", "ticks": (width <= 300) ? 4 : 8  },
+                            { "type": "y", "scale": "y","ticks": (width <= 300) ? 4 : 8  }
                         ],
                         "marks": [
                             {
@@ -571,7 +571,7 @@ module csComp.Services {
                             }
                         ],
                         "axes": [
-                            { "type": "x", "scale": "x", "ticks": 4 },
+                            { "type": "x", "scale": "x", "ticks": (width <= 300) ? 4 : 8  },
                             { "type": "y", "scale": "y" }
                         ],
                         "marks": [
@@ -761,8 +761,8 @@ module csComp.Services {
                             }
                         ],
                         "axes": [
-                            { "type": "x", "scale": "x", "ticks": 4 },
-                            { "type": "y", "scale": "y","ticks": 4 }
+                            { "type": "x", "scale": "x", "ticks": (width <= 300) ? 4 : 8 },
+                            { "type": "y", "scale": "y","ticks": (height <= 300) ? 4 : 8 }
                         ],
                         "marks": [
                             {
