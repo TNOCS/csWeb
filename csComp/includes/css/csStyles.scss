@@ -184,11 +184,10 @@ body,
         .lp-tab.close-tab {
             width: 26px;
             float: right;
-            padding: 2px;
-            padding-top: 10px;
-            border-left: 1px solid lightgray;
+            padding: 0px;
             cursor: pointer;
             font-size: 28px;
+            margin-top: -4px;
         }
 
         .search-icon {

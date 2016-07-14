@@ -372,7 +372,9 @@
         "expertMode": {
             "id": "http://jsonschema.net/expertMode",
             "type": "integer",
-            "description": "If true (default false), determines what the user sees (e.g. timeline is for experts)."
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Set the expertise level between 1 (beginner, e.g. no timeline, etc.) en 4 (admin)."
         },
         "groups": {
             "id": "http://jsonschema.net/groups",
