@@ -1,4 +1,26 @@
 module MCAWidget {
+    export class MCAWidgetData {
+        title: string;
+        /** 
+         * If provided, indicates the layer that needs to be enabled in order to show the widget. 
+         */
+        layerId: string;
+        /** 
+         * The available mca's 
+         */
+        availableMcas: Mca.Models.Mca[];
+        /** 
+         * Instead of listing all available mca's, filter those that have a featureId that equals the 
+         * defaultFeatureType of an enabled layer. 
+         */
+        filterByDefaultFeatureType: boolean;
+    }
+
+    export interface IMCAWidgetScope extends ng.IScope {
+        vm: MCAWidgetCtrl;
+        data: MCAWidgetData;
+    }
+
     export class MCAWidgetCtrl {
         private scope: IMCAWidgetScope;
         private widget: csComp.Services.IWidget;
