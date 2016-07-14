@@ -1,25 +1,4 @@
-<div style="margin-top: 2px;">
-    <div class="row" style="margin: 5px;">
-        <h4 class="col-md-12">
-            {{data.title}}
-        </h4>
-    </div>
-    <div>
-        <!--<div class="col-md-12">
-            {{mca.title}}
-            <div class="fa fa-paint-brush makeNarrow" ng-click="vm.setMcaAsStyle(mca.id)"
-            style="float:right; cursor:pointer" popover="{{'MCA.SET_STYLE' | translate}}"
-            popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true" />
-        </div>-->
-        <label data-ng-repeat="mca in data.availableMcas" class="row" style="margin: 5px; cursor:pointer" popover="{{'MCA.SET_STYLE' | translate}}" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-            <input type="radio" ng-model="vm.selectedMCA" value="{{mca.id}}" ng-click="vm.setMcaAsStyle(mca.id)">&nbsp;&nbsp;{{mca.title}}
-        </label><br/>
-        <label class="row" style="margin: 5px; cursor:pointer">
-            <input type="radio" ng-model="vm.selectedMCA" value="none" ng-click="vm.setMcaAsStyle(mca.choice)">&nbsp;&nbsp;None
-        </label>
-        <br/>
-    </div>
-</div>
+module MCAWidget {
     export class MCAWidgetCtrl {
         private scope: IMCAWidgetScope;
         private widget: csComp.Services.IWidget;
