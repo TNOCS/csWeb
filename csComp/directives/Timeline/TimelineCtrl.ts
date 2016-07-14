@@ -456,7 +456,7 @@ module Timeline {
         }
 
         private updateTimelineHeight() {
-            this.options.moveable = false; //(this.activeDateRange.ismoveable);
+            this.options.moveable = this.activeDateRange.ismoveable;
             this.options.height = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight : 54;
             this.expandButtonBottom = (this.activeDateRange.isExpanded) ? this.activeDateRange.expandHeight - 1 : 52;
             this.datePickerBottom = this.expandButtonBottom + 170;
