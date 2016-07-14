@@ -31,6 +31,7 @@ module Idv {
         _view: any;
         xaxis?: string;
         yaxis?: string;
+        marginLeft? : number;
     }
 
     export interface ScanConfig {
@@ -655,7 +656,6 @@ module Idv {
                     })
                     console.log('table:' + config.elementId);
                     $("#" + config.elementId).addClass("widget-scrollable");
-                    $("body")
                     config.chart = dc.dataTable("#" + config.elementId);
                     config.chart
                         .width(width)
@@ -799,14 +799,13 @@ module Idv {
                             break;
                     }
 
-
-
                     if (config.cap) config.chart.cap(config.cap);
                     break;
             }
 
             if (!_.isUndefined(config.xaxis) && _.isFunction(config.chart.xAxisLabel)) { config.chart.xAxisLabel(config.xaxis); }
             if (!_.isUndefined(config.yaxis) && _.isFunction(config.chart.yAxisLabel)) { config.chart.yAxisLabel(config.yaxis); }
+            if (config.marginLeft) config.chart.margins().left = config.marginLeft;
 
             config.chart.on("filtered", (chart, filter) => {
                 this.triggerFilter(config);
