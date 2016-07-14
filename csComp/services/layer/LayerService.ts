@@ -111,6 +111,7 @@ module csComp.Services {
             // init map renderers
             this.mapRenderers = {};
             this.visual = new VisualState();
+            this.setLanguage();
 
             // add renderers
             this.mapRenderers['leaflet'] = new LeafletRenderer();
@@ -194,14 +195,14 @@ module csComp.Services {
             this.enableDrop();
         }
 
-        private setLanguage(project : Project) {
+        private setLanguage(project?: Project) {
             let params = this.$location.search();
             if (params.hasOwnProperty('language')) {
                 this.currentLocale = params['language'];
             } else if (project && project.preferedLanguage) {
                 this.currentLocale = project.preferedLanguage;
             } else {
-            this.currentLocale = this.$translate.preferredLanguage();
+                this.currentLocale = this.$translate.preferredLanguage();
             }
         }
 
