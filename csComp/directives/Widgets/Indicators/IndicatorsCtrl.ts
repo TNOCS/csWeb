@@ -137,6 +137,8 @@ module Indicators {
             //alert('start edit');
         }
 
+
+
         private checkLayers() {
             if (!this.$layerService.visual.mapVisible) return;
             var focusTime = this.$layerService.project.timeLine.focus;

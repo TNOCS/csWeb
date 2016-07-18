@@ -395,6 +395,7 @@ module csComp.Services {
                     marker.on('dragend', (event: L.LeafletEvent) => {
                         var marker = event.target;
                         var position = marker.getLatLng();
+
                         feature.geometry.coordinates = [position.lng, position.lat];
                         //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
                         //map.panTo(new L.LatLng(position.lat, position.lng))

@@ -17,6 +17,8 @@ module csComp.Services {
 
     export interface IWidgetCtrl {
         startEdit: Function;
+        getOptions? : Function;
+        goFullscreen? : Function;
     }
 
     export interface IWidget {
@@ -28,6 +30,12 @@ module csComp.Services {
          * json object that can hold parameters for the directive
          */
         data?: Object;
+
+        /**
+         * if defined it will find a widget with this id and copy it data (usefull if you want to reuse the data on multiple dashboards)
+         * @type {string}
+         */
+        datasource? : string;
         /**
          * url of the html page that should be used as widget
          */
@@ -36,6 +44,9 @@ module csComp.Services {
          * name of the template that should be shown as widget
          */
         template?: string;
+
+        /** default on dashboard, other options: rightpanel */
+        position? : string;
         /**
          * title of the widget
          */
@@ -79,11 +90,20 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
+        _options? : any;
         _ctrl?: IWidgetCtrl;
         _ijs?: any;
         _initialized?: boolean;
         _interaction?: boolean;
         _isMoving?: boolean;
+        _width?: string;
+        _height?: string;
+        _left?: string;
+        _top?: string;
+        _bottom?: string;
+        _right?: string;
+        _zindex? : string;
+        _isFullscreen? : boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -123,11 +143,21 @@ module csComp.Services {
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
         public effectiveStyle: WidgetStyle;
-
+        /** default on dashboard, other options: rightpanel */
+        public position : string = 'dashboard';
+        public _isFullscreen : boolean;
         public _ctrl: IWidgetCtrl;
         public _initialized: boolean;
         public _interaction: boolean;
         public _isMoving: boolean;
+
+           _width: string;
+        _height: string;
+        _left: string;
+        _top: string;
+        _bottom: string;
+        _right: string;
+        _zindex: string;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -159,6 +189,8 @@ module csComp.Services {
                 top: w.top,
                 bottom: w.bottom,
                 padding: w.padding,
+                position : w.position,
+                icon : w.icon,
                 width: w.width,
                 height: w.height,
                 allowFullscreen: w.allowFullscreen,
@@ -228,6 +260,7 @@ module csComp.Services {
         editMode: boolean;
         showMap: boolean;
         mapWidth: string = '100%';
+        description : string;
         alignMapRight: boolean = false;
         mobile: boolean = true;
         showTimeline: boolean = true;
@@ -255,6 +288,9 @@ module csComp.Services {
         disabled: boolean;
         parents: string[];
         _initialized: boolean;
+        /** set if a a fullscreen widget is active */
+        _fullScreenWidget : IWidget;
+
         /** complete refresh page on activation */
         refreshPage: boolean;
 
@@ -272,6 +308,7 @@ module csComp.Services {
                 editMode: d.editMode,
                 showMap: d.showMap,
                 mapWidth: d.mapWidth,
+                description : d.description,
                 alignMapRight: d.alignMapRight,
                 timeline: d.timeline,
                 showTimeline: d.showTimeline,
@@ -296,8 +333,10 @@ module csComp.Services {
         public static deserialize(input: Dashboard, solution: Solution): Dashboard {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
+
             res.widgets = [];
             if (typeof input.isLive === 'undefined') input.isLive = false;
+
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
                 this.addNewWidget(w, res, solution);
             });

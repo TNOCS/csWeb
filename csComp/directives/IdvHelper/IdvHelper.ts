@@ -31,6 +31,7 @@ module Idv {
         _view: any;
         xaxis?: string;
         yaxis?: string;
+        marginLeft? : number;
     }
 
     export interface ScanConfig {
@@ -51,7 +52,8 @@ module Idv {
 
     export class Idv {
 
-        public static days = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+        public static days_nl = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+        public static days_en = ["sunday","monday","tuesday","wednesday","thursday","friday","saterday"];
         public static months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
         public config: ScanConfig;
         public ndx: CrossFilter.CrossFilter<any>;
@@ -654,7 +656,6 @@ module Idv {
                     })
                     console.log('table:' + config.elementId);
                     $("#" + config.elementId).addClass("widget-scrollable");
-                    $("body")
                     config.chart = dc.dataTable("#" + config.elementId);
                     config.chart
                         .width(width)
@@ -783,7 +784,7 @@ module Idv {
 
                         case "days":
                             config.chart.ordering(function (d) {
-                                return Idv.days.indexOf(d.key);
+                                return Idv.days_en.indexOf(d.key);
                             });
                             break;
                         case "months":
@@ -798,14 +799,13 @@ module Idv {
                             break;
                     }
 
-
-
                     if (config.cap) config.chart.cap(config.cap);
                     break;
             }
 
-            if (!_.isUndefined(config.xaxis)) { config.chart.xAxisLabel(config.xaxis); }
-            if (!_.isUndefined(config.yaxis)) { config.chart.yAxisLabel(config.yaxis); }
+            if (!_.isUndefined(config.xaxis) && _.isFunction(config.chart.xAxisLabel)) { config.chart.xAxisLabel(config.xaxis); }
+            if (!_.isUndefined(config.yaxis) && _.isFunction(config.chart.yAxisLabel)) { config.chart.yAxisLabel(config.yaxis); }
+            if (config.marginLeft) config.chart.margins().left = config.marginLeft;
 
             config.chart.on("filtered", (chart, filter) => {
                 this.triggerFilter(config);

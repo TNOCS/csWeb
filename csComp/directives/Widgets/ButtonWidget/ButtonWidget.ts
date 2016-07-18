@@ -39,7 +39,10 @@ module ButtonWidget {
     export interface IButton {
         title: string;
         description: string;
+        moreInfo: string;
         action: string;
+        buttongroup: string;
+        tag: string;
         layer: string;
         group: string;
         timerange: string;
@@ -59,6 +62,8 @@ module ButtonWidget {
         _firstLegendLabel: string;
         _lastLegendLabel: string;
         _canEdit: boolean;
+        _visible: boolean;
+        _groupbuttons: IButton[];
     }
 
     export interface IButtonData {
@@ -74,6 +79,9 @@ module ButtonWidget {
     }
 
     export class ButtonWidgetCtrl {
+
+        private activeGroups: { [group: string]: IButton } = {};
+        private activeGroupsCollection: { [group: string]: IButton[] } = {};
 
         public static $inject = [
             '$scope',
@@ -111,21 +119,48 @@ module ButtonWidget {
                 this.$scope.buttons = this.$scope.data.buttons;
                 this.initButtons();
             }
-            $scope.$watchCollection("buttons", () => {
+            $scope.$watchCollection('buttons', () => {
                 this.initButtons();
             });
+
+            this.messageBusService.subscribe('viewmode', (a, d) => {
+                let activeGroup = '';
+                this.$scope.buttons.forEach((b: IButton) => {
+                    if (b._active && b.buttongroup) activeGroup = b.buttongroup;
+                });
+                if (a === 'tag') {
+                    this.$scope.buttons.forEach((b: IButton) => {
+                        if (b.buttongroup && b.tag) b._visible = (b.tag === d);
+                        if (b._visible && activeGroup !== '' && b.buttongroup === activeGroup) this.click(b);
+                    });
+                    console.log(d);
+                }
+            });
+
         }
 
         private initButtons() {
             this.$scope.buttons.forEach((b: IButton) => {
+                b = csComp.Helpers.translateObject(b, this.layerService.currentLocale);
                 var actions = b.action.split(';');
+                b._visible = true;
+                if (b.buttongroup) {
+                    if (!this.activeGroups.hasOwnProperty(b.buttongroup)) {
+                        this.activeGroups[b.buttongroup] = b;
+                        this.activeGroupsCollection[b.buttongroup] = [b];
+                    } else {
+                        if (this.activeGroups[b.buttongroup] !== b) b._visible = false;
+                        this.activeGroupsCollection[b.buttongroup].push(b);
+                    }
+                    b._groupbuttons = this.activeGroupsCollection[b.buttongroup];
+                }
                 actions.forEach((act) => {
                     switch (act.toLowerCase()) {
                         case 'activate timerange':
                             break;
                         case 'activate layer':
                             this.checkLayer(b);
-                            this.messageBusService.subscribe('layer', (a, l) => {this.checkLayer(b);  });
+                            this.messageBusService.subscribe('layer', (a, l) => { this.checkLayer(b); });
                             break;
                         case 'activate style':
                             this.checkStyle(b);
@@ -151,6 +186,10 @@ module ButtonWidget {
         private initLayerGroup() {
             this.checkLayerGroup();
             this.messageBusService.subscribe('layer', (a, l) => this.checkLayerGroup());
+        }
+
+        public switchButtonGroup(b: IButton) {
+            console.log(b);
         }
 
         private checkFeatureLayer() {
@@ -225,6 +264,7 @@ module ButtonWidget {
 
         private checkLayer(b: IButton) {
             b._layer = this.layerService.findLayer(b.layer);
+            if (!b._layer) return;
 
             if (b.showLegend) {
                 if (b._layer.defaultLegend) {
@@ -237,21 +277,21 @@ module ButtonWidget {
                             b._legend = gs.activeLegend;
                             this.updateLegendLabels(b);
                         }
-                    })
+                    });
                 }
             }
 
 
-                if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
+            if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
 
 
-                if (!_.isUndefined(b._layer)) {
-                    b._disabled = false;
-                    b._active = b._layer.enabled;
-                    b._canEdit = b._layer.enabled && b._layer.isEditable;
-                } else {
-                    b._disabled = true;
-                }
+            if (!_.isUndefined(b._layer)) {
+                b._disabled = false;
+                b._active = b._layer.enabled;
+                b._canEdit = b._layer.enabled && b._layer.isEditable;
+            } else {
+                b._disabled = true;
+            }
 
         }
 
@@ -281,8 +321,13 @@ module ButtonWidget {
                 }
                 if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
+                    b.moreInfo = b._legend.description;
                     this.checkLegend(b);
                 } else {
+                    var pt = this.layerService.findPropertyTypeById(prop);
+                    if (pt && pt.legend) {
+                        b.moreInfo = pt.legend.description;
+                    }
                     b._legend = null;
                 }
             }
@@ -339,7 +384,7 @@ module ButtonWidget {
                 projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
                 this.layerService.setFilter(gf, projGroup);
                 this.layerService.visual.leftPanelVisible = true;
-                $('#filter-tab').click();
+                (<any>$('#filter-tab')).tab('show');
             }
         }
     }

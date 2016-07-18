@@ -123,7 +123,7 @@ module csComp.Helpers {
             }, [0, 0]);
             return { type: 'Point', coordinates: centroid };
         }
-        
+
         /** Get the most northern coordinate of a polygon */
         static getNorthmostCoordinate(arr): csComp.Services.IGeoJsonGeometry {
             if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
@@ -145,7 +145,7 @@ module csComp.Helpers {
             }, [0, 0]);
             return { type: 'Point', coordinates: centroid };
         }
-        
+
         /** Get the most Eastern coordinate of a polygon */
         static getEastmostCoordinate(arr): csComp.Services.IGeoJsonGeometry {
             if (!arr || arr.length === 0) return { type: 'Point', coordinates: [0, 0] };
@@ -423,6 +423,14 @@ module csComp.Helpers {
         static convertKmToMile(km: number) {
             if (!km || isNaN(km)) return;
             return (km * 0.621371192);
+        }
+
+        static featureInsideBoundingBox(feature : IFeature, bboxarray : number[][]) : boolean
+        {
+            if (feature.geometry.type === "LineString")
+            {
+                return this.pointInsidePolygon(feature.geometry.coordinates[0],[bboxarray]);
+            }
         }
 
         /**

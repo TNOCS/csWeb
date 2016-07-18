@@ -103,8 +103,8 @@ module Dashboard {
                 if (w.stop) {
                     w.stop();
                 } else if (w.elementId) {
-                    // The stop() function of a widget sits in the controller. We can reach the controller through the 
-                    // scope of the widget element. 
+                    // The stop() function of a widget sits in the controller. We can reach the controller through the
+                    // scope of the widget element.
                     try {
                         var wElm = document.getElementById(w.elementId);
                         var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
@@ -116,10 +116,76 @@ module Dashboard {
             });
         }
 
+        public updateWidgetPosition(widget: csComp.Services.IWidget) {
+            if (widget._isFullscreen) {
+                var el = $('#dashboard-main');
+                widget._top = '10px';
+                widget._bottom = '10px';
+                widget._width = el.width() - 20 + 'px';
+                widget._height = el.height() - 20 + 'px';
+                widget._left = '10px';
+                widget._right = '10px';
+                widget._zindex = '100';
+            } else {
+                widget._width = widget.width;
+                widget._height = widget.height;
+                widget._top = widget.top;
+                widget._bottom = widget.bottom;
+                widget._left = widget.left;
+                widget._right = widget.right;
+                widget._zindex = '1';
+            }
+        }
+
         public toggleWidget(widget: csComp.Services.IWidget) {
             if (widget.canCollapse) {
                 widget.collapse = !widget.collapse;
             }
+        }
+
+        public getOptions(widget: csComp.Services.IWidget) {
+            var options = [];
+            if (widget._ctrl && widget._ctrl.getOptions) {
+                widget._ctrl.getOptions().forEach(o => options.push(o));
+            }
+            if (this.$mapService.isAdminExpert) {
+                options.push({ title: 'Widget Settings', action: (w) => this.$dashboardService.editWidget(w) });
+                if (widget.position === 'dashboard') {
+                    if (widget._interaction) {
+                        options.push({ title: 'Disable drag', action: (w) => this.toggleInteract(w) });
+                    } else {
+                        options.push({ title: 'Enable drag', action: (w) => this.toggleInteract(w) });
+                    }
+                }
+            }
+            if (widget.allowFullscreen) {
+                if (widget._isFullscreen) {
+                    options.push({
+                        title: 'Minimize', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = null;
+                            w._isFullscreen = false;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                } else {
+                    options.push({
+                        title: 'Fullscreen', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = w;
+                            w._isFullscreen = true;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                }
+            }
+            widget._options = options;
+        }
+
+        public triggerOption(o: any, w: csComp.Services.IWidget) {
+            if (_.isFunction(o.action)) o.action(w);
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
@@ -131,26 +197,31 @@ module Dashboard {
             var newScope = this.$scope;
             (<any>newScope).widget = w;
 
-            if (w.template) {
-                widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
-            } else if (w.url) {
-                widgetElement = this.$compile('<div>url</div>')(this.$scope);
-            } else if (w.directive) {
-                //var newScope : ng.IScope;
-                widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
-            } else {
-                widgetElement = this.$compile('<h1>hoi</h1>')(this.$scope);
+            if (w.position === 'rightpanel') {
+                var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
+                rpt.open = false;
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            }
+            else {
+                if (w.template) {
+                    widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
+                } else if (w.url) {
+                    widgetElement = this.$compile('<div>url</div>')(this.$scope);
+                } else if (w.directive) {
+                    //var newScope : ng.IScope;
+                    widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
+                } else {
+                    widgetElement = this.$compile('<div></div>')(this.$scope);
+                }
             }
 
-            var resized = function() {
-                //alert('resize');
-                /* do something */
-            };
-            if (widgetElement) {
-                widgetElement.resize(resized);
+            this.getOptions(w);
 
+            if (widgetElement) {
                 //alert(w.elementId);
+                this.updateWidgetPosition(w);
                 var el = $('#' + w.elementId);
+                //if (w._isFullscreen) el = $('#dashboard-widget-fullscreen');
                 el.empty();
                 el.append(widgetElement);
             }
@@ -198,6 +269,15 @@ module Dashboard {
             }
         }
 
+        public checkDescription() {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.description) {
+                var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', { title: db.name, mdText: db.description }, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question', true, false);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                //this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+            }
+        }
+
         public checkLayers() {
             var db = this.$layerService.project.activeDashboard;
             if (db.visiblelayers && db.visiblelayers.length > 0 && this.$layerService.project.groups) {
@@ -236,10 +316,10 @@ module Dashboard {
 
                 if (!_.isUndefined(t.fixedRange)) {
                     switch (t.fixedRange) {
-                        case '24h' :
+                        case '24h':
                             t.end = Date.now();
                             t.start = Date.now() - 1000 * 60 * 24;
-                        break;
+                            break;
                     }
                 }
 
@@ -256,12 +336,11 @@ module Dashboard {
                     var newpos = f * w - $('#focustimeContainer').width() / 2;
                     $('#focustimeContainer').css('left', newpos);
                 }
-                
-                if (t.isExpanded)
-                {
+
+                if (t.isExpanded) {
                     t.enableEvents = true;
                 }
-                
+
             }  // end RS mod
         }
 
@@ -347,7 +426,7 @@ module Dashboard {
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
                 w.left = '20px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
+                w.customStyle = <csComp.Services.WidgetStyle>{ background: 'White', borderColor: 'Black', borderWidth: '1px' };
                 w.top = '80px';
                 w.hideIfLeftPanel = true;
                 w.width = '';
@@ -365,6 +444,7 @@ module Dashboard {
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
+            this.checkDescription();
 
             //this.$messageBusService.publish('leftmenu',(d.showLeftmenu) ? 'show' : 'hide');
             // if (!this.$mapService.isAdminExpert) {

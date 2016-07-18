@@ -52,10 +52,15 @@ module KanbanColumn {
             private $scope: IKanbanBoardScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService
-            ) {
+        ) {
             $scope.vm = this;
-            var par = <any>$scope.$parent;
-            this.kanban = par.widget.data;
+            if (this.$scope.$root.hasOwnProperty('data')) {
+                this.kanban = this.$scope.$root['data'];
+            }
+            else {
+                var par = <any>$scope.$parent;
+                this.kanban = par.widget.data;
+            }
 
             if (!this.kanban.hasOwnProperty('canAdd')) this.kanban.canAdd = true;
 

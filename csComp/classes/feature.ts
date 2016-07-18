@@ -20,6 +20,8 @@ module csComp.Services {
     export interface IGuiObject {
         /** When true, the feature is included on the map, as opposed to being removed by a filter. */
         included: boolean;
+        /** when true, visible in bounding box (only calculated for layers that use partial bounding box updates) */
+        insideBBOX : boolean;
         [key: string]: any;
     }
 
@@ -68,7 +70,7 @@ module csComp.Services {
         htmlStyle: string;
         featureTypeName: string;
         lastUpdated: number;
-        _gui: IGuiObject = { included: true };
+        _gui: IGuiObject = { included: true, insideBBOX : true };
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
@@ -210,6 +212,7 @@ module csComp.Services {
         categories?: string[];
         languages?: ILanguageData;
         legend?: Legend;
+        legendType? : string;
         /** if defined, this sensor value will be removed. this can be usefull for sensor data that uses -1 or -999999 as empty sensor data */
         sensorNull?: Object;
         hideValue?: boolean;
@@ -221,6 +224,7 @@ module csComp.Services {
         targetid?: string;
         /** Angular expression */
         expression?: string;
+        isSensor? : boolean;
     }
 
     export interface IPropertyTypeData {
@@ -311,9 +315,9 @@ module csComp.Services {
         id?: string;
         name?: string;
         style?: IFeatureTypeStyle;
-        
+
         legendItems?: LegendList.ILegendItem[];
-        
+
         /** default property/properties used for legends */
         defaultLegendProperty? : string | string[];
         /** Optional expressions that are shown in the legend list. */
@@ -334,6 +338,7 @@ module csComp.Services {
         /** If true, specifies the properties to publish items on the timeline. */
         timelineConfig?: Timeline.ITimelineConfig;
         _propertyTypeData?: IPropertyType[];
+        _expressions? : IPropertyType[];
         _isInitialized?: boolean;
         _resource?: ITypesResource;
     }

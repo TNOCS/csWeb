@@ -58,6 +58,7 @@ module csComp.Services {
         enableFocus:   boolean = true;
         expandHeight:        number;
         updateDelay : number;
+        ismoveable : boolean = true;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -222,6 +223,11 @@ module csComp.Services {
         expertMode      = Expertise.Expert;
         markers         = {};
         eventTab:       boolean;
+        /**
+         * default interface language
+         * @type {string}
+         */
+        preferedLanguage: string;
         /** List of search providers to use, e.g. bag, offline, bing */
         searchProviders: ISearchProvider[] = [];
         // /** If true (default false), indicates that we should load an offline search result. */

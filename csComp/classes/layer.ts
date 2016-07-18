@@ -15,7 +15,13 @@ module csComp.Services {
         /** maximum timeline zoom level */
         zoomMaxTimeline? : number;
 
+        /** minimum timeline zoom level */
+        zoomMinTimeline? : number;
+        /** actual interval in ms */
+        actualInterval? : number;
+
         _outOfRange? : boolean;
+        _requestReference? : any;
     }
 
     /** Interface of a project layer
@@ -138,6 +144,10 @@ module csComp.Services {
         fitToMap? : boolean;
         /** If true, specifies the properties to publish items on the timeline. */
         timelineConfig?: Timeline.ITimelineConfig;
+        /** if true, use local storage to save/retrieve layer data */
+        localStorage? : boolean;
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -317,6 +327,12 @@ module csComp.Services {
         /** True when the layer features are transparent, e.g. when outside zoom range */
         isTransparent: boolean;
 
+        /** if true, use local storage to save/retrieve layer data */
+        localStorage : boolean;
+
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
+
         /** Get the features from the layer's original source, if present. */
         public static getFeatures(layer: ProjectLayer) {
             return (layer.data && layer.data.features)
@@ -362,7 +378,8 @@ module csComp.Services {
                 timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,
-                maxZoom:               pl.maxZoom
+                maxZoom:               pl.maxZoom,
+                localStorage:          pl.localStorage
             };
         }
     }

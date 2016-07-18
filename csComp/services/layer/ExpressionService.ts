@@ -1,9 +1,9 @@
 module csComp.Services {
     export class ExpressionService {
-        /** 
+        /**
          * A common set of operations for parsing Angular expressions, such as:
          * count, sum, average and standard deviation.
-         * 
+         *
          * Since Angular's $parse does not allow you to define a function or for loop, we use a hack to supply these
          * functions through an object.
          * See also http://glebbahmutov.com/blog/angularjs-parse-hacks/
@@ -164,14 +164,27 @@ module csComp.Services {
             var parsedExpression = this.$parse(expression);
             var scope = {
                 features: features,
-                properties: feature ? feature.properties : null
+                properties: feature ? feature.properties : null,
+                sensors: feature ? feature.sensors : null
             };
             return parsedExpression(scope, this.ops);
         }
 
-        /** Evaluate the expression in a property */        
+        evalSensorExpression(expression: string, features: IFeature[], feature?: IFeature, timeIndex? : number) {
+            if (!feature.sensors || _.keys(feature.sensors).length === 0) return null;
+            var parsedExpression = this.$parse(expression);
+            var scope = {
+                timeIndex : timeIndex,
+                features: features,
+                properties: feature ? feature.properties : null,
+                sensors: feature ? feature.sensors : null
+            };
+            return parsedExpression(scope, this.ops);
+        }
+
+        /** Evaluate the expression in a property */
         evalPropertyType(pt: IPropertyType, features: IFeature[], feature?: IFeature) {
-            if (!pt.expression) return null;
+            if (!pt.expression || pt.isSensor) return null;
             return csComp.Helpers.convertPropertyInfo(pt, this.evalExpression(pt.expression, features, feature));
         }
     }

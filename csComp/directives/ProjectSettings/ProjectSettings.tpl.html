@@ -1,6 +1,10 @@
 <div style="overflow-y: auto; overflow-x: hidden; padding:5px; margin-top: 20px; margin-left:10px">
 
     <div class="controls">
+        <language-switch />
+    </div>
+
+    <div class="controls">
         <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
             <input type="checkbox" id="touchMode" ng-checked="vm.dashboardService.touchMode" data-ng-click="vm.toggleTouchMode();">
             <label class="editor-title input-xlarge" for="touchMode">touch mode</label>

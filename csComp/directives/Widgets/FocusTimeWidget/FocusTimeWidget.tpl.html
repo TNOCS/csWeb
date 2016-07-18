@@ -1,20 +1,45 @@
 <div style="box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);height:100%;background:white">
-    <div class="fa fa-clock-o" style="float:left;font-size:50px;margin:5px" />
-    <div ng-show="vm.layer._gui.outOfRange">De tijdscope is te groot. Gebruik de tijdbalk om deze te verkleinen</div>
+    <style>
+        .selected-tag {
+            background: red;
+        }
+
+        .focustime-status
+        {
+            font-size:18px;
+        }
+    </style>
+
+    <div ng-show="vm.layer._gui.outOfRange"  style="padding:10px">{{'FOCUSTIME.OUT_OF_RANGE' | translate}}</div>
     <div ng-hide="vm.layer._gui.outOfRange">
-        <div ng-show="vm.layer._gui.loadingSensorLink">
-            <span>Sensor data wordt geladen, even geduld</span>
+        <div ng-show="vm.layer._gui.loadingSensorLink" style="padding:10px">
+            <span class="focustime-status">{{'FOCUSTIME.LOADING' | translate}}</span>
+
         </div>
 
         <div ng-hide="vm.layer._gui.loadingSensorLink">
             <div ng-show="vm.time">
+    <div class="fa fa-clock-o" style="float:left;font-size:50px;margin:5px" />
                 <div class="focustime-widget-date">{{vm.time | date:vm.dateFormat}}</div>
-                <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}</div>
-                <!--<div style="margin:10px"><button class="button" ng-click="vm.lastHour()" style="margin-right:5px">laatste uur</button><button ng-click="vm.lastDay()" class="button">laatste 24 uur</button></div>-->
+                <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}
+                    <span ng-if="vm.endTime" class="focustime-widget-time"> - {{vm.endTime | date:vm.timeFormat}}</span>
+                </div>
+
+                <div style="margin-left:10px">
+                    <div ng-repeat="tag in data.tags">
+                        <button class="btn btn-default" ng-click="vm.setTag(tag.tag)" ng-class="{'btn-success': tag.tag === data.activeTag}" style="margin-right:5px;padding:4px;float:left">{{tag.title}}</button>
+                    </div>
+                </div>
+
             </div>
-            <div ng-hide="vm.time">
-                <span>Momenteel is er geen sensor data beschikbaar</span>
+
+            <!--<div style="margin:10px"><button class="button" ng-click="vm.setTag('actual')" style="margin-right:5px">actueel</button><button ng-click="vm.setTag('diff')"
+                    class="button">diff</button></div>-->
+            <div ng-hide="vm.time"  style="padding:10px">
+                <span class="focustime-status">{{'FOCUSTIME.NOT_AVAILABLE' | translate}}</span>
             </div>
         </div>
     </div>
+
+
 </div>

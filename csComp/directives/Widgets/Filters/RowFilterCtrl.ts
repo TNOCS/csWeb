@@ -59,13 +59,13 @@ module Filters {
             else {
 
             }
-            
+
             if ((<any>window).canvg) {
                 this.exporterAvailable = true;
             } else {
                 this.exporterAvailable = false;
             }
-            
+
             this.$messageBus.subscribe('filters', (title: string, groupId) => {
                 switch (title) {
                     case 'updateGroup': 
@@ -88,7 +88,7 @@ module Filters {
                             res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
-                    
+
                     if (this.exporterAvailable) {
                         res.push([$scope.saveAsImageString, () => this.exportToImage()]);
                     }
@@ -121,8 +121,8 @@ module Filters {
             this.$scope.$apply();
 
             var pt : csComp.Services.IPropertyType;
-            
-           
+
+
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
@@ -131,9 +131,10 @@ module Filters {
                             var a = d.properties[filter.property];
                             if (pt.type === 'options') {
                                 var r;
-                                if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                                    r = a + "." + pt.options[a];
-                                } else { r = a + "." + a}
+                                var key = a.toString();
+                                if (pt && pt.options && pt.options.hasOwnProperty(key)) {
+                                    r = key + "." + pt.options[key];
+                                } else { r = key + "." + key}
                                 return r;
                             } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
                                 var label;
@@ -154,7 +155,7 @@ module Filters {
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
-            
+
             // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
             if (pt && pt.legend) {
                 var allEntries = [];
@@ -165,17 +166,17 @@ module Filters {
                 });
                 var fakeGroup = fakeDim.group();
             }
-            
+
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
 
             this.dcChart.width(380)
-                .height(285)                
+                .height(285)
                 .margins({top: 2, right: 2, bottom: 2, left: 2})
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {
                     return d.key })
-                .elasticX(true)                
+                .elasticX(true)
                 .colors(d=>{
                     if (pt && pt.legend) {
                         if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
@@ -206,7 +207,7 @@ module Filters {
             this.updateRange();
             dc.renderAll();
         }
-        
+
         private ensureAllBins(source_group, fake_group) { // (source_group, bins...}
             var bins = fake_group.all().slice(0);
             return {
@@ -269,7 +270,7 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-        
+
         public exportToImage() {
             var canvg = (<any>window).canvg || undefined;
             if (!canvg) return;

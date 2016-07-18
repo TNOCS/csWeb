@@ -77,6 +77,12 @@ module Translations {
             EDIT: 'edit',
             APPLY: 'apply',
             REMOVE: 'remove',
+            FOCUSTIME : {
+                OUT_OF_RANGE : 'The timerange is out of scope',
+                NOT_AVAILABLE : 'Currently no sensor data available',
+                LOADING : 'Sensor data is being loaded, please wait'
+
+            },
             STATS: {
                 COUNT: '#',
                 COUNT_TOOLTIP: 'Count of selected items',

@@ -15,7 +15,7 @@
         "./csServerComp/**/*.ts", "./test/**/*.ts",
         "!./csComp/includes/**/*.ts", "!./dist-npm", "!./dist-bower",
         "!./docker-dev", "!./docs", "!./csServerComp/OfflineSearch/**/*.ts",
-        "!./node_modules/**/*.ts", "!out/**", "!dist-bower/**"
+        "!./node_modules/**/*.ts"
     ],
     "comment": "! This tsconfig.json file has been generated automatically, please DO NOT edit manually.",
     "files": ["csComp/classes/dashboard.ts", "csComp/classes/datasource.ts",
