@@ -376,7 +376,7 @@ module Mca {
         drawChart(criterion?: Models.Criterion) {
             this.selectedCriterion = criterion;
             this.showChart = true;
-            if (this.showFeature) {
+            if (this.showFeature && criterion) {
                 if (this.showAsterChart) {
                     this.drawAsterPlot(criterion);
                 } else {
@@ -419,7 +419,7 @@ module Mca {
         }
 
         public getTitle(criterion: Mca.Models.Criterion) {
-            return criterion.title || criterion.label;
+            return criterion && criterion.title || criterion.label;
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {

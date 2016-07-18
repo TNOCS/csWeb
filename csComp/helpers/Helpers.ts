@@ -9,6 +9,23 @@
 module csComp.Helpers {
 
     /**
+     * Translate the object to the user's language.
+     */
+    export function translateObject(obj: any, language: string, recursive = false): any {
+        if (obj && obj.hasOwnProperty('languages') && obj.languages.hasOwnProperty(language)) {
+            for (var p in obj.languages[language]) {
+                obj[p] = obj.languages[language][p];
+            }
+        }
+        if (recursive) {
+            for (var key in obj) {
+                if (_.isObject(obj[key])) obj[key] = translateObject(obj[key], language, recursive);
+            }
+        }
+        return obj;
+    }
+
+    /**
      * Serialize an array of type T to a JSON string, by calling the callback on each array element.
      */
     export function serialize<T>(arr: Array<T>, callback: (T) => Object, skipTitlesOrIdStartingWithUnderscore = false) {

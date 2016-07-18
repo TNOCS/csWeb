@@ -31,5 +31,8 @@
     "winston": "github:DefinitelyTyped/DefinitelyTyped/winston/winston.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
     "xml2js": "github:DefinitelyTyped/DefinitelyTyped/xml2js/xml2js.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e",
     "angular-mocks": "github:DefinitelyTyped/DefinitelyTyped/angularjs/angular-mocks.d.ts#708609e0764daeb5eb64104af7aca50c520c4e6e"
+  },
+  "globalDependencies": {
+    "compression": "registry:dt/compression#0.0.0+20160501162003"
   }
 }

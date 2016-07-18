@@ -1,18 +1,5 @@
 module csComp.Helpers {
 
-    export function translateObject(obj: any, language: string, recursive = false): any {
-        if (obj.hasOwnProperty('languages') && obj.languages.hasOwnProperty(language)) {
-            for (var p in obj.languages[language]) {
-                obj[p] = obj.languages[language][p];
-            }
-        }
-        if (recursive) {
-            for (var key in obj) {
-                if (_.isObject(obj[key])) obj[key] = translateObject(obj[key], language, recursive);
-            }
-        }
-        return obj;
-    }
     /**
      * Either get the color from the string value by using the active legend, or else return
      * the current value (e.g. assuming that the current property contains a color).
