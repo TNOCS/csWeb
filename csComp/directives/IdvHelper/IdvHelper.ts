@@ -31,7 +31,7 @@ module Idv {
         _view: any;
         xaxis?: string;
         yaxis?: string;
-        marginLeft? : number;
+        marginLeft?: number;
     }
 
     export interface ScanConfig {
@@ -53,7 +53,7 @@ module Idv {
     export class Idv {
 
         public static days_nl = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
-        public static days_en = ["sunday","monday","tuesday","wednesday","thursday","friday","saterday"];
+        public static days_en = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saterday"];
         public static months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
         public config: ScanConfig;
         public ndx: CrossFilter.CrossFilter<any>;
@@ -104,19 +104,23 @@ module Idv {
 
         public reduceAddAvg(attr) {
             return (p, v) => {
-                ++p.count
-                var t = parseFloat(v[attr]);
-                if (t > p.max) p.max = t;
-                p.sum += t;
-                p.avg = p.sum / p.count;
+                if (v > 0) {
+                    ++p.count
+                    var t = parseFloat(v[attr]);
+                    if (t > p.max) p.max = t;
+                    p.sum += t;
+                    p.avg = p.sum / p.count;
+                }
                 return p;
             };
         }
         public reduceRemoveAvg(attr) {
             return (p, v) => {
-                --p.count
-                p.sum -= parseFloat(v[attr]);
-                p.avg = p.sum / p.count;
+                if (v > 0) {
+                    --p.count
+                    p.sum -= parseFloat(v[attr]);
+                    p.avg = p.sum / p.count;
+                }
                 return p;
             };
         }
@@ -224,82 +228,87 @@ module Idv {
                         window.alert("Deze browser is verouderd. Hierdoor zal de informatie trager laden");
                     }
                     else {
-                        if (this.config.localStorage) {
-                            var request = window.indexedDB.open(this.config.data, 9);
+                        // if (this.config.localStorage) {
+                        //     var request = window.indexedDB.open(this.config.data, 9);
 
-                            request.onerror = (e => {
+                        //     request.onerror = (e => {
 
-                                window.indexedDB.deleteDatabase(this.config.data);
-                            });
-                            request.onsuccess = (e => {
-                                var db = <IDBDatabase>(<any>event.target).result;
-                                //if (!db.objectStoreNames.contains(store)) var objStore = db.createObjectStore(store, { autoIncrement : true });
-                                if (db.objectStoreNames.contains(store)) {
+                        //         window.indexedDB.deleteDatabase(this.config.data);
+                        //     });
+                        //     request.onsuccess = (e => {
+                        //         var db = <IDBDatabase>(<any>event.target).result;
+                        //         //if (!db.objectStoreNames.contains(store)) var objStore = db.createObjectStore(store, { autoIncrement : true });
+                        //         if (db.objectStoreNames.contains(store)) {
 
-                                    var experiments = [];
-                                    async.series(
-                                        [(cb) => {
-                                            db.transaction(store, 'readonly').objectStore(store).openCursor().onsuccess = (d) => {
+                        //             var experiments = [];
+                        //             async.series(
+                        //                 [(cb) => {
+                        //                     db.transaction(store, 'readonly').objectStore(store).openCursor().onsuccess = (d) => {
 
-                                                var r = <IDBCursorWithValue>(<IDBRequest>d.target).result;
-                                                if (r) {
-                                                    var v = r.value;
-                                                    v.data.forEach(d => experiments.push(d));
-                                                    //r.advance(1);
-                                                    r.continue();
-                                                }
-                                                else {
-                                                    cb();
-                                                }
-                                            }
-                                        },
-                                            (cb) => {
-                                                if (experiments.length > 0) {
-                                                    this.parseData(experiments, prepare, done);
-                                                    cb();
-                                                }
-                                                else {
-                                                    this.state = "Verversen data";
-                                                    d3.csv(this.config.data, (error, experiments) => {
-                                                        this.state = "Opslaan data";
-                                                        var s = db.transaction(store, "readwrite").objectStore(store);
-                                                        var l = [];
-                                                        var id = 0;
-                                                        experiments.forEach(e => {
-                                                            l.push(e);
-                                                            if (l.length > 100000) {
-                                                                s.add({ id: id, data: l });
-                                                                l = [];
-                                                                id += 1;
-                                                            }
-                                                        });
-                                                        this.parseData(experiments, prepare, done);
-                                                        cb();
-                                                    });
-                                                }
+                        //                         var r = <IDBCursorWithValue>(<IDBRequest>d.target).result;
+                        //                         if (r) {
+                        //                             var v = r.value;
+                        //                             v.data.forEach(d => experiments.push(d));
+                        //                             //r.advance(1);
+                        //                             r.continue();
+                        //                         }
+                        //                         else {
+                        //                             cb();
+                        //                         }
+                        //                     }
+                        //                 },
+                        //                     (cb) => {
+                        //                         if (experiments.length > 0) {
+                        //                             this.parseData(experiments, prepare, done);
+                        //                             cb();
+                        //                         }
+                        //                         else {
+                        //                             this.state = "Verversen data";
+                        //                             d3.csv(this.config.data, (error, experiments) => {
+                        //                                 this.state = "Opslaan data";
+                        //                                 var s = db.transaction(store, "readwrite").objectStore(store);
+                        //                                 var l = [];
+                        //                                 var id = 0;
+                        //                                 experiments.forEach(e => {
+                        //                                     l.push(e);
+                        //                                     if (l.length > 100000) {
+                        //                                         s.add({ id: id, data: l });
+                        //                                         l = [];
+                        //                                         id += 1;
+                        //                                     }
+                        //                                 });
+                        //                                 this.parseData(experiments, prepare, done);
+                        //                                 cb();
+                        //                             });
+                        //                         }
 
-                                            }]
-                                        , (done) => {
-                                            cb();
-                                        });
-                                }
-                                else {
-                                    db.close();
+                        //                     }]
+                        //                 , (done) => {
+                        //                     cb();
+                        //                 });
+                        //         }
+                        //         else {
+                        //             db.close();
 
-                                }
-                            });
+                        //         }
+                        //     });
 
-                            request.onupgradeneeded = (e => {
-                                var db = <IDBDatabase>(<any>event.target).result;
-                                var objStore = db.createObjectStore(store, { keyPath: "id" });
-                            });
-                        }
-                        else {
-                            d3.csv(this.config.data, (error, experiments) => {
-                                this.parseData(experiments, prepare, done);
-                                cb();
-                            });
-                        }
+                        //     request.onupgradeneeded = (e => {
+                        //         var db = <IDBDatabase>(<any>event.target).result;
+                        //         var objStore = db.createObjectStore(store, { keyPath: "id" });
+                        //     });
+                        // }
+                        // else {
+                        //     d3.csv(this.config.data, (error, experiments) => {
+                        //         this.parseData(experiments, prepare, done);
+                        //         cb();
+                        //     });
+                        // }
+
+                        d3.csv(this.config.data, (error, experiments) => {
+                            this.parseData(experiments, prepare, done);
+                            cb();
+                        });
                     }
                 }], done => {
 
@@ -359,18 +368,18 @@ module Idv {
             dc.renderAll();
         }
 
-        public savePng(title : string,elementId: string) {
+        public savePng(title: string, elementId: string) {
             domtoimage.toPng(document.querySelector('#' + elementId))
-                .then(function (image) {
+                .then((image) => {
                     //image = image.replace('image/png;base64', '');
-                    csComp.Helpers.saveImage(image,title,"png");
+                    csComp.Helpers.saveImage(image, title, "png");
 
                     // var img = new Image();
                     // img.src = dataUrl;
                     // document.body.appendChild(img);
                 })
-                .catch(function (error) {
-                    this.layerService.$messageBusService.notify("Error saving chart","When saving charts, only the latest version of chrome is supported");
+                .catch((error) => {
+                    this.layerService.$messageBusService.notify("Error saving chart", "When saving charts, only the latest version of chrome is supported");
 
                 });
         }
@@ -584,7 +593,7 @@ module Idv {
                     });
                     switch (config.type) {
                         case "pie":
-                            config.dimension = this.ndx.dimension(function (d) { return d; });
+                            config.dimension = this.ndx.dimension((d) => { return d; });
                             config.group = config.dimension.group().reduce(this.reduceAddSum(config.properties), this.reduceRemoveSum(config.properties), this.reduceInitSum(config.properties));
                             break;
                     }
@@ -592,7 +601,7 @@ module Idv {
                 case "average":
                     switch (config.type) {
                         case "row":
-                            config.dimension = this.ndx.dimension(function (d) { return d[config.property] });
+                            config.dimension = this.ndx.dimension((d) => { return d[config.property]; });
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.secondProperty), this.reduceRemoveAvg(config.secondProperty), this.reduceInitAvg);
                             break;
                         case "line":
@@ -683,12 +692,12 @@ module Idv {
                         .brushOn(true)
 
                         .dimension(config.dimension)
-                        .group(function (d) {
+                        .group((d) => {
                             //var format = d3.format('02d');
                             return d[config.time];
                         })
                         .renderHorizontalGridLines(true)
-                        .on('renderlet', function (chart) {
+                        .on('renderlet', (chart) => {
                             chart.selectAll('rect').on("click", function (d) {
                                 // console.log("click!", d);
                             });
@@ -706,7 +715,7 @@ module Idv {
                         .dimension(config.dimension)
                         .group(config.group)
                         .mouseZoomable(true)
-                        .on('renderlet', function (chart) {
+                        .on('renderlet', (chart) => {
                             chart.selectAll('rect').on("click", function (d) {
 
                                 // console.log("click!", d);
@@ -783,17 +792,17 @@ module Idv {
                     switch (config.ordering) {
 
                         case "days":
-                            config.chart.ordering(function (d) {
+                            config.chart.ordering((d) => {
                                 return Idv.days_en.indexOf(d.key);
                             });
                             break;
                         case "months":
-                            config.chart.ordering(function (d) {
+                            config.chart.ordering((d) => {
                                 return Idv.months.indexOf(d.key);
                             });
                             break;
                         case "value":
-                            config.chart.ordering(function (d) {
+                            config.chart.ordering((d) => {
                                 return -d.value;
                             });
                             break;
@@ -812,7 +821,7 @@ module Idv {
             })
 
             if (config.stat === "average") {
-                config.chart.valueAccessor(function (d) {
+                config.chart.valueAccessor((d) => {
                     return d.value.avg;
                 })
             }
@@ -842,8 +851,8 @@ module Idv {
             (<any>this.scope).resetAll = () => {
                 this.resetAll();
             }
-            (<any>this.scope).savePng = (title,elementId) => {
-                this.savePng(title,elementId);
+            (<any>this.scope).savePng = (title, elementId) => {
+                this.savePng(title, elementId);
             }
 
 
