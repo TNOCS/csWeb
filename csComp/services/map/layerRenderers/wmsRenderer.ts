@@ -34,6 +34,28 @@ module csComp.Services {
                 layer.isLoading = false;
                 if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') { service.$rootScope.$apply(); }
             });
+
+            if (!layer.group.owsgeojson) {
+                var gs = new GroupStyle(service.$translate);
+                gs.id = Helpers.getGuid();
+                gs.title = layer.title;
+                gs.meta = null;
+                gs.visualAspect = null;
+                gs.availableAspects = [];
+                gs.enabled = true;
+                gs.group = layer.group;
+                gs.property = '';
+                gs.canSelectColor = false;
+                gs.colors = ['#00fbff', '#0400ff'];
+                gs.activeLegend = <Legend>{
+                    legendKind: 'image',
+                    description: gs.title,
+                    visualAspect: 'fillColor',
+                    imageUrl: layer.url + '?service=wms&request=GetLegendGraphic&version=1.1.1&layer=' + layer.wmsLayers + '&styles=&format=image/png',
+                    legendEntries: []
+                };
+                service.saveStyle(layer.group, gs);
+            }
             layer.isLoading = true;
         }
     }

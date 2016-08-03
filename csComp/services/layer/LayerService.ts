@@ -2091,6 +2091,7 @@ module csComp.Services {
                 group.styles.splice(pos, 1);   // RS, 2015-04-04: why delete only one style? (what if oldStyles.length > 1)
             }
             group.styles.push(style);
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
         }
 
         /** checks if there are any filters available, used to show/hide filter tab leftpanel menu */
