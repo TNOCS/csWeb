@@ -45,6 +45,8 @@ module csComp.Services {
         languages: ILanguageData;
         owsurl: string;
         owsgeojson: boolean;
+        error: string;
+        isLoading: boolean;
         /**
          * gui is used for setting temp. properties for rendering
          */
@@ -84,47 +86,54 @@ module csComp.Services {
 
         public loadLayersFromOWS($injector: ng.auto.IInjectorService = null): void {
             this.layers = [];   // add some layers here...
+            this.isLoading = true;
 
             if ($injector == null) {   // create an injector if not given
                 $injector = angular.injector(['ng']);
             }
-            $injector.invoke(($http) => {
+            $injector.invoke(($http, $timeout) => {
                 $http.get(this.owsurl)
-                    .then((res: {data: any}) => { this.parseXML(res.data); },
+                    .then((res: {data: any}) => {
+                        this.parseXML(res.data);
+                        this.isLoading = false;
+                    },
                     (xml, status) => {
                         console.log('Unable to load OWSurl: ' + this.owsurl);
                         console.log('          HTTP status: ' + status);
+                        this.isLoading = false;
                     });
             });
         }
 
-        private parseXML(xml: any): void {
+        private parseXML(xml: any, $timeout: ng.ITimeoutService): void {
             var theGroup = this;
             var baseurl = this.owsurl.split('?')[0];
-            $(xml).find('Layer').each(function () {
-                // DO NOT use arrow notation (=>) as it will break this !!!
-                var layerName = $(this).children('Name').text();
-                if (layerName != null && layerName !== '') {
-                    var title = $(this).children('Title').text();
+            $(xml).find('Layer').each((index: number, elem: any) => {
+                // run each evaluation asynchronously, otherwise parsing may lock the browser.
+                $timeout(() => {
+                    var layerName = $(elem).children('Name').text();
+                    if (layerName != null && layerName !== '') {
+                        var title = $(elem).children('Title').text();
 
-                    // If <KeywordList> element has an element <keyword vocabulary="defaultFeatureType">featureType</keyword>
-                    // use featureType as defaultFeatureType
-                    var featureType = $(this).children('KeywordList').children('[vocabulary="defaultFeatureType"]').text();
-                    var resourceURL = $(this).children('KeywordList').children('[vocabulary="typeResourceURL"]').text();
+                        // If <KeywordList> element has an element <keyword vocabulary="defaultFeatureType">featureType</keyword>
+                        // use featureType as defaultFeatureType
+                        var featureType = $(elem).children('KeywordList').children('[vocabulary="defaultFeatureType"]').text();
+                        var resourceURL = $(elem).children('KeywordList').children('[vocabulary="typeResourceURL"]').text();
 
-                    // TODO: should be using layerService.initLayer(theGroup, layer);
-                    // But I don't know how to 'inject' layerService :(
-                    var layer = theGroup.buildLayer(baseurl, title, layerName);
-                    if (featureType !== '') {
-                        layer.defaultFeatureType = featureType;
-                        layer.typeUrl = 'data/resourceTypes/resources.json';
+                        // TODO: should be using layerService.initLayer(theGroup, layer);
+                        // But I don't know how to 'inject' layerService :(
+                        var layer = theGroup.buildLayer(baseurl, title, layerName);
+                        if (featureType != '') {
+                            layer.defaultFeatureType = featureType;
+                            layer.typeUrl = 'data/resourceTypes/resources.json';
+                        }
+                        if (resourceURL != '') {
+                            layer.typeUrl = resourceURL;
+                        }
+
+                        theGroup.layers.push(layer);
                     }
-                    if (resourceURL !== '') {
-                        layer.typeUrl = resourceURL;
-                    }
-
-                    theGroup.layers.push(layer);
-                }
+                });
             });
         }
 
