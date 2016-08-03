@@ -100,7 +100,7 @@ module LayersDirective {
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupsettings', group, 'Group Settings', 'Group Settings', 'cog', true, true);
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupedit', group, 'Group Settings', 'Group Settings', 'cog', true, true);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
