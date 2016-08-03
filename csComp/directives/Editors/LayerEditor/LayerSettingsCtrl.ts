@@ -16,6 +16,7 @@ module LayerSettings {
         public static $inject = [
             '$scope',
             '$http',
+            '$timeout',
             'mapService',
             'layerService',
             'messageBusService',
@@ -27,6 +28,7 @@ module LayerSettings {
         constructor(
             private $scope: ILayerSettingsScope,
             private $http: ng.IHttpService,
+            private $timeout: ng.ITimeoutService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -42,7 +44,7 @@ module LayerSettings {
         // public addLayer() {
         // }
 
-        public saveLayer() {            
+        public saveLayer() {
             this.$layerService.saveProject();
         }
 
@@ -74,13 +76,11 @@ module LayerSettings {
         }
 
         public getTypes() {
+            if (!this.layer.typeUrl) return;
             this.$http.get(this.layer.typeUrl)
                 .then((res: {data: any}) => {
                     let response = res.data;
-                    setTimeout(() => {
-                        this.availabeTypes = response.featureTypes;
-                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') this.$scope.$apply();
-                    }, 0);
+                    this.$timeout(() => this.availabeTypes = response.featureTypes);
                 })
                 .catch(() => { console.log('LayerEditCtl.getTypes: error with $http'); });
         };
