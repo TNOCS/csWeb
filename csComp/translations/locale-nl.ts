@@ -23,8 +23,8 @@ module Translations {
             SELECT_A_FEATURE: 'Selecteer een feature',
             DISABLE_LOCATION_FILTER: 'Deactiveer locatiefilter',
             SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
-            SELECT_FEATURE_FOR_STYLE: 'Selecteer een gebied om de stijl te activeren.',
-            SELECT_LAYER_GROUP : 'Selecteer lagen',
+            SELECT_FEATURE_FOR_STYLE: 'Selecteer eerst een gebied, dan pas kan de stijl geactiveerd worden.',
+            SELECT_LAYER_GROUP: 'Selecteer lagen',
             SELECT_CATEGORY: 'Selecteer categorie',
             SELECT_PROPERTIES: 'Selecteer eigenschappen',
             NO_RELATIONS_FOUND: 'Geen relaties voor het geselecteerde item gevonden. Ofwel het zoomniveau is te laag, er zijn teveel items zichtbaar of er zijn geen relaties gedefiniëerd.',
@@ -37,7 +37,7 @@ module Translations {
             DIRECTORY: 'Beschikbare lagen',
             CREATELAYER: 'Nieuwe laag maken',
             ADDFEATURES: 'Objecten toevoegen',
-            ADDTYPE:'Nieuwe type toevoegen',
+            ADDTYPE: 'Nieuwe type toevoegen',
             FILTERS: 'Filters',
             FILTER_INFO: 'Momenteel zijn er geen filters geselecteerd. Klik op een icoon of gebied op de kaart, en klik op het filter icoontje (<span class="fa fa-filter"></span>) in het rechter menu om een filter toe te voegen. Dan wordt er een filter aangemaakt voor de geselecteerde eigenschap.',
             STYLES: 'Stijlen',
@@ -77,6 +77,11 @@ module Translations {
             DONE: 'klaar',
             CONFIG: 'config',
             EDIT: 'aanpassen',
+            FOCUSTIME: {
+                OUT_OF_RANGE: 'De tijdscope is te groot. Gebruik de tijdbalk om deze te verkleinen',
+                NOT_AVAILABLE: 'Momenteel is er geen sensor data beschikbaar',
+                LOADING: 'Sensor data wordt geladen, even geduld'
+            },
             STATS: {
                 COUNT: '#',
                 COUNT_TOOLTIP: 'Aantal geselecteerde items',
@@ -195,7 +200,12 @@ module Translations {
             SEARCH_PLACEHOLDER: 'Voer gemeente in',
             SAVE_AS_IMAGE: 'Opslaan als afbeelding',
             SAVE_AS_PDF: 'Opslaan als PDF',
-            ROW_CHART_HELP: 'Klik op één of meerdere rijen om een filter toe te passen voor de geselecteerde eigenschap.'
-        }
+            ROW_CHART_HELP: 'Klik op één of meerdere rijen om een filter toe te passen voor de geselecteerde eigenschap.',
+            CONVERT: 'Converteer',
+            VIEW_PROJECT: 'Bekijk je project',
+            PASTE_HERE: 'Plak hier uw data',
+            OPTION: 'Optie {{number}}',
+            PASSWORD: 'Wachtwoord'
+        };
     }
 }
