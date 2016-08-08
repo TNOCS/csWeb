@@ -70,7 +70,7 @@ module csComp.Services {
                     }
                     var corners;
                     if (this.service.$mapService.map.getZoom() < minZoom && typeof searchProperty === 'undefined' && !useFeatureBounds) {
-                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
+                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', null, csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
                         return;
