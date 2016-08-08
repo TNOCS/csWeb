@@ -41,7 +41,7 @@ export class csServer {
         this.server.use(favicon(this.dir + '/public/favicon.ico'));
         //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
         this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
-        this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true })); // support encoded bodies
+        this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true, parameterLimit: 100000 })); // support encoded bodies
         this.server.use(compress());
 
         if (this.options.corrsEnabled) {
