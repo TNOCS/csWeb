@@ -30,7 +30,9 @@ module csComp.Services {
             var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 22,
-                attributionControl: true
+                attributionControl: true,
+                zoomDelta: 0.5, // zoomlevel change on scroll/ctrl-+
+                zoomSnap: 0.25 // zoomlevel change on fitbounds or pinchzoom
             };
             this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
@@ -178,7 +180,7 @@ module csComp.Services {
             this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
-        private createBaseLayer(layerObj: BaseLayer) : L.TileLayer {
+        private createBaseLayer(layerObj: BaseLayer): L.TileLayer {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
@@ -284,6 +286,31 @@ module csComp.Services {
             // }
         }
 
+        public removeFeatureBatch(features: IFeature[], layer: IProjectLayer) {
+            switch (layer.renderType) {
+                case 'geojson':
+                    var g = layer.group;
+                    if (g.clustering) {
+                        var m = g._cluster;
+                        try {
+                            features.forEach((feature) => {
+                                m.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            });
+                        } catch (error) { }
+                    } else {
+                        features.forEach((feature) => {
+                            if (layer.group.markers.hasOwnProperty(feature.id)) {
+                                layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
+                                layer.group._vectors.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            }
+                        });
+                    }
+                    break;
+            }
+        }
+
         public updateFeature(feature: IFeature) {
             if (feature.layer.group == null) return;
             var marker = feature.layer.group.markers[feature.id];
@@ -359,7 +386,7 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
-                    if (!feature.geometry.coordinates || feature.geometry.coordinates.length<2 || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
+                    if (!feature.geometry.coordinates || feature.geometry.coordinates.length < 2 || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
@@ -406,7 +433,7 @@ module csComp.Services {
                         imageUrl = feature.properties['imageUrl'],
                         opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
                         attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
-                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } );
+                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution });
                     feature._gui['imageOverlay'] = imageOverlay;
                     imageOverlay.addTo(this.map);
                     break;
@@ -418,7 +445,7 @@ module csComp.Services {
                         marker.on('contextmenu', (e: any) => {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
                             if (!this.service._activeContextMenu || this.service._activeContextMenu.length === 0) return;
-                            
+
                             //e.stopPropagation();
                             var button: any = $('#map-contextmenu-button');
                             var menu: any = $('#map-contextmenu');

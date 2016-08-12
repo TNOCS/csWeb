@@ -2770,6 +2770,22 @@ declare namespace L.Map {
           */
         attributionControl?: boolean;
 
+        // Interaction options
+
+        /**
+          * Controls how much the map's zoom level will change after a zoomIn(), zoomOut(), pressing + or - on the keyboard, or using the zoom controls. Values smaller than 1 (e.g. 0.5) allow for greater granularity.
+          *
+          * Default value: 1.
+          */
+        zoomDelta?: number;
+
+        /**
+          * Forces the map's zoom level to always be a multiple of this, particularly right after a fitBounds() or a pinch-zoom. By default, the zoom level snaps to the nearest integer; lower values (e.g. 0.5 or 0.1) allow for greater granularity. A value of 0 means the zoom level will not be snapped after fitBounds or a pinch-zoom.
+          *
+          * Default value: 1.
+          */
+        zoomSnap?: number;
+        
         // Animation options
 
         /**

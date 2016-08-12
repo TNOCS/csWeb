@@ -1413,6 +1413,29 @@ module csComp.Services {
             }
         }
 
+        /** remove feature batch */
+        public removeFeatureBatch(featureIds: string[], layer: IProjectLayer) {
+            var toRemove = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) >= 0; });
+            this.project.features = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            layer.data.features = layer.data.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            if (layer.group.filterResult)
+                layer.group.filterResult = layer.group.filterResult.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            layer.group.ndx.remove(toRemove);
+            this.activeMapRenderer.removeFeatureBatch(toRemove, layer);
+
+            toRemove.forEach((feature) => {
+                if (feature.isSelected) {
+                    this.lastSelectedFeature = null;
+                    this.selectedFeatures.some((f, ind, arr) => {
+                        if (f.id === feature.id) {
+                            arr.splice(ind, 1);
+                            return true;
+                        }
+                    });
+                }
+            });
+        }
+
         /**
         * Calculate the effective feature style.
         */
@@ -3251,8 +3274,8 @@ module csComp.Services {
             //console.time('Filter');
             if (!group.filterResult) {
                 this.project.features.forEach(f => {
-                if (f.layer.group === group) f._gui.included = true;
-            });
+                    if (f.layer.group === group) f._gui.included = true;
+                });
             } else {
                 this.project.features.forEach(f => {
                     if (f.layer.group === group) f._gui.included = false;
