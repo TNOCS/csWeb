@@ -206,11 +206,7 @@ module Filters {
                 .colors(d=>{
                     if (pt && pt.legend) {
                         if (pt.options) {
-                            if (false && typeof d === 'string' && d.indexOf('.') > -1) {
-                                return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
-                            } else {
-                                return csComp.Helpers.getColorFromLegend(d, pt.legend);
-                            }
+                            return csComp.Helpers.getColorFromLegend(d, pt.legend);
                         }
                         if (!pt.options) {
                             var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
