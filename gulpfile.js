@@ -9,7 +9,6 @@
 // * Copy this to test folder.
 
 var gulp = require('gulp'),
-    tsconfig = require('gulp-tsconfig'),
     exec = require('child_process').execSync,
     install = require('gulp-install'),
     runSequence = require('run-sequence'),
@@ -72,52 +71,6 @@ gulp.task('bower_install', function () {
     return gulp.src([
         'csComp/includes/bower_dep/bower.json', // bower install
     ]).pipe(install());
-});
-
-function buildTsconfig(config, globPattern, basedir) {
-    config.tsConfig.comment = '! This tsconfig.json file has been generated automatically, please DO NOT edit manually.';
-    return gulp.src(globPattern, { base: '.' })
-        .pipe(rename(function (path) {
-            path.dirname = path.dirname.replace(basedir, '.');
-        }))
-        .pipe(tsconfig(config)())
-        .pipe(gulp.dest(basedir));
-}
-
-// This task updates the typescript dependencies on tsconfig file
-gulp.task('tsconfig', function () {
-    var globPattern = [
-        './Scripts/**/*.d.ts',
-        './csComp/**/*.ts',
-        './csServerComp/**/*.ts',
-        './test/**/*.ts',
-        '!./csComp/includes/**/*.ts',
-        '!./dist-npm',
-        '!./dist-bower',
-        '!./docker-dev',
-        '!./docs',
-        '!./csServerComp/OfflineSearch/**/*.ts',
-        '!./node_modules/**/*.ts',
-    ];
-    var config = {
-        tsOrder: ['**/*.ts'],
-        tsConfig: {
-            version: '1.8.9',
-            compilerOptions: {
-                target: 'es5',
-                module: 'commonjs',
-                declaration: true,
-                noImplicitAny: false,
-                removeComments: false,
-                preserveConstEnums: true,
-                noLib: false,
-                outDir: outDir,
-                sourceMap: true,
-            },
-            filesGlob: globPattern
-        }
-    };
-    return buildTsconfig(config, globPattern, './');
 });
 
 // This task compiles typescript on csComp
@@ -255,7 +208,6 @@ gulp.task('watch', function (cb) {
 gulp.task('init', function (cb) {
     runSequence(
         'typings',
-        'tsconfig',
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',
@@ -269,7 +221,6 @@ gulp.task('init', function (cb) {
 
 gulp.task('quick', function (cb) {
     runSequence(
-        'tsconfig',
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',
