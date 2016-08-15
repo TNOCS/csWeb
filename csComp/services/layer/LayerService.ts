@@ -3281,6 +3281,7 @@ module csComp.Services {
                     if (f.layer.group === group) f._gui.included = false;
                 });
                 group.filterResult.forEach(f => {
+                    if (!f) return;
                     if (!f._gui) f._gui = <any>{};
                     f._gui.included = true;
                 });

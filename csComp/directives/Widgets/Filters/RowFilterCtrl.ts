@@ -234,12 +234,13 @@ module Filters {
                         this.$layerService.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                        group.filterResult = dcDim.top(Infinity);
-                        this.$layerService.updateMapFilter(group);
+                        // console.log('RowFilterCtrl: renderlet');
+                        // group.filterResult = dcDim.top(Infinity);
+                        // this.$layerService.updateMapFilter(group);
                     }, 100);
                 })
                 .on('filtered', (e) => {
-                    console.log('Filtered rowchart');
+                    console.log('Filtered rowchart ' + e.dimension().top(1000).length + ' ' + e.anchorName());
                 });
             this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
@@ -281,19 +282,25 @@ module Filters {
 
         private updateFilter() {
             setTimeout(() => {
-                this.dcChart.filter(this.$scope.filter.filterLabel);
+                console.log('RowFilterCtrl: updateFilter()');
+                if (this.$scope.filter.filterLabel) {
+                    this.dcChart.filter(this.$scope.filter.filterLabel);
+                }
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
-            }, 10);
+            }, 20);
         }
 
         public updateRange() {
             setTimeout(() => {
+                console.log('RowFilterCtrl: updateRange()');
                 var filter = this.$scope.filter;
                 var group = filter.group;
                 this.dcChart.filterAll();
-                this.dcChart.filter(this.$scope.filter.filterLabel);
+                if (this.$scope.filter.filterLabel) {
+                    this.dcChart.filter(this.$scope.filter.filterLabel);
+                }
                 this.dcChart.render();
                 dc.redrawAll();
                 group.filterResult = filter.dimension.top(Infinity);

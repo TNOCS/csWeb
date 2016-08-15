@@ -34,28 +34,28 @@ module StyleList {
             $scope.vm = this;
             this.activeStyles = [];
             
-            messageBus.subscribe('layer', (title) => {
-                switch (title) {
-                    case "activated":
-                    case "deactivate":
-                        // Update the legend when a layer is added or removed.
-                        this.initWizard();
-                        break;
-                }
-            });
+            // messageBus.subscribe('layer', (title) => {
+            //     switch (title) {
+            //         case "activated":
+            //         case "deactivate":
+            //             // Update the legend when a layer is added or removed.
+            //             this.initWizard();
+            //             break;
+            //     }
+            // });
             
-            messageBus.subscribe('updatelegend', (title, gs) => {
-                if (title === 'updatedstyle') {
-                    if (this.selectedGroup) {
-                        var g = this.$layerService.findGroupById(this.selectedGroup.id);
-                        if (g.styles) {
-                            this.$timeout(() => {
-                                this.activeStyles = _.map(g.styles.filter((s) => {return s.enabled}), (enabledStyle) => { return enabledStyle.property;});
-                            }, 0);
-                        }
-                    }
-                }
-            });
+            // messageBus.subscribe('updatelegend', (title, gs) => {
+            //     if (title === 'updatedstyle') {
+            //         if (this.selectedGroup) {
+            //             var g = this.$layerService.findGroupById(this.selectedGroup.id);
+            //             if (g.styles) {
+            //                 this.$timeout(() => {
+            //                     this.activeStyles = _.map(g.styles.filter((s) => {return s.enabled}), (enabledStyle) => { return enabledStyle.property;});
+            //                 }, 0);
+            //             }
+            //         }
+            //     }
+            // });
         }
 
         public selectGroup(group: csComp.Services.ProjectGroup) {

@@ -5,7 +5,7 @@
             <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
         <div ng-if="callOut.title.length < 21">
-            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+            <img data-ng-if="false && callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
     </h4>
 
@@ -127,7 +127,7 @@
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div style="cursor:pointer;text-align:right" ng-repeat="media in item.feature.properties[item.property] track by $index">
                                                 <img ng-hide="item.propertyType.inlineImage" ng-src="{{media}}" style="width:300px;float:left;margin:5px">
-                                                <img ng-show="item.propertyType.inlineImage" ng-src="{{media}}" class="feature-prop-value-align-right" style="max-height:64px;max-width:144px;float:none">
+                                                <img ng-show="item.propertyType.inlineImage" ng-src="{{media}}" class="feature-prop-value-align-right" style="max-height:64px;max-width:172px;float:none">
                                             </div>
                                         </div>
                                         <div ng-switch-default class="feature-prop-value-align-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
