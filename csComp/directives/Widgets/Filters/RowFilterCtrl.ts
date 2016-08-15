@@ -234,9 +234,13 @@ module Filters {
                         this.$layerService.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                        // console.log('RowFilterCtrl: renderlet');
-                        // group.filterResult = dcDim.top(Infinity);
-                        // this.$layerService.updateMapFilter(group);
+                        console.log('RowFilterCtrl: renderlet');
+                        if (dcDim && dcDim.top(Infinity).length > 0 && typeof dcDim.top(Infinity)[0] === 'undefined') {
+                            console.log('dcDim contains undefined objects');
+                        } else {
+                            group.filterResult = dcDim.top(Infinity);
+                            this.$layerService.updateMapFilter(group);
+                        }
                     }, 100);
                 })
                 .on('filtered', (e) => {
