@@ -40,7 +40,7 @@ module csComp.Services {
                 gs.id = Helpers.getGuid();
                 gs.title = layer.title;
                 gs.meta = null;
-                gs.visualAspect = null;
+                gs.visualAspect = 'fillColor';
                 gs.availableAspects = [];
                 gs.enabled = true;
                 gs.group = layer.group;
