@@ -305,8 +305,9 @@ module Filters {
                 if (this.$scope.filter.filterLabel) {
                     this.dcChart.filter(this.$scope.filter.filterLabel);
                 }
-                this.dcChart.render();
-                dc.redrawAll();
+                // this.dcChart.render();
+                // dc.redrawAll();
+                dc.renderAll();
                 group.filterResult = filter.dimension.top(Infinity);
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
                 this.$layerService.triggerUpdateFilter(this.$scope.filter.group.id);
