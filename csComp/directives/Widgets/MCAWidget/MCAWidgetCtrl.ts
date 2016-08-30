@@ -28,6 +28,7 @@ module MCAWidget {
         private mcaScope: Mca.IMcaScope;
 
         public selectedMCA: string;
+        public mBusHandles: csComp.Services.MessageBusHandle[] = [];
 
         public static $inject = [
             '$scope',
@@ -57,7 +58,7 @@ module MCAWidget {
                 // Hide widget
                 this.parentWidget = $("#" + this.widget.elementId).parent();
                 this.parentWidget.hide();
-                this.$messageBus.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
+                this.mBusHandles.push(this.$messageBus.subscribe('layer', (action: string, layer: csComp.Services.ProjectLayer) => {
                     switch (action) {
                         case 'activated':
                         case 'deactivate':
@@ -66,7 +67,22 @@ module MCAWidget {
                         default:
                             break;
                     }
+                }));
+
+                // Activate widget when layer is already loaded
+                let l = this.$layerService.findLoadedLayer($scope.data.layerId);
+                if (l) {
+                    this.activateLayer(l);
+                }
+            }
+        }
+
+        public stop() {
+            if (this.mBusHandles) {
+                this.mBusHandles.forEach((mbh) => {
+                    this.$messageBus.unsubscribe(mbh);
                 });
+                this.mBusHandles.length = 0;
             }
         }
 
