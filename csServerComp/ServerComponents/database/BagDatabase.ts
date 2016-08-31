@@ -304,11 +304,17 @@ export class BagDatabase {
     /**
      * Lookup the address from the BAG.
      */
-    public lookupAddress(req: express.Request, res: express.Response) {
+    public lookupAddress(req: express.Request, res: express.Response): void {
         var zipCode: string = this.formatZipCode(req.params.zip);
-        if (!zipCode) return res.send(400, 'zip code is missing');
+        if (!zipCode) {
+            res.send(400, 'zip code is missing');
+            return;
+        }
         var houseNumber: number = this.formatHouseNumber(req.params.number);
-        if (!houseNumber) return res.send(400, 'house number is missing');
+        if (!houseNumber) {
+            res.send(400, 'house number is missing');
+            return;
+        }
 
         this.pg.connect(this.connectionString, (err, client, done) => {
             if (err) {

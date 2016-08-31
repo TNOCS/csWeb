@@ -154,7 +154,7 @@ export class MapLayerFactory {
                 featureType: layerId,
                 opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
-                useClustering: ld.useClustering,
+                clustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled,
