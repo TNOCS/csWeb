@@ -384,7 +384,7 @@ exports.TIMBConnection = function() {
                 fBuffer = newBuffer;
             }
             else {
-                fBuffer.length = 0;
+                (<any>fBuffer).length = 0;
             }
         }
     }

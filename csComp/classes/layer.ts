@@ -119,6 +119,8 @@ module csComp.Services {
         cacheKey?: string;
         /** handle for receiving server events */
         serverHandle?: MessageBusHandle;
+        /** Whether layer can be quickly updated instead of completely rerendered */
+        quickRefresh: boolean;
         parentFeature: IFeature;
         /** list of tags describing this layer */
         tags?: string;

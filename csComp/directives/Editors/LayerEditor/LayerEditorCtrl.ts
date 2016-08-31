@@ -110,7 +110,7 @@ module LayerEditor {
                             if (_.isArray(ft._propertyTypeData)) {
                                 for (var k in ft._propertyTypeData) {
                                     var pt = ft._propertyTypeData[k];
-                                    ft._propertyTypeData.forEach(pt => {
+                                    ft._propertyTypeData.forEach((pt: csComp.Services.IPropertyType) => {
                                         f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
                                     })
                                 }

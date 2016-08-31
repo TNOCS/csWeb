@@ -11,14 +11,18 @@
         "outDir": "out",
         "sourceMap": true
     },
+    "typings": [],
+    "files": [
+        "./typings/index.d.ts"
+    ],
     "include": [
-        "./Scripts/**/*.d.ts",
         "./csComp/**/*.ts",
         "./csServerComp/**/*.ts",
         "./test/**/*.ts"
     ],
     "exclude": [
         "./csComp/includes/**/*.ts",
+        "./csComp/node_modules/**/*",
         "./dist-npm/**/*",
         "./dist-bower/**/*",
         "./docker-dev/**/*",

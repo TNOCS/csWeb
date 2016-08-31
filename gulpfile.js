@@ -144,8 +144,8 @@ gulp.task('built_csComp.d.ts', function () {
     return gulp.src(path2csWeb + outDir + '/csComp/**/*.d.ts')
         .pipe(plumber())
         .pipe(concat('csComp.d.ts'))
-        .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
-        .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 

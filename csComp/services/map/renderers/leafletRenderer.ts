@@ -123,7 +123,7 @@ module csComp.Services {
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
-                group._cluster.on('clustermouseover', (a) => {
+                group._cluster.on('clustermouseover', (a: any) => {
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
                         if (childs[0] && childs[0].hasOwnProperty('feature')) {
@@ -137,7 +137,7 @@ module csComp.Services {
                         }
                     }
                 });
-                group._cluster.on('clustermouseout', (a) => {
+                group._cluster.on('clustermouseout', (a: any) => {
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
                         if (childs[0] && childs[0].hasOwnProperty('feature')) {
@@ -433,7 +433,7 @@ module csComp.Services {
                         imageUrl = feature.properties['imageUrl'],
                         opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
                         attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
-                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution });
+                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, <L.ImageOverlayOptions>{ opacity: opacity, attribution: attribution });
                     feature._gui['imageOverlay'] = imageOverlay;
                     imageOverlay.addTo(this.map);
                     break;

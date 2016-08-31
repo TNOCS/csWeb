@@ -1,4 +1,5 @@
-import express = require('express');
+import * as express from 'express';
+import * as core from 'express-serve-static-core';
 import http = require('http');
 import path = require('path');
 import Winston = require('winston');
