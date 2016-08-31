@@ -89,7 +89,7 @@ gulp.task('typings', function (cb) {
 gulp.task('travis', function (cb) {
     runSequence(
         'init',
-        'test',
+        // 'test', // travis automatically runs 'npm test'
         cb);
 });
 
@@ -144,8 +144,8 @@ gulp.task('built_csComp.d.ts', function () {
     return gulp.src(path2csWeb + outDir + '/csComp/**/*.d.ts')
         .pipe(plumber())
         .pipe(concat('csComp.d.ts'))
-        .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
-        .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
@@ -207,8 +207,8 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        'typings',
-        'tsc',
+        // 'typings', //performed by npm install
+        // 'tsc', //performed by npm install
         'built_csComp',
         'built_csComp.d.ts',
         'sass',

@@ -452,7 +452,7 @@ module csComp.Services {
                 .on('pnotify.confirm', (n) => {
                     options.closed = true;  callback(true); })
                 .on('pnotify.cancel', (n) => { options.closed = true; callback(false); });
-            pn.options = options;
+            (<any>pn).options = options;
 
             this.confirms.push(pn);
             return pn;

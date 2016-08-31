@@ -703,7 +703,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, layerloaded?: Function, data = null) {
-            if (this.loadedLayers.hasOwnProperty(layer.id) && (!layer.quickRefresh || layer.quickRefresh === false)) return;
+            if (this.loadedLayers.hasOwnProperty(layer.id) && !layer.quickRefresh) return;
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
@@ -1119,7 +1119,7 @@ module csComp.Services {
 
         public centerFeatureOnMap(selFeatures: IFeature[]) {
             if (!selFeatures || !_.isArray(selFeatures) || selFeatures.length === 0) return;
-            var f = selFeatures[0];
+            var f: IFeature = selFeatures[0];
             var center;
             if (f.geometry.type.toLowerCase() === 'point') {
                 center = f.geometry.coordinates;

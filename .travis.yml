@@ -3,8 +3,7 @@ language: node_js
 node_js:
   - "6"
 install:
-  - "npm install -g npm@3.10.5"
-  - "npm install -g typescript@beta"
+  - "npm install -g npm@3.10.6"
   - "npm install -g bower"
   - "npm install"
 script:
