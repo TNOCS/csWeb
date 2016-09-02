@@ -43,8 +43,13 @@ module csComp.Helpers {
         static getBoundingBox(data) {
             var bounds: any = {}, coords, point, latitude, longitude;
 
-            // We want to use the “features” key of the FeatureCollection (see above)
-            data = data.features;
+            // We want to use the “features” key of the FeatureCollection (see above), or supply the features array itself
+            if (data.hasOwnProperty('features')) {
+                data = data.features;
+            } else if (!_.isArray(data)) {
+                console.log('getBoundingBox: Invalid data supplied');
+                return;
+            }
 
             // Loop through each “feature”
             for (var i = 0; i < data.length; i++) {
