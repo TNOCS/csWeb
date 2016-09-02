@@ -29,7 +29,7 @@ module FilterList {
             this.noFilters = true;
             this.locationFilterActive = false;
             this.$messageBus.subscribe("filters", (action: string) => {
-                console.log(`update filters (${action})`);
+                // console.log(`update filters (${action})`);
                 this.noFilters = true;
                 this.locationFilterActive = false;
                 this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {

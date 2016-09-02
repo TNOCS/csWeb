@@ -245,6 +245,8 @@ module Filters {
                 })
                 .on('filtered', (e) => {
                     console.log('Filtered rowchart ' + e.dimension().top(1000).length + ' ' + e.anchorName());
+                    group.filterResult = dcDim.top(Infinity);
+                    this.$layerService.updateMapFilter(group);
                 });
             this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
@@ -305,9 +307,9 @@ module Filters {
                 if (this.$scope.filter.filterLabel) {
                     this.dcChart.filter(this.$scope.filter.filterLabel);
                 }
-                // this.dcChart.render();
+                this.dcChart.render();
                 // dc.redrawAll();
-                dc.renderAll();
+                // dc.renderAll();
                 group.filterResult = filter.dimension.top(Infinity);
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
                 this.$layerService.triggerUpdateFilter(this.$scope.filter.group.id);

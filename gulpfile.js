@@ -30,7 +30,6 @@ var gulp = require('gulp'),
     karma = require('karma'),
     concatCss = require('gulp-concat-css'),
     glob = require('glob');
-    gulpTypings = require("gulp-typings");
 
 // Gulp task upstream...
 // Configure gulp scripts
@@ -78,13 +77,13 @@ gulp.task('tsc', function (cb) {
     return run('tsc -p .', cb);
 });
 
-// This task runs typings command on csServerComp folder
-gulp.task('typings', function (cb) {
-    gulp.src("./typings.json")
-        .pipe(gulpTypings());
-    cb();
-    //will install all typingsfiles in pipeline.
-});
+// // This task runs typings command on csServerComp folder
+// gulp.task('typings', function (cb) {
+//     gulp.src("./typings.json")
+//         .pipe(gulpTypings());
+//     cb();
+//     //will install all typingsfiles in pipeline.
+// });
 
 gulp.task('travis', function (cb) {
     runSequence(
@@ -207,7 +206,7 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        'typings',
+        // 'typings',
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',
