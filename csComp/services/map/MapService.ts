@@ -71,8 +71,8 @@ module csComp.Services {
                 switch (action.toLowerCase()) {
                     case 'setextent':
                         // console.log(data);
-                        // take the navbar and leftpanel into account using padding (50px height, 370px left)
-                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(370, 50) });
+                        // take the navbar and leftpanel into account using padding (15+50px height, 25+400px left)
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(400, 105) });
                         break;
                     case 'setzoom':
                         // Zoom to a location on the map.
@@ -267,21 +267,21 @@ module csComp.Services {
                     }
 
                     var f = <csComp.Services.Feature>{
-                        type: "Feature",
-                        geometry: { type: geometryType, "coordinates": c },
+                        type: 'Feature',
+                        geometry: { type: geometryType, 'coordinates': c },
                         fType: this.drawingFeatureType,
                         properties: {}
                     };
 
-                    f.properties["featureTypeId"] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
+                    f.properties['featureTypeId'] = csComp.Helpers.getFeatureTypeName(this.drawingFeatureType.id);
 
                     // Initialize properties
                     if (_.isArray(this.drawingFeatureType._propertyTypeData)) {
                         for (var k in this.drawingFeatureType._propertyTypeData) {
-                            var pt = this.drawingFeatureType._propertyTypeData[k];
-                            this.drawingFeatureType._propertyTypeData.forEach(pt => {
-                                f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
-                            })
+                            // var pt: IPropertyType = this.drawingFeatureType._propertyTypeData[k];
+                            this.drawingFeatureType._propertyTypeData.forEach((pt: IPropertyType) => {
+                                f.properties[pt.label] = _.isUndefined(pt.defaultValue) ? '' : pt.defaultValue;
+                            });
                         }
                     }
 
@@ -292,7 +292,7 @@ module csComp.Services {
                     layerService.initFeature(f, l);
                     layerService.calculateFeatureStyle(f);
                     layerService.activeMapRenderer.addFeature(f);
-                    f.type = "Feature";
+                    f.type = 'Feature';
                     layerService.saveFeature(f);
                     console.log(f);
                 }

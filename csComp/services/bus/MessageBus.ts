@@ -285,13 +285,14 @@ module csComp.Services {
 
 		/**
 		 * Publish a notification that needs to be translated
-         * @title:       the translation key of the notification's title
-         * @text:        the translation key of the notification's content
-         * @location:    the location on the screen where the notification is shown (default bottom right)
+         * @title:              the translation key of the notification's title
+         * @text:               the translation key of the notification's content
+         * @variableReplacement the key to replace in the content translation (see: https://angular-translate.github.io/docs/#/guide/06_variable-replacement)
+         * @location:           the location on the screen where the notification is shown (default bottom right)
 		 */
-        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight, type = NotifyType.Normal, duration = 4000) {
+        notifyWithTranslation(title: string, text: string, variableReplacement: {[key: string]: string} = null, location = NotifyLocation.BottomRight, type = NotifyType.Normal, duration = 4000) {
             this.$translate(title).then((translatedTitle) => {
-                this.$translate(text).then((translatedText) => {
+                this.$translate(text, variableReplacement).then((translatedText) => {
                     this.notify(translatedTitle, translatedText, location, type, duration);
                 });
             });
@@ -451,7 +452,7 @@ module csComp.Services {
                 .on('pnotify.confirm', (n) => {
                     options.closed = true;  callback(true); })
                 .on('pnotify.cancel', (n) => { options.closed = true; callback(false); });
-            pn.options = options;
+            (<any>pn).options = options;
 
             this.confirms.push(pn);
             return pn;

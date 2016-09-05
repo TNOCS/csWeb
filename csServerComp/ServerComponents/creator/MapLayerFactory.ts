@@ -106,14 +106,20 @@ export class MapLayerFactory {
         }
         var fileList: IProperty[] = [];
         var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
-        fs.readdir(templateFolder, function(err, files) {
+        fs.access(templateFolder, fs.F_OK, (err) => {
             if (err) {
-                console.log('Error while looking for templates in ' + templateFolder);
+                console.log(`Template-folder "${templateFolder}" not found`);
             } else {
-                files.forEach((f) => {
-                    fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
+                fs.readdir(templateFolder, function (err, files) {
+                    if (err) {
+                        console.log('Error while looking for templates in ' + templateFolder);
+                    } else {
+                        files.forEach((f) => {
+                            fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
+                        });
+                        console.log(`Loaded ${files.length} templates from ${templateFolder}.`);
+                    }
                 });
-                console.log(`Loaded ${files.length} templates from ${templateFolder}.` );
             }
         });
         this.templateFiles = fileList;
@@ -148,7 +154,7 @@ export class MapLayerFactory {
                 featureType: layerId,
                 opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
-                useClustering: ld.useClustering,
+                clustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled,
@@ -440,8 +446,8 @@ export class MapLayerFactory {
             name: featureTypeName,
             style: {
                 iconUri: ld.iconUri,
-                iconWidth: ld.iconSize,
-                iconHeight: ld.iconSize,
+                iconWidth: +ld.iconSize,
+                iconHeight: +ld.iconSize,
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
                 strokeWidth: (typeof ld.strokeWidth !== 'undefined') ? ld.strokeWidth : 3,

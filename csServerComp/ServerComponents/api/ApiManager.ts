@@ -661,6 +661,9 @@ export class ApiManager extends events.EventEmitter {
                 if (group.id === pg.id && group.clusterLevel) {
                     pg['clusterLevel'] = group.clusterLevel;
                 }
+                if (group.id === pg.id && group.hasOwnProperty('clustering')) {
+                    pg['clustering'] = group.clustering;
+                }
                 return (group.id === pg.id);
             });
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: 'Group exists' }); return;
@@ -871,7 +874,7 @@ export class ApiManager extends events.EventEmitter {
             description: group.description ? group.description : '',
             title: group.title ? group.title : group.id,
             clusterLevel: group.clusterLevel ? group.clusterLevel : 19,
-            clustering: true, //For now, set clustering always to true, as it can not be activated anymore when group is created (TODO: implement updateGroup)
+            clustering: group.clustering || false,
             layers: group.layers ? _.map(group.layers, (l) => { return this.getLayerDefinition(l); }) : []
         };
         return g;

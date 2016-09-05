@@ -137,7 +137,14 @@ module DataTable {
         private loadLayer(): void {
             if (!this.selectedLayerId || this.selectedLayerId === this.mapLabel) return this.loadMapLayers();
             var selectedLayer = this.findLayerById(this.selectedLayerId);
-            if (selectedLayer == null) return this.loadMapLayers();
+            if (selectedLayer == null) {
+                return this.loadMapLayers();
+            } else {
+                if (selectedLayer.enabled && selectedLayer.data && selectedLayer.data.features) {
+                    this.processData(selectedLayer, selectedLayer.data, () => { });
+                    return;
+                }
+            }
 
             async.series([
                 (callback) => {
@@ -150,6 +157,9 @@ module DataTable {
                 (callback) => {
                     this.$http.get(selectedLayer.url).
                         success((data: IGeoJsonFile) => {
+                            if (selectedLayer.type.toLowerCase() === 'topojson') {
+                                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
+                            }
                             this.processData(selectedLayer, data, callback);
                         }).error((data, status, headers, config) => {
                             this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
