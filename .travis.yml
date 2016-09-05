@@ -8,6 +8,7 @@ install:
   - "npm install"
 script:
     - gulp travis
+    - npm test
     # - cd .. && cat coverage/*/lcov.info | test/coveralls.js
 notifications:
   slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr
