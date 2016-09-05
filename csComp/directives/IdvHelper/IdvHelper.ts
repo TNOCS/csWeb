@@ -104,23 +104,23 @@ module Idv {
 
         public reduceAddAvg(attr) {
             return (p, v) => {
-                if (v > 0) {
+
                     ++p.count
                     var t = parseFloat(v[attr]);
                     if (t > p.max) p.max = t;
                     p.sum += t;
                     p.avg = p.sum / p.count;
-                }
+
                 return p;
             };
         }
         public reduceRemoveAvg(attr) {
             return (p, v) => {
-                if (v > 0) {
+
                     --p.count
                     p.sum -= parseFloat(v[attr]);
                     p.avg = p.sum / p.count;
-                }
+
                 return p;
             };
         }
