@@ -134,7 +134,7 @@ module csComp.Helpers {
             document.body.removeChild(a);
         }
     }
-    
+
     /**
      * Export image to the file system.
      */

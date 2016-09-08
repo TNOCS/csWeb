@@ -313,9 +313,18 @@ module Dashboard {
             if (d.showTimeline && (d.timeline || this.project.timeLine)) {
                 //console.log('checkTimeline: dashboard has timeline');
                 var t = (d.timeline) ? d.timeline : this.project.timeLine;
-
                 if (!_.isUndefined(t.fixedRange)) {
                     switch (t.fixedRange) {
+                        case 'today':
+                            var today = new Date();
+                            today.setHours(0);
+                            today.setMinutes(0);
+                            today.setMilliseconds(0);
+                            t.start = today.getTime();
+                            t.end = t.start + (1000 * 60 * 60 * 12) - 1;
+
+
+                            break;
                         case '24h':
                             t.end = Date.now();
                             t.start = Date.now() - 1000 * 60 * 24;
