@@ -543,7 +543,7 @@ module csComp.Services {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = csComp.Helpers.getFeatureTitle(feature);
+            var title = csComp.Helpers.getFeatureTooltipTitle(feature);
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
