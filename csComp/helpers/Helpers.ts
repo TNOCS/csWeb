@@ -215,6 +215,23 @@ module csComp.Helpers {
         return avg;
     }
 
+    
+    /**
+     * Generates the title for the feature tooltip. A string format can be 
+     * defined in the featureType parameter 'tooltipStringFormat'. 
+     * E.g. tooltipStringFormat: "Province {0}"
+     * 
+     * @export
+     * @param {IFeature} feature
+     * @returns {string} Formatted title
+     */
+    export function getFeatureTooltipTitle(feature: IFeature): string {
+        if (!feature.fType || !feature.fType.style || !feature.fType.style.tooltipStringFormat) return featureTitle(null, feature);
+        let sf: string = feature.fType.style.tooltipStringFormat;
+        let title: string = featureTitle(feature.fType, feature);
+        return String.format(sf, title);
+    }
+
     export function getFeatureTitle(feature: IFeature): string {
         return featureTitle(feature.fType, feature);
     }

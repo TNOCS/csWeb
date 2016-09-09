@@ -32,7 +32,7 @@
     "jsonstream": "registry:dt/jsonstream#0.8.0+20160316155526",
     "jwt-simple": "registry:dt/jwt-simple#0.5.0+20160401095215",
     "kafka-node": "github:rinzeb/DefinitelyTyped/kafka-node/kafka-node.d.ts#ba39409d09caf91fa4850f801fd9939d7ff95f6f",
-    "leaflet": "github:rinzeb/DefinitelyTyped/leaflet/leaflet.d.ts#3de292f2aab5566a0030af48b9cd7bcae6392696",
+    "leaflet": "github:rinzeb/DefinitelyTyped/leaflet/leaflet.d.ts#861961fcdb738dc01dd2b908f11e94467faf5911",
     "leaflet-markercluster": "registry:dt/leaflet-markercluster#0.4.0+20160619034234",
     "marvelous": "github:rinzeb/DefinitelyTyped/marvelous/Marvelous.d.ts#09e844c1ef5a2b4b5bda6c672453cc7f1fdfe0c6",
     "mime": "registry:dt/mime#0.0.0+20160316155526",
