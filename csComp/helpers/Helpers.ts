@@ -121,7 +121,7 @@ module csComp.Helpers {
     /**
      * Export image to the file system.
      */
-    export function saveImage(data: string, filename: string, fileType: string) {
+    export function saveImage(data: string, filename: string, fileType: string, base64?: boolean) {
         fileType = fileType.replace('.', '');
         filename = filename.replace('.' + fileType, '') + '.' + fileType; // if the filename already contains a type, first remove it before adding it.
 
@@ -156,7 +156,11 @@ module csComp.Helpers {
             // Support for browsers that support the data uri.
             var a: any = document.createElement('a');
             document.body.appendChild(a);
-            a.href = encodeURI(data);
+            if (base64) {
+                a.href =  `data:image/${fileType};base64,${data}`;
+            } else {
+                a.href = encodeURI(data);
+            }
             a.target = '_blank';
             a.download = filename;
             a.click();

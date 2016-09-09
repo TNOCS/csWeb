@@ -205,7 +205,10 @@ module Translations {
             VIEW_PROJECT: 'Bekijk je project',
             PASTE_HERE: 'Plak hier uw data',
             OPTION: 'Optie {{number}}',
-            PASSWORD: 'Wachtwoord'
+            PASSWORD: 'Wachtwoord',
+            SCREENSHOT_REQUESTED: 'Screenshot wordt gegenereerd...',
+            IMAGE_REQUESTED: 'Afbeelding wordt gegenereerd...',
+            IMAGE_WILL_APPEAR: 'De afbeelding wordt binnen enkele seconden aangeboden.'
         };
     }
 }

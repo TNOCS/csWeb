@@ -206,7 +206,10 @@ module Translations {
             VIEW_PROJECT: 'View your project',
             PASTE_HERE: 'Paste your data here',
             OPTION: 'Option {{number}}',
-            PASSWORD: 'Password'
+            PASSWORD: 'Password',
+            SCREENSHOT_REQUESTED: 'Screenshot is being generated...',
+            IMAGE_REQUESTED: 'Image is being generated...',
+            IMAGE_WILL_APPEAR: 'The image will appear in a few moments.'
         };
     }
 }
