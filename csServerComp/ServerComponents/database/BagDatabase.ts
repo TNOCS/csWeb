@@ -160,6 +160,59 @@ export class BagDatabase {
         });
     }
 
+    public searchGemeenteAtLocation(query: string, limit: number = 10, callback: (searchResults) => void) {
+        if (!query) {
+            console.log('No valid query supplied');
+            callback(null);
+            return;
+        }
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+                return;
+            }
+            var sql = `SELECT gemeente.gemeentenaam, gemeente.gemeentecode FROM bagactueel.gemeente WHERE ST_Within(ST_Transform(ST_GeomFromGeoJSON('${query}'),28992), gemeente.geovlak) LIMIT ${limit}`;
+            // console.log(sql);
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.log(err);
+                    console.log(`Cannot find gemeente with query: ${sql}`);
+                    callback(null);
+                } else {
+                    callback(result.rows);
+                }
+            });
+        });
+    }
+
+    public searchBuurtAtLocation(query: string, limit: number = 10, callback: (searchResults) => void) {
+        if (!query) {
+            console.log('No valid query supplied');
+            callback(null);
+            return;
+        }
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+                return;
+            }
+            var sql = `SELECT buurt_2014.bu_naam, buurt_2014.bu_code FROM bagactueel.buurt_2014 WHERE ST_Within(ST_Transform(ST_GeomFromGeoJSON('${query}'),28992), buurt_2014.geom) LIMIT ${limit}`;
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.log(err);
+                    console.log(`Cannot find buurt with query: ${sql}`);
+                    callback(null);
+                } else {
+                    callback(result.rows);
+                }
+            });
+        });
+    }
+
     public lookupBagArea(bounds: string, isArea: boolean, callback: (areas: Location[]) => void) {
         if (!bounds) {
             console.log('No valid bounds supplied');
