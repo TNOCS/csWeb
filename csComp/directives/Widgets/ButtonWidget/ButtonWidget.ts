@@ -67,6 +67,8 @@ module ButtonWidget {
         minimalLayout: boolean;
         /* Show only one button. Clicking it will execute the according action and then show the next button */
         toggleMode: boolean;
+        /** Hide the tooltip on hover that shows the item title */
+        hideTooltip: boolean;
         /** Apply extended style information to image, e.g. add rounded corners */
         extStyle: Object;
         layerGroup: string;
