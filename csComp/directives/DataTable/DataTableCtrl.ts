@@ -152,10 +152,10 @@ module DataTable {
                         success((data: IGeoJsonFile) => {
                             this.processData(selectedLayer, data, callback);
                         }).error((data, status, headers, config) => {
-                            this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
                             if (selectedLayer && selectedLayer.data && selectedLayer.data.features) {
                                 this.processData(selectedLayer, selectedLayer.data, callback);
                             } else {
+                                this.$messageBusService.notifyWithTranslation('ERROR_LOADING_LAYER', 'COULD_NOT_GET_DATA', { 'layer': selectedLayer.title });
                                 callback();
                             }
                         });
@@ -262,7 +262,7 @@ module DataTable {
                 }
                 var isAdmin: boolean = this.$layerService.$mapService.isAdminExpert;
                 mis.forEach(mi => {
-                    if ((mi.visibleInCallOut || mi.label === 'Name' || isAdmin) && titles.indexOf(mi.title) < 0) {
+                    if ((mi.visibleInCallOut || mi.label === 'Name' || isAdmin) && titles.indexOf(mi.title) < 0 && !mi.hideInDataTable) {
                         titles.push(mi.title);
                         this.propertyTypes.push(mi);
                     }

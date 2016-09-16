@@ -191,6 +191,8 @@ module csComp.Services {
         alwaysEditable?: boolean;
         /** show image inline in featureprops callout */
         inlineImage?: boolean;
+        /** don't show this property in the datatable (e.g. useful for images) */
+        hideInDataTable?: boolean;
         defaultValue?: number;
         count?: number;
         calculation?: string;

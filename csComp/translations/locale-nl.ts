@@ -208,7 +208,9 @@ module Translations {
             PASSWORD: 'Wachtwoord',
             SCREENSHOT_REQUESTED: 'Screenshot wordt gegenereerd...',
             IMAGE_REQUESTED: 'Afbeelding wordt gegenereerd...',
-            IMAGE_WILL_APPEAR: 'De afbeelding wordt binnen enkele seconden aangeboden.'
+            IMAGE_WILL_APPEAR: 'De afbeelding wordt binnen enkele seconden aangeboden.',
+            ERROR_LOADING_LAYER: 'Fout tijdens het laden van de kaartlaag',
+            COULD_NOT_GET_DATA: 'Kan de data van kaartlaag "{{layer}}" niet ophalen.'
         };
     }
 }
