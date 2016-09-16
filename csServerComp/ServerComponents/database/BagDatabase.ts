@@ -213,6 +213,32 @@ export class BagDatabase {
         });
     }
 
+    public searchPandAtLocation(coords: string, limit: number = 10, callback: (searchResults) => void) {
+        if (!coords) {
+            console.log('No valid coords supplied');
+            callback(null);
+            return;
+        }
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+                return;
+            }
+            var sql = `SELECT pand.identificatie FROM bagactueel.buurt_2014, bagactueel.pand WHERE ST_Within(ST_Transform(ST_GeomFromGeoJSON('${coords}'),28992), pand.geovlak) LIMIT ${limit}`;
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.log(err);
+                    console.log(`Cannot find buurt with query: ${sql}`);
+                    callback(null);
+                } else {
+                    callback(result.rows);
+                }
+            });
+        });
+    }
+
     public lookupBagArea(bounds: string, isArea: boolean, callback: (areas: Location[]) => void) {
         if (!bounds) {
             console.log('No valid bounds supplied');
