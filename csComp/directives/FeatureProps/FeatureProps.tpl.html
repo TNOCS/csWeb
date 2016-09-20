@@ -118,6 +118,8 @@
                                     <div ng-if="!item.configMode" ng-hide="item.propertyType.hideValue" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{item.value}}</div>
+                                          <div ng-switch-when="duration" class="feature-prop-value-align-right clickable-feature-prop">
+                                            {{item.value}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
