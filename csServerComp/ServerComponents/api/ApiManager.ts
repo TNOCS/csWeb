@@ -82,6 +82,7 @@ export interface IConnector {
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any, callback: Function);
+    exit(callback : Function);
     initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 

@@ -20,6 +20,9 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+
+
+
     // layer methods first, in crud order.
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
 
@@ -170,6 +173,11 @@ export class BaseConnector implements ApiManager.IConnector {
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
 
+    }
+
+    public exit(callback : Function)
+    {
+        callback();
     }
 
     /**

@@ -1,8 +1,11 @@
 import * as express from 'express';
 import * as core from 'express-serve-static-core';
+
+import async = require('async');
 import http = require('http');
 import path = require('path');
 import Winston = require('winston');
+import _ = require('underscore');
 var compress = require('compression');
 
 import csweb = require('./index');
@@ -47,7 +50,7 @@ export class csServer {
 
         if (this.options.corrsEnabled) {
             // CORRS: see http://stackoverflow.com/a/25148861/319711
-            this.server.use(function(req, res, next) {
+            this.server.use(function (req, res, next) {
                 res.header('Access-Control-Allow-Origin', 'http://localhost');
                 res.header('Access-Control-Allow-Methods', this.options.corrsSupportedMethods);
                 res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, cache-control');
@@ -67,6 +70,29 @@ export class csServer {
         if (!c.hasOwnProperty('file')) c['file'] = { path: path.join(path.resolve(this.dir), 'public/data/api/') };
         var fs = new csweb.FileStorage(c['file'].path);
 
+        // Also trigger clean shutdown on Ctrl-C
+        process.on('SIGINT', () => {
+            Winston.info("Attempting to shut down ...");
+            if (this.api && this.api.connectors) {
+
+                async.each(_.toArray(this.api.connectors), (c: csweb.ApiManager.IConnector, cb) => {
+                    if (c.exit) {
+                        console.log("Closing " + c.id);
+
+                        c.exit(() => {
+                            delete this.api.connectors[c.id];
+                            cb();
+                        })
+                    }
+                }, () => {
+                    console.log("Done");
+                    process.exit(0);
+                })
+
+            }
+
+        });
+
         this.httpServer.listen(this.server.get('port'), () => {
             Winston.info('Express server listening on port ' + this.server.get('port'));
             /*
@@ -76,13 +102,18 @@ export class csServer {
             this.api.init(path.join(path.resolve(this.dir), 'public/data/api'), () => {
                 //api.authService = new csweb.AuthAPI(api, server, '/api');
 
-                var connectors: { key: string, s: csweb.IConnector, options: any }[] = [{ key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
+                var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
+                    { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
+
                 ];
 
                 if (c.hasOwnProperty('mqtt')) connectors.push({ key: 'mqtt', s: new csweb.MqttAPI(c['mqtt'].server, c['mqtt'].port), options: {} });
                 //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });
+
+                if (c.hasOwnProperty('kafka')) connectors.push({ key: 'kafka', s: new csweb.KafkaAPI(c['kafka'].server, c['kafka'].port), options: {} });
+
 
                 this.api.addConnectors(connectors, () => {
                     started();
