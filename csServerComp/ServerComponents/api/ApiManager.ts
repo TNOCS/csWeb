@@ -218,6 +218,7 @@ export interface ILayer extends StorageObject {
     timestamps?: number[];
     [key: string]: any;
     hasSensorData?: boolean;
+    quickRefresh?: boolean;
 }
 
 /**
@@ -821,7 +822,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
-        Winston.info('Find layer ' + JSON.stringify(layer));
+        // Winston.info('Find layer ' + JSON.stringify(layer));
         return this.findStorage(layer);
     }
 
