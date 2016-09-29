@@ -33,6 +33,7 @@ export class csServer {
     }
 
     public start(started: Function) {
+        Winston.info("starting csServer")
         var favicon = require('serve-favicon');
         var bodyParser = require('body-parser');
         this.httpServer = require('http').Server(this.server);
@@ -70,27 +71,15 @@ export class csServer {
         if (!c.hasOwnProperty('file')) c['file'] = { path: path.join(path.resolve(this.dir), 'public/data/api/') };
         var fs = new csweb.FileStorage(c['file'].path);
 
+        // For nodemon restarts
+        process.once('SIGUSR2', () => {
+            Winston.info('Nodemon Shutdown');
+            this.gracefulShutdown();
+        });
+
         // Also trigger clean shutdown on Ctrl-C
         process.on('SIGINT', () => {
-            Winston.info("Attempting to shut down ...");
-            if (this.api && this.api.connectors) {
-
-                async.each(_.toArray(this.api.connectors), (c: csweb.ApiManager.IConnector, cb) => {
-                    if (c.exit) {
-                        console.log("Closing " + c.id);
-
-                        c.exit(() => {
-                            delete this.api.connectors[c.id];
-                            cb();
-                        })
-                    }
-                }, () => {
-                    console.log("Done");
-                    process.exit(0);
-                })
-
-            }
-
+            this.gracefulShutdown();
         });
 
         this.httpServer.listen(this.server.get('port'), () => {
@@ -112,13 +101,41 @@ export class csServer {
                 if (c.hasOwnProperty('mqtt')) connectors.push({ key: 'mqtt', s: new csweb.MqttAPI(c['mqtt'].server, c['mqtt'].port), options: {} });
                 //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });
 
-                if (c.hasOwnProperty('kafka')) connectors.push({ key: 'kafka', s: new csweb.KafkaAPI(c['kafka'].server, c['kafka'].port), options: {} });
-
+                if (c.hasOwnProperty('kafka')) {
+                    console.log("TEST:" + JSON.stringify(c['kafka']));
+                    connectors.push({ key: 'kafka', s: new csweb.KafkaAPI(c['kafka'].server, c['kafka'].port, c['kafka']), options: {} });
+                }
 
                 this.api.addConnectors(connectors, () => {
                     started();
                 });
             });
         });
+    }
+
+    private gracefulShutdown() {
+        Winston.info("Attempting to shut down ...");
+        if (this.api && this.api.connectors) {
+
+            async.each(_.toArray(this.api.connectors), (c: csweb.ApiManager.IConnector, cb) => {
+                if (c.exit) {
+                    console.log("Closing " + c.id);
+
+                    c.exit(() => {
+                        Winston.info("Finished closing " + c.id);
+
+                        //  delete this.api.connectors[c.id];
+                        cb();
+                    })
+                }
+            }, () => {
+                Winston.info("Stopping server");
+                this.httpServer.close();
+                Winston.info("Done closing connectors");
+                process.exit(0);
+            })
+
+        }
+
     }
 }
