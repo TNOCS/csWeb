@@ -30,7 +30,6 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
         this.receiveCopy = false;
         this.consumer = kafkaOptions.consumer || "csweb-consumer";
-        console.log("KAFKA options3:" + JSON.stringify(this.kafkaOptions));
     }
 
     public subscribeLayer(layer: string) {
@@ -48,11 +47,10 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
-        console.log('init kafka');
+
         this.manager = layerManager;
         this.layerPrefix = (this.manager.namespace + '-' + this.layerPrefix + '-').replace('//', '/');
         this.keyPrefix = (this.manager.namespace + '/' + this.keyPrefix + '/').replace('//', '/');
-        console.log(this.layerPrefix);
         Winston.info('kafka: init kafak connector on address ' + this.server + ':' + this.port);
         //this.kafka = new KafkaRest({ 'url': this.server + ':' + this.port });
 
@@ -62,15 +60,23 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
 
         this.kafkaConsumer.on('message', (message: { topic: string, value: string, offset: number, partition: number, key: number }) => {
-            try {
-                var l = JSON.parse(message.value);
-                if (l) {
-                    l.id = message.topic;
-                    this.manager.addUpdateLayer(l, <ApiMeta>{ source: this.id }, () => { });
+
+            var l;
+            if (message.value && message.value.length > 0 && message.value[0] !== '{') {
+                l = { data: message.value, type: "grid" };
+                // esri grid
+            } else {
+                try {
+                    // geojson
+                    l = JSON.parse(message.value);
+                }
+                catch (e) {
+                    Winston.error("Error parsing kafka message: " + e.msg);// + message.value);
                 }
             }
-            catch (e) {
-                Winston.error("Error parsing kafka message " + message.value);
+            if (l) {
+                l.id = message.topic;
+                this.manager.addUpdateLayer(l, <ApiMeta>{ source: this.id }, () => { });
             }
         });
 
@@ -122,7 +128,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         Winston.info('kafka: update layer ' + layer.id);
-        if (meta.source !== this.id && this.kafkaOptions.producers.indexOf(layer.id)>=0) {
+        if (meta.source !== this.id && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
             var buff = new Buffer(JSON.stringify(layer), "utf-8");
@@ -143,18 +149,16 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         Winston.info('kafka update feature');
-        this.manager.getLayer(layerId,meta,(r: CallbackResult)=>{
-            if (!r.error)
-            {
-                this.updateLayer(r.layer, meta, c=>{
+        this.manager.getLayer(layerId, meta, (r: CallbackResult) => {
+            if (!r.error) {
+                this.updateLayer(r.layer, meta, c => {
                     callback(c);
                 })
             }
-            else
-            {
+            else {
                 callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
             }
-        });        
+        });
     }
 
     public addUpdateFeatureBatch(layerId: string, features: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {
