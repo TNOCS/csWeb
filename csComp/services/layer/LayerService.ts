@@ -1430,15 +1430,18 @@ module csComp.Services {
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
 
-                // check if defaultLegends are active
-                if (feature.fType.defaultLegendProperty) {
-                    if (typeof feature.fType.defaultLegendProperty === 'string') {
-                        this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty);
+                if (!feature.fType) {
+                    console.log('Warning: no featureType available');
+                } else {
+                    // check if defaultLegends are active
+                    if (feature.fType.defaultLegendProperty) {
+                        if (typeof feature.fType.defaultLegendProperty === 'string') {
+                            this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty);
+                        }
+                        else {
+                            (<string[]>feature.fType.defaultLegendProperty).forEach(s => this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty));
+                        }
                     }
-                    else {
-                        (<string[]>feature.fType.defaultLegendProperty).forEach(s => this.checkLayerLegend(layer, <string>feature.fType.defaultLegendProperty));
-                    }
-
                 }
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
@@ -2796,6 +2799,12 @@ module csComp.Services {
                                     var l = this.findLayer(layer.id);
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
+                                    } else if (layer.quickRefresh) {
+                                        if (l.enabled) {
+                                            var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                            l.layerSource.refreshLayer(l);
+                                            this.visual.rightPanelVisible = wasRightPanelVisible;
+                                        }
                                     } else {
                                         // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
                                         //     if (r && l.enabled) {
@@ -2804,7 +2813,6 @@ module csComp.Services {
                                         //         this.visual.rightPanelVisible = wasRightPanelVisible;
                                         //     }
                                         // });
-
                                     }
                                 }
                             }
@@ -3320,6 +3328,8 @@ module csComp.Services {
         /** Create a new feature and save it to the server. */
         createFeature(feature: Feature, layer: ProjectLayer) {
             if (!layer || !layer.isDynamic || !layer.data || !layer.data.features) return;
+            var found = _.find(layer.data.features, (f: Feature) => {return f.id === feature.id;});
+            if (found) return;
             layer.data.features.push(feature);
             this.initFeature(feature, layer);
             this.activeMapRenderer.addFeature(feature);
