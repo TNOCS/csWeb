@@ -417,6 +417,7 @@ module csComp.Services {
         cesium_url?:     string;
         cesium_tileUrl?: string;
         cesium_maptype?: string;
+        tms? : boolean;
     }
 
     export class BaseLayer implements IBaseLayer {
@@ -448,5 +449,7 @@ module csComp.Services {
         cesium_maptype: string;
         /** Height tiles */
         cesium_tileUrl: string;
+        /** is this a tms base layer */
+        tms : boolean;
     }
 }

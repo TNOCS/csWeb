@@ -186,6 +186,7 @@ module csComp.Services {
             if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
             if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
             if (layerObj.maxNativeZoom) options.maxNativeZoom = layerObj.maxNativeZoom;
+            if (layerObj.tms) options.tms = true;
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;

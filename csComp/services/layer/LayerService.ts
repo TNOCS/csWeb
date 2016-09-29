@@ -2460,6 +2460,7 @@ module csComp.Services {
                             if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
                             if (b.cesium_tileUrl != null) baselayer.cesium_tileUrl = b.cesium_tileUrl;
                             if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
+                            if (b.tms != null) baselayer.tms = b.tms;
 
                             this.$mapService.baseLayers[b.title] = baselayer;
                             if (b.isDefault) {
@@ -2499,6 +2500,7 @@ module csComp.Services {
                                         this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                                     }
                                 })
+
                                 .error((data) => {
                                     this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                                 });
