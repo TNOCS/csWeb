@@ -6,54 +6,45 @@ import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
-import mqtt = require('mqtt');
-import mqttrouter = require('mqtt-router');
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
-var KafkaRest = require('kafka-rest');
+import kafka = require('kafka-node');
 
+export class KafkaOptions {
+    consumers: string[];
+    consumer: string;
+    producers: string[];
+}
 
 export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager;
-    public kafka: any;
-    public connected: boolean;
-    public consumer_instance: any;
-    public router: mqttrouter.MqttRouter;  
+    public consumer: string;
 
-    constructor(public server: string, public consumer: string, public port: number = 8082, public layerPrefix = 'layers', public keyPrefix = 'keys') {
+    public kafkaClient;
+    public kafkaConsumer;
+    public kafkaProducer;
+
+    constructor(public server: string, public port: number = 8082, public kafkaOptions: KafkaOptions, public layerPrefix = 'layers', public keyPrefix = 'keys') {
         super();
         this.isInterface = true;
         this.receiveCopy = false;
-    } 
+        this.consumer = kafkaOptions.consumer || "csweb-consumer";
+        console.log("KAFKA options3:" + JSON.stringify(this.kafkaOptions));
+    }
 
     public subscribeLayer(layer: string) {
         Winston.info("Subscribe kafka layer : " + layer);
-        if (this.connected && this.consumer_instance) {
-            var topic = layer;
-            console.log(topic);
-            var stream = this.consumer_instance.subscribe(topic);
-            stream.on('data',  (msgs) => {
-                for (var i = 0; i < msgs.length; i++)
-                {
-                    var l = JSON.parse(msgs[i].value);
-                    l.id = layer;                    
-                    console.log(JSON.stringify(l));
-                    this.manager.addUpdateLayer(l, <ApiMeta>{ source: this.id }, () => { });
 
-                }
-                    //console.log("Got a message: key=" + msgs[i].key + " value=" + msgs[i].value + " partition=" + msgs[i].partition);
-            });
-            stream.on('error', function (err) {
-                console.log("Something broke: " + err);
-            }); 
-        }
+        var topic = layer;
+        this.kafkaConsumer.addTopics([{ topic: topic, encoding: 'utf8', fromOffset: true, autoCommit: false }], (err, added) => {
+            Winston.info("topic subscribed");
+        }, true);
     }
 
-    public exit(callback : Function)
-    {
+    public exit(callback: Function) {
         Winston.info('Closing kafka connection');
-        this.consumer_instance.shutdown(()=>callback());
+        callback();
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
@@ -63,110 +54,34 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         this.keyPrefix = (this.manager.namespace + '/' + this.keyPrefix + '/').replace('//', '/');
         console.log(this.layerPrefix);
         Winston.info('kafka: init kafak connector on address ' + this.server + ':' + this.port);
-        this.kafka = new KafkaRest({ 'url': this.server + ':' + this.port });
+        //this.kafka = new KafkaRest({ 'url': this.server + ':' + this.port });
 
-        this.kafka.consumer(this.consumer).join({
-            'format': 'binary',
-            'auto.offset.reset': 'smallest'
-        }, (err, ci) => {
-            if (!err) {
-                this.consumer_instance = ci;
-                this.connected = true;
+        this.kafkaClient = new kafka.Client(this.server + ':' + this.port, 'test-consumer');
+        this.kafkaConsumer = new kafka.Consumer(this.kafkaClient, [], {});
+        this.kafkaProducer = new kafka.Producer(this.kafkaClient);
 
-                if (!this.manager.isClient) {
-                var subscriptions = layerManager.options.mqttSubscriptions || 'arnoud-test6';
-                Winston.info(`kafka: listen to ${subscriptions === '#' ? 'everything' : subscriptions}`);
-                if (typeof subscriptions === 'string') {
-                    this.subscribeLayer(subscriptions);
-                    //this.client.subscribe(subscriptions);
-                } else {
-                    subscriptions.forEach(s => this.subscribeLayer(s) );
+
+        this.kafkaConsumer.on('message', (message: { topic: string, value: string, offset: number, partition: number, key: number }) => {
+            try {
+                var l = JSON.parse(message.value);
+                if (l) {
+                    l.id = message.topic;
+                    this.manager.addUpdateLayer(l, <ApiMeta>{ source: this.id }, () => { });
                 }
             }
-
-
+            catch (e) {
+                Winston.error("Error parsing kafka message " + message.value);
             }
         });
 
-        // this.client = (<any>mqtt).connect('mqtt://' + this.server + ':' + this.port);
-        // this.router = mqttrouter.wrap(this.client);
+        var subscriptions = this.kafkaOptions.consumers || 'arnoud-test6';
+        if (typeof subscriptions === 'string') {
+            this.subscribeLayer(subscriptions);
+            //this.client.subscribe(subscriptions);
+        } else {
+            subscriptions.forEach(s => this.subscribeLayer(s));
+        }
 
-        // this.client.on('error', (e) => {
-        //     Winston.error(`mqtt: error ${e}`);
-        // });
-
-        // this.client.on('connect', () => {
-        //     Winston.debug('mqtt: connected');
-        //     // server listens to all key updates
-            
-        // });
-
-        // this.client.on('reconnect', () => {
-        //     Winston.debug('mqtt: reconnecting');
-
-        // });
-
-        // TODO Use the router to handle messages
-        // this.router.subscribe('hello/me/#:person', function(topic, message, params){
-        //   console.log('received', topic, message, params);
-        // });
-        // this.client.on('message', (topic: string, message: string) => {
-        //     //Winston.info(`mqtt on message: ${topic}.`);
-        //     //if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
-        //     // listen to layer updates
-        //     if (topic === this.layerPrefix) {
-        //         var layer = this.extractLayer(message);
-        //         if (layer && layer.id) {
-        //             Winston.info(`mqtt: received definition for layer ${layer.id} on topic ${topic}`);
-        //             Winston.debug(`Definition: ${JSON.stringify(layer, null, 2)}`);
-        //             this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
-        //         }
-        //     }
-        //     else if (topic.indexOf(this.layerPrefix) === 0) {
-        //         // We are either dealing with a layer update, or a feature update.
-        //         // In the first case, the channel will be this.layerPrefix/layerId,
-        //         // otherwise, it will be this.layerPrefix/layerId/feature/featureId.
-        //         // So try to extract both. If there is only one, we are dealing a layer update.
-        //         var ids = topic.substring(this.layerPrefix.length, topic.length).split('/feature/');
-        //         var layerId = ids[0];
-        //         if (ids.length === 1) {
-        //             try {
-        //                 var layer = this.extractLayer(message);
-        //                 if (layer) {
-        //                     Winston.debug(`mqtt: update layer ${layerId} on topic ${topic}`);
-        //                     this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
-        //                 }
-        //             } catch (e) {
-        //                 Winston.error(`mqtt: error updating layer, exception ${e}`);
-        //             }
-        //         } else {
-        //             try {
-        //                 var featureId = ids[1];
-        //                 var feature = <Feature>JSON.parse(message);
-        //                 if (feature) {
-        //                     Winston.debug(`mqtt: update feature ${featureId} for layer ${layerId} on topic ${topic}.`);
-        //                     this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
-        //                 }
-        //             } catch (e) {
-        //                 Winston.error(`mqtt: error updating feature, exception ${e}`);
-        //             }
-        //         }
-        //     }
-        //     else if (topic.indexOf(this.keyPrefix) === 0) {
-        //         var kid = topic.substring(this.keyPrefix.length, topic.length).replace(/\//g, '.');
-        //         if (kid) {
-        //             try {
-        //                 var obj = JSON.parse(message);
-        //                 //Winston.debug('mqtt: update key for id ' + kid + " : " + message);
-
-        //                 this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
-        //             }
-        //             catch (e) {
-        //                 Winston.error(`mqtt: error updating key for id ${kid}: ${message}. Error ${e}`);
-        //             }
-        //         }
-        //     }
-        // });
         callback();
     }
 
@@ -200,35 +115,52 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         if (meta.source !== this.id) {
-           // this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
+            // this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         }
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        Winston.info('mqtt: update layer ' + layer.id);
-        if (meta.source !== this.id) {
+        Winston.info('kafka: update layer ' + layer.id);
+        if (meta.source !== this.id && this.kafkaOptions.producers.indexOf(layer.id)>=0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
+            var buff = new Buffer(JSON.stringify(layer), "utf-8");
+            var payloads = [
+                { topic: this.layerPrefix, messages: buff }
+            ];
+
+            this.kafkaProducer.send(payloads, (err, data) => {
+                Winston.info("Kafka send message");
+            });
             // Send the layer definition to everyone
-      //      this.client.publish(this.layerPrefix, JSON.stringify(def));
+            //      this.client.publish(this.layerPrefix, JSON.stringify(def));
             // And place all the data only on the specific layer channel
-       //     this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
+            //     this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
         }
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
-        Winston.info('mqtt update feature');
-        if (meta.source !== this.id)
-        //    this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        Winston.info('kafka update feature');
+        this.manager.getLayer(layerId,meta,(r: CallbackResult)=>{
+            if (!r.error)
+            {
+                this.updateLayer(r.layer, meta, c=>{
+                    callback(c);
+                })
+            }
+            else
+            {
+                callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+            }
+        });        
     }
 
     public addUpdateFeatureBatch(layerId: string, features: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {
-        Winston.info('mqtt update feature batch');
+        Winston.info('kafka update feature batch');
         if (meta.source !== this.id) {
-    //        this.client.publish(`${this.layerPrefix}${layerId}/featurebatch`, JSON.stringify(features));
+            //        this.client.publish(`${this.layerPrefix}${layerId}/featurebatch`, JSON.stringify(features));
         }
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
@@ -236,7 +168,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     private sendFeature(layerId: string, featureId: string) {
         this.manager.findFeature(layerId, featureId, (r: CallbackResult) => {
             if (r.result === ApiResult.OK) {
-      //          this.client.publish(this.layerPrefix + layerId, JSON.stringify(r.feature));
+                //          this.client.publish(this.layerPrefix + layerId, JSON.stringify(r.feature));
             }
         });
     }
@@ -253,7 +185,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public initLayer(layer: Layer) {
         //this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
-        Winston.info('mqtt: init layer ' + layer.id);
+        Winston.info('kafka: init layer ' + layer.id);
     }
 
     private getKeyChannel(keyId: string) {
@@ -261,6 +193,6 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
- //       this.client.publish(this.getKeyChannel(keyId), JSON.stringify(value));
+        //       this.client.publish(this.getKeyChannel(keyId), JSON.stringify(value));
     }
 }
