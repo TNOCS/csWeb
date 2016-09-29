@@ -75,7 +75,7 @@ export class csServer {
             Winston.info("Attempting to shut down ...");
             if (this.api && this.api.connectors) {
 
-                async.each(_.toArray(this.api.connectors), (c: csweb.ApiManager.IConnector, cb) => {
+                async.each(_.toArray(this.api.connectors), (c: csweb.IConnector, cb) => {
                     if (c.exit) {
                         console.log("Closing " + c.id);
 
