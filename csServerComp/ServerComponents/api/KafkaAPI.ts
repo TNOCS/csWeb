@@ -128,7 +128,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         Winston.info('kafka: update layer ' + layer.id);
-        if (meta.source !== this.id && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
+        if (meta.source !== this.id && this.kafkaOptions.producers && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
             var buff = new Buffer(JSON.stringify(layer), "utf-8");
@@ -164,7 +164,16 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     public addUpdateFeatureBatch(layerId: string, features: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {
         Winston.info('kafka update feature batch');
         if (meta.source !== this.id) {
-            //        this.client.publish(`${this.layerPrefix}${layerId}/featurebatch`, JSON.stringify(features));
+            this.manager.getLayer(layerId, meta, (r: CallbackResult) => {
+                if (!r.error) {
+                    this.updateLayer(r.layer, meta, c => {
+                        callback(c);
+                    })
+                }
+                else {
+                    callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+                }
+            });
         }
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
