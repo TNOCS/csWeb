@@ -162,8 +162,9 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
             var buff = new Buffer(JSON.stringify(layer), "utf-8");
+            // attributes sets compression mode, 0: No compression; 1: Compress using GZip; 2: Compress using snappy 
             var payloads = [
-                { topic: layer.id, messages: buff }
+                { topic: layer.id, messages: buff, attributes: 1 }
             ];
 
             if (this.producerReady) {

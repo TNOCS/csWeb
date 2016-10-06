@@ -378,7 +378,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         Winston.info('filestore: openfile ' + id);
         if (!this.keys.hasOwnProperty(id)) {
             fs.readFile(fileName, "utf8", (err, data) => {
-                if (!err) {
+                if (!err && data && data.indexOf('{') >= 0) {
                     var key = <Key>JSON.parse(data);
                     key.storage = this.id;
                     key.id = id;
