@@ -10,6 +10,12 @@ import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
 import kafka = require('kafka-node');
 
+export enum KafkaCompression {
+    NoCompression = 0,
+        GZip = 1,
+        snappy = 2
+}
+
 export class KafkaOptions {
     consumers: string[];
     consumer: string;
@@ -40,7 +46,11 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         Winston.info("Subscribe kafka layer : " + layer);
 
         var topic = layer;
-        this.kafkaConsumer.addTopics([{ topic: topic, encoding: 'utf8', autoCommit: false }], (err, added) => {
+        this.kafkaConsumer.addTopics([{
+            topic: topic,
+            encoding: 'utf8',
+            autoCommit: false
+        }], (err, added) => {
             if (err) {
                 Winston.error(`${err}`);
             } else {
@@ -63,28 +73,40 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         //this.kafka = new KafkaRest({ 'url': this.server + ':' + this.port });
 
         this.kafkaClient = new kafka.Client(this.server + ':' + this.port, this.consumer);
-        this.kafkaConsumer = new kafka.Consumer(this.kafkaClient, [], { fetchMaxBytes: 5 * 1024 * 1024 });
+        this.kafkaConsumer = new kafka.Consumer(this.kafkaClient, [], {
+            fetchMaxBytes: 5 * 1024 * 1024
+        });
         this.kafkaProducer = new kafka.Producer(this.kafkaClient);
         this.kafkaOffset = new kafka.Offset(this.kafkaClient);
 
-        this.kafkaConsumer.on('message', (message: { topic: string, value: string, offset: number, partition: number, key: number }) => {
+        this.kafkaConsumer.on('message', (message: {
+            topic: string,
+            value: string,
+            offset: number,
+            partition: number,
+            key: number
+        }) => {
 
             var l;
             if (message.value && message.value.length > 0 && message.value[0] !== '{') {
-                l = { data: message.value, type: "grid" };
+                l = {
+                    data: message.value,
+                    type: "grid"
+                };
                 // esri grid
             } else {
                 try {
                     // geojson
                     l = JSON.parse(message.value);
-                }
-                catch (e) {
-                    Winston.error("Error parsing kafka message: " + e.msg);// + message.value);
+                } catch (e) {
+                    Winston.error("Error parsing kafka message: " + e.msg); // + message.value);
                 }
             }
             if (l) {
                 l.id = message.topic;
-                this.manager.addUpdateLayer(l, <ApiMeta>{ source: this.id }, () => { });
+                this.manager.addUpdateLayer(l, < ApiMeta > {
+                    source: this.id
+                }, () => {});
             }
         });
 
@@ -100,7 +122,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             this.producerReady = true;
             if (this.layersWaitingToBeSent.length > 0) {
                 this.layersWaitingToBeSent.forEach((l) => {
-                    this.updateLayer(l, {}, () => { });
+                    this.updateLayer(l, {}, () => {});
                 });
             }
             Winston.info(`Kafka producer ready to send`);
@@ -122,7 +144,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     private extractLayer(message: string) {
-        var layer = <Layer>JSON.parse(message);
+        var layer = < Layer > JSON.parse(message);
         // if you have a server, you don't need local storage
         if (layer.server) delete layer.storage;
         //if (!layer.server && layer.server === this.manager.options.server) return;
@@ -138,7 +160,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
      * @param  {Function}   callback   Called when topic is called.
      * @return {[type]}                [description]
      */
-    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params ? : Object) => void) {
         Winston.info('subscribing key : ' + keyPattern);
         this.router.subscribe(keyPattern, (topic: string, message: string, params: Object) => {
             callback(topic, message.toString(), params);
@@ -153,7 +175,9 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         if (meta.source !== this.id) {
             // this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         }
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        callback( < CallbackResult > {
+            result: ApiResult.OK
+        });
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
@@ -162,29 +186,39 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
             var buff = new Buffer(JSON.stringify(layer), "utf-8");
-            // attributes sets compression mode, 0: No compression; 1: Compress using GZip; 2: Compress using snappy 
-            var payloads = [
-                { topic: layer.id, messages: buff, attributes: 1 }
-            ];
-
             if (this.producerReady) {
-                this.kafkaProducer.send(payloads, (err, data) => {
-                    if (err) {
-                        Winston.error(`${JSON.stringify(err)}`);
-                    } else {
-                        Winston.info("Kafka sent message");
-                    }
-                });
+                this.sendPayload(layer.id, buff, KafkaCompression.GZip);
             } else {
                 this.layersWaitingToBeSent.push(layer);
-                Winston.warn('Kafka producer not ready');
             }
             // Send the layer definition to everyone
             //      this.client.publish(this.layerPrefix, JSON.stringify(def));
             // And place all the data only on the specific layer channel
             //     this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
         }
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        callback( < CallbackResult > {
+            result: ApiResult.OK
+        });
+    }
+
+    public sendPayload(topic: string, buffer: Buffer, compression: KafkaCompression = KafkaCompression.GZip) {
+        var payloads = [{
+            topic: topic,
+            messages: buffer,
+            attributes: compression
+        }];
+
+        if (this.producerReady) {
+            this.kafkaProducer.send(payloads, (err, data) => {
+                if (err) {
+                    Winston.error(`${JSON.stringify(err)}`);
+                } else {
+                    Winston.info("Kafka sent message");
+                }
+            });
+        } else {
+            Winston.warn('Kafka producer not ready');
+        }
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
@@ -194,9 +228,10 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
                 this.updateLayer(r.layer, meta, c => {
                     callback(c);
                 })
-            }
-            else {
-                callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+            } else {
+                callback( < CallbackResult > {
+                    result: ApiResult.LayerNotFound
+                });
             }
         });
     }
@@ -209,13 +244,16 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
                     this.updateLayer(r.layer, meta, c => {
                         callback(c);
                     })
-                }
-                else {
-                    callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+                } else {
+                    callback( < CallbackResult > {
+                        result: ApiResult.LayerNotFound
+                    });
                 }
             });
         }
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        callback( < CallbackResult > {
+            result: ApiResult.OK
+        });
     }
 
     private sendFeature(layerId: string, featureId: string) {
@@ -228,12 +266,18 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         this.sendFeature(layerId, featureId);
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        callback( < CallbackResult > {
+            result: ApiResult.OK
+        });
     }
 
-    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
+    public updateLogs(layerId: string, featureId: string, logs: {
+        [key: string]: Log[]
+    }, meta: ApiMeta, callback: Function) {
         this.sendFeature(layerId, featureId);
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        callback( < CallbackResult > {
+            result: ApiResult.OK
+        });
     }
 
     public initLayer(layer: Layer) {
