@@ -365,7 +365,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     //layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
                     Winston.info('storage ' + layer.storage);
-                    this.manager.addUpdateLayer(layer, {}, () => { });
+                    this.manager && this.manager.addUpdateLayer(layer, {}, () => { });
                 }
             });
         }
@@ -400,7 +400,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     res._localFile = fileName;
                     res.id = id;
                     this.resources[id] = res;
-                    this.manager.addResource(res, false, <ApiMeta>{ source: this.id }, () => { });
+                    this.manager && this.manager.addResource(res, false, <ApiMeta>{ source: this.id }, () => { });
                     this.saveResourceFile(res);
                 }
             });
@@ -436,7 +436,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     if (typeof isDynamic !== 'undefined') project.isDynamic = isDynamic;
                     project.url = "/api/projects/" + id;
 
-                    this.manager.updateProject(project, {}, () => { });
+                    this.manager && this.manager.updateProject(project, {}, () => { });
                 }
             } else if (err) {
                 Winston.error('Error reading file: ' + id + '(' + err.message + ')')

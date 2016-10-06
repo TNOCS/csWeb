@@ -82,7 +82,7 @@ export interface IConnector {
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any, callback: Function);
-    exit(callback : Function);
+    exit(callback: Function);
     initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
@@ -218,6 +218,7 @@ export interface ILayer extends StorageObject {
     timestamps?: number[];
     [key: string]: any;
     hasSensorData?: boolean;
+    quickRefresh?: boolean;
 }
 
 /**
@@ -414,27 +415,28 @@ export class ApiManager extends events.EventEmitter {
     public loadLayerConfig(cb: Function) {
 
         Winston.debug('manager: loading layer config');
-        try {
-            this.layersFile = path.join(this.rootPath, 'layers.json');
+        this.layersFile = path.join(this.rootPath, 'layers.json');
 
+        fs.stat(this.layersFile, (err, stats) => {
+            // Create file if it doesn't exist
+            if (err && err.code === 'ENOENT') {
+                fs.writeFileSync(this.layersFile, '{}');
+                Winston.info(`Create layers.json file ${this.layersFile}`);
+            }
             fs.readFile(this.layersFile, 'utf8', (err, data) => {
-                if (!err && data) {
-                    Winston.info('manager: layer config loaded');
-                    try {
-                        this.layers = <{ [key: string]: Layer }>JSON.parse(data);
-                    }
-                    catch (e) {
-                        Winston.error('manager: error loading project config');
-                    }
+                if (err) {
+                    Winston.error('manager: layers config loading failed: ' + err.message);
                 } else {
-                    this.layers = {};
+                    try {
+                        this.layers = <{ [key: string]: ILayer }>JSON.parse(data);
+                        Winston.info('manager: layers config loaded');
+                    } catch (e) {
+                        Winston.error('manager: error loading layers config');
+                    }
                 }
                 cb();
             });
-        }
-        catch (e) {
-
-        }
+        });
     }
 
     /**
@@ -444,18 +446,25 @@ export class ApiManager extends events.EventEmitter {
         Winston.debug('manager: loading project config');
         this.projectsFile = path.join(this.rootPath, 'projects.json');
 
-        fs.readFile(this.projectsFile, 'utf8', (err, data) => {
-            if (err) {
-                Winston.error('manager: project config loading failed: ' + err.message);
-            } else {
-                try {
-                    this.projects = <{ [key: string]: Project }>JSON.parse(data);
-                    Winston.info('manager: project config loaded');
-                } catch (e) {
-                    Winston.error('manager: error loading project config');
-                }
+        fs.stat(this.projectsFile, (err, stats) => {
+            // Create file if it doesn't exist            
+            if (err && err.code === 'ENOENT') {
+                fs.writeFileSync(this.projectsFile, '{}');
+                Winston.info(`Create projects.json file ${this.projectsFile}`);
             }
-            cb();
+            fs.readFile(this.projectsFile, 'utf8', (err, data) => {
+                if (err) {
+                    Winston.error('manager: project config loading failed: ' + err.message);
+                } else {
+                    try {
+                        this.projects = <{ [key: string]: Project }>JSON.parse(data);
+                        Winston.info('manager: project config loaded');
+                    } catch (e) {
+                        Winston.error('manager: error loading project config');
+                    }
+                }
+                cb();
+            });
         });
     }
 
@@ -821,7 +830,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
-        Winston.info('Find layer ' + JSON.stringify(layer));
+        // Winston.info('Find layer ' + JSON.stringify(layer));
         return this.findStorage(layer);
     }
 
