@@ -461,7 +461,7 @@ module csComp.Services {
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, 'layer', (topic: string, msg: ClientMessage) => {
-                console.log('action:' + msg.action);
+                console.log('action:' + msg.action + ' ' + layer.id);
                 switch (msg.action) {
                     case 'unsubscribed':
                         this.service.$rootScope.$apply(() => {

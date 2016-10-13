@@ -9,6 +9,8 @@ import ApiMeta = ApiManager.ApiMeta;
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
 import kafka = require('kafka-node');
+import xml2js = require('xml2js');
+import _ = require('underscore');
 
 export enum KafkaCompression {
     NoCompression = 0,
@@ -26,11 +28,14 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager;
     public consumer: string;
+    private router;
 
     public kafkaClient;
     public kafkaConsumer;
     public kafkaProducer;
     public kafkaOffset;
+    private xmlBuilder;
+    private xmlParser;
 
     private producerReady: boolean = false;
     private layersWaitingToBeSent: Layer[] = [];
@@ -40,23 +45,53 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
         this.receiveCopy = false;
         this.consumer = kafkaOptions.consumer || "csweb-consumer";
+        this.xmlBuilder = new xml2js.Builder({
+            headless: false
+        });
+        this.xmlParser = new xml2js.Parser({
+            ignoreAttrs: true,
+            explicitArray: false
+        });
     }
 
-    public subscribeLayer(layer: string) {
-        Winston.info("Subscribe kafka layer : " + layer);
+    public addProducer(topic: string) {
+        if (!this.kafkaOptions.producers) {
+            this.kafkaOptions.producers = [topic];
+        } else if (!_.find(this.kafkaOptions.producers, topic)) {
+            this.kafkaOptions.producers.push(topic);
+        }
+    }
 
+    /**
+     * 
+     * Subscribe to the topic from the give offset. If no offset is defined, start listening from the latest offset. 
+     * @param {string} layer
+     * @param {number} [fromOffset=-1]
+     * 
+     * @memberOf KafkaAPI
+    
+     */
+    public subscribeLayer(layer: string, fromOffset: number = -1) {
+        Winston.info(`Subscribe kafka layer : ${layer} from ${(fromOffset>=0 ? fromOffset : 'latest')}`);
         var topic = layer;
-        this.kafkaConsumer.addTopics([{
-            topic: topic,
-            encoding: 'utf8',
-            autoCommit: false
-        }], (err, added) => {
-            if (err) {
-                Winston.error(`${err}`);
-            } else {
-                Winston.info(`Kafka subscribed to topic ${topic}`);
+        this.fetchLatestOffsets(topic, (latestOffset) => {
+            let offset = latestOffset;
+            if (fromOffset >= 0 && fromOffset <= latestOffset) {
+                offset = fromOffset;
             }
-        }, true);
+            this.kafkaConsumer.addTopics([{
+                topic: topic,
+                encoding: 'utf8',
+                autoCommit: false,
+                offset: offset || 0
+            }], (err, added) => {
+                if (err) {
+                    Winston.error(`${err}`);
+                } else {
+                    Winston.info(`Kafka subscribed to topic ${topic} from offset ${offset}`);
+                }
+            }, true);
+        });
     }
 
     public exit(callback: Function) {
@@ -87,6 +122,18 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             key: number
         }) => {
 
+            // scenarioUpdate or scenarioActivation message
+            if (message.value && message.value.indexOf('<?xml') === 0) {
+                var parsedMessage = this.parseXmlMessage(message.value, (scenarioMessage) => {
+                    if (scenarioMessage) {
+                        this.manager.updateKey(Object.keys(scenarioMessage).shift(), scenarioMessage, < ApiMeta > {
+                            source: 'kafka'
+                        }, () => {});
+                    }
+                });
+                return;
+            }
+
             var l;
             if (message.value && message.value.length > 0 && message.value[0] !== '{') {
                 l = {
@@ -104,6 +151,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             }
             if (l) {
                 l.id = message.topic;
+                l.offset = message.offset;
                 this.manager.addUpdateLayer(l, < ApiMeta > {
                     source: this.id
                 }, () => {});
@@ -142,6 +190,48 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
         callback();
     }
+
+    private parseXmlMessage(msg: string, cb: Function) {
+        this.xmlParser.parseString(msg, (err, parsedData: any) => {
+            if (err) {
+                Winston.error(err);
+                cb();
+            } else {
+                // Winston.info(JSON.stringify(parsedData, null, 2));
+                var update: any = this.findObjectByLabel(parsedData, 'scenarioUpdate');
+                if (update) {
+                    // Single element arrays in xml will be parsed to an object, so convert them back to an array manually.
+                    if (update.scenarioUpdate.records && update.scenarioUpdate.records.record && !(update.scenarioUpdate.records.record.length)) {
+                        update.scenarioUpdate.records.record = [update.scenarioUpdate.records.record];
+                    }
+                    cb(update);
+                }
+            }
+        });
+    }
+
+    /**
+     * 
+     * Recursively search an object for the desired label and return that part of the object
+     * @export
+     * @param {Object} object to search
+     * @param {string} label to find
+     * @returns Object with the label, or null
+     */
+    private findObjectByLabel(object: Object, label: string): Object {
+        if (object.hasOwnProperty(label)) {
+            return object;
+        }
+        for (let key in object) {
+            if (object.hasOwnProperty(key) && (typeof object[key] === 'object')) {
+                let foundLabel = this.findObjectByLabel(object[key], label);
+                if (foundLabel) {
+                    return foundLabel;
+                }
+            }
+        }
+        return null;
+    };
 
     private extractLayer(message: string) {
         var layer = < Layer > JSON.parse(message);
@@ -213,7 +303,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
                 if (err) {
                     Winston.error(`${JSON.stringify(err)}`);
                 } else {
-                    Winston.info("Kafka sent message");
+                    Winston.debug("Kafka sent message");
                 }
             });
         } else {
@@ -237,7 +327,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public addUpdateFeatureBatch(layerId: string, features: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {
-        Winston.info('kafka update feature batch');
+        Winston.debug('kafka update feature batch');
         if (meta.source !== this.id) {
             this.manager.getLayer(layerId, meta, (r: CallbackResult) => {
                 if (!r.error && r.layer) {
@@ -291,5 +381,36 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
         //       this.client.publish(this.getKeyChannel(keyId), JSON.stringify(value));
+    }
+
+    public setOffset(topic: string, offset: number) {
+        this.kafkaConsumer.setOffset(topic, 0, offset);
+    }
+
+    public fetch(topic: string, time: number, cb: Function) {
+        let payload = {
+            topic: topic,
+            time: time,
+            maxNum: 1
+        };
+        this.kafkaOffset.fetch([topic], (err, offsets) => {
+            if (err) {
+                Winston.error(`kafka: error fetching: ${JSON.stringify(err)}`);
+                cb();
+            } else {
+                cb(offsets[topic][0]);
+            }
+        });
+    }
+
+    public fetchLatestOffsets(topic: string, cb: Function) {
+        this.kafkaOffset.fetchLatestOffsets([topic], (err, offsets) => {
+            if (err) {
+                Winston.error(`kafka: error fetching latest offsets: ${JSON.stringify(err)}`);
+                cb();
+            } else {
+                cb(offsets[topic][0]);
+            }
+        });
     }
 }

@@ -40,7 +40,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public staticProjectsPath: string;
     public resourcesPath: string;
 
-    constructor(public rootpath: string, watch: boolean = true) {
+    constructor(public rootpath: string, watch: boolean = true, private ignoreInitial = false) {
         super();
         this.receiveCopy = false;
         this.backupPath = path.join(rootpath, 'backup/');
@@ -69,7 +69,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!fs.existsSync(this.layersPath)) { fs.mkdirSync(this.layersPath); }
         if (!fs.existsSync(path.join(this.layersPath, 'backup'))) { fs.mkdirSync(path.join(this.layersPath, 'backup')); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.layersPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.layersPath, { ignoreInitial: this.ignoreInitial, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
@@ -96,7 +96,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         Winston.info('filestore: watch folder:' + this.projectsPath);
         if (!fs.existsSync(this.projectsPath)) { fs.mkdirSync(this.projectsPath); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, depth: 0, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: this.ignoreInitial, depth: 0, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
                     Winston.info('filestore: new project found : ' + path);
@@ -147,7 +147,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         Winston.info('filestore: watch folder:' + this.keysPath);
         if (!fs.existsSync(this.keysPath)) { fs.mkdirSync(this.keysPath); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.keysPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.keysPath, { ignoreInitial: this.ignoreInitial, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (!fs.statSync(path).isDirectory()) {
                     if (action == "add") {
@@ -168,7 +168,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         Winston.info('filestore: watch folder:' + this.resourcesPath);
         if (!fs.existsSync(this.resourcesPath)) { fs.mkdirSync(this.resourcesPath); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.resourcesPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.resourcesPath, { ignoreInitial: this.ignoreInitial, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
