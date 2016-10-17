@@ -169,6 +169,12 @@ module csComp.Services {
                     layer.data.features = layer.data.geometries;
                 }
 
+                //Filter duplicate features (by feature.id)
+                let featuresWithoutId = layer.data.features.filter((f) => { return !f.hasOwnProperty('id') }); // Allow all features without id
+                if (featuresWithoutId.length !== layer.data.features.length) {
+                    layer.data.features = featuresWithoutId.concat(_.uniq(layer.data.features, false, (f: Feature) => { return f.id; }));
+                }
+
                 if (!_.isUndefined(layer.data.features)) {
                     layer.data.features.forEach((f) => {
                         this.service.initFeature(f, layer, false, false);
