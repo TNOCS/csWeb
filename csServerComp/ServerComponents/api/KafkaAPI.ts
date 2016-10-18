@@ -21,7 +21,7 @@ export enum KafkaCompression {
 }
 
 export class KafkaOptions {
-    consumers: string[];
+    consumers: string[] | Dictionary<number>; // Either a list of topics or key-value pairs of {topic: offset} 
     consumer: string;
     producers: string[];
 }
@@ -204,12 +204,21 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             Winston.error(`Kafka error: ${JSON.stringify(err)}`)
         });
 
-        var subscriptions = this.kafkaOptions.consumers || 'arnoud-test6';
+        var subscriptions: any = this.kafkaOptions.consumers || 'arnoud-test6';
         if (typeof subscriptions === 'string') {
             this.subscribeLayer(subscriptions);
             //this.client.subscribe(subscriptions);
         } else {
-            subscriptions.forEach(s => this.subscribeLayer(s));
+            _.each(subscriptions, (val: any, key: string) => {
+                // subscription is either a string array or a Dictionary<number>:
+                // case string array: val = topic, key = array index number
+                // case Dictionary<number>: val = number, key = topic
+                if (key && typeof key === 'string') {
+                    this.subscribeLayer(key, val);
+                } else {
+                    this.subscribeLayer(val);
+                }
+            });
         }
 
         callback();
