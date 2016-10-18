@@ -12,6 +12,8 @@ import kafka = require('kafka-node');
 import xml2js = require('xml2js');
 import _ = require('underscore');
 
+var MAX_TRIES_SEND = 5;
+
 export enum KafkaCompression {
     NoCompression = 0,
         GZip = 1,
@@ -30,14 +32,15 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     public consumer: string;
     private router;
 
-    public kafkaClient;
-    public kafkaConsumer;
-    public kafkaProducer;
-    public kafkaOffset;
+    public kafkaClient: kafka.Client;
+    public kafkaConsumer: kafka.Consumer;
+    public kafkaProducer: kafka.Producer;
+    public kafkaOffset: kafka.Offset;
     private xmlBuilder;
     private xmlParser;
 
     private producerReady: boolean = false;
+    private offsetReady: boolean = false;    
     private layersWaitingToBeSent: Layer[] = [];
 
     constructor(public server: string, public port: number = 8082, public kafkaOptions: KafkaOptions, public layerPrefix = 'layers', public keyPrefix = 'keys') {
@@ -72,26 +75,38 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     
      */
     public subscribeLayer(layer: string, fromOffset: number = -1) {
-        Winston.info(`Subscribe kafka layer : ${layer} from ${(fromOffset>=0 ? fromOffset : 'latest')}`);
+        fromOffset = +fromOffset;
+        Winston.info(`Subscribe kafka layer : ${layer} from ${(fromOffset >= 0 ? fromOffset : 'latest')}`);
         var topic = layer;
-        this.fetchLatestOffsets(topic, (latestOffset) => {
-            let offset = latestOffset;
-            if (fromOffset >= 0 && fromOffset <= latestOffset) {
-                offset = fromOffset;
-            }
-            this.kafkaConsumer.addTopics([{
-                topic: topic,
-                encoding: 'utf8',
-                autoCommit: false,
-                offset: offset || 0
-            }], (err, added) => {
-                if (err) {
-                    Winston.error(`${err}`);
-                } else {
-                    Winston.info(`Kafka subscribed to topic ${topic} from offset ${offset}`);
+
+        this.waitForOffsetToBeReady((ready) => {
+            this.fetchLatestOffsets(topic, (latestOffset) => {
+                let offset = +latestOffset;
+                if (fromOffset >= 0 && fromOffset <= latestOffset) {
+                    offset = fromOffset;
                 }
-            }, true);
+                this.kafkaConsumer.addTopics([{
+                    topic: topic,
+                    encoding: 'utf8',
+                    autoCommit: false,
+                    offset: offset || 0
+                }], (err, added) => {
+                    if (err) {
+                        Winston.error(`${err}`);
+                    } else {
+                        Winston.info(`Kafka subscribed to topic ${topic} from offset ${offset}`);
+                    }
+                }, true);
+            });
         });
+    }
+
+    private waitForOffsetToBeReady(cb: Function) {
+        if (!this.offsetReady) {
+            setTimeout(() => { this.waitForOffsetToBeReady(cb); }, 250);
+        } else {
+            cb(true);
+        }
     }
 
     public exit(callback: Function) {
@@ -113,6 +128,15 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         });
         this.kafkaProducer = new kafka.Producer(this.kafkaClient);
         this.kafkaOffset = new kafka.Offset(this.kafkaClient);
+
+        this.kafkaOffset.on('ready', (err) => {
+            this.offsetReady = true;
+            Winston.info(`Kafka producer ready to send`);
+        });
+
+        this.kafkaOffset.on('error', (err) => {
+            Winston.error(`Kafka error: ${JSON.stringify(err)}`);
+        });
 
         this.kafkaConsumer.on('message', (message: {
             topic: string,
@@ -271,7 +295,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        Winston.info('kafka: update layer ' + layer.id);
+        Winston.info('kafka: update layer ' + layer.id + ' (' + (this.producerReady) ? 'delayed)' : 'directly)');
         if (meta.source !== this.id && this.kafkaOptions.producers && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
@@ -291,7 +315,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         });
     }
 
-    public sendPayload(topic: string, buffer: Buffer, compression: KafkaCompression = KafkaCompression.GZip) {
+    public sendPayload(topic: string, buffer: Buffer, compression: KafkaCompression = KafkaCompression.GZip, tries: number = 1) {
         var payloads = [{
             topic: topic,
             messages: buffer,
@@ -301,7 +325,12 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         if (this.producerReady) {
             this.kafkaProducer.send(payloads, (err, data) => {
                 if (err) {
-                    Winston.error(`${JSON.stringify(err)}`);
+                    if (tries < MAX_TRIES_SEND) {
+                        Winston.warn(`Kafka failed to send: ${JSON.stringify(err)} (tries: ${tries}/${MAX_TRIES_SEND}). Trying again...`);
+                        setTimeout(() => { this.sendPayload(topic, buffer, compression, tries + 1) }, 500);
+                    } else {
+                        Winston.error(`Kafka error trying to send: ${JSON.stringify(err)} (tries: ${tries}/${MAX_TRIES_SEND})`);
+                    }
                 } else {
                     Winston.debug("Kafka sent message");
                 }
@@ -388,12 +417,17 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public fetch(topic: string, time: number, cb: Function) {
-        let payload = {
+        let payload: kafka.OffsetRequest = {
             topic: topic,
             time: time,
             maxNum: 1
         };
-        this.kafkaOffset.fetch([topic], (err, offsets) => {
+        if (!this.offsetReady) {
+            Winston.error(`kafka: offset not ready`);
+            cb();
+            return;
+        }
+        this.kafkaOffset.fetch([payload], (err, offsets) => {
             if (err) {
                 Winston.error(`kafka: error fetching: ${JSON.stringify(err)}`);
                 cb();
@@ -403,7 +437,26 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         });
     }
 
+    /**
+     * @param {string} topic
+     * @param {Function} cb Calls back 'true' when topic exists. 
+     */
+    public topicExists(topic: string, cb: Function) {
+        this.kafkaClient.topicExists([topic], (notExisting: any) => {
+            if (notExisting && notExisting.topics && notExisting.topics.indexOf(topic) >= 0) {
+                cb(false);
+            } else {
+                cb(true);
+            }
+        });
+    }
+
     public fetchLatestOffsets(topic: string, cb: Function) {
+        if (!this.offsetReady) {
+            Winston.error(`kafka: offset not ready`);
+            cb();
+            return;
+        }
         this.kafkaOffset.fetchLatestOffsets([topic], (err, offsets) => {
             if (err) {
                 Winston.error(`kafka: error fetching latest offsets: ${JSON.stringify(err)}`);

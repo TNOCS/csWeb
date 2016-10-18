@@ -1025,7 +1025,7 @@ export class ApiManager extends events.EventEmitter {
                 var s = this.findStorage(layer);
                 if (s && s.id !== meta.source) {
                     s.updateLayer(layer, meta, (r, CallbackResult) => {
-                        Winston.warn('updating layer finished');
+                        Winston.debug('updating layer finished');
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
