@@ -129,57 +129,65 @@ module csComp.Services {
 
             // Open a layer URL
             layer.isLoading = true;
-            // get data
-            $.get(layer.url, (result: string, status: string) => {
-                // https://github.com/caolan/async#seriestasks-callback
-                async.series([
-                    (cb) => {
-                        layer.count = 0;
-                        if (typeof this.gridParams.gridType !== 'undefined' && this.gridParams.gridType === 'esri') {
-                            this.convertEsriHeaderToGridParams(result);
-                        }
-                        if (layer.renderType === 'gridlayer') {
-                            layer.data = this.convertDataToGrid(result, this.gridParams);;
-                            layer.isLoading = false;
-                            cb(null, null);
-                            return;
-                        }
-                        var data = this.convertDataToFeatureCollection(result, this.gridParams);
-                        if (data.fc.features.length > 10000) {
-                            console.warn('Grid is very big! Number of features: ' + data.fc.features.length);
-                        }
-                        if (data.fc.features.length === 0) {
-                            this.service.$messageBusService.notify('Warning', 'Data loaded successfully, but all points are outside the specified range.', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Error);
-                            layer.isLoading = false;
-                            cb(null, null);
-                            return;
-                        }
-                        // store raw result in layer
-                        layer.data = <any>data.fc;
-                        //layer.description = data.desc;
+            // get data from layer data if present, otherwise fetch from server
+            if (layer.data && layer.quickRefresh) {
+                this.processData(layer, layer.data, callback);
+            } else {
+                $.get(layer.url, (result: string, status: string) => {
+                    this.processData(layer, result, callback);
+                }).fail((err) => {
+                    layer.isLoading = false;
+                    this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + err.statusText);
+                    this.service.$messageBusService.publish('layer', 'error');
+                    console.log(`Failed loading layer ${layer.title} due to ${JSON.stringify(err)}.`);
+                });
+            }
+        }
 
-                        if (layer.data.geometries && !layer.data.features) {
-                            layer.data.features = layer.data.geometries;
-                        }
-                        var count = 0;
-                        var last = layer.data.features.length - 1;
-                        layer.data.features.forEach((f) => {
-                            this.service.initFeature(f, layer, false, false);
-                        });
-
+        processData(layer: ProjectLayer, result: string, callback: Function) {
+            // https://github.com/caolan/async#seriestasks-callback
+            async.series([
+                (cb) => {
+                    layer.count = 0;
+                    if (typeof this.gridParams.gridType !== 'undefined' && this.gridParams.gridType === 'esri') {
+                        this.convertEsriHeaderToGridParams(result);
+                    }
+                    if (layer.renderType === 'gridlayer') {
+                        layer.data = this.convertDataToGrid(result, this.gridParams);;
                         layer.isLoading = false;
                         cb(null, null);
-                    },
-                    () => {
-                        callback(layer);
+                        return;
                     }
-                ]);
-            }).fail((err) => {
-                layer.isLoading = false;
-                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + err.statusText);
-                this.service.$messageBusService.publish('layer', 'error');
-                console.log(`Failed loading layer ${layer.title} due to ${JSON.stringify(err)}.`);
-            });
+                    var data = this.convertDataToFeatureCollection(result, this.gridParams);
+                    if (data.fc.features.length > 10000) {
+                        console.warn('Grid is very big! Number of features: ' + data.fc.features.length);
+                    }
+                    if (data.fc.features.length === 0) {
+                        this.service.$messageBusService.notify('Warning', 'Data loaded successfully, but all points are outside the specified range.', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Error);
+                        layer.isLoading = false;
+                        cb(null, null);
+                        return;
+                    }
+                    // store raw result in layer
+                    layer.data = <any>data.fc;
+                    //layer.description = data.desc;
+
+                    if (layer.data.geometries && !layer.data.features) {
+                        layer.data.features = layer.data.geometries;
+                    }
+                    var count = 0;
+                    var last = layer.data.features.length - 1;
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer, false, false);
+                    });
+
+                    layer.isLoading = false;
+                    cb(null, null);
+                },
+                () => {
+                    callback(layer);
+                }
+            ]);
         }
 
         /**
