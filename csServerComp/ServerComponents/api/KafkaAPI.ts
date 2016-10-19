@@ -309,7 +309,8 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         if (meta.source !== this.id && this.kafkaOptions.producers && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
-            var buff = new Buffer(JSON.stringify(layer), "utf-8");
+            layer.type = 'FeatureCollection';
+            var buff = new Buffer(JSON.stringify(layer), 'utf-8');
             if (this.producerReady) {
                 this.sendPayload(layer.id, buff, KafkaCompression.GZip);
             } else {
