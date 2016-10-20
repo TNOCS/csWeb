@@ -21,7 +21,7 @@ export enum KafkaCompression {
 }
 
 export class KafkaOptions {
-    consumers: string[] | Dictionary<number>; // Either a list of topics or key-value pairs of {topic: offset} 
+    consumers: string[] | Dictionary < number > ; // Either a list of topics or key-value pairs of {topic: offset} 
     consumer: string;
     producers: string[];
 }
@@ -40,14 +40,14 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     private xmlParser;
 
     private producerReady: boolean = false;
-    private offsetReady: boolean = false;    
+    private offsetReady: boolean = false;
     private layersWaitingToBeSent: Layer[] = [];
 
     constructor(public server: string, public port: number = 8082, public kafkaOptions: KafkaOptions, public layerPrefix = 'layers', public keyPrefix = 'keys') {
         super();
         this.isInterface = true;
         this.receiveCopy = false;
-        this.consumer = kafkaOptions.consumer || "csweb-consumer";
+        this.consumer = kafkaOptions.consumer || 'csweb-consumer';
         this.xmlBuilder = new xml2js.Builder({
             headless: false
         });
@@ -103,7 +103,9 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     private waitForOffsetToBeReady(cb: Function) {
         if (!this.offsetReady) {
-            setTimeout(() => { this.waitForOffsetToBeReady(cb); }, 250);
+            setTimeout(() => {
+                this.waitForOffsetToBeReady(cb);
+            }, 250);
         } else {
             cb(true);
         }
@@ -162,15 +164,20 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             if (message.value && message.value.length > 0 && message.value[0] !== '{') {
                 l = {
                     data: message.value,
-                    type: "grid"
+                    type: 'grid'
                 };
                 // esri grid
+            } else if (message.value === '') {
+                // There is no update for this layer
+                Winston.warn(`No update for ${message.topic}`); // + message.value);
+                this.manager.sendClientMessage('pn1', `No update for ${message.topic}`);
             } else {
                 try {
                     // geojson
                     l = JSON.parse(message.value);
                 } catch (e) {
-                    Winston.error("Error parsing kafka message: " + e.msg); // + message.value);
+                    Winston.error('Error parsing kafka message: ' + e + ' ' + message.topic); // + message.value);
+                    Winston.error(JSON.stringify(message.value, null, 2)); // + message.value);
                 }
             }
             if (l) {
@@ -305,7 +312,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        Winston.info('kafka: update layer ' + layer.id + ' (' + (this.producerReady) ? 'delayed)' : 'directly)');
+        Winston.info(`kafka: update layer ${layer.id} (${(!this.producerReady ? 'delayed' : 'directly')})`);
         if (meta.source !== this.id && this.kafkaOptions.producers && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
@@ -337,13 +344,15 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             this.kafkaProducer.send(payloads, (err, data) => {
                 if (err) {
                     if (tries < MAX_TRIES_SEND) {
-                        Winston.warn(`Kafka failed to send: ${JSON.stringify(err)} (tries: ${tries}/${MAX_TRIES_SEND}). Trying again...`);
-                        setTimeout(() => { this.sendPayload(topic, buffer, compression, tries + 1) }, 500);
+                        Winston.warn(`Kafka failed to send: ${JSON.stringify(err)} to ${topic} (tries: ${tries}/${MAX_TRIES_SEND}). Trying again...`);
+                        setTimeout(() => {
+                            this.sendPayload(topic, buffer, compression, tries + 1);
+                        }, 500);
                     } else {
                         Winston.error(`Kafka error trying to send: ${JSON.stringify(err)} (tries: ${tries}/${MAX_TRIES_SEND})`);
                     }
                 } else {
-                    Winston.debug("Kafka sent message");
+                    Winston.debug('Kafka sent message');
                 }
             });
         } else {
