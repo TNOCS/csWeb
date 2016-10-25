@@ -39,6 +39,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public projectsPath: string;
     public staticProjectsPath: string;
     public resourcesPath: string;
+    private layerDebounceFunctions: Dictionary<Function> = {};
 
     constructor(public rootpath: string, watch: boolean = true, private ignoreInitial = false) {
         super();
@@ -195,10 +196,18 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveKeyFile(key);
     }, 5000);
 
-    saveLayerDelay = _.debounce((layer: Layer) => {
-        this.saveLayerFile(layer);
-    }, 2000);
-
+    // Create a debounce function for each layer
+    private saveLayerDelay(layer: Layer) {
+        if (!layer || !layer.id) {
+            Winston.error(`saveLayerDelay: Layer id not found`);
+        }
+        if (!this.layerDebounceFunctions.hasOwnProperty(layer.id)) {
+            this.layerDebounceFunctions[layer.id] = _.debounce((layer: Layer) => {
+                this.saveLayerFile(layer);
+            }, 1000);
+        }
+        this.layerDebounceFunctions[layer.id].call(this, layer);
+    }
 
     private getProjectFilename(projectId: string) {
         return path.join(this.projectsPath, projectId + '.json');
@@ -354,7 +363,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     try {
                         layer = <Layer>JSON.parse(data);
                     } catch (e) {
-                        Winston.warn(`Error parsing file: ${fileName}. Skipped`);
+                        Winston.warn(`Error parsing file: ${fileName}. Skipped. (Data length: ${(data) ? data.length : 0})`);
                         return;
                     }
                     layer.storage = this.id;
