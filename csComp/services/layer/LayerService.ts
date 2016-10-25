@@ -40,6 +40,9 @@ module csComp.Services {
         /** true if no filters are active */
         noFilters = true;
 
+        /** uses RD projection */
+        isRD: boolean;
+
         /** indicator true for mobile devices */
         isMobile: boolean;
 
@@ -3330,7 +3333,7 @@ module csComp.Services {
         /** Create a new feature and save it to the server. */
         createFeature(feature: Feature, layer: ProjectLayer) {
             if (!layer || !layer.isDynamic || !layer.data || !layer.data.features) return;
-            var found = _.find(layer.data.features, (f: Feature) => {return f.id === feature.id;});
+            var found = _.find(layer.data.features, (f: Feature) => { return f.id === feature.id; });
             if (found) return;
             layer.data.features.push(feature);
             this.initFeature(feature, layer);

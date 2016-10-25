@@ -1,4 +1,7 @@
 module csComp.Services {
+
+
+
     export class LeafletRenderer implements IMapRenderer {
         title = 'leaflet';
         service: LayerService;
@@ -27,23 +30,25 @@ module csComp.Services {
                 this.enableMap();
                 return;
             }
-            // var res = [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420];
 
 
-
-            // var RD = new L.Proj.CRS('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +towgs84=565.2369,50.0087,465.658,-0.406857330322398,0.350732676542563,-1.8703473836068,4.0812 +no_defs',
-            //     {
-            //         resolutions: [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420],
-            //         bounds: L.bounds([-285401.92, 22598.08], [595401.9199999999, 903401.9199999999]),
-            //         origin: [-285401.92, 22598.08]
-            //     }
-            // );
             var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 22,
                 attributionControl: true
-                //,crs: RD
             };
+            if (this.service.isRD) {
+                var res = [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420];
+
+                var RD = new (<any>L).Proj.CRS('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +towgs84=565.2369,50.0087,465.658,-0.406857330322398,0.350732676542563,-1.8703473836068,4.0812 +no_defs',
+                    {
+                        resolutions: [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420],
+                        bounds: L.bounds([-285401.92, 22598.08], [595401.9199999999, 903401.9199999999]),
+                        origin: [-285401.92, 22598.08]
+                    }
+                );
+                mapOptions.crs = RD;
+            }
             this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
             this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
