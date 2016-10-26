@@ -82,8 +82,10 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         this.waitForOffsetToBeReady((ready) => {
             this.fetchLatestOffsets(topic, (latestOffset) => {
                 let offset = +latestOffset;
-                if (fromOffset >= 0 && fromOffset <= latestOffset) {
+                if (fromOffset >= 0 && fromOffset <= +latestOffset) {
                     offset = fromOffset;
+                } else if (fromOffset > +latestOffset) {
+                    Winston.warn(`Kafka warning: From offset ${fromOffset} requested, but offset ${latestOffset} is the latest available.`);
                 }
                 this.kafkaConsumer.addTopics([{
                     topic: topic,
@@ -205,11 +207,12 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
                     this.updateLayer(l, {}, () => {});
                 });
             }
-            Winston.info(`Kafka producer ready to send`);
+            Winston.info(`Kafka producer ready to send. Sent ${this.layersWaitingToBeSent.length} delayed layers`);
+            this.layersWaitingToBeSent.length = 0; // clear array
         });
 
         this.kafkaProducer.on('error', (err) => {
-            Winston.error(`Kafka error: ${JSON.stringify(err)}`)
+            Winston.error(`Kafka error: ${JSON.stringify(err)}`);
         });
 
         var subscriptions: any = this.kafkaOptions.consumers || 'arnoud-test6';
@@ -312,15 +315,20 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        Winston.info(`kafka: update layer ${layer.id} (${(!this.producerReady ? 'delayed' : 'directly')})`);
-        if (meta.source !== this.id && this.kafkaOptions.producers && this.kafkaOptions.producers.indexOf(layer.id) >= 0) {
+        if (!this.kafkaOptions.producers || this.kafkaOptions.producers.indexOf(layer.id) < 0) {
+            Winston.warn(`Add ${layer.id} to the producers list`);
+            this.addProducer(layer.id);
+        }
+        if (meta.source !== this.id) {
             var def = this.manager.getLayerDefinition(layer);
             delete def.storage;
             layer.type = 'FeatureCollection';
             var buff = new Buffer(JSON.stringify(layer), 'utf-8');
             if (this.producerReady) {
                 this.sendPayload(layer.id, buff, KafkaCompression.GZip);
+                Winston.info(`kafka: update layer ${layer.id}`);
             } else {
+                Winston.info(`kafka: update layer ${layer.id} ('delayed')`);
                 this.layersWaitingToBeSent.push(layer);
             }
             // Send the layer definition to everyone
@@ -328,7 +336,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             // And place all the data only on the specific layer channel
             //     this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
         }
-        callback( < CallbackResult > {
+        callback(<CallbackResult>{
             result: ApiResult.OK
         });
     }
@@ -421,7 +429,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
 
     public initLayer(layer: Layer) {
         //this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
-        Winston.info('kafka: init layer ' + layer.id);
+        // Winston.info('kafka: init layer ' + layer.id);
     }
 
     private getKeyChannel(keyId: string) {
