@@ -408,10 +408,8 @@ module FeatureProps {
             $event.stopPropagation();
         }
 
-        public openImage(img : string)
-        {
-            window.open(img,'mywindow','width=600')
-
+        public openImage(img: string) {
+            window.open(img, 'mywindow', 'width=600');
         }
 
         public saveFeature() {

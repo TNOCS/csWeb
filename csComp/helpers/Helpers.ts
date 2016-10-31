@@ -252,7 +252,11 @@ module csComp.Helpers {
                 } else if (type._propertyTypeData != null) {
                     // If you cannot find it there, look it up in the featureType's propertyTypeData.
                     var result = $.grep(type._propertyTypeData, e => e.label === key);
-                    if (result.length >= 1) propertyTypes.push(result);
+                    if (result.length >= 1) {
+                        result.forEach((res) => {
+                            propertyTypes.push(res);
+                        });
+                    }
                 }
             });
         }
@@ -424,7 +428,12 @@ module csComp.Helpers {
                 break;
             case 'number':
                 if (!$.isNumeric(text)) {
-                    displayValue = text;
+                    if (typeof text === 'string' && $.isNumeric(text.replace(',', '.'))) {
+                        // E.g. "9,876E-02" is not recognized as numeric, but "9.876E-02" is.
+                        displayValue = String.format(pt.stringFormat, parseFloat(text.replace(',', '.')));
+                    } else {
+                        displayValue = text;
+                    }
                 } else if (isNaN(text)) {
                     displayValue = '';
                 } else if (!pt.stringFormat) {
