@@ -192,6 +192,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
                 description: 'A widget combining legend, style and filter.'
             };
+            this.widgetTypes['comparewidget'] = <IWidget>{
+                id: 'comparewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/table.png',
+                description: 'A widget to compare multiple selected features.'
+            };
         }
 
         public get search(): ISearch { return this._search; };
@@ -261,7 +266,7 @@ module csComp.Services {
                         popoverString + '><a id="' + tab.container + '-tab-a" data-target="#' +
                         content + '" data-toggle="tab"><span class="fa fa-' +
                         tab.icon + ' fa-lg"></span></a></li>')(this.$rootScope));
-                $('#rightpanelTabPanes').append('<div class="tab-pane" style="width:355px" id="' + content + '"></div>');
+                $('#rightpanelTabPanes').append('<div class="tab-pane" id="' + content + '"></div>');
                 $('#' + tab.container + '-tab-a').click(() => {
                     this.$layerService.visual.rightPanelVisible = true;
                     console.log('rp visible');

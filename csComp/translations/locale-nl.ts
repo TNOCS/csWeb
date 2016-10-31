@@ -205,7 +205,8 @@ module Translations {
             VIEW_PROJECT: 'Bekijk je project',
             PASTE_HERE: 'Plak hier uw data',
             OPTION: 'Optie {{number}}',
-            PASSWORD: 'Wachtwoord'
+            PASSWORD: 'Wachtwoord',
+            COMPARE_TAB: 'Vergelijk'
         };
     }
 }
