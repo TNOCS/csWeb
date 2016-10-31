@@ -219,10 +219,11 @@ module csComp.Services {
         userPrivileges:    IPrivileges;
         languages:         ILanguageData;
         /** link to layer directory, if empty do not use it */
-        layerDirectory: string;
-        expertMode      = Expertise.Expert;
-        markers         = {};
-        eventTab:       boolean;
+        layerDirectory:    string;
+        expertMode         = Expertise.Expert;
+        markers            = {};
+        eventTab:          boolean;
+        hideLayerActions:  boolean;
         /**
          * default interface language
          * @type {string}
@@ -296,7 +297,8 @@ module csComp.Services {
                 groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData, true),
                 layerDirectory:    project.layerDirectory,
                 eventTab:          project.eventTab,
-                searchProviders:   project.searchProviders
+                searchProviders:   project.searchProviders,
+                hideLayerActions:  project.hideLayerActions
             };
         }
 

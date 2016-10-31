@@ -28,6 +28,9 @@
             <label class="editor-title input-xlarge" for="adminModeSelection">Admin Mode</label>
         </div>
     </div>
+    <div class="controls" ng-show="vm.mapService.isAdminExpert">
+        <button type="button" class="btn btn-warning btn-sm" id="clearLocalStorage" ng-click="vm.clearLocalStorage()">Clear localstorage</button>
+    </div>
 
     <div ng-show="vm.mapService.isAdminExpert">
         <div class="controls">

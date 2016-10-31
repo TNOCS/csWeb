@@ -46,7 +46,7 @@
     <!-- ng-show="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
 
     <div>
-        <div class="layer-actions">
+        <div class="layer-actions" ng-hide="vm.project.hideLayerActions">
             <div class="inner-addon left-addon" style="margin:5px;float:left" ng-focus="">
                 <i class="fa fa-search"></i>
                 <input type="text" ng-model="vm.layerfilter" expand-to="200px" class="form-control" style="width:100px;height:30px" />

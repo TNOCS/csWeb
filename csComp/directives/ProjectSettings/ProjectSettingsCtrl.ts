@@ -53,6 +53,11 @@ module ProjectSettings {
             this.messageBus.publish('map', 'showLocation');
         }
 
+        clearLocalStorage() {
+            this.$localStorageService.clearAll();
+            console.log(`localStorage cleared.`);
+        }
+
         toggleAdminMode() {
             if (this.mapService.expertMode !== csComp.Services.Expertise.Admin) {
                 this.mapService.expertMode = csComp.Services.Expertise.Admin;
