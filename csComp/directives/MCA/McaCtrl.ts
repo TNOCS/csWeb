@@ -22,6 +22,20 @@ module Mca {
     // TODO Disable/unload a layer when outside a zoom range, and load it when inside a zoom range.
     // TODO Create a function that determines which geojson to load based on the current extent and zoom level.
 
+    /**
+     * Defines the features that should be used to calculate the MCA. Default, all features of the selected featureType are used.
+     * Multiple modes can be enabled/disabled by adding their values (e.g. 7 to enable all modes). 
+     * If the mode SelectedFeatures is enabled, only the selected features will be used to calculate the MCA. 
+     * If the mode is FilteredFeatures is enabled, only the features in the filterResult will be used to calculate the MCA. 
+     * 
+     * @export
+     * @enum {number}
+     */
+    export enum McaCalculationMode {
+        AllFeatures = 1 << 0,
+        SelectedFeatures = 1 << 1,
+        FilteredFeatures = 1 << 2
+    }
 
     import Feature = csComp.Services.Feature;
     import IFeature = csComp.Services.IFeature;
@@ -114,7 +128,6 @@ module Mca {
             });
 
             messageBusService.subscribe('feature', this.featureMessageReceived);
-            
             messageBusService.subscribe('filters', this.filtersMessageReceived);
 
             $translate('MCA.DELETE_MSG').then(translation => {
@@ -534,28 +547,34 @@ module Mca {
                 // If a filterresult is active, calculate MCA over the filtered features.
                 // Else if more than one feature is selected, use the selection.
                 // Else, use all active features.
-                this.layerService.project.groups.forEach((g) => { 
-                    if (g.filters && g.filters.length > 0 && g.filterResult && g.filterResult.length > 0) {
-                        g.filterResult.forEach((feature) => {
+                if (this.mca.calculationMode & McaCalculationMode.FilteredFeatures) {
+                    this.layerService.project.groups.forEach((g) => {
+                        if (g.filters && g.filters.length > 0 && g.filterResult && g.filterResult.length > 0) {
+                            g.filterResult.forEach((feature) => {
+                                if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                    this.features.push(feature);
+                                }
+                            });
+                        }
+                    });
+                } else if (this.mca.calculationMode & McaCalculationMode.SelectedFeatures) {
+                    if (this.features.length === 0 && this.layerService.selectedFeatures.length > 1) {
+                        this.layerService.selectedFeatures.forEach((feature) => {
                             if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
                                 this.features.push(feature);
                             }
                         });
                     }
-                });
-                if (this.features.length === 0 && this.layerService.selectedFeatures.length > 1) {
-                    this.layerService.selectedFeatures.forEach((feature) => {
-                        if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
-                            this.features.push(feature);
-                        }
-                    });
-                }
-                if (this.features.length === 0) {
-                    this.layerService.project.features.forEach((feature) => {
-                        if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
-                            this.features.push(feature);
-                        }
-                    });
+                } else if (this.mca.calculationMode & McaCalculationMode.AllFeatures) {
+                    if (this.features.length === 0) {
+                        this.layerService.project.features.forEach((feature) => {
+                            if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                this.features.push(feature);
+                            }
+                        });
+                    }
+                } else {
+                    console.log('Warning! No mca calculation mode defined!');
                 }
                 if (this.features.length === 0) { return; }
                 mca.updatePla(this.features, true);
@@ -669,6 +688,7 @@ module Mca {
             } else {
                 this.groupStyle = this.layerService.setStyle(item, false);
                 this.groupStyle.colors = ['#F04030', '#3040F0'];
+                this.groupStyle.activeLegend = this.getLegend(this.mca);
                 this.layerService.updateStyle(this.groupStyle);
             }
         }
@@ -682,6 +702,17 @@ module Mca {
                 result = _.find(this.availableMcas, (m) => { return m.id === mcaId; });
             }
             return result;
+        }
+
+        private getLegend(mca: Models.Mca): csComp.Services.Legend {
+            let legend;
+            if (mca.legend) {
+                legend = mca.legend;
+            } else {
+                legend = McaCtrl.defaultLegend();
+            }
+            legend.id = mca.label;
+            return legend;
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {
@@ -710,6 +741,47 @@ module Mca {
                 section: mca.section || 'MCA'
             };
             return mi;
+        }
+
+        private static defaultLegend(): csComp.Services.Legend {
+            return {
+                    'id': 'mca-legend',
+                    'description': 'An MCA legend',
+                    'legendKind': 'discrete',
+                    'visualAspect': 'fillColor',
+                    'legendEntries': [{
+                        'label': 'Low',
+                        'interval': {
+                            'min': 0,
+                            'max': 25
+                        },
+                        'color': '#f00'
+                    },
+                    {
+                        'label': 'Medium',
+                        'interval': {
+                            'min': 25,
+                            'max': 50
+                        },
+                        'color': '#fbff00'
+                    },
+                    {
+                        'label': 'High',
+                        'interval': {
+                            'min': 50,
+                            'max': 75
+                        },
+                        'color': '#9dc73f'
+                    },
+                    {
+                        'label': 'Very high',
+                        'interval': {
+                            'min': 75,
+                            'max': 100
+                        },
+                        'color': '#004408'
+                    }]
+                };
         }
     }
 }
