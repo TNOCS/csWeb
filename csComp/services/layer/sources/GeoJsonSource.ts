@@ -2,6 +2,8 @@ module csComp.Services {
 
     declare var LargeLocalStorage;
 
+
+
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
@@ -12,11 +14,94 @@ module csComp.Services {
             this.$http = $http;
         }
 
-        public refreshLayer(layer: ProjectLayer) {
-            var isEnabled = layer.enabled;
-            this.service.removeLayer(layer);
-            this.service.addLayer(layer);
-            layer.enabled = isEnabled;
+        public refreshLayer(layer: ProjectLayer, newLayer?: any) {
+            if (!_.isNull(newLayer)) {
+                var diffs = this.findFeatureDiff(layer, newLayer);
+                if (diffs) {
+                    diffs.forEach(d => {
+                        switch (d.type) {
+                            case ChangeType.Create:
+                                this.service.initFeature(<IFeature>d.value, layer, true, false);
+                                layer.data.features.push(d.value);
+                                var m = this.service.activeMapRenderer.addFeature(<IFeature>d.value);
+                                break;
+                            case ChangeType.Update:
+                                this.service.updateFeature(<IFeature>d.value);
+                                break;
+                            case ChangeType.Delete:
+                                this.service.removeFeature(<IFeature>d.value);
+                                break;
+                        }
+                    })
+                }
+            } else {
+                var isEnabled = layer.enabled;
+                this.service.removeLayer(layer);
+                this.service.addLayer(layer);
+                layer.enabled = isEnabled;
+            }
+
+        }
+
+        private findFeatureDiff(layer: ProjectLayer, newLayer: any): IChangeEvent[] {
+            if (!layer || !layer.data || !layer.data.features) return;
+            var featuresUpdates: IChangeEvent[] = [];
+            var updateTime = new Date().getTime();
+            let notUpdated = 0, updated = 0, added = 0, removed = 0;
+            let fts = newLayer.features;
+
+            let fCollectionIds = [];
+            if (_.isArray(fts)) {
+                fts.forEach((f: Feature) => {
+                    fCollectionIds.push(f.id);
+                    var feature = _.find(layer.data.features, (of: IFeature) => { return of.id === f.id; })
+                    if (!feature) {
+                        // ADD FEATURE
+                        //layer.features[f.id] = { f: f, updated: updateTime };
+                        featuresUpdates.push(<IChangeEvent>{ value: feature, type: ChangeType.Create, id: f.id });
+                        added += 1;
+                    } else if (!this.isFeatureUpdated(f, feature)) {
+                        // NO UPDATE
+                        notUpdated += 1;
+                    } else {
+                        // UPDATE
+                        //layer.features[f.id] = { f: f, updated: updateTime };
+                        featuresUpdates.push(<IChangeEvent>{ value: feature, type: ChangeType.Update, id: f.id });
+                        updated += 1;
+                    }
+                });
+            }
+            // // CHECK INACTIVE FEATURES
+            // let inactiveFeatures = _.difference(Object.keys(layer.features), fCollectionIds);
+            // if (inactiveFeatures && inactiveFeatures.length > 0) {
+            //     inactiveFeatures.forEach((fId) => {
+            //         if ((updateTime - layer.features[fId].updated) >= (this.restDataSourceOpts.pruneIntervalSeconds * 1000)) {
+            //             // REMOVE
+            //             featuresUpdates.push(<IChangeEvent>{ value: this.features[fId].f, type: Api.ChangeType.Delete, id: this.features[fId].f.id });
+            //             delete this.features[this.features[fId].f.id];
+            //             removed += 1;
+            //         }
+            //     });
+            // }
+            return featuresUpdates;
+
+        }
+
+        private isFeatureUpdated(f: IFeature, old: IFeature): boolean {
+            if (!f) return false;
+            // // Check geometry
+            // if (!this.restDataSourceOpts.diffIgnoreGeometry && !_.isEqual(f.geometry, this.features[f.id].f.geometry)) {
+            //     return true;
+            // }
+            if (!f.properties) return false;
+
+            // Check all properties
+            if (_.isEqual(f.properties, old.properties)) {
+                return false;
+            }
+            old.properties = f.properties;
+            old.geometry = f.geometry;
+            return true;
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
@@ -36,8 +121,7 @@ module csComp.Services {
                     let min = layer.timestamps[0];
                     let max = layer.timestamps[layer.timestamps.length - 1];
                     this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
-                }
-                else {
+                } else {
                     let min = null;
                     let max = null;
 

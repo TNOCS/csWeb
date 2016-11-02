@@ -5,7 +5,7 @@ module csComp.Services {
         service: LayerService;
         addLayer(layer: ProjectLayer, callback: Function, data: Object);
         removeLayer(layer: ProjectLayer): void;
-        refreshLayer(layer: ProjectLayer): void;
+        refreshLayer(layer: ProjectLayer, oldLayer?: ProjectLayer): void;
         fitMap?(layer: ProjectLayer): void;
         fitTimeline?(layer: ProjectLayer): void;
         requiresLayer: boolean;
@@ -2807,11 +2807,12 @@ module csComp.Services {
                                     } else if (l.quickRefresh || layer.quickRefresh) {
                                         if (l.enabled) {
                                             var wasRightPanelVisible = this.visual.rightPanelVisible;
-                                            l.data = layer.data;
-                                            l.layerSource.refreshLayer(l);
+                                            //l.data = layer.data;
+                                            l.layerSource.refreshLayer(l, layer);
                                             this.visual.rightPanelVisible = wasRightPanelVisible;
                                         }
                                     } else {
+
                                         // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
                                         //     if (r && l.enabled) {
                                         //         var wasRightPanelVisible = this.visual.rightPanelVisible;
