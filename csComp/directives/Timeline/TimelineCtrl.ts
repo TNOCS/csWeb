@@ -119,7 +119,7 @@ module Timeline {
                 'editable': false,
                 'margin': 0,
                 'height': 54,
-                'moveable' : false,
+                'moveable': false,
                 'zoomMax': 172800000000,
                 'zoomMin': 3600000
                 //'layout': 'box'
@@ -256,7 +256,7 @@ module Timeline {
                     group: props.hasOwnProperty(groupProp) ? props[groupProp] : (featureConfig && featureConfig.group) || (layerConfig && layerConfig.group) || '',
                     start: props.hasOwnProperty(startProp) ? props[startProp] : null,
                     end: props.hasOwnProperty(endProp) ? props[endProp] : null,
-                    type : props.hasOwnProperty('type') ? props['type'] : null,
+                    type: props.hasOwnProperty('type') ? props['type'] : null,
                     content: props.hasOwnProperty(contentProp) ? props[contentProp] : ''
                 };
                 if (timelineItem.start) items.push(timelineItem);
@@ -574,7 +574,7 @@ module Timeline {
             this.$scope.timeline.redraw();
             if (this.$scope.$$phase !== '$apply' && this.$scope.$$phase !== '$digest') { this.$scope.$apply(); }
             let screenPos = this.$scope.timeline._toScreen(time);
-            $('#focustimeContainer').css('left', screenPos - $('#focustimeContainer').width() / 2 );
+            $('#focustimeContainer').css('left', screenPos - $('#focustimeContainer').width() / 2);
         }
 
         public updateFocusTime() {
