@@ -207,7 +207,7 @@ module FeatureProps {
             if (mi.type === 'relation' && mi.visibleInCallOut && feature._gui && feature._gui['relations']) {
                 if (feature._gui['relations'].hasOwnProperty(mi.label)) {
                     var results = feature._gui['relations'][mi.label];
-                    var fPropType = <IPropertyType>{type: 'feature', label: 'relatedfeature'};
+                    var fPropType = <IPropertyType>{ type: 'feature', label: 'relatedfeature' };
                     results.forEach((res: IFeature) => {
                         fPropType.title = mi.title;
                         linkCallOutSection.addProperty(res.id, csComp.Helpers.getFeatureTitle(res), fPropType.label, false, false, false, res, false, mi.description, fPropType);
@@ -229,6 +229,8 @@ module FeatureProps {
 
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
         }
+
+
 
         public sectionCount(): number {
             return this.sectionKeys.length;
@@ -313,7 +315,7 @@ module FeatureProps {
             $scope.vm = this;
             $scope.showMenu = false;
 
-            $scope.featureTabActivated = function(sectionTitle: string, section: CallOutSection) {
+            $scope.featureTabActivated = function (sectionTitle: string, section: CallOutSection) {
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
 
@@ -321,9 +323,9 @@ module FeatureProps {
             console.log('init featurepropsctrl');
             $messageBusService.subscribe('feature', this.featureMessageReceived);
 
-            var widthOfList = function() {
+            var widthOfList = function () {
                 var itemsWidth = 0;
-                $('#featureTabs>li').each(function() {
+                $('#featureTabs>li').each(function () {
                     var itemWidth = $(this).outerWidth();
 
                     itemsWidth += itemWidth;
@@ -331,7 +333,7 @@ module FeatureProps {
                 return itemsWidth;
             };
 
-            $scope.autocollapse = function(initializeTabPosition = false) {
+            $scope.autocollapse = function (initializeTabPosition = false) {
                 var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
@@ -408,9 +410,8 @@ module FeatureProps {
             $event.stopPropagation();
         }
 
-        public openImage(img : string)
-        {
-            window.open(img,'mywindow','width=600')
+        public openImage(img: string) {
+            window.open(img, 'mywindow', 'width=600')
 
         }
 
@@ -449,6 +450,20 @@ module FeatureProps {
                 console.log(e + ': ' + html);
                 return '';
             }
+        }
+
+        public toSemanticLink(value: string): string {
+            var parts = value.split('@');
+            return parts[0];
+        }
+
+        public activateSemanticLink(value: string) {
+            this.$messageBusService.publish('semantic', 'activate', value);
+            // var parts = value.split('@');
+            // if (parts.length > 0) {
+            //     alert(parts[1]);
+            // }
+
         }
 
         public openLayer(property: FeatureProps.CallOutProperty) {

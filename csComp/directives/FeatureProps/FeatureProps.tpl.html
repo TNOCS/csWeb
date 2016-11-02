@@ -125,6 +125,7 @@
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
+                                        <div ng-switch-when="image"><img ng-click="vm.openImage(item.value)" ng-hide="item.propertyType.inlineImage" ng-src="{{item.value}}" style="width:300px;float:left;margin:5px"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div style="cursor:pointer" ng-click="vm.openImage(media)" ng-repeat="media in item.feature.properties[item.property] track by $index">
@@ -132,6 +133,7 @@
                                                 <img ng-show="item.propertyType.inlineImage" ng-src="{{media}}" class="feature-prop-value-align-right">
                                             </div>
                                         </div>
+                                        <div ng-switch-when="slink" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.activateSemanticLink(item.value)" data-ng-bind-html="vm.toSemanticLink(item.value)"></div>
                                         <div ng-switch-default class="feature-prop-value-align-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div class="feature-prop-content" ng-if="!item.configMode">
