@@ -133,6 +133,8 @@ module csComp.Services {
         serverHandle?: MessageBusHandle;
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
+        /** Whether a confirmation message should be shown before applying a layerUpdate */
+        confirmUpdate?: boolean;
         parentFeature: IFeature;
         /** list of tags describing this layer */
         tags?: string;
@@ -268,6 +270,9 @@ module csComp.Services {
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
 
+        /** Whether a confirmation message should be shown before applying a layerUpdate */
+        confirmUpdate?: boolean;
+
         _lastSelectedFeature: IFeature;
 
         /** link to a parent feature, e.g. city layer references to a parent provence */
@@ -365,6 +370,7 @@ module csComp.Services {
                 refreshBBOX:           pl.refreshBBOX,
                 refreshTimeInterval:   pl.refreshTimeInterval,
                 quickRefresh:          pl.quickRefresh,
+                confirmUpdate:         pl.confirmUpdate,
                 languages:             pl.languages,
                 events:                pl.events,
                 dataSourceParameters:  pl.dataSourceParameters,

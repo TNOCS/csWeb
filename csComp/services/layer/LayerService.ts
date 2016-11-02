@@ -2804,7 +2804,7 @@ module csComp.Services {
                         if (msg.action === 'layer' && msg.data && msg.data.item) {
                             // Disabled for single-project-solutions, as layers from excel2map get updated twice: on layer update and on project update
                             if (this.openSingleProject === false) {
-                                var layer = <ProjectLayer>msg.data.item;
+                                var layer = <ProjectLayer> msg.data.item;
                                 if (layer) {
                                     var l = this.findLayer(layer.id);
                                     if (!l) {
@@ -2816,18 +2816,19 @@ module csComp.Services {
                                             l.layerSource.refreshLayer(l, layer);
                                             this.visual.rightPanelVisible = wasRightPanelVisible;
                                         }
+                                    } else if (l.confirmUpdate) {
+                                        this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
+                                            if (r && l.enabled) {
+                                                var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                                l.layerSource.refreshLayer(l);
+                                                this.visual.rightPanelVisible = wasRightPanelVisible;
+                                            }
+                                        });
                                     } else {
                                         var wasRightPanelVisible = this.visual.rightPanelVisible;
                                         l.data = layer.data;
                                         l.layerSource.refreshLayer(l, null);
                                         this.visual.rightPanelVisible = wasRightPanelVisible;
-                                        // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
-                                        //     if (r && l.enabled) {
-                                        //         var wasRightPanelVisible = this.visual.rightPanelVisible;
-                                        //         l.layerSource.refreshLayer(l);
-                                        //         this.visual.rightPanelVisible = wasRightPanelVisible;
-                                        //     }
-                                        // });
                                     }
                                 }
                             }
