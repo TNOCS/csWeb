@@ -1409,6 +1409,7 @@ module csComp.Services {
          * init feature (add to feature list, crossfilter)
          */
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
+            if (!feature) return;
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
                 feature.type = 'Feature';
@@ -2816,7 +2817,10 @@ module csComp.Services {
                                             this.visual.rightPanelVisible = wasRightPanelVisible;
                                         }
                                     } else {
-
+                                        var wasRightPanelVisible = this.visual.rightPanelVisible;
+                                        l.data = layer.data;
+                                        l.layerSource.refreshLayer(l, null);
+                                        this.visual.rightPanelVisible = wasRightPanelVisible;
                                         // this.$messageBusService.confirm('New update available for layer ' + layer.title, 'Do you want to reload this layer', r => {
                                         //     if (r && l.enabled) {
                                         //         var wasRightPanelVisible = this.visual.rightPanelVisible;

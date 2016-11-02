@@ -337,6 +337,7 @@ module csComp.Services {
         }
 
         public addFeature(feature: IFeature): any {
+            if (!feature) return null;
             if (feature.geometry != null) {
                 var m = this.createFeature(feature);
                 if (m) {
