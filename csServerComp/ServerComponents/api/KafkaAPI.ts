@@ -113,6 +113,17 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         }
     }
 
+    public removeTopic(topic: string, cb: Function) {
+        this.kafkaConsumer.removeTopics([topic], (err, removed) => {
+            if (err) {
+                Winston.error(`kafka: error removing topic ${topic}: ${JSON.stringify(err)}`);
+                cb();
+            } else {
+                cb(removed);
+            }
+        });
+    }
+
     public exit(callback: Function) {
         Winston.info('Closing kafka connection');
         callback();
