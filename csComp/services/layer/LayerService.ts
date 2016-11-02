@@ -2809,7 +2809,7 @@ module csComp.Services {
                                     var l = this.findLayer(layer.id);
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
-                                    } else if (l.quickRefresh || layer.quickRefresh) {
+                                    } else if (l.quickRefresh) {
                                         if (l.enabled) {
                                             var wasRightPanelVisible = this.visual.rightPanelVisible;
                                             //l.data = layer.data;

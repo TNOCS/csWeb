@@ -219,6 +219,7 @@ export interface ILayer extends StorageObject {
     [key: string]: any;
     hasSensorData?: boolean;
     quickRefresh?: boolean;
+    confirmUpdate?: boolean;
 }
 
 /**
@@ -908,6 +909,8 @@ export class ApiManager extends events.EventEmitter {
             defaultFeatureType: layer.defaultFeatureType,
             defaultLegendProperty: layer.defaultLegendProperty,
             typeUrl: layer.typeUrl,
+            quickRefresh: layer.quickRefresh,
+            confirmUpdate: layer.confirmUpdate,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
             // We are returning a definition, so remove the data

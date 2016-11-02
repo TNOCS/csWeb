@@ -185,7 +185,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
             if (l) {
                 l.id = message.topic;
                 l.offset = message.offset;
-                l.quickRefresh = true;
+                // l.quickRefresh = true;
                 this.manager.addUpdateLayer(l, < ApiMeta > {
                     source: this.id
                 }, () => {});
