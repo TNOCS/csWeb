@@ -373,6 +373,7 @@ export class ApiManager extends events.EventEmitter {
     /** Create a new client, optionally specifying whether it should act as client. */
     constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
         super();
+        this.setMaxListeners(25);
         this.namespace = namespace;
         this.name = name;
         if (this.options.server) {

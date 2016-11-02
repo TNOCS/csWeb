@@ -64,16 +64,20 @@
                                 </div>
                             </div>
                         </div>
-                        <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left">
+                        <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left;width:100%;">
                             <div data-ng-if="style.activeLegend.legendKind === 'discrete' || style.activeLegend.legendKind === 'discreteStrings'  ">
                                 <div class="legend-description">{{style.activeLegend.description}}</div>
                                 <ul class="legend-entry-list" style="position:relative">
-                                    <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
+                                    <!--<li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
                                         <div class="legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                                         <div class="legend-label-d" style="float: left">{{le.label}}</div>
                                         <div>&nbsp;</div>
-                                        <!-- die &nbsp; is echt nodig... -->
-                                    </li>
+                                    </li>-->
+                                    <div class="row legend-entry-row" data-ng-repeat="le in style.activeLegend.legendEntries | reverse">
+                                        <div class="col-md-2 legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
+                                        <div class="col-md-6 legend-label-d" style="float: left">{{le.label}}</div>
+                                        <div class="col-md-4 legend-label-d" style="float: right">{{le.interval.min}} - {{le.interval.max}}</div>
+                                    </div>
                                 </ul>
                             </div>
                             <div data-ng-if="style.activeLegend.legendKind === 'interpolated'">

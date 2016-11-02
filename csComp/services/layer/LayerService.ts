@@ -1219,6 +1219,10 @@ module csComp.Services {
             }
         }
 
+        public getSelectedFeatures(): IFeature[] {
+            return this.selectedFeatures;
+        }
+
         private lookupLog(logs: Log[], timestamp: number): Log {
             if (!logs || logs.length === 0) return <Log>{};
             var d = logs; //_.sortBy(logs, 'ts');

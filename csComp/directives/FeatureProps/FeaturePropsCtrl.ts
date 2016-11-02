@@ -411,8 +411,7 @@ module FeatureProps {
         }
 
         public openImage(img: string) {
-            window.open(img, 'mywindow', 'width=600')
-
+            window.open(img, 'mywindow', 'width=600');
         }
 
         public saveFeature() {

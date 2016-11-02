@@ -206,7 +206,8 @@ module Translations {
             VIEW_PROJECT: 'View your project',
             PASTE_HERE: 'Paste your data here',
             OPTION: 'Option {{number}}',
-            PASSWORD: 'Password'
+            PASSWORD: 'Password',
+            COMPARE_TAB: 'Compare'
         };
     }
 }

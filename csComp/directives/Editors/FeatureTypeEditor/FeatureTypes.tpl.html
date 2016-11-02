@@ -2,7 +2,7 @@
     <h4 class="rightpanel-header">
         &nbsp;&nbsp;Verander FeatureTypes
     </h4>
-    <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
+    <div class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <select id="selectResource" ng-model="vm.selectedResourceUrl" class="form-control tt-input editor-text-input" ng-change="vm.selectResource()">
             <option ng-repeat="(key, types) in vm.$layerService.typesResources" ng-value="key">{{key}}</option>
         </select>

@@ -73,7 +73,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             var watcher = chokidar.watch(this.layersPath, { ignoreInitial: this.ignoreInitial, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
-                    Winston.info('filestore: new file found : ' + path);
+                    Winston.debug('filestore: new file found : ' + path);
                     this.openLayerFile(path);
                 }
                 if (action == "unlink") {
@@ -373,7 +373,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.storage = this.id;
                     //layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
-                    Winston.info('storage ' + layer.storage);
+                    (layer.storage) ? Winston.debug('storage ' + layer.storage) : Winston.warn(`No storage found for ${layer}`);
                     this.manager && this.manager.addUpdateLayer(layer, {}, () => { });
                 }
             });

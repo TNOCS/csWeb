@@ -1,0 +1,21 @@
+<div style="width:100%;height:100%;">
+	<h4 class="rightpanel-header" style="margin-bottom:0;">
+		<i class="fa fa-list-alt rightpanel-header-icon" />{{'COMPARE_TAB' | translate}} {{featureTypeTitle}}
+	</h4>
+	<div style="height: 100%;padding-right:48px;overflow:auto" resize resize-y="50">
+		<table class="table table-bordered table-hover" style="margin-right:24px;font-size: 12px;">
+			<thead>
+				<tr>
+					<th></th>
+					<th ng-repeat="title in vm.featureTitles track by $index">{{title}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="entry in vm.tableEntries track by $index">
+					<th scope="row">{{vm.propertyTitles[$index]}}</th>
+					<td ng-repeat="col in entry track by $index">{{col}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

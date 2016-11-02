@@ -23,7 +23,7 @@
     "exclude": [
         "./csComp/includes/**/*.ts",
         "./csComp/node_modules/**/*",
-"./typings/**/*",
+        "./typings/**/*",
         "./dist-npm/**/*",
         "./dist-bower/**/*",
         "./docker-dev/**/*",
