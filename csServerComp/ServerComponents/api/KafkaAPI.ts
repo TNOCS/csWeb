@@ -65,6 +65,27 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
         }
     }
 
+    public createTopics(topics: string[], tries: number = 1) {
+        if (!this.producerReady) {
+            if (tries < MAX_TRIES_SEND) {
+                Winston.warn(`Kafka producer not ready to create topics! (${tries} / ${MAX_TRIES_SEND})`);
+                setTimeout(() => {
+                    this.createTopics(topics, tries + 1);
+                }, 400);
+            } else {
+                Winston.warn(`Kafka producer not ready to create topics! (${tries} / ${MAX_TRIES_SEND}). Giving up.`);
+            }
+        } else {
+            this.kafkaProducer.createTopics(topics, true, (err, data) => {
+                if (err) {
+                    Winston.warn(`Kafka: Error creating topics: ${err}`);
+                } else {
+                    Winston.info(`Kafka: Created topics: ${data}`);
+                }
+            });
+        }
+    }
+
     /**
      * 
      * Subscribe to the topic from the give offset. If no offset is defined, start listening from the latest offset. 
@@ -119,6 +140,7 @@ export class KafkaAPI extends BaseConnector.BaseConnector {
                 Winston.error(`kafka: error removing topic ${topic}: ${JSON.stringify(err)}`);
                 cb();
             } else {
+                Winston.info(`kafka: removed topic ${topic}`);
                 cb(removed);
             }
         });

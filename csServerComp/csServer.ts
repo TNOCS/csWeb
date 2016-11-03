@@ -68,8 +68,12 @@ export class csServer {
         this.server.use(express.static(path.join(this.dir, 'public')));
         if (!this.options.hasOwnProperty('connectors')) this.options.connectors = {};
         var c = this.options.connectors;
+
+        // Create FileStorage
         if (!c.hasOwnProperty('file')) c['file'] = { path: path.join(path.resolve(this.dir), 'public/data/api/') };
-        var fs = new csweb.FileStorage(c['file'].path);
+        var fsWatch = (c['file'].hasOwnProperty('watch') ? c['file'].watch : true);
+        var fsIgnoreInitial = (c['file'].hasOwnProperty('ignoreInitial') ? c['file'].ignoreInitial : false);
+        var fs = new csweb.FileStorage(c['file'].path, fsWatch, fsIgnoreInitial);
 
         // For nodemon restarts
         process.once('SIGUSR2', () => {
@@ -95,7 +99,6 @@ export class csServer {
                     { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
-
                 ];
 
                 if (c.hasOwnProperty('mqtt')) connectors.push({ key: 'mqtt', s: new csweb.MqttAPI(c['mqtt'].server, c['mqtt'].port), options: {} });
