@@ -147,7 +147,11 @@ module csComp.Services {
         }
 
         public connect(callback: Function) {
-            if (this.isConnected || this.isConnecting || typeof io === 'undefined') return;
+            if (this.isConnected || this.isConnecting || typeof io === 'undefined') {
+                console.log((typeof io === 'undefined') ? 'SocketIO is not defined!' : 'SocketIO already connected');
+                callback();
+                return;
+            }
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect', () => {

@@ -2653,7 +2653,10 @@ module csComp.Services {
                     elementId: 'widget-datatable_id',
                     enabled: true,
                     width: '100%',
-                    height: '100%'
+                    top: "75px",
+                    height: '100%',
+                    bottom: '0px',
+                    position: 'dashboard'
                 }];
                 this.project.dashboards.push(d2);
             } else {
