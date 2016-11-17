@@ -207,6 +207,7 @@ module csComp.Services {
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;
+            if (layerObj.hasOwnProperty('noWrap')) options['noWrap'] = layerObj.noWrap;
 
             var layers = layerObj.url.split('|');
             var layer = L.tileLayer(layers[0], options);
@@ -392,7 +393,7 @@ module csComp.Services {
                         //e.stopPropagation();
                         var button: any = $('#map-contextmenu-button');
                         var menu: any = $('#map-contextmenu');
-                        button.dropdown('toggle');
+                        if (button && button.dropdown) button.dropdown('toggle');
                         var mapSize = this.map.getSize();
                         if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
                             menu.css('left', e.originalEvent.x + 5);
@@ -442,7 +443,7 @@ module csComp.Services {
                             //e.stopPropagation();
                             var button: any = $('#map-contextmenu-button');
                             var menu: any = $('#map-contextmenu');
-                            button.dropdown('toggle');
+                            if (button && button.dropdown) button.dropdown('toggle');
                             var mapSize = this.map.getSize();
                             if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
                                 menu.css('left', e.originalEvent.x + 5);
