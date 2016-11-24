@@ -207,7 +207,7 @@ module FeatureProps {
             if (mi.type === 'relation' && mi.visibleInCallOut && feature._gui && feature._gui['relations']) {
                 if (feature._gui['relations'].hasOwnProperty(mi.label)) {
                     var results = feature._gui['relations'][mi.label];
-                    var fPropType = <IPropertyType>{type: 'feature', label: 'relatedfeature'};
+                    var fPropType = <IPropertyType>{ type: 'feature', label: 'relatedfeature' };
                     results.forEach((res: IFeature) => {
                         fPropType.title = mi.title;
                         linkCallOutSection.addProperty(res.id, csComp.Helpers.getFeatureTitle(res), fPropType.label, false, false, false, res, false, mi.description, fPropType);
@@ -275,6 +275,7 @@ module FeatureProps {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
         private defaultDropdownTitle: string;
+        private exporterAvailable: boolean = false;
 
         // list of active stats/charts properties, used when switching between features to keep active stats open
         private showMore = [];
@@ -292,7 +293,8 @@ module FeatureProps {
             'layerService',
             'messageBusService',
             '$translate',
-            '$compile'
+            '$compile',
+            '$http'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -305,7 +307,8 @@ module FeatureProps {
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
             private $translate: ng.translate.ITranslateService,
-            private $compile: ng.ICompileService
+            private $compile: ng.ICompileService,
+            private $http: ng.IHttpService
         ) {
             this.setDropdownTitle();
             //this.$layerService.addLayer();
@@ -407,17 +410,16 @@ module FeatureProps {
             this.lastSelectedProperty = prop;
             $event.stopPropagation();
         }
-        
-        public openImage(img : string)
-        {
-            window.open(img,'mywindow','width=600')
-            
+
+        public openImage(img: string) {
+            window.open(img, 'mywindow', 'width=600')
+
         }
 
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature, true);
-            
+
             this.$layerService.updateFeature(this.$scope.feature);
             this.displayFeature(this.$layerService.lastSelectedFeature);
         }
@@ -734,6 +736,39 @@ module FeatureProps {
                     this.defaultDropdownTitle = '...';
                 }
             });
+        }
+
+        private getHTML(id: string) {
+            var content = `<html><head>`;
+            $.each(document.getElementsByTagName('link'), (ind: number, val: HTMLLinkElement) => { content += val.outerHTML; });
+            $.each(document.getElementsByTagName('script'), (ind: number, val: HTMLLinkElement) => { content += val.outerHTML; });
+            content += '<style>.tab-content {max-height: 1200px;}</style>';
+            content += `</head><body>`;
+            content += $(id).prop('outerHTML');
+            content += `</body></html>`;
+            return content;
+        }
+
+        private getDimensions(id: string) {
+            let dom = $(id);
+            let w = dom.outerWidth(true);
+            let h = dom.outerHeight(true);
+            return { width: w, height: h };
+        }
+
+        public exportToImage(id: string) {
+            let dim = this.getDimensions('#' + id);
+            this.$http({
+                method: 'POST',
+                url: "screenshot",
+                data: { html: this.getHTML('#' + id), width: dim.width, height: dim.height + 500 },
+            }).then((response) => {
+                csComp.Helpers.saveImage(response.data.toString(), 'csWeb-screenshot', 'png', true);
+            }, (error) => {
+                console.log(error);
+            });
+            console.log('Screenshot command sent');
+            this.$messageBusService.notifyWithTranslation('IMAGE_REQUESTED', 'IMAGE_WILL_APPEAR');
         }
     }
 }

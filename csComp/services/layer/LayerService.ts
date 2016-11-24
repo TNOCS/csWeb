@@ -1676,6 +1676,16 @@ module csComp.Services {
             return null;
         }
 
+        public addPropertyType(pt: IPropertyType, overwrite: boolean = false) {
+            if (pt.id.indexOf('#') > 0 && this.typesResources.hasOwnProperty(pt.id.split('#').shift())) {
+                var key = pt.id.split('#').pop();
+                var type = pt.id.split('#').shift();
+                if (overwrite || !this.typesResources[type].propertyTypeData.hasOwnProperty(key)) {
+                    this.typesResources[type].propertyTypeData[key] = pt;
+                }
+            }
+        }
+
         /**
          * find a filter for a specific group/property combination
          */

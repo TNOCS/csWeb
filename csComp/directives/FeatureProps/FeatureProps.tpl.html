@@ -7,6 +7,9 @@
         <div ng-if="callOut.title.length < 21">
             <img data-ng-if="false && callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
+        <div>
+            <a class="" ng-click="vm.exportToImage('featureprops-content')"><i class="fa fa-save fa-white" uib-tooltip="{{'SAVE_AS_IMAGE' | translate}}" tooltip-trigger="mouseenter" tooltip-placement="left" tooltip-append-to-body="true" ng-show="vm.exporterAvailable"></i></a>
+        </div>
     </h4>
 
     <div class="container-fluid rightpanel-tabs" style="position: relative;height:45px">
