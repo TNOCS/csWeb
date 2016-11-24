@@ -263,6 +263,7 @@ module csComp.Services {
         value?: number;
         stringValue?: string;
         color: string;  // hex string; rgb
+        sortKey?: string; // Sort entries based on this key 
     }
 
 }
