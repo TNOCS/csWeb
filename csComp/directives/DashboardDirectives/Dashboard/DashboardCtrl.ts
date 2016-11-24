@@ -372,25 +372,28 @@ module Dashboard {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
-            this.$timeout(() => {
-                d.widgets.forEach((w: csComp.Services.IWidget) => {
+            this.updateWidgetsThrottled(d.widgets, () => {
+                d._initialized = true;
+                //this.$layerService.rightMenuVisible = d.showLeftmenu;
+                //this.$mapService.rightMenuVisible = d.showRightmenu;
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+            });
+        }
+
+        private updateWidgetsThrottled(widgets: any[], cb: Function, count: number = 0) {
+            if (widgets && count < widgets.length) {
+                this.$timeout(() => {
+                    let w = widgets[count];
                     w._initialized = false;
                     this.updateWidget(w);
-                });
-
-                // this.$timeout(() => {
-                //     this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                //         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                //             this.updateWidget(w);
-                //         });
-                //     });
-                // }, 300);
-                d._initialized = true;
-            }, 500);
-
-            //this.$layerService.rightMenuVisible = d.showLeftmenu;
-            //this.$mapService.rightMenuVisible = d.showRightmenu;
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    console.log(`Update ${w.id} (${count + 1})`);
+                }, 500);
+            }
+            if (widgets && count < widgets.length - 1) {
+                setTimeout(() => {this.updateWidgetsThrottled( widgets, cb, count + 1); }, 500);
+            } else {
+                cb();
+            }
         }
     }
 }

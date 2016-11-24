@@ -257,13 +257,13 @@ module csComp.Services {
 
     export class LegendEntry {
         label: string;
-        interval: {
+        interval?: {
             min: number;
             max: number;
         };                 // either interval or value is used, depending on legendtype (discrete or interpolated)
-        value: number;
-        stringValue: string;
+        value?: number;
+        stringValue?: string;
         color: string;  // hex string; rgb
-        sortKey: string; // Sort entries based on this key 
+        sortKey?: string; // Sort entries based on this key 
     }
 }
