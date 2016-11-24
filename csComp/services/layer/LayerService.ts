@@ -1590,6 +1590,13 @@ module csComp.Services {
                                         break;
                                     case 'fillColor':
                                         s.fillColor = csComp.Helpers.getColor(v, gs);
+                                        if (s.fillColor.length > 7) { // Convert RGBA to RGB & opacity
+                                            let res = csComp.Helpers.getColorAndOpacityFromRgbaString(s.fillColor);
+                                            if (res) {
+                                                s.fillColor = res.color;
+                                                s.fillOpacity = res.opacity;
+                                            }
+                                        }
                                         feature._gui['style'][gs.property] = s.fillColor;
                                         if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') {
                                             s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;
@@ -1611,6 +1618,13 @@ module csComp.Services {
                                         break;
                                     case 'fillColor':
                                         s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                        if (s.fillColor.length > 7) { // Convert RGBA to RGB & opacity
+                                            let res = csComp.Helpers.getColorAndOpacityFromRgbaString(s.fillColor);
+                                            if (res) {
+                                                s.fillColor = res.color;
+                                                s.fillOpacity = res.opacity;
+                                            }
+                                        }
                                         feature._gui['style'][gs.property] = s.fillColor;
                                         break;
                                 }
