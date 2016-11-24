@@ -193,7 +193,7 @@ module Filters {
             }
             
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
-            var h = (ensuredGroup && ensuredGroup.size() < 6) ? 180 : 240;
+            var h = (ensuredGroup && ensuredGroup.size() < 6) ? 180 : 250;
 
             this.dcChart.width(275)
                 .height(h)        
@@ -207,10 +207,22 @@ module Filters {
                     if (pt && pt.legend) {
                         if (pt.options) {
                             return csComp.Helpers.getColorFromLegend(d, pt.legend);
-                        }
-                        if (!pt.options) {
+                        } else if (pt.type === 'number') {
+                            var arr = pt.legend.legendEntries.filter((le) => {
+                                return (d >= le.interval.min && le.interval.max >= d);
+                            });
+                            if (arr.length > 0) {
+                                return arr[0].color.substring(0, 7);
+                            } else {
+                                if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
+                                    return pt.legend.legendEntries.find((le) => { return le.label === pt.legend.defaultLabel; });
+                                } else {
+                                    return '#444444';
+                                }
+                            }
+                        } else if (!pt.options) {
                             var arr = pt.legend.legendEntries.filter((le => { return le.label === d }));
-                            return (arr.length > 0 ? arr[0].color : '#444444');
+                            return (arr.length > 0 ? arr[0].color.substring(0, 7) : '#444444');
                         }
                     }
                     else {

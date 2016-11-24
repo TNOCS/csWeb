@@ -198,7 +198,7 @@ var watchOptions = {
     mode: 'watch'
 };
 gulp.task('watch', function (cb) {
-    gulp.watch(path2csWeb + outDir + '/csComp/**/*.js', watchOptions, ['built_csComp', 'built_csComp.d.ts']);
+    gulp.watch(path2csWeb + outDir + '/csComp/**/*.js', watchOptions, ['built_csComp', 'built_csComp.d.ts', 'minify_csComp']);
     gulp.watch(path2csWeb + 'csComp/directives/**/*.tpl.html', watchOptions, ['create_templateCache']);
     gulp.watch(path2csWeb + 'csComp/includes/css/csStyles.scss', watchOptions, ['concat_css']);
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', watchOptions, ['include_images']);
@@ -206,10 +206,10 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        // 'typings',
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',
+        'minify_csComp',
         'sass',
         'create_templateCache',
         'bower',
@@ -223,6 +223,19 @@ gulp.task('quick', function (cb) {
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',
+        'minify_csComp',
+        'sass',
+        'create_templateCache',
+        'include_css',
+        'include_images',
+        cb);
+});
+
+gulp.task('quicker', function (cb) {
+    runSequence(
+        'built_csComp',
+        'built_csComp.d.ts',
+        'minify_csComp',
         'sass',
         'create_templateCache',
         'include_css',

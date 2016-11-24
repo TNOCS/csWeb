@@ -661,6 +661,24 @@ module Mca {
             } else {
                 this.groupStyle = this.layerService.setStyle(item, false);
                 this.groupStyle.colors = ['#F04030', '#3040F0'];
+                this.groupStyle.activeLegend = {
+                'id': 'ster_gem',
+                'visualAspect': 'fillColor',
+                'description': 'Indicatie aanpasbaarheidsster',
+                'legendKind': 'discrete',
+                'defaultLabel': 'onbekend',
+                'legendEntries': [
+                    {
+                        'sortKey': 'a',
+                        'label': 'onbekend',
+                        'interval': {
+                            'min': -4,
+                            'max': -3
+                        },
+                        'color': '#cccccc33'
+                    }
+                ]
+                };
                 this.layerService.updateStyle(this.groupStyle);
             }
         }

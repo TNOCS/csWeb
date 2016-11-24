@@ -2,6 +2,7 @@ import express = require('express');
 import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('./Location');
 import IBagOptions = require('../database/IBagOptions');
+import _ = require('underscore');
 
 /**
  * Export a connection to the BAG database.
@@ -132,7 +133,7 @@ export class BagDatabase {
             });
         });
     }
-    
+
     public searchGemeente(query: string, limit: number = 10, callback: (searchResults) => void) {
         if (!query) {
             console.log('No valid query supplied');
@@ -253,9 +254,9 @@ export class BagDatabase {
             }
             var sql;
             if (isArea) {
-                sql = `SELECT DISTINCT ON (pand.identificatie) pand.identificatie as pandid, pand.woningen_in_pand, pand.niet_woningen_in_pand, pand.icon, adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, adres.buurtnaam, adres.wijknaam, adres.wijkcode, adres.buurtcode, adres.leeftijd_bewoner, adres.eigendom, adres.verhuurder, adres.corporatie, pand.pandtype, pand.lift, pand.plint, pand.lift_oz, pand.plint_oz, pand.bouwjaar, pand.pandhoogte, pand.ster_0, pand.ster_1,pand.ster_2,pand.ster_3,pand.ster_4,pand.ster_5, pand.ster_onb, pand.pandoppervlakte, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand, ST_AsGeoJSON(ST_Force_2D(ST_Transform(adres.geopunt, 4326)), 6, 0) as latlon, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND (verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' OR verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik (niet ingemeten)') AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) ORDER BY pand.identificatie, pand.documentdatum DESC LIMIT 10000`
+                sql = `SELECT DISTINCT ON (pand.identificatie) pand.identificatie as pandid, pand.woningen_in_pand, pand.niet_woningen_in_pand, pand.icon, adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, adres.buurtnaam, adres.wijknaam, adres.wijkcode, adres.buurtcode, adres.leeftijd_bewoner, adres.eigendom, adres.verhuurder, adres.corporatie, pand.pandtype, pand.lift, pand.plint, pand.lift_oz, pand.plint_oz, pand.bouwjaar, pand.pandhoogte, pand.ster_0, pand.ster_1,pand.ster_2,pand.ster_3,pand.ster_4,pand.ster_5, pand.ster_onb, pand.ster_in_ond, pand.pandoppervlakte, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand, ST_AsGeoJSON(ST_Force_2D(ST_Transform(adres.geopunt, 4326)), 6, 0) as latlon, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND (verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' OR verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik (niet ingemeten)') AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) ORDER BY pand.identificatie, pand.documentdatum DESC LIMIT 10000`
             } else {
-                sql = `SELECT DISTINCT ON (pand.identificatie) pand.identificatie as pandid, pand.woningen_in_pand, pand.niet_woningen_in_pand, pand.icon, adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, adres.buurtnaam, adres.wijknaam, adres.wijkcode, adres.buurtcode, adres.leeftijd_bewoner, adres.eigendom, adres.verhuurder, adres.corporatie, pand.pandtype, pand.lift, pand.plint, pand.lift_oz, pand.plint_oz, pand.bouwjaar, pand.pandhoogte, pand.ster_0, pand.ster_1,pand.ster_2,pand.ster_3,pand.ster_4,pand.ster_5, pand.ster_onb, pand.pandoppervlakte, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand, ST_AsGeoJSON(ST_Force_2D(ST_Transform(adres.geopunt, 4326)), 6, 0) as latlon, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND (verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' OR verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik (niet ingemeten)') AND adres.buurtcode = '${bounds}' ORDER BY pand.identificatie, pand.documentdatum DESC`
+                sql = `SELECT DISTINCT ON (pand.identificatie) pand.identificatie as pandid, pand.woningen_in_pand, pand.niet_woningen_in_pand, pand.icon, adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, adres.buurtnaam, adres.wijknaam, adres.wijkcode, adres.buurtcode, adres.leeftijd_bewoner, adres.eigendom, adres.verhuurder, adres.corporatie, pand.pandtype, pand.lift, pand.plint, pand.lift_oz, pand.plint_oz, pand.bouwjaar, pand.pandhoogte, pand.ster_0, pand.ster_1,pand.ster_2,pand.ster_3,pand.ster_4,pand.ster_5, pand.ster_onb, pand.ster_in_ond, pand.pandoppervlakte, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand, ST_AsGeoJSON(ST_Force_2D(ST_Transform(adres.geopunt, 4326)), 6, 0) as latlon, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND (verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' OR verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik (niet ingemeten)') AND adres.buurtcode = '${bounds}' ORDER BY pand.identificatie, pand.documentdatum DESC`
             }
             client.query(sql, (err, result) => {
                 done();
@@ -284,9 +285,9 @@ export class BagDatabase {
             }
             var sql;
             if (isArea) {
-                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 1000`;
+                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 1000`;
             } else {
-                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE gm_code_2015 = '${bounds}' AND aant_inw > 0 LIMIT 1000`;
+                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE gm_code_2015 = '${bounds}' AND aant_inw > 0 LIMIT 1000`;
             }
             client.query(sql, (err, result) => {
                 done();
@@ -366,6 +367,104 @@ export class BagDatabase {
                     callback(null);
                 } else {
                     callback(result.rows);
+                }
+            });
+        });
+    }
+
+    public exportBuurten(req: express.Request, res: express.Response) {
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                res.send(400, 'Could not connect to database');
+                return;
+            }
+            var sql = `select gm.gemeentenaam,gm.gemeentecode,bu.gm_code_2015 as gm_code, wk_code,bu_naam,bu_code,gm.aant_inw as a_inw_gm, bu.aant_inw as a_inw_bu, gm.ster_totaal as tot_won_vrd_gm, bu.ster_totaal as tot_won_vrd_bu,
+gm.ster_0 as gm_ster_0,gm.ster_1 as gm_ster_1, gm.ster_2 as gm_ster_2, gm.ster_3 as gm_ster_3, gm.ster_4 as gm_ster_4, gm.ster_5 as gm_ster_5, gm.ster_in_ond as gm_ster_ster_in_ond,
+gm.ster_onb as gm_ster_ster_onb, 
+bu.ster_0 as bu_ster_0,bu.ster_1 as bu_ster_1, bu.ster_2 as bu_ster_2, bu.ster_3 as bu_ster_3, bu.ster_4 as bu_ster_4, bu.ster_5 as bu_ster_5, bu.ster_in_ond as bu_ster_ster_in_ond,
+bu.ster_onb as bu_ster_ster_onb, gm.a_huurwon as aant_huurw_gm, bu.p_huurwon as perc_huurw_bu, bu.p_65_eo_jr as perc_65eo_bu
+from bagactueel.gemeente gm, bagactueel.buurt_2014 bu
+where bu.gm_code_2015 = concat('GM',lpad(gm.gemeentecode::text, 4, '0'))
+order by gemeentenaam, bu_naam`;
+
+            client.query(sql, (err, result) => {
+                done();
+                if (err || !result || !result.rows || result.rows.length < 1) {
+                    console.log(err);
+                    res.send(400, 'Cannot get buurten');
+                } else {
+                    let header = Object.keys(result.rows[0]).join(';');
+                    let rows = [header];
+                    result.rows.forEach((r) => {
+                        let row = _.values(r).join(';');
+                        rows.push(row);
+                    })
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.setHeader('Content-Disposition', 'attachment; filename="export_buurten.csv"');
+                    res.send(rows.join('\n'));
+                }
+            });
+        });
+    }
+
+    public exportGemeenten(req: express.Request, res: express.Response) {
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                res.send(400, 'Could not connect to database');
+                return;
+            }
+            var sql = `select gm.gemeentenaam,gm.gemeentecode, concat('GM',lpad(gm.gemeentecode::text, 4, '0')) as gm_code, gm.ster_totaal as tot_won_vrd_gm,
+gm.ster_0 as gm_ster_0,gm.ster_1 as gm_ster_1, gm.ster_2 as gm_ster_2, gm.ster_3 as gm_ster_3, gm.ster_4 as gm_ster_4, gm.ster_5 as gm_ster_5, gm.ster_in_ond as gm_ster_ster_in_ond,
+gm.ster_onb as gm_ster_ster_onb, gm.a_huurwon as aant_huurw_gm, gm.a_koopwon as aant_koopw_gm, gm.a_huko_onb as aant_huko_onbek_gm, gm.a_1gezw as aant_1gezw_gm, gm.a_mgezw as aant_mgezw_gm, gm.aant_inw as aant_inw_gm from bagactueel.gemeente gm order by gemeentenaam`;
+
+            client.query(sql, (err, result) => {
+                done();
+                if (err || !result || !result.rows || result.rows.length < 1) {
+                    console.log(err);
+                    res.send(400, 'Cannot get buurten');
+                } else {
+                    let header = Object.keys(result.rows[0]).join(';');
+                    let rows = [header];
+                    result.rows.forEach((r) => {
+                        let row = _.values(r).join(';');
+                        rows.push(row);
+                    })
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.setHeader('Content-Disposition', 'attachment; filename="export_gemeenten.csv"');
+                    res.send(rows.join('\n'));
+                }
+            });
+        });
+    }
+
+    public exportWijken(req: express.Request, res: express.Response) {
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                res.send(400, 'Could not connect to database');
+                return;
+            }
+            var sql = `select wk.wk_naam, wk.wk_code, wk.gm_code_2015 as gm_code, gm.gemeentenaam as gm_naam, wk.ster_totaal as tot_won_vrd_wk,
+wk.ster_0 as wk_ster_0,wk.ster_1 as wk_ster_1, wk.ster_2 as wk_ster_2, wk.ster_3 as wk_ster_3, wk.ster_4 as wk_ster_4, wk.ster_5 as wk_ster_5, wk.ster_in_ond as wk_ster_ster_in_ond,
+wk.ster_onb as wk_ster_ster_onb, wk.a_huurwon as aant_huurw_wk, wk.a_koopwon as aant_koopw_wk, wk.a_huko_onb as aant_huko_onbek_wk, wk.a_1gezw as aant_1gezw_wk, wk.a_mgezw as aant_mgezw_wk, wk.aant_inw as aant_inw_wk from bagactueel.wijk_2014 wk, bagactueel.gemeente gm where wk.water = 'NEE' and concat('GM',lpad(gm.gemeentecode::text, 4, '0')) = wk.gm_code_2015 order by wk_code`;
+
+            client.query(sql, (err, result) => {
+                done();
+                if (err || !result || !result.rows || result.rows.length < 1) {
+                    console.log(err);
+                    res.send(400, 'Cannot get wijken');
+                } else {
+                    let header = Object.keys(result.rows[0]).join(';');
+                    let rows = [header];
+                    result.rows.forEach((r) => {
+                        let row = _.values(r).join(';');
+                        rows.push(row);
+                    })
+                    res.setHeader('Content-Type', 'text/plain');
+                    res.setHeader('Content-Disposition', 'attachment; filename="export_wijken.csv"');
+                    res.send(rows.join('\n'));
                 }
             });
         });
