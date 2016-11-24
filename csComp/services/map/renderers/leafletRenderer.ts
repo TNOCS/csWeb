@@ -459,7 +459,7 @@ module csComp.Services {
                             if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
                                 menu.css('top', e.originalEvent.y - 35);
                             } else {
-                                menu.css('top', e.originalEvent.y - 70 - menu.height());
+                                menu.css('top', e.originalEvent.y - 35 - menu.height());
                             }
                             if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                         });
@@ -524,13 +524,10 @@ module csComp.Services {
                 value = Helpers.convertPropertyInfo(meta, value);
                 if (meta.type !== 'bbcode') valueLength = value.toString().length;
             } else {
-                if (feature.fType._propertyTypeData) {
-                    feature.fType._propertyTypeData.some(pt => {
-                        if (pt.label !== property) return false;
-                        meta = pt;
-                        value = Helpers.convertPropertyInfo(pt, value);
-                        return true;
-                    });
+                let pt = this.service.getPropertyType(feature, property);
+                if (pt) {
+                    meta = pt;
+                    value = Helpers.convertPropertyInfo(pt, value);
                 }
             }
             return {

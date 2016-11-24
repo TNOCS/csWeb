@@ -428,7 +428,12 @@ module csComp.Helpers {
                 break;
             case 'number':
                 if (!$.isNumeric(text)) {
-                    displayValue = text;
+                    if (typeof text === 'string' && $.isNumeric(text.replace(',', '.'))) {
+                        // E.g. "9,876E-02" is not recognized as numeric, but "9.876E-02" is.
+                        displayValue = String.format(pt.stringFormat, parseFloat(text.replace(',', '.')));
+                    } else {
+                        displayValue = text;
+                    }
                 } else if (isNaN(text)) {
                     displayValue = '';
                 } else if (!pt.stringFormat) {

@@ -44,6 +44,13 @@ module csComp.Helpers {
         }
     }
 
+    export function getColorAndOpacityFromRgbaString(v: string) {
+        if (!v || typeof v !== 'string' || v.length < 9 || v[0] !== '#') return;
+        let opacity = parseInt(v.substr(7), 16);
+        opacity /= 255;
+        return { color: v.substr(0, 7), opacity: opacity };
+    }
+
     export function getColorFromStringLegend(v: string, l: csComp.Services.Legend, defaultcolor: string = '#000000') {
         var n = l.legendEntries.length;
         if (n === 0) return (defaultcolor);
