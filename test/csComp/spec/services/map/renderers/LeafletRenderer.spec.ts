@@ -28,7 +28,7 @@ describe('csComp.Services.LeafletRenderer', function() {
     describe('A Leaflet tooltip', () => {
         beforeEach(() => {
             renderer = new csComp.Services.LeafletRenderer();
-            service = new csComp.Services.LayerService(null, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}});
+            service = new csComp.Services.LayerService(null, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}}, null);
             renderer.init(service);
 
             f = <csComp.Services.IFeature>{};
