@@ -200,7 +200,7 @@ module csComp.Services {
 
         private setLanguage(project?: Project) {
             let params = this.$location.search();
-            if (params.hasOwnProperty('language')) {
+            if (params && params.hasOwnProperty('language')) {
                 this.currentLocale = params['language'];
             } else if (project && project.preferedLanguage) {
                 this.currentLocale = project.preferedLanguage;

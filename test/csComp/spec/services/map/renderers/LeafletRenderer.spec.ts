@@ -4,6 +4,7 @@ describe('csComp.Services.LeafletRenderer', function() {
     beforeEach(angular.mock.module('csComp'));
 
     beforeEach(angular.mock.module(function($provide) {
+        $provide.value('$location', jasmine.createSpyObj('locationSpy', ['search']));
         $provide.value('$translate', jasmine.createSpyObj('translateSpy', ['preferredLanguage']));
         $provide.value('localStorageService', jasmine.createSpyObj('localStorageServiceSpy', ['get']));
         $provide.value('$mapService', jasmine.createSpyObj('mapServiceSpy', ['get']));
@@ -18,8 +19,9 @@ describe('csComp.Services.LeafletRenderer', function() {
         renderer: csComp.Services.LeafletRenderer;
 
     var mapService: csComp.Services.MapService;
-    var scope, translate, msgBusService;
-    beforeEach(inject(function($translate, $mapService, messageBusService) {
+    var scope, translate, msgBusService, location;
+    beforeEach(inject(function($location, $translate, $mapService, messageBusService) {
+        location = $location,
         translate = $translate;
         msgBusService = messageBusService;
         mapService = $mapService;
@@ -28,7 +30,7 @@ describe('csComp.Services.LeafletRenderer', function() {
     describe('A Leaflet tooltip', () => {
         beforeEach(() => {
             renderer = new csComp.Services.LeafletRenderer();
-            service = new csComp.Services.LayerService(null, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}}, null);
+            service = new csComp.Services.LayerService(location, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}}, null);
             renderer.init(service);
 
             f = <csComp.Services.IFeature>{};
