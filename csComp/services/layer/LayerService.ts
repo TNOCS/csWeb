@@ -204,14 +204,7 @@ module csComp.Services {
         }
 
         private setLanguage(project?: Project) {
-            let params = this.$location.search();
-            if (params && params.hasOwnProperty('language')) {
-                this.currentLocale = params['language'];
-            } else if (project && project.preferedLanguage) {
-                this.currentLocale = project.preferedLanguage;
-            } else {
-                this.currentLocale = this.$translate.preferredLanguage();
-            }
+            this.currentLocale = this.$translate.preferredLanguage();
         }
 
         public refreshActiveLayers() {
