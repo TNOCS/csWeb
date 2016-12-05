@@ -223,8 +223,18 @@ module csComp.Services {
         private connections: { [id: string]: Connection } = {};
         private notifications: any[] = [];
 
+        // Locations: 
+        private stack_topleft = {'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 125, 'firstpos2': 25};
+        private stack_bottomleft = {'dir1': 'right', 'dir2': 'up', 'push': 'top', 'firstpos1': 25, 'firstpos2': 25};
+        private stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'};
+        private stack_bottomright = {'dir1': 'left', 'dir2': 'up', 'push': 'top'};
+        private stack_topbar = {'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 0, 'firstpos2': ($(window).width() * 0.5) - +(PNotify.prototype.options.width.replace(/\D/g, '')) / 2};
+
         constructor(private $translate: ng.translate.ITranslateService) {
             PNotify.prototype.options.styling = 'fontawesome';
+            $(window).resize(() => {
+                this.stack_topbar.firstpos2 = ($(window).width() * 0.5) - +(PNotify.prototype.options.width.replace(/\D/g, '')) / 2;
+            });
         }
 
         getConnection(id: string): Connection {
@@ -347,17 +357,56 @@ module csComp.Services {
                 }
             }
 
+            var type:  string;
+            switch (notifyType) {
+                case NotifyType.Success:
+                    type = 'success';
+                    break;
+                case NotifyType.Error:
+                    type = 'error';
+                    break;
+                case NotifyType.Normal:
+                    type = 'notice';
+                    break;
+                case NotifyType.Info:
+                default:
+                    type = 'info';
+                    break;
+            }
 
-            var opts = {
+            var stack;
+            switch (location) {
+                case NotifyLocation.TopLeft:
+                    stack = this.stack_topleft;
+                    break;
+                case NotifyLocation.TopRight:
+                    stack = this.stack_topright;
+                    break;
+                case NotifyLocation.TopBar:
+                    stack = this.stack_topbar;
+                    break;
+                case NotifyLocation.BottomLeft:
+                    stack = this.stack_bottomleft;
+                    break;
+                case NotifyLocation.BottomRight:
+                    stack = this.stack_bottomright;
+                    break;
+            }
+
+
+            var opts: PNotifyOptions = {
                 title: title,
                 text: text,
+                type: type,
+                stack: stack,
+                styling: 'fontawesome',
                 cornerclass: 'ui-pnotify-sharp',
                 shadow: false,
-                addclass: "csNotify",
-                width: "500px",
-                animation: "fade",
+                addclass: 'csNotify',
+                width: '500px',
+                animation: 'fade',
                 mouse_reset: true,
-                animate_speed: "slow",
+                animate_speed: 'slow',
                 nonblock: {
                     nonblock: true,
                     nonblock_opacity: .2
@@ -383,9 +432,9 @@ module csComp.Services {
             var options = {
                 title: title,
                 text: text,
-                addclass: "csNotify",
-                width: "500px",
-                animation: "fade",
+                addclass: 'csNotify',
+                width: '500px',
+                animation: 'fade',
                 hide: false,
                 confirm: {
                     confirm: true,
@@ -404,13 +453,13 @@ module csComp.Services {
             };
 
             var pn = new PNotify(options).get()
-                .on('pnotify.confirm', (notice,value) => { 
-                    callback("ok"); })
+                .on('pnotify.confirm', (notice,value) => {
+                    callback('ok'); })
                 .on('pnotify.cancel', () => { callback(null); });
             return pn;
-            
-            
-            
+
+
+
         }
 
 		/**
@@ -423,9 +472,9 @@ module csComp.Services {
             var options = {
                 title: title,
                 text: text,
-                addclass: "csNotify",
-                width: "500px",
-                animation: "fade",
+                addclass: 'csNotify',
+                width: '500px',
+                animation: 'fade',
                 hide: false,
                 confirm: {
                     confirm: true
