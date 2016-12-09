@@ -89,6 +89,7 @@
                                         <input ng-switch-when="number"  name="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
                                         <p class="not-valid-input" ng-show="userFieldForm.number.$invalid">Not a valid number</p>
                                         <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                        <textarea ng-switch-when="textarea-right" data-ng-model="item.feature.properties[item.property]" class="form-control" />
                                         <input ng-switch-when="tags" type="text" name="tags" ng-list="," data-ng-model="item.feature.properties[item.property]">
                                         <div ng-switch-when="boolean">
                                             <input type="checkbox" data-ng-model="item.feature.properties[item.property]" id="booledit-{{item.property}}" />
@@ -123,6 +124,7 @@
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="textarea-right" class="enable-newlines" style="clear:both;text-align:right;" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
                                         <div ng-switch-when="image"><img ng-click="vm.openImage(item.value)" ng-hide="item.propertyType.inlineImage" ng-src="{{item.value}}" style="width:300px;float:left;margin:5px"></div>
@@ -205,7 +207,7 @@
 
                                             <div class="col-md-6">
                                                 <div class="rightpanel-label">Type</div>
-                                                <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text', 'textarea', 'options']"
+                                                <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text', 'textarea', 'textarea-right', 'options']"
                                                 class="form-control"></select>
                                             </div>
                                         </div>
