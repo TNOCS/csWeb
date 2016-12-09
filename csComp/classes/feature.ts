@@ -179,6 +179,7 @@ module csComp.Services {
         section?: string;
         stringFormat?: string;
         visibleInCallOut?: boolean;
+        visibleInTooltip?: boolean;
         canEdit?: boolean;
         /** If set to false, don't show the statistical information (for numbers) */
         canShowStats?: boolean;

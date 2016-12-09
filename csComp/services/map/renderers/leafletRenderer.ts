@@ -505,9 +505,9 @@ module csComp.Services {
          * @param  {string} property: selected property
          * @param  {IPropertyType} meta: meta info added to the group or style filter
          * @param  {string} title: title of the entry
-         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
+         * @param  {string} faLabel: the fa-icon to use. Default a style icon will be applied.
          */
-        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, faLabel: string = 'fa-paint-brush') {
             if (!title || title.length === 0) return {
                 length: 0, content: content
             };
@@ -526,7 +526,7 @@ module csComp.Services {
             }
             return {
                 length: valueLength + title.length,
-                content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
+                content: content + `<tr><td><div class="fa ${faLabel}"></td><td>${title}</td><td>${value}</td></tr>`
             };
         }
 
@@ -541,7 +541,7 @@ module csComp.Services {
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
-                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, true);
+                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, 'fa-filter');
                     content = entry.content;
                     rowLength = Math.max(rowLength, entry.length);
                 });
@@ -553,10 +553,29 @@ module csComp.Services {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => {
                         return f.property === s.property;
                     }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, false);
+                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, 'fa-paint-brush');
                         content = entry.content;
                         var tl = s.title ? s.title.length : 10;
                         rowLength = Math.max(rowLength, entry.length + tl);
+                    }
+                });
+            }
+
+            // add values for properties with a "visibleInTooltip = true" propertyType, only in case they haven't been added already as filter or style
+            let fType = this.service.getFeatureType(feature);
+            if (fType) {
+                let pTypes = fType._propertyTypeData.forEach((mi: IPropertyType) => {
+                    if (mi.visibleInTooltip) {
+                        if (!group.styles || !group.styles.find((s) => { return s.property === mi.label; })) {
+                            if (!group.filters || !group.filters.find((f: GroupFilter) => { return f.property === mi.label; })) {
+                                if (feature.properties.hasOwnProperty(mi.label)) {
+                                    let entry = this.addEntryToTooltip(content, feature, mi.label, null, mi.title, 'fa-info');
+                                    content = entry.content;
+                                    var tl = mi.title ? mi.title.length : 10;
+                                    rowLength = Math.max(rowLength, entry.length + tl);
+                                }
+                            }
+                        }
                     }
                 });
             }
