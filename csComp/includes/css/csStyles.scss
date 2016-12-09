@@ -707,6 +707,10 @@ body,
     position: absolute;
 }
 
+#compare-widget-table tbody > tr > td {
+    max-width: 150px;
+}
+
 .widgetShadow
 {
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4)

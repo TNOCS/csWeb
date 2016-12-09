@@ -11,6 +11,12 @@ module CompareWidget {
         title: string;
         icon: string;
         selectedFeatures: IFeature[];
+        data: ICompareWidgetData;
+    }
+
+    export interface ICompareWidgetData {
+        /* Show number properties only */
+        numbersOnly: boolean;
     }
 
     export class CompareWidgetCtrl {
@@ -58,6 +64,8 @@ module CompareWidget {
 
             var par = <any>$scope.$parent;
             this.widget = par.widget;
+            $scope.data = <ICompareWidgetData>this.widget.data;
+            if (!$scope.data) $scope.data = {numbersOnly: true};
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
             this.parentWidget.hide();
@@ -116,7 +124,7 @@ module CompareWidget {
 
         /**
          * 
-         * Return all table entries that are of number type
+         * Return all table entries to list in the comparetable
          * 
          * @private
          * @param {IFeature[]} fts
@@ -136,7 +144,9 @@ module CompareWidget {
             this.$scope.featureTypeTitle = fType.name.toLowerCase();
             fType.propertyTypeKeys = keys.join(';');
             var propTypes = csComp.Helpers.getPropertyTypes(fType, this.$layerService.propertyTypeData);
-            propTypes = _.pick(propTypes, (prop: IPropertyType, key) => { return prop.type === 'number'; });
+            if (this.$scope.data.numbersOnly) {
+                propTypes = _.pick(propTypes, (prop: IPropertyType, key) => { return prop.type === 'number'; });
+            }
             keys = keys.filter((key) => {return (_.some(propTypes, (prop, propKey) => {return prop.label === key; })); });
             entries = <any>_.object(keys, keys);
             entries = _.each(entries, (val, key, arr) => { arr[key] = []; });
