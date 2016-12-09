@@ -2220,7 +2220,7 @@ module csComp.Services {
 
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
-            if (!filter) return;
+            if (!filter || !filter.dimension) return;
             // dispose crossfilter dimension
             filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
             filter.dimension.dispose();
