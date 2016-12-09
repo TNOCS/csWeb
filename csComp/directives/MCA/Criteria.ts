@@ -101,6 +101,8 @@ module Mca.Models {
         isPlaUpdated = false;
         /** Piece-wise linear approximation must be scaled:x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min */
         isPlaScaled = false;
+        /** Scale PLA using property statistics (min & max) :x' = ax+b, where a=r/10 and b=min and r=max-min */
+        mapToMinMax = true;
         minValue                                          : number;
         maxValue                                          : number;
         minCutoffValue                                    : number;
@@ -197,8 +199,8 @@ module Mca.Models {
             }
             if (this.isPlaScaled) {
                 var stats = csComp.Helpers.standardDeviation(this._propValues);
-                max = max || Math.min(max, stats.avg + 2 * stats.stdDev);
-                min = min || Math.max(min, stats.avg - 2 * stats.stdDev);
+                max = (max != undefined) ? max : Math.min(max, stats.avg + 2 * stats.stdDev);
+                min = (min != undefined) ? min : Math.max(min, stats.avg - 2 * stats.stdDev);
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
@@ -208,6 +210,11 @@ module Mca.Models {
                 b: number;
             if (this.minValue != null || this.maxValue != null) {
                 a = range / 10;
+                b = min;
+            } else if (this.mapToMinMax) {
+                min = _.min(this._propValues); 
+                max = _.max(this._propValues);
+                a = (max - min) / 10,
                 b = min;
             } else {
                 a = 0.08 * range,
@@ -274,15 +281,14 @@ module Mca.Models {
                 }
             } else {
                 // Sum all the sub-criteria.
-                var finalScore = 0;
+                let finalScore = 0;
                 this.criteria.forEach((crit) => {
-                    finalScore += crit.weight > 0
+                    let s = crit.weight > 0
                         ? crit.weight * crit.getScore(feature)
                         : Math.abs(crit.weight) * (1 - crit.getScore(feature));
+                    finalScore += s;
                 });
-                return this.weight > 0
-                    ? this.weight * finalScore
-                    : Math.abs(this.weight) * (1 - finalScore);
+                return finalScore;
             }
             return 0;
         }
