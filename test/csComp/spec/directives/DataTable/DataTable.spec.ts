@@ -37,9 +37,9 @@ describe('DataTable.DataTable', function() {
         element = $templateCache.get('directives/DataTable/DataTable.tpl.html');
         element = '<datatable>' + element + '</datatable>';
         angElement = angular.element(element);
-        $compile(angElement)(scope);
+        compiled = $compile(angElement)(scope);
         scope.$digest();
-        vm = angElement.isolateScope().vm;
+        vm = compiled.isolateScope().vm;
     }));
 
     it('scope to be defined', () => {
@@ -56,7 +56,7 @@ describe('DataTable.DataTable', function() {
 
     describe('DataTableCtrl', () => {
         it('should have mapLabel map', () => {
-            expect(angElement.isolateScope().vm.mapLabel).toEqual('map');
+            expect(compiled.isolateScope().vm.mapLabel).toEqual('map');
         });
     });
 
