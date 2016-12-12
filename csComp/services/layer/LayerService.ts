@@ -278,7 +278,8 @@ module csComp.Services {
                 console.log('kpi:' + link);
                 layer._gui['loadingKpiLink'] = true;
                 this.$http.get(link)
-                    .success((data: ISensorLinkResult) => {
+                    .then((res: {data: ISensorLinkResult}) => {
+                        let data = res.data;
                         layer._gui['loadingKpiLink'] = false;
 
                         layer.kpiTimestamps = data.timestamps;
@@ -287,8 +288,7 @@ module csComp.Services {
                         }
 
                         this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
-                    })
-                    .error((e) => {
+                    }, (e) => {
                         layer._gui['loadingKpiLink'] = false;
                         console.log('error loading sensor data');
                     });
@@ -803,10 +803,10 @@ module csComp.Services {
             console.log('saving feature type');
             if (resource.url) {
                 this.$http.put('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
-                    .success((data) => {
+                    .then((res: {data: Solution}) => {
+                        let data = res.data;
                         console.log('resource saved');
-                    })
-                    .error((e) => {
+                    }, (e) => {
                         console.log('error saving resource');
                     });
             }
@@ -854,7 +854,8 @@ module csComp.Services {
                     if (!this.typesResources.hasOwnProperty(url) || requestReload) {
                         var success = false;
                         this.$http.get(url)
-                            .success((resource: TypeResource | string) => {
+                            .then((res: {data: TypeResource | string}) => {
+                                let resource = res.data;
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notifyError('Error loading resource type', url);
@@ -867,8 +868,7 @@ module csComp.Services {
                                     }
                                 }
                                 callback();
-                            })
-                            .error((err) => {
+                            }, (err) => {
                                 this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
                                 console.log(err);
                             });
@@ -2452,7 +2452,12 @@ module csComp.Services {
             }
 
             this.$http.get(url)
-                .success((solution: Solution) => {
+                .then((res: {data: Solution}) => {
+                    if (!res || !res.data) {
+                        console.log('Error: no solution obtained!');
+                        return;
+                    }
+                    let solution = res.data;
                     if (typeof solution !== 'object') {
                         console.log('Error: obtained solution is not a json object!');
                         return;
@@ -2510,24 +2515,25 @@ module csComp.Services {
                             });
                             if (!foundProject) {
                                 this.$http.get(u)
-                                    .success(<Project>(data) => {
-                                        if (data) {
+                                    .then((res: {data: Project}) => {
+                                        let data;
+                                        if (res.data) {
+                                            data = res.data;
                                             this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                                         }
-                                    })
-                                    .error((data) => {
+                                    },
+                                    (err) => {
                                         this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                                     });
                             }
                         } else {
                             this.$http.get(u)
-                                .success(<Project>(data) => {
+                                .then(<Project>(data) => {
                                     if (data) {
                                         this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                                     }
-                                })
-
-                                .error((data) => {
+                                },
+                                (data) => {
                                     this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                                 });
                         }
@@ -2550,8 +2556,7 @@ module csComp.Services {
                     }
 
                     this.solution = solution;
-                })
-                .error(() => {
+                }, () => {
                     this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
                 });
         }
@@ -2597,14 +2602,14 @@ module csComp.Services {
 
             if (!project) {
                 this.$http.get(solutionProject.url)
-                    .success((prj: Project) => {
+                    .then((res: {data: Project}) => {
+                        let prj = res.data;
                         this.parseProject(prj, solutionProject, layerIds);
 
                         this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, this.project.timeLine.updateDelay);
                         var delayFocusChange = _.debounce((date) => { this.refreshActiveLayers(); }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
-                    })
-                    .error(() => {
+                    }, () => {
                         this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
                     });
             } else {

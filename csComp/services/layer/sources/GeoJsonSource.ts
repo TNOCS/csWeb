@@ -188,7 +188,8 @@ module csComp.Services {
                         if (layer.isLoading) {
 
                             this.$http.get(u)
-                                .success((data) => {
+                                .then((res: {data: Solution}) => {
+                                    let data = res.data;
                                     layer.count = 0;
                                     layer.isLoading = false;
                                     layer.enabled = true;
@@ -200,8 +201,7 @@ module csComp.Services {
                                     this.initLayer(data, layer);
                                     if (layer.hasSensorData) this.fitTimeline(layer);
                                     cb(null, null);
-                                })
-                                .error(() => {
+                                }, () => {
                                     layer.count = 0;
                                     layer.isLoading = false;
                                     layer.enabled = false;
@@ -676,7 +676,8 @@ module csComp.Services {
                 url: url,
                 method: 'GET',
                 params: { url: layer.url }
-            }).success((data: any) => {
+            }).then((res: {data: any}) => {
+                let data = res.data;
                 if (typeof data === 'string') {
                     data = JSON.parse(data);
                 }
@@ -695,7 +696,7 @@ module csComp.Services {
                     this.service.initFeature(f, layer, false, false);
                 });
                 if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
-            }).error((e) => {
+            }, (e) => {
                 console.log('EsriJsonSource called $HTTP with errors: ' + e);
             }).finally(() => {
                 layer.isLoading = false;

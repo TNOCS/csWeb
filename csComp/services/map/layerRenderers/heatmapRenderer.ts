@@ -8,11 +8,11 @@ module csComp.Services {
             if (layer.group.clustering) {
                 var markers = L.geoJson(layer.data, {
                     pointToLayer: (feature, latlng) => mapRenderer.createFeature(feature),
-                    onEachFeature: (feature: IFeature, lay) => {
+                    onEachFeature: (feature: IFeature, lay: L.ILayer) => {
                         //We do not need to init the feature here: already done in style.
                         //this.initFeature(feature, layer);
                         layer.group.markers[feature.id] = lay;
-                        lay.on({
+                        (<any>lay).on({
                             mouseover: (a) => mapRenderer.showFeatureTooltip(a, layer.group),
                             mouseout: (s) => mapRenderer.hideFeatureTooltip(s)
                         });
@@ -29,7 +29,7 @@ module csComp.Services {
                             //We do not need to init the feature here: already done in style.
                             //this.initFeature(feature, layer);
                             layer.group.markers[feature.id] = lay;
-                            lay.on({
+                            (<any>lay).on({
                                 mouseover: (a) => mapRenderer.showFeatureTooltip(a, layer.group),
                                 mouseout: (s) => mapRenderer.hideFeatureTooltip(s),
                                 mousemove: (d) => mapRenderer.updateFeatureTooltip(d),

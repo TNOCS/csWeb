@@ -58,10 +58,11 @@ module csComp.Services {
         /** JSONP callback wrapper */
         private callRestService(request: string, callback: (result: IEsriSearchResult, handler: SearchResultHandler, query: string) => void, handler: SearchResultHandler, query: string) {
             this.$http.get(request)
-                .success((r: IEsriSearchResult) => {
+                .then((res: {data: IEsriSearchResult}) => {
+                    let r = res.data;
                     callback(r, handler, query);
                 })
-                .error((data, status, error, thing) => {
+                .catch((error) => {
                     console.log('Error contacting Esri')
                 });
         }

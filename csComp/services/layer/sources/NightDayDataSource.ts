@@ -181,11 +181,12 @@ module csComp.Services {
             // Check if an url to a file containing the intensity value is specified. If so, set it as defaultValue.
             if (layer.url) {
                 this.$http.get(layer.url)
-                    .success((data) => {
+                    .then((res: {data: any}) => {
+                        let data = res.data;
                         defaultValue = parseFloat(data.toString());
                         this.continueInit(defaultValue, layer, callback);
                     })
-                    .error(() => {
+                    .catch(() => {
                         console.log('Error reading day/night intensity file');
                         this.continueInit(defaultValue, layer, callback);
                     });

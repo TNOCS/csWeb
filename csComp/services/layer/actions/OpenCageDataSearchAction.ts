@@ -135,11 +135,12 @@ module csComp.Services {
             var geocodeRequest = `${this.queryUrl}&q=${point.lat},${point.lng}`;
 
             this.$http.jsonp(geocodeRequest)
-                .success((r: IOCDSearchResult) => {
+                .then((res: {data: IOCDSearchResult}) => {
+                    let r = res.data;
                     if (!r.results || r.results.length === 0) return;
                     this.messageBus.publish('geocoding', 'reverseLookupResult', r.results[0]);
                 })
-                .error((data, status, error, thing) => {
+                .catch((error) => {
                     console.log(error);
                 });
         }
@@ -163,10 +164,11 @@ module csComp.Services {
         /** JSONP callback wrapper */
         private callRestService(request: string, callback: (result: IOCDSearchResult, handler: SearchResultHandler, query: string) => void, handler: SearchResultHandler, query: string) {
             this.$http.jsonp(request)
-                .success((r: IOCDSearchResult) => {
+                .then((res: {data: IOCDSearchResult}) => {
+                    let r = res.data;
                     callback(r, handler, query);
                 })
-                .error((data, status, error, thing) => {
+                .catch((error) => {
                     alert(error);
                 });
         }

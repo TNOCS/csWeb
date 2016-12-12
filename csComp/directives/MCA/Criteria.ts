@@ -135,7 +135,7 @@ module Mca.Models {
         }
 
         toJSON() {
-            var clone = {};
+            var clone: any = {};
             for (var key in this) {
                 if (key[0] === '_' || !this.hasOwnProperty(key)) continue;
                 clone[key] = this[key];
