@@ -64,7 +64,7 @@
   },
   "resolutions": {
     "d3": "3.5.17",
-    "angular": "~1.5.2",
+    "angular": "^1.6.0",
     "leaflet": "1.0.2"
   }
 }
