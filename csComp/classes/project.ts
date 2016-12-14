@@ -224,6 +224,8 @@ module csComp.Services {
         markers            = {};
         eventTab:          boolean;
         hideLayerActions:  boolean;
+        /** Option to provide a list of attributions/credits in the project.json file, which will be listed in the projectSettings tab */
+        attributions:      string[];
         /**
          * default interface language
          * @type {string}
@@ -299,7 +301,8 @@ module csComp.Services {
                 layerDirectory: project.layerDirectory,
                 eventTab: project.eventTab,
                 searchProviders:   project.searchProviders,
-                hideLayerActions:  project.hideLayerActions
+                hideLayerActions:  project.hideLayerActions,
+                attributions: project.attributions
             };
         }
 

@@ -46,4 +46,11 @@
             </button>
         <dashboard-selection />
     </div>
+
+    <div ng-show="vm.$layerService.project.attributions && vm.$layerService.project.attributions.length > 0">
+        <div class="credits-title">Credits:</div>
+        <div class="row no-margin" ng-repeat="title in vm.$layerService.project.attributions">
+            <div class="col-xs-12">{{title}}</div>
+        </div>
+    </div>
 </div>
