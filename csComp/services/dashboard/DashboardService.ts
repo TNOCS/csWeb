@@ -263,7 +263,7 @@ module csComp.Services {
                 }
                 var popoverString = '';
                 if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
-                    popoverString = 'popover="' + tab.popover + '" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"';
+                    popoverString = `uib-popover="${tab.popover}" popover-placement="left" popover-trigger="'mouseenter'" popover-append-to-body="true"`;
                 }
                 $('#rightpanelTabs').append(
                     this.$compile('<li id="' +

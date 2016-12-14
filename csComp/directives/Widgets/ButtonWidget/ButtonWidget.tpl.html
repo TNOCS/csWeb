@@ -2,7 +2,7 @@
     <!-- Extended layout (vertical orientation, description & legend options, etc.) -->
     <div ng-if="!data.minimalLayout">
         <div ng-repeat="b in $parent.buttons" ng-hide="b._disabled || !b._visible" class="s3d button-container" ng-class="{'button-container-down': b._active}">
-            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.moreInfo}}" popover-trigger="mouseenter" popover-append-to-body="true" popover-placement="right">
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.moreInfo}}" popover-trigger="'mouseenter'" popover-append-to-body="true" popover-placement="right">
                 <img ng-if="b.image" ng-src="{{b.image}}" ng-class="{'button-widget-image': (!b._active || !b.showLegend), 'button-widget-image-active': (b._active && b.showLegend)}" ng-style="data.extStyle"></img>
                 <div ng-show="b._featureIcon" ng-bind-html="b._featureIcon" style="float:left;margin:5px"></div>
                 {{b.title}}
@@ -47,7 +47,7 @@
     <!-- Minimalistic layout (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
     <div ng-if="data.minimalLayout&&!data.toggleMode" style="width:100%;height:100%;display:inline-block;">
         <div ng-repeat="b in $parent.buttons" class="button-container-minimal" ng-style="{'width': (98 / $parent.buttons.length)+'%'}">
-            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.title}}" popover-trigger="mouseenter" popover-placement="top-left">
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b)" uib-popover="{{b.title}}" popover-trigger="'mouseenter'" popover-placement="top-left">
                 <img ng-if="b.image" ng-src="{{b.image}}" class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-style="data.extStyle">
             </div>
         </div>
@@ -55,7 +55,7 @@
     <!-- Minimalistic layout in toggle mode (horizontal orientation, image only (with title as tooltip), no description & legend options) -->
     <div ng-if="data.minimalLayout&&data.toggleMode" style="width:100%;height:100%;display:inline-block;" ng-init="$parent.activeIndex=0">
         <div ng-repeat="b in $parent.buttons track by $index" class="button-container-minimal" style="width:100%" ng-show="$index==$parent.$parent.activeIndex">
-            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b);" uib-popover="{{b.title}}" popover-trigger="mouseenter" popover-placement="top-left">
+            <div class="button-widget-content" ng-click="$parent.$parent.vm.click(b);" uib-popover="{{b.title}}" popover-trigger="'mouseenter'" popover-placement="top-left">
                 <img ng-if="b.image" ng-src="{{b.image}}" class="button-widget-image-minimal" ng-class="{'down': b._active}" ng-style="data.extStyle" />
             </div>
         </div>

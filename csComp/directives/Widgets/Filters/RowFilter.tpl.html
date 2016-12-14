@@ -10,7 +10,7 @@
             <h4 style="display:inline-block;">{{filter.title}}</h4>
             <div class="left-menu dropdown-toggle pull-left" style="float: right!important; position:relative;" ng-click="vm.openLayerMenu($event)"></div>
             <a class='btn fa fa-remove' style="float: right;" ng-click="vm.remove()"></a>
-            <a class='btn fa fa-save' style="float: right;padding-right:0;" ng-click="vm.exportToImage()" uib-tooltip="{{'SAVE_AS_IMAGE' | translate}}" tooltip-trigger="mouseenter" tooltip-append-to-body="true" ng-show="vm.exporterAvailable"></a>
+            <a class='btn fa fa-save' style="float: right;padding-right:0;" ng-click="vm.exportToImage()" uib-tooltip="{{'SAVE_AS_IMAGE' | translate}}" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true" ng-show="vm.exporterAvailable"></a>
         </div>
         <div id="filter_{{filter.id}}"></div>
     </div>
