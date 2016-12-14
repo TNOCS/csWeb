@@ -2649,6 +2649,11 @@ module csComp.Services {
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
 
+            if (this.project.legendTab) {
+                var rpt = csComp.Helpers.createRightPanelTab('legend-list', 'legend-list', {}, 'Icon legend', '{{"LEGEND" | translate}}', 'list-ul');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            }
+
             // if no dashboards defined, create one
             if (!this.project.dashboards) {
                 this.project.dashboards = [];

@@ -703,7 +703,7 @@ module csComp.Helpers {
             case 'Line':
                 break;
             case 'Polygon':
-                html = '<img src="images/bom.png"></img>';
+                html = `<img src="${iconUri || 'images/bom.png'}"></img>`;
                 break;
             case 'Point':
                 // TODO refactor to object
