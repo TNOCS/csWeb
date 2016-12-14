@@ -67,7 +67,7 @@ module CompareWidget {
             $scope.data = <ICompareWidgetData>this.widget.data;
             if (!$scope.data) $scope.data = {numbersOnly: true};
 
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $('#' + `${this.widget.elementId}-parent`);
             this.parentWidget.hide();
             this.mBusHandles.push($messageBusService.subscribe('feature', (title, feature) => {
                 switch (title) {
