@@ -106,8 +106,8 @@ module Dashboard {
                     // The stop() function of a widget sits in the controller. We can reach the controller through the
                     // scope of the widget element.
                     try {
-                        var wElm = document.getElementById(w.elementId);
-                        var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
+                        var wElm = document.getElementById(`${w.elementId}-parent`);
+                        var wScope = <any>angular.element(wElm).children().children().scope(); // The widget is a grandchild of the widget-parent
                         if (wScope && wScope.vm && wScope.vm.stop) {
                             wScope.vm.stop();
                         }

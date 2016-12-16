@@ -2418,7 +2418,7 @@ input[type="checkbox"] {
     right: 0;
     bottom:0;
     top: 0;
-    z-index: 2;
+    z-index: 9999;
 }
 #rightpanelTabPanes {
     @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));
