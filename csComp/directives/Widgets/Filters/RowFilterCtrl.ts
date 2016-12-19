@@ -207,7 +207,7 @@ module Filters {
                     if (pt && pt.legend) {
                         if (pt.options) {
                             return csComp.Helpers.getColorFromLegend(d, pt.legend);
-                        } else if (pt.type === 'number') {
+                        } else if (pt.type === 'number' && !isNaN(d)) {
                             var arr = pt.legend.legendEntries.filter((le) => {
                                 return (d >= le.interval.min && le.interval.max >= d);
                             });
