@@ -3,6 +3,8 @@
 $background-dark: #aaa;
 $background-light: #eee;
 $navbar-height: 50px;
+$tooltip-header: #aaa;
+$rightpanel-width: 355px;
 
 .modal-backdrop.in
 {
@@ -23,6 +25,7 @@ input[type="search"]::-webkit-search-cancel-button {
     background-color: rgba(0,0,0,.5);
 }
 @import url('http://fonts.googleapis.com/css?family=Noto Sans|Montserrat');
+@import url('http://netdna.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.woff2');
 
 /*----------------------
 webfont
@@ -142,10 +145,10 @@ body,
         }
 
 /* general structure */
- .righttab-box {
+        .righttab-box {
             position: absolute;
-           left: 50%;
-           top:-1px;
+            left: 50%;
+            top:-1px;
             transform: translate(-50%, 0);
             width: 350px;
             height: 50px;
@@ -178,15 +181,14 @@ body,
         .lp-tab.active {
             background: lightskyblue
         }
-        
+
         .lp-tab.close-tab {
             width: 26px;
             float: right;
-            padding: 2px;
-            padding-top: 10px;
-            border-left: 1px solid lightgray;
+            padding: 0px;
             cursor: pointer;
             font-size: 28px;
+            margin-top: -4px;
         }
 
         .search-icon {
@@ -335,6 +337,12 @@ body,
     color:black
 }
 
+.focustime-widget-compare
+{
+    margin-left:20px;
+    font-size: 14px;
+}
+
 .focustime-widget-time
 {
     font-size: 30px;
@@ -397,8 +405,7 @@ body,
 
 .header-container
 {
-    background:rgba(66,22,95, 0.7);
-    color:white;
+    color:black;
     padding: 4px;
     height:40px;
 }
@@ -418,10 +425,11 @@ body,
 /* vega charts */
 .vega-title {
     font-size: 16px;
+    margin-bottom: 10px;
 }
 /* leaflet context menu */
 .leaflet-contextmenu {
-    display: none; 
+    display: none;
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -510,7 +518,7 @@ body,
     pointer-events: all;
     position: absolute;
     vertical-align: top;
-    width: 350px;
+    width: $rightpanel-width - 5px;
     height: 100%;
     background-color: white;
     right: 0;
@@ -572,6 +580,10 @@ body,
     font-size: 13px;
     position: absolute;
     left: 40px;
+}
+.legend-entry-row {
+    padding-left: 12px;
+    padding-bottom: 2px;
 }
 
 /* End StyleList */
@@ -695,9 +707,25 @@ body,
     position: absolute;
 }
 
+#compare-widget-table tbody > tr > td {
+    max-width: 150px;
+}
+
 .widgetShadow
 {
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4)
+}
+
+.widget-scrollable
+{
+    position: absolute;
+    top: 40px;
+    left:0;
+    right:0;
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
 }
 
 .widget-min-max-close{
@@ -741,6 +769,16 @@ body,
     border-bottom-style: solid;
     border-bottom-width: 5px;
     height: 50px;
+}
+
+.credits-title {
+    margin-top: 16px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.no-margin {
+    margin: 0;
 }
 
 .project-logo
@@ -845,10 +883,14 @@ body,
 .table > td {
     border: none;
 }
+.datatable-propertytype-admin {
+    color: #777;
+}
 .legendTable {
    display: table;
    width: 100%;
    table-layout: fixed;
+   padding: 8px 4px 8px 4px;
 }
 .legendCellLeft {
     display: table-cell;
@@ -943,6 +985,21 @@ body,
     top: 100%;
     left: 0;
     z-index: 1000;
+}
+
+.mca-criterion {
+    display: inline-block;
+    width: 280px;
+    font-weight: bold;
+}
+
+.mca-criterion-colorbox {
+    display: inline-block;
+    margin-bottom: 6px;
+    width: 10px;
+    height: 10px;
+    margin-left: 4px;
+    border: solid 1px black;
 }
 
 /*#scoringFunctions {
@@ -1270,6 +1327,7 @@ body,
     opacity: 0.8;
 }
 .feature-prop-value-align-right {
+    max-height: 36px;
     margin-top: -2em;
     float: right;
 }
@@ -1314,6 +1372,11 @@ body,
 #featureprops-content:hover leftpanel-header-button-container {
     opacity: 0.5;
 }
+
+#featureprops-content {
+    max-width: $rightpanel-width;
+}
+
 .enable-newlines {
     white-space: pre-wrap;
 }
@@ -1362,10 +1425,10 @@ body,
     height: 100%;
     margin: 0 0 8px;
     border-radius: 4px;
-    border: 1px black solid;
-    -webkit-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
-    -moz-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
-    box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
+    border: 0px black solid;
+    -webkit-box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
+    box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
 }
 
 .button-widget-description
@@ -1428,6 +1491,19 @@ body,
     background: #aaa;
     color: white;
 }
+
+.button-toggle-button
+{
+    cursor: pointer;
+    position: absolute;
+    color: black;
+    text-decoration: none;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+}
+
 
 .button-edit-button
 {
@@ -1807,6 +1883,34 @@ body,
     padding: 5px;
     padding-left: 23px;
     opacity: 0.8;
+}
+
+.timeline-select-button {
+   pointer-events: auto;
+    cursor: pointer;
+    width: 65px;
+    background: white;
+    right: 470px;
+    height: 55px;
+    font-size: 20px;
+    padding: 5px;
+    padding-left: 23px;
+    opacity: 0.8;
+}
+
+.timeline-date-picker {
+      pointer-events: auto;
+    cursor: pointer;
+    /* width: 265px; */
+    // background: white;
+    right: 370px;
+    bottom:120px;
+    height: 155px;
+    font-size: 20px;
+    position: absolute;
+    padding: 5px;
+    padding-left: 23px;
+    /* opacity: 0.8; */
 }
 
 .timeline-expand-button ::hover
@@ -2314,7 +2418,7 @@ input[type="checkbox"] {
     right: 0;
     bottom:0;
     top: 0;
-    z-index: 2;
+    z-index: 9999;
 }
 #rightpanelTabPanes {
     @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));
@@ -2345,7 +2449,7 @@ input[type="checkbox"] {
     margin-top: 1px;
     overflow: hidden;
     padding-bottom: 10px;
-    padding-top: 5px;
+    padding-right: 36px;
     padding-top: 5px;
     margin-bottom: -10px;
     text-overflow: ellipsis;
@@ -2734,6 +2838,10 @@ input[type="checkbox"] {
     margin-top: -10px;
 }
 
+.tab-content {
+    width: $rightpanel-width;
+}
+
 /* custom inclusion of right, left and below tabs */
 #rightpanelTabContainer.tabs-below > .nav-tabs,
 #rightpanelTabContainer.tabs-right > .nav-tabs,
@@ -2841,6 +2949,7 @@ input[type="checkbox"] {
     /* Chrome */
     display: none !important;
     transition: 1s ease-in-out all;
+    width: $rightpanel-width;
 }
 .tab-pane.active {
     display: block !important;
@@ -2861,15 +2970,15 @@ input[type="checkbox"] {
 
 /* Header */
 .featureTooltip tr:first-child td {
-    background: -o-linear-gradient(bottom, $background-light 5%, #A593B1 100%);
-    background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #A593B1), color-stop(1, #A593B1));
-    background: -moz-linear-gradient( center top, $background-light 5%, #A593B1 100%);
+    background: -o-linear-gradient(bottom, $background-light 5%, $tooltip-header 100%);
+    background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, $tooltip-header), color-stop(1, $tooltip-header));
+    background: -moz-linear-gradient( center top, $background-light 5%, $tooltip-header 100%);
 
     // -webkit-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
     // -moz-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
     // -o-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
     // filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
-    background: -o-linear-gradient(top, $background-light, A593B1);
+    background: -o-linear-gradient(top, $background-light, $tooltip-header);
     background-color: $background-light;
     border: 0 solid #000;
     text-align: center;
@@ -2893,11 +3002,7 @@ input[type="checkbox"] {
     no-repeat left center;
 }
 .stylesIcon {
-    no-repeat: left center;
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAMNgAADDYBf+DwcQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGVSURBVEiJvda/S1ZRHAfgp1dMCgnDTMighsAgXGwpmxRcbfI/ENpqjjaDVjdpi4ZaAzcnA0HhpUkxHDRCaShEUCNQqutw31tXeN/3/jqvH/guh3vuc++555x7OJ/UcPWcrH95gn1EWMNIp8Ea5hpguj53Er2Id03QpC53Au3FYht0pxPoAOpt0AizodFb2MxA99EfEr2H3Qw0wrOQ6APs5UC3xJMuSKbwKwca4XEodAa/c6JLodBp/M2J/sFoCLQmXot50AhvQqBwtwB6hKFWT180lwpc+xzfShhNcwXHst/2o3Iv1jZvM9DvuF0VGccrLGAVY+Kf+kYL9BCPqoBDWG5y4y3cQB/mcdBoP8YHDFdBe7HeBE3qCyYa13bhOnqKIgPioexOtb1og6arrtgsP5Me8S70CQ9x0/8zUp7qKwvDdupGebfCZDvsKgMm62wl1XahQP+vDbw0/L5MZ/HZqlJq4m+cd4gjnOBOVRju42cBOOgxZhI/MsATPA2JJrmGl+ITY3qG7+C1QMOblW4MqrBJtMopgkT2ObgExlAAAAAASUVORK5CYII=');
-    /*../cssImages/paint-brush-30.png*/
-    /*background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAktJREFUaIHt2LtrFFEUx/GPBlQCSVRQqwg+qvgHWIiNCBrBxkoNYmsSNQjWdoKVRLERxEos0ljbaeEDRC19RJQ0RrCIoGASMGtxsxAns7Pz3LGYH/yKgTPnfs+Zs3fuDo0aNWpUpzaUmGsfjuMQRjCMgdU1fuErZvEKT/ACKyWun0t9GMNLtDJ6Hjewu+fUqxoVOpoVPOpl3MH2XoH3434J4FF/w8mq4XfhTWTh3xgX5n0Qk1iMAUwTt4JrVcJ/jAEbj4m9WCCuhZsls+u3vvNtD8TEDxWIa/tqmQUkzfxgTPzWAnFt/8HhMuBHExZpCbMc1VSBuLX+hE1F4Pt03yoXhVkeEjo6haUCcVFfLlLAWIoFqvYXbMxbQJ43bBU+0gkwqbL9OLjmehETwo9xSBiHpe496Ko0eU/kSTzp3y5k2cezOE3ep3kKeBhJknUfT+s0eec7QSaN0EjkOu7oXcZxPE3ebZ1uTipgOHJ9LibmfML9aZUmb65GLStnH+/mNHk/l1FAnZ7pBJk0Qj+zVlyhHuW56a36O9/CnITzUNITeJe14op0RRjnzJpQf/dv5QFva2/N8NMKHOLael4D+BxOFQVv62wPgJeEfX4GZxT8AxNVHz6UBPoYB5T7NTCVjhUEbwlfMzb3Gnyt7sVAZfH1qsDS/sov4XVVEL3STryX7wnMYkvvkddrh/B5PE8Rt2vgjdUW3JW9gB91wCbpqHBeSlvAQj2YyerDaTzTvYDpmhhTaw8u4IGwY30X3rILAnypb9hGjRo1+j/0F1DmiVldnIX5AAAAAElFTkSuQmCC);*/
-    /*background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAG7AAABuwBHnU4NQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH7SURBVFiF7dY7aFRBFAbg7y4ptEgREUIawVibdQUt7CLYphEJIa1gFxCrdEtqLbQT1E63FAQrITZa+i5MIRE0nUUwATGQzVjkLsyOs7t3A2GbHRgu/Of1z7nnnJkihGCUqzbS6GMCYwKYqKpYFMUE6jiPuegLn/El+n4KIexXchxCGLixgA2EinsDC5V8DwjcwHrFoH8z2DoaRyKAFbSHOPU+nuMRdiO8jZWhCGA1cfAqE3APT8u9F+HvcQVNHET4aiUCWIuMfuEaHiTB32E6spkusY58B+dwHX8ifK0vASxGyr8xV+LfEgLLGeLLic6LEr+M7QhfzBLAbBm08z+vRrKYQBuTGQKTSc38jGQ3koPN5gi0IqW7ifM3R8jA10T+JJK1cgQ2o9OfSoyfDVkDAfcTH6dL3wGbgzLQTIwv+r8le3VBZ88nPpqDMhDXQFsyyfA4E6TXfpiZpJ0D5Gsg0wW7qEeyKbysEPwtTkZ2dd2DKd8FPebANpYiWYHbDvs8DbzjcHrWIv0l3S3Yfw70mIShrI+pSF5zeBvexC1cwokkW63ER7VJGDlJ74KtEpvpYzNT6mxFdn3vgqI0zK6iKBq4h/kIPsBHfMePEjuDs7ig+5HzGndCCB96BunFLFPFx/Ie6JuBJBvH8iKqTOC41sgfpWMCYwIjJ/APbq99idJ2Dj4AAAAASUVORK5CYII=') ../images/1008 oog.png no-repeat left center;*/
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAMNgAADDYBf+DwcQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGVSURBVEiJvda/S1ZRHAfgp1dMCgnDTMighsAgXGwpmxRcbfI/ENpqjjaDVjdpi4ZaAzcnA0HhpUkxHDRCaShEUCNQqutw31tXeN/3/jqvH/guh3vuc++555x7OJ/UcPWcrH95gn1EWMNIp8Ea5hpguj53Er2Id03QpC53Au3FYht0pxPoAOpt0AizodFb2MxA99EfEr2H3Qw0wrOQ6APs5UC3xJMuSKbwKwca4XEodAa/c6JLodBp/M2J/sFoCLQmXot50AhvQqBwtwB6hKFWT180lwpc+xzfShhNcwXHst/2o3Iv1jZvM9DvuF0VGccrLGAVY+Kf+kYL9BCPqoBDWG5y4y3cQB/mcdBoP8YHDFdBe7HeBE3qCyYa13bhOnqKIgPioexOtb1og6arrtgsP5Me8S70CQ9x0/8zUp7qKwvDdupGebfCZDvsKgMm62wl1XahQP+vDbw0/L5MZ/HZqlJq4m+cd4gjnOBOVRju42cBOOgxZhI/MsATPA2JJrmGl+ITY3qG7+C1QMOblW4MqrBJtMopgkT2ObgExlAAAAAASUVORK5CYII=')no-repeat left center;
 }
 .featuresIcon {
     background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAG7AAABuwBHnU4NQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHJSURBVFiFxZe/TgJBEMZ/S0iwsxSIryAJFnQWViaCL8ALWPsMJLwG0YaahMbKwkJotJEeEgttMFKqYWwGcx7H3ewtkUkmuZuZ/b7vZv/k1okIu7TCTtmBou8A59wZcALUgWMNPwJPwL2I3HoBiojJgQowACTDB0DFjGskbwLvBvKVvwPNrQgAqsB8A9GnelJuDlS3IWCYAN4HGkBJvaGxeN0wSABwngB6mVJ/mVB/HiKgE//ySK4AtNQLkXi8E50QAfFV34iQTyLxyUqETsefXREiYBpbcCWNtxJa3dJcKbYwp2kcWSfhV0beYukYGR24JnwKrkM68BB7v1LRS+AIuFA/0thvTQqGVwdqrM+17zashSxCB4wSQK0H0QhwuQVE5nSZAJ51FC/RNRMkQEX0NpCkec+EbRRQBhYe5AugbME2/RGJyCvQtdSqdXWMCdzahT1gZvj6GbBnxrUWqoi2QUDbC9NTgAPGKeRjMrZdkAAV0UwRYPoNi7pTULM554rAC3AQS70BhyLy7YPnfS9Qgn5Cqu9LvgLMMw111ttfz4WVZ5CKeI6QP+fFCbma3Wx49jLvRfg70Ll94E5fT0Xk418FbMt2fjv+ASTpg5BX8ZgVAAAAAElFTkSuQmCC')/*../images/1007 locatie marker.png*/
@@ -3193,9 +3298,17 @@ input[type="checkbox"] {
     width: 32px;
     // height:20px;
 }
+
+.property-style
+{
+margin-left: -10px;
+    padding-left: 5px;
+}
+
 .property-style-selected {
-    background-color: lightskyblue;
-    border: 1px solid black;
+    height: 50px;
+
+    background: lightgray;
 }
 
 .pointer-cursor {

@@ -62,6 +62,7 @@ module csComp.Services {
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
 
+
         getLayerActions(layer: IProjectLayer): IActionOption[] {
             return [];
         }
@@ -120,6 +121,14 @@ module csComp.Services {
                     var fit = <IActionOption>{ title: 'Fit Map', icon: 'map' };
                     fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                         layer.layerSource.fitMap(layer);
+                    };
+                    res.push(fit);
+                }
+
+                if (layer.hasSensorData && _.isFunction(layer.layerSource.fitTimeline)) {
+                    var fit = <IActionOption>{ title: 'Fit Timeline', icon: 'map' };
+                    fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                        layer.layerSource.fitTimeline(layer);
                     };
                     res.push(fit);
                 }
@@ -187,38 +196,55 @@ module csComp.Services {
             var r: ISearchResultItem[] = [];
             var temp = [];
             this.layerService.project.features.forEach(f => {
-                var title = csComp.Helpers.getFeatureTitle(f);
-                if (title) {
-                    var score = title.toString().score(query.query, null);
-                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: title });
+                var inp = [];
+                if (!f._gui.hasOwnProperty('searchString')) {
+                    var title = csComp.Helpers.getFeatureTitle(f);
+                    inp.push(title);
+                    for (var o in f.properties) {
+                        inp.push(f.properties[o]);
+                    }
+
+                    if (inp.length > 0) {
+                        f._gui["searchString"] = inp.join(' ');
+                        f._gui["title"] = title;
+                    }
+                }
+                if (f._gui.hasOwnProperty('searchString') && f._gui.hasOwnProperty('title')) {
+                    var score;
+                    if (query.query.toLowerCase() === f._gui['title'].toLowerCase()) {
+                        score = 1;
+                    } else {
+                        score = f._gui['searchString'].score(query.query, null);
+                    }
+                    if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: f._gui['title'] });
                 }
             });
-            temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
-                if (r.length < 10) {
-                    var f = <IFeature>rs.feature;
-                    var res = <ISearchResultItem>{
-                        title: rs.title,
-                        description: f.layer.title,
-                        feature: f,
-                        score: rs.score,
-                        icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
-                        service: this.id,
-                        click: () => {
-                            this.layerService.$mapService.zoomTo(f);
-                            this.layerService.selectFeature(f);
+        temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
+            if (r.length < 10) {
+                var f = <IFeature>rs.feature;
+                var res = <ISearchResultItem>{
+                    title: rs.title,
+                    description: f.layer.title,
+                    feature: f,
+                    score: rs.score,
+                    icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
+                    service: this.id,
+                    click: () => {
+                        this.layerService.$mapService.zoomTo(f);
+                        this.layerService.selectFeature(f);
                             this.layerService.$messageBusService.publish('search', 'reset');
                             this.layerService.visual.leftPanelVisible = false;
-                        }
-                    };
-                    //if (f.fType && f.fType.name!=='default') res.description += ' (' + f.fType.name + ')';
-                    r.push(res);
-                }
-            });
-            result(null, r);
-        }
+                    }
+                };
+                //if (f.fType && f.fType.name!=='default') res.description += ' (' + f.fType.name + ')';
+                r.push(res);
+            }
+        });
+    result(null, r);
+}
 
         public init(layerService: csComp.Services.LayerService) {
-            super.init(layerService);
-        }
+    super.init(layerService);
+}
     }
 }

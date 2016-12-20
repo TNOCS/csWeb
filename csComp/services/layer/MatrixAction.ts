@@ -23,6 +23,9 @@ module MatrixAction {
                             }
                         }
                     });
+                    var fTypes: { [key: string]: any } = {};
+                    fTypes[feature.featureTypeName] = feature.fType;
+                    this.layerService.evaluateLayerExpressions(feature.layer, fTypes);
                     this.layerService.updateGroupFeatures(feature.layer.group);
                 }
             });

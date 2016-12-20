@@ -1,6 +1,10 @@
 <div style="overflow-y: auto; overflow-x: hidden; padding:5px; margin-top: 20px; margin-left:10px">
 
     <div class="controls">
+        <language-switch />
+    </div>
+
+    <div class="controls">
         <div class="checkbox checkbox-primary" style="margin-top: 0px;margin-bottom: 0px;">
             <input type="checkbox" id="touchMode" ng-checked="vm.dashboardService.touchMode" data-ng-click="vm.toggleTouchMode();">
             <label class="editor-title input-xlarge" for="touchMode">touch mode</label>
@@ -24,6 +28,9 @@
             <label class="editor-title input-xlarge" for="adminModeSelection">Admin Mode</label>
         </div>
     </div>
+    <div class="controls" ng-show="vm.mapService.isAdminExpert">
+        <button type="button" class="btn btn-warning btn-sm" id="clearLocalStorage" ng-click="vm.clearLocalStorage()">Clear localstorage</button>
+    </div>
 
     <div ng-show="vm.mapService.isAdminExpert">
         <div class="controls">
@@ -38,5 +45,12 @@
                 <i class="fa fa-download fa-2x"></i>
             </button>
         <dashboard-selection />
+    </div>
+
+    <div ng-show="vm.$layerService.project.attributions && vm.$layerService.project.attributions.length > 0">
+        <div class="credits-title">Credits:</div>
+        <div class="row no-margin" ng-repeat="title in vm.$layerService.project.attributions">
+            <div class="col-xs-12">{{title}}</div>
+        </div>
     </div>
 </div>

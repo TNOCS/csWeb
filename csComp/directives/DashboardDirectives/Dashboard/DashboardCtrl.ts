@@ -42,7 +42,7 @@ module Dashboard {
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: IDashboardScope,
-            private $compile: any,
+            private $compile: ng.ICompileService,
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -103,11 +103,11 @@ module Dashboard {
                 if (w.stop) {
                     w.stop();
                 } else if (w.elementId) {
-                    // The stop() function of a widget sits in the controller. We can reach the controller through the 
-                    // scope of the widget element. 
+                    // The stop() function of a widget sits in the controller. We can reach the controller through the
+                    // scope of the widget element.
                     try {
-                        var wElm = document.getElementById(w.elementId);
-                        var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
+                        var wElm = document.getElementById(`${w.elementId}-parent`);
+                        var wScope = <any>angular.element(wElm).children().children().scope(); // The widget is a grandchild of the widget-parent
                         if (wScope && wScope.vm && wScope.vm.stop) {
                             wScope.vm.stop();
                         }
@@ -116,45 +116,117 @@ module Dashboard {
             });
         }
 
+        public updateWidgetPosition(widget: csComp.Services.IWidget) {
+            if (widget._isFullscreen) {
+                var el = $('#dashboard-main');
+                widget._top = '10px';
+                widget._bottom = '10px';
+                widget._width = el.width() - 20 + 'px';
+                widget._height = el.height() - 20 + 'px';
+                widget._left = '10px';
+                widget._right = '10px';
+                widget._zindex = '100';
+            } else {
+                widget._width = widget.width;
+                widget._height = widget.height;
+                widget._top = widget.top;
+                widget._bottom = widget.bottom;
+                widget._left = widget.left;
+                widget._right = widget.right;
+                widget._zindex = '1';
+            }
+        }
+
         public toggleWidget(widget: csComp.Services.IWidget) {
             if (widget.canCollapse) {
                 widget.collapse = !widget.collapse;
             }
         }
 
+        public getOptions(widget: csComp.Services.IWidget) {
+            var options = [];
+            if (widget._ctrl && widget._ctrl.getOptions) {
+                widget._ctrl.getOptions().forEach(o => options.push(o));
+            }
+            if (this.$mapService.isAdminExpert) {
+                options.push({ title: 'Widget Settings', action: (w) => this.$dashboardService.editWidget(w) });
+                if (widget.position === 'dashboard') {
+                    if (widget._interaction) {
+                        options.push({ title: 'Disable drag', action: (w) => this.toggleInteract(w) });
+                    } else {
+                        options.push({ title: 'Enable drag', action: (w) => this.toggleInteract(w) });
+                    }
+                }
+            }
+            if (widget.allowFullscreen) {
+                if (widget._isFullscreen) {
+                    options.push({
+                        title: 'Minimize', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = null;
+                            w._isFullscreen = false;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                } else {
+                    options.push({
+                        title: 'Fullscreen', action: (w: csComp.Services.IWidget) => {
+                            this.$layerService.project.activeDashboard._fullScreenWidget = w;
+                            w._isFullscreen = true;
+                            w._initialized = false;
+                            this.updateWidget(w);
+                            // if (_.isFunction(w._ctrl.goFullscreen)) w._ctrl.goFullscreen();
+                        }
+                    });
+                }
+            }
+            widget._options = options;
+        }
+
+        public triggerOption(o: any, w: csComp.Services.IWidget) {
+            if (_.isFunction(o.action)) o.action(w);
+        }
+
         public updateWidget(w: csComp.Services.IWidget) {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
 
-            w._initialized = true;
-            var widgetElement;
-            var newScope = this.$scope;
-            (<any>newScope).widget = w;
+            this.$timeout(() => {
+                w._initialized = true;
+                var widgetElement;
+                var newScope = this.$scope;
+                (<any>newScope).widget = w;
 
-            if (w.template) {
-                widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
-            } else if (w.url) {
-                widgetElement = this.$compile('<div>url</div>')(this.$scope);
-            } else if (w.directive) {
-                //var newScope : ng.IScope;
-                widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
-            } else {
-                widgetElement = this.$compile('<h1>hoi</h1>')(this.$scope);
-            }
+                if (w.position === 'rightpanel') {
+                    var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
+                    rpt.open = false;
+                    this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                } else {
+                    if (w.template) {
+                        widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
+                    } else if (w.url) {
+                        widgetElement = this.$compile('<div>url</div>')(this.$scope);
+                    } else if (w.directive) {
+                        //var newScope : ng.IScope;
+                        widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
+                    } else {
+                        widgetElement = this.$compile('<div></div>')(this.$scope);
+                    }
+                }
 
-            var resized = function() {
-                //alert('resize');
-                /* do something */
-            };
-            if (widgetElement) {
-                widgetElement.resize(resized);
+                this.getOptions(w);
 
-                //alert(w.elementId);
-                var el = $('#' + w.elementId);
-                el.empty();
-                el.append(widgetElement);
-            }
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                if (widgetElement) {
+                    //alert(w.elementId);
+                    this.updateWidgetPosition(w);
+                    var el = $('#' + w.elementId + '-parent');
+                    //if (w._isFullscreen) el = $('#dashboard-widget-fullscreen');
+                    el.empty();
+                    el.append(widgetElement);
+                }
+            }, 0);
+                // if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
         public toggleInteract(widget: csComp.Services.IWidget) {
@@ -198,6 +270,15 @@ module Dashboard {
             }
         }
 
+        public checkDescription() {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.description) {
+                var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', { title: db.name, mdText: db.description }, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question', true, false);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                //this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+            }
+        }
+
         public checkLayers() {
             var db = this.$layerService.project.activeDashboard;
             if (db.visiblelayers && db.visiblelayers.length > 0 && this.$layerService.project.groups) {
@@ -230,24 +311,34 @@ module Dashboard {
                     this.$scope.$root.$apply();
                 }
             }
-            if (d.showTimeline && d.timeline) {
+            if (d.showTimeline && (d.timeline || this.project.timeLine)) {
                 //console.log('checkTimeline: dashboard has timeline');
+                var t = (d.timeline) ? d.timeline : this.project.timeLine;
+                if (!_.isUndefined(t.fixedRange)) {
+                    switch (t.fixedRange) {
+                        case 'today':
+                            var today = new Date();
+                            today.setHours(0);
+                            today.setMinutes(0);
+                            today.setMilliseconds(0);
+                            t.start = today.getTime();
+                            t.end = t.start + (1000 * 60 * 60 * 12) - 1;
 
-                if (!_.isUndefined(d.timeline.fixedRange)) {
-                    switch (d.timeline.fixedRange) {
-                        case '24h' :
-                            d.timeline.end = Date.now();
-                            d.timeline.start = Date.now() - 1000 * 60 * 24;
-                        break;
+
+                            break;
+                        case '24h':
+                            t.end = Date.now();
+                            t.start = Date.now() - 1000 * 60 * 24;
+                            break;
                     }
                 }
 
-                this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
+                this.$messageBusService.publish('timeline', 'updateTimerange', t);
 
                 // now move the focustimeContainer to the right position
-                if (d.timeline.focus && d.timeline.start && d.timeline.end &&
-                    (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
-                    var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
+                if (t.focus && t.start && t.end &&
+                    (t.focus > t.start) && (t.focus < t.end)) {
+                    var f = (t.focus - t.start) / (t.end - t.start);
                     //var w = $('#timeline').width();           // unfortunately, on the first call,
                     //the timeline has a width of 100 (not resized yet)
                     //var w = $('#timeline').parent().width();  // does not help: = 0 on first call
@@ -255,6 +346,11 @@ module Dashboard {
                     var newpos = f * w - $('#focustimeContainer').width() / 2;
                     $('#focustimeContainer').css('left', newpos);
                 }
+
+                if (t.isExpanded) {
+                    t.enableEvents = true;
+                }
+
             }  // end RS mod
         }
 
@@ -340,7 +436,7 @@ module Dashboard {
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
                 w.left = '20px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
+                w.customStyle = <csComp.Services.WidgetStyle>{ background: 'White', borderColor: 'Black', borderWidth: '1px' };
                 w.top = '80px';
                 w.hideIfLeftPanel = true;
                 w.width = '';
@@ -358,6 +454,7 @@ module Dashboard {
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
+            this.checkDescription();
 
             //this.$messageBusService.publish('leftmenu',(d.showLeftmenu) ? 'show' : 'hide');
             // if (!this.$mapService.isAdminExpert) {
@@ -365,25 +462,28 @@ module Dashboard {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
-            this.$timeout(() => {
-                d.widgets.forEach((w: csComp.Services.IWidget) => {
+            this.updateWidgetsThrottled(d.widgets, () => {
+                d._initialized = true;
+                //this.$layerService.rightMenuVisible = d.showLeftmenu;
+                //this.$mapService.rightMenuVisible = d.showRightmenu;
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+            });
+        }
+
+        private updateWidgetsThrottled(widgets: any[], cb: Function, count: number = 0) {
+            if (widgets && count < widgets.length) {
+                this.$timeout(() => {
+                    let w = widgets[count];
                     w._initialized = false;
                     this.updateWidget(w);
-                });
-
-                // this.$timeout(() => {
-                //     this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                //         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                //             this.updateWidget(w);
-                //         });
-                //     });
-                // }, 300);
-                d._initialized = true;
-            }, 500);
-
-            //this.$layerService.rightMenuVisible = d.showLeftmenu;
-            //this.$mapService.rightMenuVisible = d.showRightmenu;
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    console.log(`Update ${w.id} (${count + 1})`);
+                }, 500);
+            }
+            if (widgets && count < widgets.length - 1) {
+                setTimeout(() => {this.updateWidgetsThrottled( widgets, cb, count + 1); }, 500);
+            } else {
+                cb();
+            }
         }
     }
 }

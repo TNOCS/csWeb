@@ -123,7 +123,7 @@ module Filters {
                 .group(dcGroup)
                 .transitionDuration(10)
                 .centerBar(true)
-                .gap(1) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
+                .gap(0) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
                 .elasticY(true)
                 .x(d3.scale.linear().domain([min - dx, max]).range([-1, nBins + 1]))
                 .filterPrinter(filters => {

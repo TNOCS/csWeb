@@ -26,7 +26,7 @@ module ShowModal {
         function($parse: ng.IParseService): ng.IDirective {
             return {
                 restrict: "A",
-                link: function(scope: any, element, attrs) {
+                link: function(scope: any, element: any, attrs: any) {
                     //Hide or show the modal
                     scope.showModalDialog = (visible, elem) => {
                         if (!elem)

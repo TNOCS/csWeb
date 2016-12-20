@@ -89,7 +89,7 @@ module LayersDirective {
         public dropLayer(layer: csComp.Services.ProjectLayer) {
             this.initGroups();
             this.initResources();
-
+            this.$layerService.visual.leftPanelVisible = true;
             (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
             this.state = 'createlayer';
             this.newLayer = layer;
@@ -288,12 +288,12 @@ module LayersDirective {
                         if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
                             if (!ft._isInitialized) {
-                                this.$layerService.initFeatureType(ft, tr.propertyTypeData);
+                                this.$layerService.initFeatureType(ft, tr);
                             }
                             if (_.isArray(ft._propertyTypeData)) {
                                 for (var k in ft._propertyTypeData) {
                                     var pt = ft._propertyTypeData[k];
-                                    ft._propertyTypeData.forEach(pt => {
+                                    ft._propertyTypeData.forEach((pt: csComp.Services.IPropertyType) => {
                                         f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? '' : pt.defaultValue;
                                     });
                                 }
@@ -511,11 +511,10 @@ module LayersDirective {
 
                                 // call api
                                 this.$http.post('api/resources', r)
-                                    .success((data) => {
+                                    .then((res: {data: any}) => {
                                         // resource sucessfully added, continu
                                         cb(null);
-                                    })
-                                    .error((e) => {
+                                    }, (e) => {
                                         // error adding resource, stop
                                         this.$messageBusService.notifyError('Creating layer', 'Error creating new layer, resource already exists');
                                         cb(e);
@@ -541,7 +540,8 @@ module LayersDirective {
                             if (this.newLayer.data) l.features = this.newLayer.data.features;
                             // post layer to api
                             this.$http.post('/api/layers/' + l.id, l)
-                                .success((data) => {
+                                .then((res: {data: any}) => {
+                                    let data = res.data;
                                     // init layer
                                     this.$layerService.initLayer(group, this.newLayer);
 
@@ -553,7 +553,7 @@ module LayersDirective {
                                     // layer sucessfully added, continu
                                     cb(null);
                                 })
-                                .error((e) => {
+                                .catch((e) => {
                                     this.$messageBusService.notifyError('Creating layer', 'Error creating new layer');
                                     console.log('error adding layer');
                                     cb(e);

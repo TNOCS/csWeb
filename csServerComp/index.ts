@@ -6,6 +6,7 @@
 export * from './ServerComponents/api/ApiManager';
 export * from './ServerComponents/api/RestAPI';
 export * from './ServerComponents/api/SocketIOAPI';
+export * from './ServerComponents/api/KafkaAPI';
 export * from './ServerComponents/api/FileStorage';
 export * from './ServerComponents/api/ImbAPI';
 export * from './ServerComponents/api/AuthAPI';

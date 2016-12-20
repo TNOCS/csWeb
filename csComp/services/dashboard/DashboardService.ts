@@ -74,6 +74,7 @@ module csComp.Services {
             this.dashboards['main'] = this.mainDashboard;
             this.touchMode = $localStorageService.get("touchmode");
 
+            this.chartGenerators['propertyBarChart'] = () => { return new csComp.Services.PropertyBarChartGenerator(this.$layerService,this);}
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
             this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService, this); }
             this.chartGenerators['kpi'] = () => { return new csComp.Services.layerKpiGenerator(this.$layerService, this); }
@@ -186,6 +187,16 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/search.png',
                 description: 'Show reverse geocode info.'
             };
+            this.widgetTypes['filterstylewidget'] = <IWidget>{
+                id: 'filterstylewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/filter.png',
+                description: 'A widget combining legend, style and filter.'
+            };
+            this.widgetTypes['comparewidget'] = <IWidget>{
+                id: 'comparewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/table.png',
+                description: 'A widget to compare multiple selected features.'
+            };
         }
 
         public get search(): ISearch { return this._search; };
@@ -209,6 +220,7 @@ module csComp.Services {
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
+            if (!dashboard) return;
             this.$location.search('dashboard', dashboard.id);
             if (!_.isUndefined(dashboard.refreshPage) && dashboard.refreshPage) {
                 location.reload();
@@ -233,7 +245,12 @@ module csComp.Services {
                 if (!tab.hasOwnProperty('container')) return;
                 var content = tab.container + '-content';
                 if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
-                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    let elm = (<any>$('#rightpanelTabs a[data-target="#' + content + '"]'));
+                    if (elm && elm.tab) {
+                        elm.tab('show');
+                    } else if (elm.tabs) {
+                        elm.tabs()[0].click();
+                    }
                     return;
                 }
 
@@ -246,7 +263,7 @@ module csComp.Services {
                 }
                 var popoverString = '';
                 if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
-                    popoverString = 'popover="' + tab.popover + '" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"';
+                    popoverString = `uib-popover="${tab.popover}" popover-placement="left" popover-trigger="'mouseenter'" popover-append-to-body="true"`;
                 }
                 $('#rightpanelTabs').append(
                     this.$compile('<li id="' +
@@ -254,7 +271,7 @@ module csComp.Services {
                         popoverString + '><a id="' + tab.container + '-tab-a" data-target="#' +
                         content + '" data-toggle="tab"><span class="fa fa-' +
                         tab.icon + ' fa-lg"></span></a></li>')(this.$rootScope));
-                $('#rightpanelTabPanes').append('<div class="tab-pane" style="width:355px" id="' + content + '"></div>');
+                $('#rightpanelTabPanes').append('<div class="tab-pane" id="' + content + '"></div>');
                 $('#' + tab.container + '-tab-a').click(() => {
                     this.$layerService.visual.rightPanelVisible = true;
                     console.log('rp visible');
@@ -272,7 +289,12 @@ module csComp.Services {
                 }
 
                 if (_.isUndefined(tab.open) || tab.open === true) {
-                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    let elm = (<any>$('#rightpanelTabs a[data-target="#' + content + '"]'));
+                    if (elm && elm.tab) {
+                        elm.tab('show');
+                    } else if (elm.tabs) {
+                        elm.tabs()[0].click();
+                    }
                     this.$layerService.visual.rightPanelVisible = true;
                 }
                 this.rightPanelTabs[tab.container] = tab;

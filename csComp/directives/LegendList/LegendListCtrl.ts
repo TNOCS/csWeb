@@ -59,6 +59,7 @@ module LegendList {
             messageBusService.subscribe('layer', (title) => {
                 switch (title) {
                     case 'activated':
+                    case 'updated':
                     case 'deactivate':
                         // Update the legend when a layer is added or removed.
                         this.updateLegendItems();
@@ -79,7 +80,7 @@ module LegendList {
 
             // receive a trigger to redraw the legend when it becomes visible.        
             $scope.$watch(() => {
-                return $('#legend').is(':visible');
+                return $('#legend-list-content').is(':visible');
             }, (isVisible: boolean) => {
                 this.isVisible = isVisible;
                 if (isVisible) this.updateLegendItems();
@@ -100,11 +101,14 @@ module LegendList {
          * 3. Third approach is to use a legend that is defined in a featuretype. This is useful if you want to show a custom legend.
          * For 1. use 'updateLegendItemsUsingFeatureTypes()', for 2. use 'updateLegendItemsUsingFeatures(), for 3. use 'updateLegendStatically()'
          */
-        private updateLegendItems() {
+        private updateLegendItemsDebounced() {
             //this.updateLegendItemsUsingFeatureTypes(); // 1.
             this.updateLegendItemsUsingFeatures(); // 2.
             //this.updateLegendStatically(); // 3.
         }
+
+        /** Calls updateLegendItemsDebounced */
+        private updateLegendItems = _.debounce(this.updateLegendItemsDebounced, 500);
 
         /**
          * Loops over every layer in the project. If a layer is enabled, has a typeUrl and a defaultFeatureType,
@@ -176,7 +180,8 @@ module LegendList {
             // Loop over all features on the map
             this.layerService.project.features.forEach((f) => {
                 if (!f._gui.included) return;
-                if (this.bbox && !this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
+                var bounds = csComp.Helpers.GeoExtensions.getFeatureBounds(f);
+                if (this.bbox && bounds && !this.bbox.overlaps(bounds)) return;
                 var ft: csComp.Services.IFeatureType = f.fType;
                 if (!ft) ft = this.layerService.getFeatureType(f);
                 if (!ft || processedFeatureTypes.hasOwnProperty(ft.name)) return;

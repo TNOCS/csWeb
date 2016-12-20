@@ -7,9 +7,9 @@
     <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
     <div class="scrolling" style="overflow-y: auto;    overflow-x: hidden;    position: absolute;    left: 0;    right: 0;    top: 0;    bottom: 0;">
         <div class="panel" style="margin-bottom:10px">
-            <div role="tab" id="heading-active-styles">                
+            <div role="tab" id="heading-active-styles">
                 <div class="group-title">
-                    Active Styles                    
+                    Active Styles
                 </div>
             </div>
 
@@ -64,16 +64,20 @@
                                 </div>
                             </div>
                         </div>
-                        <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left">
+                        <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left;width:100%;">
                             <div data-ng-if="style.activeLegend.legendKind === 'discrete' || style.activeLegend.legendKind === 'discreteStrings'  ">
                                 <div class="legend-description">{{style.activeLegend.description}}</div>
                                 <ul class="legend-entry-list" style="position:relative">
-                                    <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
+                                    <!--<li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
                                         <div class="legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                                         <div class="legend-label-d" style="float: left">{{le.label}}</div>
                                         <div>&nbsp;</div>
-                                        <!-- die &nbsp; is echt nodig... -->
-                                    </li>
+                                    </li>-->
+                                    <div class="row legend-entry-row" data-ng-repeat="le in style.activeLegend.legendEntries | reverse">
+                                        <div class="col-md-2 legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
+                                        <div class="col-md-6 legend-label-d" style="float: left">{{le.label}}</div>
+                                        <div class="col-md-4 legend-label-d" style="float: right">{{le.interval.min}} - {{le.interval.max}}</div>
+                                    </div>
                                 </ul>
                             </div>
                             <div data-ng-if="style.activeLegend.legendKind === 'interpolated'">
@@ -122,7 +126,7 @@
                     <div style="float: left;margin-right:5px" data-toggle="collapse" aria-expanded="true" data-target="#styles_sections"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                     <div class="group-title">
                         <div class="collapsed" id="styles_categories_header" role="button" data-toggle="collapse" data-parent="#accordion" data-target="#styles_sections"
-                        aria-expanded="false" aria-controls="styles_sections" translate="SELECT_CATEGORY">                            
+                        aria-expanded="false" aria-controls="styles_sections" translate="SELECT_CATEGORY">
                         </div>
                     </div>
                 </div>
@@ -139,15 +143,35 @@
                     <div style="float: left;margin-right:5px" data-toggle="collapse" aria-expanded="true" data-target="#styles_properties"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                     <div class="group-title">
                         <div class="collapsed" id="styles_properties_header" role="button" data-toggle="collapse" data-parent="#accordion" data-target="#styles_properties"
-                        aria-expanded="false" aria-controls="styles_properties" translate="SELECT_PROPERTIES">                            
+                        aria-expanded="false" aria-controls="styles_properties" translate="SELECT_PROPERTIES">
                         </div>
                     </div>
                 </div>
-                <div id="styles_properties" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingProperties">
-                    <div data-ng-repeat="(l,p) in vm.selectedSection.properties">
-                        <div class="btn" ng-class="{'property-style-selected': vm.activeStyles.indexOf(p.label) > -1}" ng-click="vm.setStyle(vm.selectedGroup,p)">
+                <div id="styles_properties" class="panel-collapse collapse"    role="tabpanel" aria-labelledby="headingProperties">
+                    <div data-ng-repeat="(l,p) in vm.selectedSection.properties" class="property-style" ng-class="{'property-style-selected': vm.activeStyles.indexOf(p.label) > -1}">
+                        <div class="btn" ng-click="vm.setStyle(vm.selectedGroup,p)">
                             {{p.title}}
                         </div>
+                         <div data-ng-if="p.legend && vm.activeStyles.indexOf(p.label) > -1">
+
+                        <div data-ng-if="p.legend.legendKind === 'discrete' || p.legend.legendKind === 'discreteStrings'">
+                            <span class="button-legend-label">{{b._lastLegendLabel}}</span>
+
+                            <div class="button-legend-entries" data-ng-repeat="le in p.legend.legendEntries " ng-click="$parent.$parent.$parent.$parent.$parent.$parent.vm.toggleFilter(le, b.group, b.property);$event.stopPropagation();">
+                                <div class="button-legend-color-entry" ng-style="{'background-color': le.color}" uib-tooltip="{{le.label}}"></div>
+                            </div>
+                            <span class="button-legend-label">{{b._firstLegendLabel}}</span>
+
+                        </div>
+                        <div data-ng-if="p.legend.legendKind === 'interpolated'">
+                            <span class="button-legend-label">{{b._lastLegendLabel}}</span>
+                            <div data-ng-repeat="le in p.legend.legendEntries" ng-click="$parent.$parent.$parent.$parent.$parent.$parent.vm.toggleFilter(le, b.group, b.property);$event.stopPropagation();" style="float:left;margin-right:4px;margin-top:3px">
+                                <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" uib-tooltip="{{le.label}}"></div>
+                            </div>
+
+                            <span class="button-legend-label">{{b._firstLegendLabel}}</span>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>

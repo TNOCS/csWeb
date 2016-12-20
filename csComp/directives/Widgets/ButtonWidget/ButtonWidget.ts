@@ -39,7 +39,10 @@ module ButtonWidget {
     export interface IButton {
         title: string;
         description: string;
+        moreInfo: string;
         action: string;
+        buttongroup: string;
+        tag: string;
         layer: string;
         group: string;
         timerange: string;
@@ -52,22 +55,33 @@ module ButtonWidget {
         zoomLevel: number;
         _legend: csComp.Services.Legend;
         _layer: csComp.Services.ProjectLayer;
+        _feature: csComp.Services.Feature;
+        _featureIcon: string;
         _disabled: boolean;
         _active: boolean;
         _firstLegendLabel: string;
         _lastLegendLabel: string;
         _canEdit: boolean;
+        _visible: boolean;
+        _groupbuttons: IButton[];
     }
 
     export interface IButtonData {
         buttons: IButton[];
+        /** The minimal layout just displays a button, without a legend */
         minimalLayout: boolean;
         /* Show only one button. Clicking it will execute the according action and then show the next button */
         toggleMode: boolean;
+        /** Apply extended style information to image, e.g. add rounded corners */
+        extStyle: Object;
         layerGroup: string;
+        featureLayer: string;
     }
 
     export class ButtonWidgetCtrl {
+
+        private activeGroups: { [group: string]: IButton } = {};
+        private activeGroupsCollection: { [group: string]: IButton[] } = {};
 
         public static $inject = [
             '$scope',
@@ -75,7 +89,8 @@ module ButtonWidget {
             'layerService',
             'messageBusService',
             'actionService',
-            '$timeout'
+            '$timeout',
+            '$sce'
         ];
 
         constructor(
@@ -84,7 +99,8 @@ module ButtonWidget {
             public layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService,
             private actionService: csComp.Services.ActionService,
-            private $timeout: ng.ITimeoutService
+            private $timeout: ng.ITimeoutService,
+            private $sce: ng.ISCEService
         ) {
             $scope.vm = this;
 
@@ -94,25 +110,57 @@ module ButtonWidget {
             if (typeof $scope.data.buttons === 'undefined') {
                 $scope.data.buttons = [];
             }
+            if (!_.isUndefined($scope.data.featureLayer)) {
+                this.initFeatureLayer();
 
-            if (!_.isUndefined($scope.data.layerGroup)) {
+            } else if (!_.isUndefined($scope.data.layerGroup)) {
                 this.initLayerGroup();
             } else {
                 this.$scope.buttons = this.$scope.data.buttons;
                 this.initButtons();
             }
+            $scope.$watchCollection('buttons', () => {
+                this.initButtons();
+            });
+
+            this.messageBusService.subscribe('viewmode', (a, d) => {
+                let activeGroup = '';
+                this.$scope.buttons.forEach((b: IButton) => {
+                    if (b._active && b.buttongroup) activeGroup = b.buttongroup;
+                });
+                if (a === 'tag') {
+                    this.$scope.buttons.forEach((b: IButton) => {
+                        if (b.buttongroup && b.tag) b._visible = (b.tag === d);
+                        if (b._visible && activeGroup !== '' && b.buttongroup === activeGroup) this.click(b);
+                    });
+                    console.log(d);
+                }
+            });
+
         }
 
         private initButtons() {
             this.$scope.buttons.forEach((b: IButton) => {
+                b = csComp.Helpers.translateObject(b, this.layerService.currentLocale);
                 var actions = b.action.split(';');
+                b._visible = true;
+                if (b.buttongroup) {
+                    if (!this.activeGroups.hasOwnProperty(b.buttongroup)) {
+                        this.activeGroups[b.buttongroup] = b;
+                        this.activeGroupsCollection[b.buttongroup] = [b];
+                    } else {
+                        if (this.activeGroups[b.buttongroup] !== b) b._visible = false;
+                        this.activeGroupsCollection[b.buttongroup].push(b);
+                    }
+                    b._groupbuttons = this.activeGroupsCollection[b.buttongroup];
+                }
                 actions.forEach((act) => {
                     switch (act.toLowerCase()) {
                         case 'activate timerange':
                             break;
                         case 'activate layer':
                             this.checkLayer(b);
-                            this.messageBusService.subscribe('layer', (a, l) => this.checkLayer(b));
+                            this.messageBusService.subscribe('layer', (a, l) => { this.checkLayer(b); });
                             break;
                         case 'activate style':
                             this.checkStyle(b);
@@ -130,9 +178,39 @@ module ButtonWidget {
             });
         }
 
+        private initFeatureLayer() {
+            this.checkFeatureLayer();
+            this.messageBusService.subscribe('layer', (a, l) => this.checkFeatureLayer());
+        }
+
         private initLayerGroup() {
             this.checkLayerGroup();
             this.messageBusService.subscribe('layer', (a, l) => this.checkLayerGroup());
+        }
+
+        public switchButtonGroup(b: IButton) {
+            console.log(b);
+        }
+
+        private checkFeatureLayer() {
+            this.$scope.buttons = [];
+            var pl = this.layerService.findLayer(this.$scope.data.featureLayer);
+            if (pl) {
+
+                if (pl.data && pl.data.features) {
+                    pl.data.features.forEach((f: IFeature) => {
+                        var b = <IButton>{
+                            title: csComp.Helpers.getFeatureTitle(f),
+                            action: 'Activate Feature',
+                            description: 'Snelheid:',
+                            _feature: f,
+                            _featureIcon: this.$sce.trustAsHtml(csComp.Helpers.createIconHtml(f).html)
+                        };
+                        this.$scope.buttons.push(b);
+                    });
+                }
+            }
+
         }
 
         private checkLayerGroup() {
@@ -177,16 +255,32 @@ module ButtonWidget {
             }
         }
 
+        private updateLegendLabels(b: IButton) {
+            if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length > 0) {
+                b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
+                b._lastLegendLabel = b._legend.legendEntries[0].label;
+            }
+        }
+
         private checkLayer(b: IButton) {
             b._layer = this.layerService.findLayer(b.layer);
+            if (!b._layer) return;
 
-            if (b.showLegend && b._layer.defaultLegend) {
-                b._legend = this.layerService.getLayerLegend(b._layer);
-                if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length > 0) {
-                    b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length - 1].label;
-                    b._lastLegendLabel = b._legend.legendEntries[0].label;
+            if (b.showLegend) {
+                if (b._layer.defaultLegend) {
+                    b._legend = this.layerService.getLayerLegend(b._layer);
+                    this.updateLegendLabels(b);
+                }
+                else if (b._layer.group.styles.length > 0) {
+                    b._layer.group.styles.forEach(gs => {
+                        if (gs.activeLegend) {
+                            b._legend = gs.activeLegend;
+                            this.updateLegendLabels(b);
+                        }
+                    });
                 }
             }
+
 
             if (_.isUndefined(b.image) && (!_.isUndefined(b._layer.image))) b.image = b._layer.image;
 
@@ -198,13 +292,21 @@ module ButtonWidget {
             } else {
                 b._disabled = true;
             }
+
         }
 
         private checkStyle(b: IButton) {
             var group = this.layerService.findGroupById(b.group);
+            if (!group) {
+                b._disabled = true;
+                return;
+            }
+
+            b._disabled = false;
             var prop = b.property;
             if (prop.indexOf('#') > -1) prop = prop.split('#')[1];
             if (typeof group !== 'undefined') {
+                if (!group.styles) return;
                 var selected = group.styles.filter(gs => {
                     return gs.property === prop;
                 });
@@ -219,8 +321,13 @@ module ButtonWidget {
                 }
                 if (b._active && b.showLegend) {
                     b._legend = selected[0].activeLegend;
+                    b.moreInfo = b._legend.description;
                     this.checkLegend(b);
                 } else {
+                    var pt = this.layerService.findPropertyTypeById(prop);
+                    if (pt && pt.legend) {
+                        b.moreInfo = pt.legend.description;
+                    }
                     b._legend = null;
                 }
             }
@@ -277,7 +384,7 @@ module ButtonWidget {
                 projGroup.filters = projGroup.filters.filter((f) => { return f.id !== gf.id; });
                 this.layerService.setFilter(gf, projGroup);
                 this.layerService.visual.leftPanelVisible = true;
-                $('#filter-tab').click();
+                (<any>$('#filter-tab')).tab('show');
             }
         }
     }

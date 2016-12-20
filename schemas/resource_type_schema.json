@@ -95,6 +95,7 @@
                                         "enum": [
                                             "text",
                                             "textarea",
+                                            "textarea-right",
                                             "boolean",
                                             "number",
                                             "bbcode",

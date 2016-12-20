@@ -22,6 +22,20 @@ module Mca {
     // TODO Disable/unload a layer when outside a zoom range, and load it when inside a zoom range.
     // TODO Create a function that determines which geojson to load based on the current extent and zoom level.
 
+    /**
+     * Defines the features that should be used to calculate the MCA. Default, all features of the selected featureType are used.
+     * Multiple modes can be enabled/disabled by adding their values (e.g. 7 to enable all modes). 
+     * If the mode SelectedFeatures is enabled, only the selected features will be used to calculate the MCA. 
+     * If the mode is FilteredFeatures is enabled, only the features in the filterResult will be used to calculate the MCA. 
+     * 
+     * @export
+     * @enum {number}
+     */
+    export enum McaCalculationMode {
+        AllFeatures = 1 << 0,
+        SelectedFeatures = 1 << 1,
+        FilteredFeatures = 1 << 2
+    }
 
     import Feature = csComp.Services.Feature;
     import IFeature = csComp.Services.IFeature;
@@ -72,7 +86,7 @@ module Mca {
 
         constructor(
             private $scope: IMcaScope,
-            private $modal: any,
+            private $uibModal: ng.ui.bootstrap.IModalService,
             private $translate: ng.translate.ITranslateService,
             private $timeout: ng.ITimeoutService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
@@ -96,11 +110,7 @@ module Mca {
             messageBusService.subscribe('project', (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'loaded':
-                        this.expertMode = layerService.project != null
-                        && layerService.project.hasOwnProperty('userPrivileges')
-                        && layerService.project.userPrivileges.hasOwnProperty('mca')
-                        && layerService.project.userPrivileges.mca.hasOwnProperty('expertMode')
-                        && layerService.project.userPrivileges.mca.expertMode;
+                        this.expertMode = layerService.project != null && layerService.$mapService.isExpert;
 
                         if (typeof layerService.project.mcas === 'undefined' || layerService.project.mcas == null) {
                             layerService.project.mcas = [];
@@ -118,6 +128,7 @@ module Mca {
             });
 
             messageBusService.subscribe('feature', this.featureMessageReceived);
+            messageBusService.subscribe('filters', this.filtersMessageReceived);
 
             $translate('MCA.DELETE_MSG').then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
@@ -231,7 +242,7 @@ module Mca {
         }
 
         private showMcaEditor(newMca: Models.Mca): void {
-            var modalInstance = this.$modal.open({
+            var modalInstance = this.$uibModal.open({
                 templateUrl: 'directives/MCA/McaEditorView.tpl.html',
                 controller: McaEditorCtrl,
                 resolve: {
@@ -315,7 +326,7 @@ module Mca {
 
         public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
-            if (!this.mca || !feature || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
+            if (!this.mca || !feature) return;
             switch (title) {
                 case 'onFeatureSelect':
                     this.updateSelectedFeature(feature, true);
@@ -331,6 +342,19 @@ module Mca {
             }
             this.scopeApply();
         };
+        
+        public filtersMessageReceived = (title: string, groupId: string): void => {
+            if (!this.mca) return;
+            switch (title) {
+                case 'updated':
+                    this.updateMca(this.selectedCriterion || this.mca.criteria[0]);
+                    break;
+                default:
+                    //console.log(title);
+                    break;
+            }
+            this.scopeApply();
+        };
 
         private scopeApply() {
             if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
@@ -338,7 +362,7 @@ module Mca {
             }
         }
 
-        private updateSelectedFeature(feature: IFeature, drawCharts = false) {
+        public updateSelectedFeature(feature: IFeature, drawCharts = false) {
             if (typeof feature === 'undefined' || feature == null) {
                 this.featureIcon = '';
                 return;
@@ -347,7 +371,7 @@ module Mca {
             this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
                 ? this.selectedFeature.fType.style.iconUri
                 : '';
-            if (!feature.properties.hasOwnProperty(this.mca.label)) { return; }
+            if (!feature.properties.hasOwnProperty(this.mca.label)) { feature.properties[this.mca.label] = null; }
 
             this.showFeature = true;
             this.properties = [];
@@ -365,7 +389,7 @@ module Mca {
         drawChart(criterion?: Models.Criterion) {
             this.selectedCriterion = criterion;
             this.showChart = true;
-            if (this.showFeature) {
+            if (this.showFeature && criterion) {
                 if (this.showAsterChart) {
                     this.drawAsterPlot(criterion);
                 } else {
@@ -408,7 +432,7 @@ module Mca {
         }
 
         public getTitle(criterion: Mca.Models.Criterion) {
-            return criterion.title || criterion.label;
+            return criterion && criterion.title || criterion.label;
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
@@ -520,13 +544,40 @@ module Mca {
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
                 this.addPropertyInfo(featureId, mca);
-                this.layerService.project.features.forEach((feature) => {
-                    if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
-                        this.features.push(feature);
+                // If a filterresult is active, calculate MCA over the filtered features.
+                // Else if more than one feature is selected, use the selection.
+                // Else, use all active features.
+                if (this.mca.calculationMode & McaCalculationMode.FilteredFeatures) {
+                    this.layerService.project.groups.forEach((g) => {
+                        if (g.filters && g.filters.length > 0 && g.filterResult && g.filterResult.length > 0) {
+                            g.filterResult.forEach((feature) => {
+                                if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                    this.features.push(feature);
+                                }
+                            });
+                        }
+                    });
+                } else if (this.mca.calculationMode & McaCalculationMode.SelectedFeatures) {
+                    if (this.features.length === 0 && this.layerService.selectedFeatures.length > 1) {
+                        this.layerService.selectedFeatures.forEach((feature) => {
+                            if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                this.features.push(feature);
+                            }
+                        });
                     }
-                });
+                } else if (this.mca.calculationMode & McaCalculationMode.AllFeatures) {
+                    if (this.features.length === 0) {
+                        this.layerService.project.features.forEach((feature) => {
+                            if (feature.featureTypeName != null && feature.featureTypeName === featureId) {
+                                this.features.push(feature);
+                            }
+                        });
+                    }
+                } else {
+                    console.log('Warning! No mca calculation mode defined!');
+                }
                 if (this.features.length === 0) { return; }
-                mca.updatePla(this.features);
+                mca.updatePla(this.features, true);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
                 var index = 0;
@@ -631,13 +682,37 @@ module Mca {
             if (this.groupStyle
                 && this.groupStyle.group != null
                 && this.groupStyle.group.styles != null
+                && this.groupStyle.group.styles.length > 0                
                 && this.groupStyle.group.styles.filter((s) => { return s.visualAspect === 'fillColor'; })[0].property === this.mca.label) {
                 this.layerService.updateStyle(this.groupStyle);
             } else {
                 this.groupStyle = this.layerService.setStyle(item, false);
                 this.groupStyle.colors = ['#F04030', '#3040F0'];
+                this.groupStyle.activeLegend = this.getLegend(this.mca);
                 this.layerService.updateStyle(this.groupStyle);
             }
+        }
+
+        /**
+         * Return the first MCA having an id equal to the mcaId parameter.
+         */
+        public findMcaById(mcaId: string): Models.Mca {
+            var result: Models.Mca;
+            if (this.availableMcas && this.availableMcas.length > 0) {
+                result = _.find(this.availableMcas, (m) => { return m.id === mcaId; });
+            }
+            return result;
+        }
+
+        private getLegend(mca: Models.Mca): csComp.Services.Legend {
+            let legend;
+            if (mca.legend) {
+                legend = mca.legend;
+            } else {
+                legend = McaCtrl.defaultLegend();
+            }
+            legend.id = mca.label;
+            return legend;
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {
@@ -666,6 +741,47 @@ module Mca {
                 section: mca.section || 'MCA'
             };
             return mi;
+        }
+
+        private static defaultLegend(): csComp.Services.Legend {
+            return {
+                    'id': 'mca-legend',
+                    'description': 'An MCA legend',
+                    'legendKind': 'discrete',
+                    'visualAspect': 'fillColor',
+                    'legendEntries': [{
+                        'label': 'Low',
+                        'interval': {
+                            'min': 0,
+                            'max': 25
+                        },
+                        'color': '#f00'
+                    },
+                    {
+                        'label': 'Medium',
+                        'interval': {
+                            'min': 25,
+                            'max': 50
+                        },
+                        'color': '#fbff00'
+                    },
+                    {
+                        'label': 'High',
+                        'interval': {
+                            'min': 50,
+                            'max': 75
+                        },
+                        'color': '#9dc73f'
+                    },
+                    {
+                        'label': 'Very high',
+                        'interval': {
+                            'min': 75,
+                            'max': 100
+                        },
+                        'color': '#004408'
+                    }]
+                };
         }
     }
 }

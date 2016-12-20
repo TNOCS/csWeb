@@ -82,7 +82,8 @@ module csComp.Services {
         /** Load the offline search index from a json file. */
         private loadIndex(url: string) {
             this.$http.get(url)
-                .success((offlineSearchResult: OfflineSearchIndex) => {
+                .then((res: {data: OfflineSearchIndex}) => {
+                    let offlineSearchResult = res.data;
                     this.offlineSearchResult = offlineSearchResult;
                     var kwi = offlineSearchResult.keywordIndex;
 
@@ -98,7 +99,7 @@ module csComp.Services {
                     this.offlineSearchResult.keywordIndex = keywordIndex;
                     this.isReady = true;
                 })
-                .error(() => { console.log(`OfflineSearch: error with $http `); });
+                .catch(() => { console.log(`OfflineSearch: error with $http `); });
         }
 
         public search(query: ISearchQuery, result: SearchResultHandler) {

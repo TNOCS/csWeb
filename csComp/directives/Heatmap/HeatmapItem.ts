@@ -13,7 +13,7 @@ module Heatmap {
          * @type {string}
          */
         propertyTitle? : string;
-        propertyLabel  : string;
+        propertyLabel? : string;
         /**
          * When we are using an options property type, such as buildingFunction, we need
          * to indicate the particular option that we will evaluate.

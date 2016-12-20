@@ -137,7 +137,14 @@ module DataTable {
         private loadLayer(): void {
             if (!this.selectedLayerId || this.selectedLayerId === this.mapLabel) return this.loadMapLayers();
             var selectedLayer = this.findLayerById(this.selectedLayerId);
-            if (selectedLayer == null) return this.loadMapLayers();
+            if (selectedLayer == null) {
+                return this.loadMapLayers();
+            } else {
+                if (selectedLayer.enabled && selectedLayer.data && selectedLayer.data.features) {
+                    this.processData(selectedLayer, selectedLayer.data, () => { });
+                    return;
+                }
+            }
 
             async.series([
                 (callback) => {
@@ -149,9 +156,13 @@ module DataTable {
                 },
                 (callback) => {
                     this.$http.get(selectedLayer.url).
-                        success((data: IGeoJsonFile) => {
+                        then((res: {data: IGeoJsonFile}) => {
+                            let data = res.data;
+                            if (selectedLayer.type.toLowerCase() === 'topojson') {
+                                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
+                            }
                             this.processData(selectedLayer, data, callback);
-                        }).error((data, status, headers, config) => {
+                        }).catch((error) => {
                             this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
                             if (selectedLayer && selectedLayer.data && selectedLayer.data.features) {
                                 this.processData(selectedLayer, selectedLayer.data, callback);
@@ -260,8 +271,9 @@ module DataTable {
                         }
                     }
                 }
+                var isAdmin: boolean = this.$layerService.$mapService.isAdminExpert;
                 mis.forEach(mi => {
-                    if ((mi.visibleInCallOut || mi.label === 'Name') && titles.indexOf(mi.title) < 0) {
+                    if ((mi.visibleInCallOut || mi.label === 'Name' || isAdmin) && titles.indexOf(mi.title) < 0) {
                         titles.push(mi.title);
                         this.propertyTypes.push(mi);
                     }
@@ -424,7 +436,7 @@ module DataTable {
             csvRows.push(this.headers.join(';'));
 
             for (var i = 0; i < this.rows.length; i++) {
-                csvRows.push(this.rows[i].map((f) => { return f.originalValue; }).join(';'));
+                csvRows.push(this.rows[i].map((f) => { return f.displayValue; }).join(';'));
             }
 
             var csvString = csvRows.join('\r\n');

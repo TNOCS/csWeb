@@ -7,11 +7,16 @@ module Filters {
         options: Function;
         removeString: string;
         createScatterString: string;
+        saveAsImageString: string;
     }
 
     export class RowFilterCtrl {
         private scope: IRowFilterScope;
         private widget: csComp.Services.IWidget;
+        /** To export a filter, canvg can be used. Due to its size it is not included in csWeb by default,
+         *  you need to add it to your csWeb-App. When you have added it, a save-icon will appear in the filter.
+         * canvg is available from https://github.com/gabelerner/canvg */
+        private exporterAvailable: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -42,6 +47,9 @@ module Filters {
             $translate('CREATE_SCATTER').then((translation) => {
                 $scope.createScatterString = translation;
             });
+            $translate('SAVE_AS_IMAGE').then((translation) => {
+                $scope.saveAsImageString = translation;
+            });
 
             var par = <any>$scope.$parent.$parent;
 
@@ -51,6 +59,23 @@ module Filters {
             else {
 
             }
+
+            if ((<any>window).canvg) {
+                this.exporterAvailable = true;
+            } else {
+                this.exporterAvailable = false;
+            }
+
+            this.$messageBus.subscribe('filters', (title: string, groupId) => {
+                switch (title) {
+                    case 'updateGroup': 
+                        if ($scope.filter && $scope.filter.group.id === groupId) {
+                            this.updateFilter();
+                        }
+                        break;
+                }
+            })
+            
             if ($scope && $scope.filter) {
                 setTimeout(() => this.initRowFilter());
                 //$timeout.call(()=>this.initBarFilter());
@@ -63,6 +88,10 @@ module Filters {
                             res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
+
+                    if (this.exporterAvailable) {
+                        res.push([$scope.saveAsImageString, () => this.exportToImage()]);
+                    }
 
                     return res;
                 });
@@ -81,13 +110,19 @@ module Filters {
             var group = filter.group;
             var divid = 'filter_' + filter.id;
 
-            this.dcChart = <any>dc.rowChart('#' + divid);
+            // Use the default dc-rowChart, unless a customRowChart is available
+            if ((<any>window).customRowChart) {
+                (<any>dc).customRowChart = (<any>window).customRowChart;
+                this.dcChart = (<any>dc).customRowChart('#' + divid);
+            } else {
+                this.dcChart = <any>dc.rowChart('#' + divid);
+            }
 
             this.$scope.$apply();
 
             var pt : csComp.Services.IPropertyType;
-            
-           
+
+
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
@@ -96,9 +131,10 @@ module Filters {
                             var a = d.properties[filter.property];
                             if (pt.type === 'options') {
                                 var r;
-                                if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                                    r = a + "." + pt.options[a];
-                                } else { r = a + "." + a}
+                                var key = a.toString();
+                                if (pt && pt.options && pt.options.hasOwnProperty(key)) {
+                                    r = key + "." + pt.options[key];
+                                } else { r = key + "." + key}
                                 return r;
                             } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
                                 var label;
@@ -110,7 +146,7 @@ module Filters {
                                 });
                                 if (!label) label = 'other';
                                 return label;
-                            } else if (pt.type === 'text' || pt.type === 'textarea') {
+                            } else if (pt.type === 'text' || pt.type === 'textarea' || pt.type === 'textarea-right') {
                                 return a;
                             }
                         }
@@ -119,9 +155,9 @@ module Filters {
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
-            
+
             // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
-            if (pt.legend) {
+            if (pt && pt.legend) {
                 var allEntries = [];
                 _.each(<any>pt.legend.legendEntries, (le: csComp.Services.LegendEntry) => { allEntries.push(le.label); });
                 var fakeNdx = crossfilter(allEntries);
@@ -130,16 +166,17 @@ module Filters {
                 });
                 var fakeGroup = fakeDim.group();
             }
-            
+
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
 
             this.dcChart.width(380)
-                .height(285)                
+                .height(285)
+                .margins({top: 2, right: 2, bottom: 2, left: 2})
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {
                     return d.key })
-                .elasticX(true)                
+                .elasticX(true)
                 .colors(d=>{
                     if (pt && pt.legend) {
                         if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]), pt.legend);
@@ -161,14 +198,16 @@ module Filters {
                         group.filterResult = dcDim.top(Infinity);
                         this.$layerService.updateMapFilter(group);
                     }, 100);
-                }).on('filtered', (e) => {
+                })
+                .on('filtered', (e) => {
                     console.log('Filtered rowchart');
                 });
+            this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
             this.updateRange();
             dc.renderAll();
         }
-        
+
         private ensureAllBins(source_group, fake_group) { // (source_group, bins...}
             var bins = fake_group.all().slice(0);
             return {
@@ -195,6 +234,9 @@ module Filters {
                             result.push({ key: d.key, value: 0 });
                     });
                     return result.slice(0, n);
+                },
+                size: function () {
+                    return bins.length;
                 }
             };
         };
@@ -218,6 +260,7 @@ module Filters {
                 dc.redrawAll();
                 group.filterResult = filter.dimension.top(Infinity);
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
+                this.$layerService.triggerUpdateFilter(this.$scope.filter.group.id);
                 this.$scope.$apply();
             }, 0);
         }
@@ -226,6 +269,20 @@ module Filters {
             if (this.$scope.filter) {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
+        }
+
+        public exportToImage() {
+            var canvg = (<any>window).canvg || undefined;
+            if (!canvg) return;
+            var svg = new XMLSerializer().serializeToString(this.dcChart.root().node().firstChild);
+            var canvas = document.createElement('canvas');
+            document.body.appendChild(canvas);
+            canvg(canvas, svg, {renderCallback: () => {
+                var img = canvas.toDataURL("image/png");
+                var fileName = this.$scope.filter.title || 'rowfilter-export';
+                csComp.Helpers.saveImage(img, fileName + '.png', 'png');
+                canvas.parentElement.removeChild(canvas);
+            }});
         }
     }
 }

@@ -75,7 +75,8 @@ module OfflineSearch {
          */
         private loadSearchResults(url: string) {
             this.$http.get(url)
-                .success((offlineSearchResult: OfflineSearchResult) => {
+                .then((res: {data: OfflineSearchResult}) => {
+                    let offlineSearchResult = res.data;
                     this.offlineSearchResult = offlineSearchResult;
                     var kwi = offlineSearchResult.keywordIndex;
 
@@ -91,7 +92,7 @@ module OfflineSearch {
                     this.offlineSearchResult.keywordIndex = keywordIndex;
                     this.isReady = true;
                 })
-                .error(() => { console.log("OfflineSearch: error with $http "); });
+                .catch(() => { console.log("OfflineSearch: error with $http "); });
         }
 
         /**

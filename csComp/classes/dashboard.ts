@@ -6,17 +6,19 @@ module csComp.Services {
     }
 
     export class WidgetStyle {
-        background:         string;
-        borderWidth:        string;
-        borderColor:        string;
-        borderRadius:       string;
-        opacity:            number;
+        background: string;
+        borderWidth: string;
+        borderColor: string;
+        borderRadius: string;
+        opacity: number;
         disableIfLeftPanel: boolean;
-        shadow:       boolean = true;
+        shadow: boolean = true;
     }
 
     export interface IWidgetCtrl {
         startEdit: Function;
+        getOptions? : Function;
+        goFullscreen? : Function;
     }
 
     export interface IWidget {
@@ -28,6 +30,12 @@ module csComp.Services {
          * json object that can hold parameters for the directive
          */
         data?: Object;
+
+        /**
+         * if defined it will find a widget with this id and copy it data (usefull if you want to reuse the data on multiple dashboards)
+         * @type {string}
+         */
+        datasource? : string;
         /**
          * url of the html page that should be used as widget
          */
@@ -36,53 +44,66 @@ module csComp.Services {
          * name of the template that should be shown as widget
          */
         template?: string;
+
+        /** default on dashboard, other options: rightpanel */
+        position? : string;
         /**
          * title of the widget
          */
-        title?:           string;
-        elementId?:       string;
-        enabled?:         boolean;
-        style?:           string;
-        customStyle?:     WidgetStyle;
-        effectiveStyle?:  WidgetStyle;
-        description?:     string;
+        title?: string;
+        elementId?: string;
+        enabled?: boolean;
+        style?: string;
+        customStyle?: WidgetStyle;
+        effectiveStyle?: WidgetStyle;
+        description?: string;
         parentDashboard?: csComp.Services.Dashboard;
-        renderer?:        Function;
-        resize?:          Function;
+        renderer?: Function;
+        resize?: Function;
 
-        init?:              Function;
-        start?:             Function;
-        stop?:              Function;
-        left?:              string;
-        right?:             string;
-        top?:               string;
-        bottom?:            string;
+        init?: Function;
+        start?: Function;
+        stop?: Function;
+        left?: string;
+        right?: string;
+        top?: string;
+        bottom?: string;
+        padding? : string;
 
-        icon?:              string;
+        icon?: string;
         /** When true, hide the widget. */
-        hideIfLeftPanel?:   boolean;
-        name?:              string; id: string;
-        timeDependent?:     boolean;
-        properties?:        {};
-        dataSets?:          DataSet[];
-        range?:             csComp.Services.DateRange;
-        updateDateRange?:   Function;
-        collapse?:          boolean;
-        canCollapse?:       boolean;
-        width?:             string;
-        height?:            string;
-        minWidth? :         string;
-        minHeight? :        string
-        allowFullscreen?:   boolean;
-        hover?:             boolean;
+        hideIfLeftPanel?: boolean;
+        name?: string; id: string;
+        timeDependent?: boolean;
+        properties?: {};
+        dataSets?: DataSet[];
+        range?: csComp.Services.DateRange;
+        updateDateRange?: Function;
+        collapse?: boolean;
+        canCollapse?: boolean;
+        width?: string;
+        height?: string;
+        minWidth?: string;
+        minHeight?: string
+        allowFullscreen?: boolean;
+        hover?: boolean;
         messageBusService?: csComp.Services.MessageBusService;
-        layerService?:      csComp.Services.LayerService;
+        layerService?: csComp.Services.LayerService;
 
-        _ctrl?:        IWidgetCtrl;
-        _ijs?:         any;
+        _options? : any;
+        _ctrl?: IWidgetCtrl;
+        _ijs?: any;
         _initialized?: boolean;
         _interaction?: boolean;
-        _isMoving?:    boolean;
+        _isMoving?: boolean;
+        _width?: string;
+        _height?: string;
+        _left?: string;
+        _top?: string;
+        _bottom?: string;
+        _right?: string;
+        _zindex? : string;
+        _isFullscreen? : boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -115,18 +136,28 @@ module csComp.Services {
         public canCollapse: boolean;
         public width: string;
         public height: string;
-        public minWidth : string;
-        public minHeight : string;
+        public minWidth: string;
+        public minHeight: string;
         public allowFullscreen: boolean;
         public messageBusService: csComp.Services.MessageBusService;
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
         public effectiveStyle: WidgetStyle;
-
+        /** default on dashboard, other options: rightpanel */
+        public position : string = 'dashboard';
+        public _isFullscreen : boolean;
         public _ctrl: IWidgetCtrl;
         public _initialized: boolean;
         public _interaction: boolean;
         public _isMoving: boolean;
+
+           _width: string;
+        _height: string;
+        _left: string;
+        _top: string;
+        _bottom: string;
+        _right: string;
+        _zindex: string;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -142,14 +173,14 @@ module csComp.Services {
         }
 
         public static serializeableData(w: IWidget): IWidget {
-            var r = <IWidget> {
+            var r = <IWidget>{
                 id: w.id,
                 directive: w.directive,
                 template: w.template,
                 title: w.title,
                 name: w.name,
                 timeDependent: w.timeDependent,
-                url: w.url,               
+                url: w.url,
                 enabled: w.enabled,
                 customStyle: w.customStyle,
                 style: w.style,
@@ -157,6 +188,9 @@ module csComp.Services {
                 right: w.right,
                 top: w.top,
                 bottom: w.bottom,
+                padding: w.padding,
+                position : w.position,
+                icon : w.icon,
                 width: w.width,
                 height: w.height,
                 allowFullscreen: w.allowFullscreen,
@@ -222,34 +256,41 @@ module csComp.Services {
     }
 
     export class Dashboard {
-        widgets:              IWidget[];
-        editMode:             boolean;
-        showMap:              boolean;
-        mapWidth:             string = '100%';
-        alignMapRight:        boolean = false;
-        mobile:               boolean = true;
-        showTimeline:         boolean = true;
-        draggable:            boolean = true;
-        resizable:            boolean = true;
-        showLeftmenu:         boolean = true;
-        showRightmenu:        boolean = false;
-        showLegend:           boolean = false;
-        showBackgroundImage:  boolean = false;
-        background:           string;
-        backgroundimage:      string;
-        disabledFeatures : string[];
-        visiblelayers:        string[];
+        widgets: IWidget[];
+        editMode: boolean;
+        showMap: boolean;
+        mapWidth: string = '100%';
+        description : string;
+        alignMapRight: boolean = false;
+        mobile: boolean = true;
+        showTimeline: boolean = true;
+        draggable: boolean = true;
+        resizable: boolean = true;
+        showLeftmenu: boolean = true;
+        showRightmenu: boolean = false;
+        showLegend: boolean = false;
+        showBackgroundImage: boolean = false;
+        /** don't show hamburger menu for this dashboard */
+        hideleftPanelToggle : boolean = false;
+        background: string;
+        backgroundimage: string;
+        disabledFeatures: string[];
+        showDateSelector : boolean = true;
+        visiblelayers: string[];
         visibleLeftMenuItems: string[];
-        baselayer:            string;
-        viewBounds:           IBoundingBox;
-        timeline:             DateRange;
+        baselayer: string;
+        viewBounds: IBoundingBox;
+        timeline: DateRange;
         /** this dashboards shows live data, needed for sensor apis */
-        isLive:               boolean;
-        id:                   string;
-        name:                 string;
-        disabled:             boolean;
-        parents:              string[];
-        _initialized:         boolean;
+        isLive: boolean;
+        id: string;
+        name: string;
+        disabled: boolean;
+        parents: string[];
+        _initialized: boolean;
+        /** set if a a fullscreen widget is active */
+        _fullScreenWidget : IWidget;
+
         /** complete refresh page on activation */
         refreshPage: boolean;
 
@@ -262,34 +303,40 @@ module csComp.Services {
          */
         public static serializeableData(d: Dashboard): Object {
             return {
-                id:                   d.id,
-                name:                 d.name,
-                editMode:             d.editMode,
-                showMap:              d.showMap,
-                mapWidth:             d.mapWidth,
-                alignMapRight:        d.alignMapRight,
-                showTimeline:         d.showTimeline,
-                showLeftmenu:         d.showLeftmenu,
-                showLegend:           d.showLegend,
-                showRightmenu:        d.showRightmenu,
-                showBackgroundImage:  d.showBackgroundImage,
-                background:           d.background,
-                backgroundimage:      d.backgroundimage,
-                visiblelayers:        d.visiblelayers,
-                baselayer:            d.baselayer,
-                viewBounds:           d.viewBounds,
-                widgets:              csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
+                id: d.id,
+                name: d.name,
+                editMode: d.editMode,
+                showMap: d.showMap,
+                mapWidth: d.mapWidth,
+                description : d.description,
+                alignMapRight: d.alignMapRight,
+                timeline: d.timeline,
+                showTimeline: d.showTimeline,
+                hideleftPanelToggle : d.hideleftPanelToggle,
+                showDateselector : d.showDateSelector,
+                showLeftmenu: d.showLeftmenu,
+                showLegend: d.showLegend,
+                showRightmenu: d.showRightmenu,
+                showBackgroundImage: d.showBackgroundImage,
+                background: d.background,
+                backgroundimage: d.backgroundimage,
+                visiblelayers: d.visiblelayers,
+                baselayer: d.baselayer,
+                viewBounds: d.viewBounds,
+                widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
                 visibleLeftMenuItems: d.visibleLeftMenuItems,
-                mobile:               d.mobile,
-                isLive:               d.isLive
+                mobile: d.mobile,
+                isLive: d.isLive
             }
         }
 
         public static deserialize(input: Dashboard, solution: Solution): Dashboard {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
+
             res.widgets = [];
             if (typeof input.isLive === 'undefined') input.isLive = false;
+
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
                 this.addNewWidget(w, res, solution);
             });

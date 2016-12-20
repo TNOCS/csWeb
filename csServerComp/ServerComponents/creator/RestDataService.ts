@@ -217,14 +217,14 @@ export class RestDataSource {
         let fts = fCollection.features;
         let fCollectionIds = [];
         if (_.isArray(fts)) {
-            fts.forEach((f) => {
+            fts.forEach((f: IFeature) => {
                 fCollectionIds.push(f.id);
                 if (!this.features.hasOwnProperty(f.id)) {
                     // ADD FEATURE
                     this.features[f.id] = { f: f, updated: updateTime };
                     this.featuresUpdates.push(<Api.IChangeEvent>{ value: f, type: Api.ChangeType.Create, id: f.id });
                     added += 1;
-                } else if (!this.isFeatureUpdated(f)) {
+                } else if (!this.isFeatureUpdated(<IFeature>f)) {
                     // NO UPDATE
                     notUpdated += 1;
                 } else {
@@ -251,7 +251,7 @@ export class RestDataSource {
         Winston.info(`Feature diff complete. ${updated} updated \t${added} added \t${notUpdated} not updated \t${removed} removed. (${this.counter})`);
     }
 
-    private isFeatureUpdated(f: Api.Feature): boolean {
+    private isFeatureUpdated(f: IFeature): boolean {
         if (!f) return false;
         // Check geometry
         if (!this.restDataSourceOpts.diffIgnoreGeometry && !_.isEqual(f.geometry, this.features[f.id].f.geometry)) {

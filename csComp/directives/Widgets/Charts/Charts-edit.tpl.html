@@ -1,10 +1,10 @@
 <div style="background:white">
     <h4 class="rightpanel-header">&nbsp;&nbsp;Chart Editor
         <div style="float:right;margin-right:10px">
-            <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false; vm.updateChart()" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="configMode" ng-click="vm.updateChart()" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="!configMode" ng-click="vm.refreshChart()" />
+            <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false; vm.updateChart()" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="configMode" ng-click="vm.updateChart()" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="!configMode" ng-click="vm.refreshChart()" />
         </div>
     </h4>
     <div ng-if="!configMode" style="margin-left:5px;margin-right:20px">

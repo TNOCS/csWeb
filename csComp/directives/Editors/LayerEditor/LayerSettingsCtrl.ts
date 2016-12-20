@@ -75,13 +75,14 @@ module LayerSettings {
 
         public getTypes() {
             this.$http.get(this.layer.typeUrl)
-                .success((response: any) => {
+                .then((res: {data: any}) => {
+                    let response = res.data;
                     setTimeout(() => {
                         this.availabeTypes = response.featureTypes;
                         if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') this.$scope.$apply();
                     }, 0);
                 })
-                .error(() => { console.log('LayerEditCtl.getTypes: error with $http'); });
+                .catch(() => { console.log('LayerEditCtl.getTypes: error with $http'); });
         };
     }
 }

@@ -70,7 +70,7 @@ module csComp.Services {
                     }
                     var corners;
                     if (this.service.$mapService.map.getZoom() < minZoom && typeof searchProperty === 'undefined' && !useFeatureBounds) {
-                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
+                        this.service.$messageBusService.notifyWithTranslation('ZOOM_LEVEL_LOW', 'ZOOM_IN_FOR_CONTOURS', null, csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info, 1500);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
                         return;
@@ -153,7 +153,7 @@ module csComp.Services {
                 var fType = this.service.getFeatureTypeById(featureTypeName);
                 var fTypes: {[key: string]: any} = {};
                 fTypes[featureTypeName] = fType;
-                this.service.evaluateLayerExpressions(projLayer, fTypes);
+                // this.service.evaluateLayerExpressions(projLayer, fTypes);
                 if (fType._propertyTypeData && fType._propertyTypeData.length > 0) {
                     fType._propertyTypeData.forEach(pt => {
                         csComp.Helpers.updateSection(projLayer, pt);
@@ -168,6 +168,10 @@ module csComp.Services {
         }
 
         private updateLayer(layer: ProjectLayer, callback: Function) {
+            if (!layer || !layer.id) {
+                console.log('No layer id found');
+                return;
+            }
             var projLayer = this.service.findLayer(layer.id);
             if (!projLayer || !projLayer.data || !projLayer.data.features) {
                 this.initLayer(layer, callback);
@@ -184,7 +188,7 @@ module csComp.Services {
                         projLayer.data.features.push(f);
                         count += 1;
                         this.service.initFeature(f, projLayer, false, false);
-                        this.service.evaluateFeatureExpressions(f);
+                        // this.service.evaluateFeatureExpressions(f);
                         this.service.calculateFeatureStyle(f);
                         this.service.activeMapRenderer.addFeature(f);
                     }

@@ -101,6 +101,8 @@ module Mca.Models {
         isPlaUpdated = false;
         /** Piece-wise linear approximation must be scaled:x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min */
         isPlaScaled = false;
+        /** Scale PLA using property statistics (min & max) :x' = ax+b, where a=r/10 and b=min and r=max-min */
+        mapToMinMax = true;
         minValue                                          : number;
         maxValue                                          : number;
         minCutoffValue                                    : number;
@@ -133,7 +135,7 @@ module Mca.Models {
         }
 
         toJSON() {
-            var clone = {};
+            var clone: any = {};
             for (var key in this) {
                 if (key[0] === '_' || !this.hasOwnProperty(key)) continue;
                 clone[key] = this[key];
@@ -161,12 +163,13 @@ module Mca.Models {
         /**
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function,
          * which translates a property value to a MCA value in the range [0,1] using all features.
+         * The 'force' parameter forces the PLA to be updated.
          */
-        updatePla(features: IFeature[]) {
-            if (this.isPlaUpdated) { return; }
+        updatePla(features: IFeature[], force: boolean = false) {
+            if (this.isPlaUpdated && !force) { return; }
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => {
-                    c.updatePla(features);
+                    c.updatePla(features, force);
                 });
                 this.isPlaUpdated = true;
                 return;
@@ -196,8 +199,8 @@ module Mca.Models {
             }
             if (this.isPlaScaled) {
                 var stats = csComp.Helpers.standardDeviation(this._propValues);
-                max = max || Math.min(max, stats.avg + 2 * stats.stdDev);
-                min = min || Math.max(min, stats.avg - 2 * stats.stdDev);
+                max = (max != undefined) ? max : Math.min(max, stats.avg + 2 * stats.stdDev);
+                min = (min != undefined) ? min : Math.max(min, stats.avg - 2 * stats.stdDev);
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
@@ -208,6 +211,11 @@ module Mca.Models {
             if (this.minValue != null || this.maxValue != null) {
                 a = range / 10;
                 b = min;
+            } else if (this.mapToMinMax) {
+                min = _.min(this._propValues); 
+                max = _.max(this._propValues);
+                a = (max - min) / 10,
+                b = min;
             } else {
                 a = 0.08 * range,
                 b = min + 0.1 * range;
@@ -216,6 +224,8 @@ module Mca.Models {
             if (pla.length % 2 !== 0) {
                 throw Error(this.label + ' does not have an even (x,y) pair in scores.');
             }
+            this._x.length = 0;
+            this._y.length = 0;
             for (var i = 0; i < pla.length / 2; i++) {
                 var x = parseFloat(pla[2 * i]);
                 if (this.isPlaScaled) {
@@ -266,19 +276,19 @@ module Mca.Models {
                         }
                     }
                 } else {
+                    // If the feature does not have a value for the selected property, return zero.                    
                     return 0;
                 }
             } else {
                 // Sum all the sub-criteria.
-                var finalScore = 0;
+                let finalScore = 0;
                 this.criteria.forEach((crit) => {
-                    finalScore += crit.weight > 0
+                    let s = crit.weight > 0
                         ? crit.weight * crit.getScore(feature)
                         : Math.abs(crit.weight) * (1 - crit.getScore(feature));
+                    finalScore += s;
                 });
-                return this.weight > 0
-                    ? this.weight * finalScore
-                    : Math.abs(this.weight) * (1 - finalScore);
+                return finalScore;
             }
             return 0;
         }
@@ -302,6 +312,9 @@ module Mca.Models {
         scaleMaxValue  : number;
         scaleMinValue  : number;
 
+        legend        ?: csComp.Services.Legend;
+        calculationMode: McaCalculationMode;
+
         get rankLabel() {
             return this.label + '#';
         }
@@ -313,6 +326,7 @@ module Mca.Models {
             } else {
                 this.weight = 1;
                 this.isPlaUpdated = false;
+                this.calculationMode = McaCalculationMode.AllFeatures;
             }
         }
 
@@ -331,6 +345,8 @@ module Mca.Models {
             this.maxValue        = input.maxValue;
             this.scaleMinValue   = input.scaleMinValue;
             this.scaleMaxValue   = input.scaleMaxValue;
+            this.legend          = input.legend;
+            this.calculationMode = input.calculationMode || McaCalculationMode.AllFeatures;
             super.deserialize(input);
             return this;
         }

@@ -77,6 +77,12 @@ module Translations {
             EDIT: 'edit',
             APPLY: 'apply',
             REMOVE: 'remove',
+            FOCUSTIME: {
+                OUT_OF_RANGE: 'The timerange is out of scope',
+                NOT_AVAILABLE: 'Currently no sensor data available',
+                LOADING: 'Sensor data is being loaded, please wait'
+
+            },
             STATS: {
                 COUNT: '#',
                 COUNT_TOOLTIP: 'Count of selected items',
@@ -192,7 +198,16 @@ module Translations {
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
             CLEAR_EVENTS: 'Clear event log',
-            SEARCH_PLACEHOLDER: 'Municipality, address, ...'
+            SEARCH_PLACEHOLDER: 'Municipality, address, ...',
+            SAVE_AS_IMAGE: 'Save as image',
+            SAVE_AS_PDF: 'Save as PDF',
+            ROW_CHART_HELP: 'Click one or multiple rows to apply a filter for the selected property.',
+            CONVERT: 'Convert',
+            VIEW_PROJECT: 'View your project',
+            PASTE_HERE: 'Paste your data here',
+            OPTION: 'Option {{number}}',
+            PASSWORD: 'Password',
+            COMPARE_TAB: 'Compare'
         };
     }
 }

@@ -167,8 +167,8 @@ module csComp.Services {
     export class NightDayDataSource extends csComp.Services.GeoJsonSource {
         title = "Day Night regions on the Earth";
 
-        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
@@ -181,11 +181,12 @@ module csComp.Services {
             // Check if an url to a file containing the intensity value is specified. If so, set it as defaultValue.
             if (layer.url) {
                 this.$http.get(layer.url)
-                    .success((data) => {
+                    .then((res: {data: any}) => {
+                        let data = res.data;
                         defaultValue = parseFloat(data.toString());
                         this.continueInit(defaultValue, layer, callback);
                     })
-                    .error(() => {
+                    .catch(() => {
                         console.log('Error reading day/night intensity file');
                         this.continueInit(defaultValue, layer, callback);
                     });

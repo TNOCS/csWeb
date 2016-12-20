@@ -37,7 +37,7 @@ module Mca {
 
         static $inject = [
             '$scope',
-            '$modalInstance',
+            '$uibModalInstance',
             'layerService',
             '$translate',
             'messageBusService',
@@ -46,7 +46,7 @@ module Mca {
 
         constructor(
             private $scope           : IMcaEditorScope,
-            private $modalInstance   : any,
+            private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
             private $layerService    : csComp.Services.LayerService,
             private $translate       : ng.translate.ITranslateService,
             private messageBusService: csComp.Services.MessageBusService,
@@ -287,14 +287,14 @@ module Mca {
                     mca.criteria.push(criterion);
                 }               
             });
-            this.$modalInstance.close(mca);
+            this.$uibModalInstance.close(mca);
         }
 
         cancel() {
             this.mcaTitle  = '';
             this.rankTitle = '';
             this.headers   = [];
-            this.$modalInstance.dismiss('cancel');
+            this.$uibModalInstance.dismiss('cancel');
         }
 
         toggleItemDetails(index: number) {

@@ -7,7 +7,7 @@ module Heatmap {
         i           : number;
         j           : number;
         intensity   : number;
-        contributor : string;
+        contributor?: string;
 
         AddLocation(i, j, contributor): IHeatspot;
     }

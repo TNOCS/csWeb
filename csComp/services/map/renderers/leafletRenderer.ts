@@ -1,4 +1,7 @@
 module csComp.Services {
+
+
+
     export class LeafletRenderer implements IMapRenderer {
         title = 'leaflet';
         service: LayerService;
@@ -27,11 +30,25 @@ module csComp.Services {
                 this.enableMap();
                 return;
             }
+
+
             var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 22,
                 attributionControl: true
             };
+            if (this.service.isRD) {
+                var res = [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420];
+
+                var RD = new (<any>L).Proj.CRS('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +towgs84=565.2369,50.0087,465.658,-0.406857330322398,0.350732676542563,-1.8703473836068,4.0812 +no_defs',
+                    {
+                        resolutions: [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420],
+                        bounds: L.bounds(new L.Point(-285401.92, 22598.08), new L.Point(595401.9199999999, 903401.9199999999)),
+                        origin: [-285401.92, 22598.08]
+                    }
+                );
+                mapOptions.crs = RD;
+            }
             this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
             this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
@@ -121,7 +138,7 @@ module csComp.Services {
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
-                group._cluster.on('clustermouseover', (a) => {
+                group._cluster.on('clustermouseover', (a: any) => {
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
                         if (childs[0] && childs[0].hasOwnProperty('feature')) {
@@ -135,7 +152,7 @@ module csComp.Services {
                         }
                     }
                 });
-                group._cluster.on('clustermouseout', (a) => {
+                group._cluster.on('clustermouseout', (a: any) => {
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
                         if (childs[0] && childs[0].hasOwnProperty('feature')) {
@@ -178,7 +195,7 @@ module csComp.Services {
             this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
-        private createBaseLayer(layerObj: BaseLayer) : L.TileLayer {
+        private createBaseLayer(layerObj: BaseLayer): L.TileLayer {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
@@ -186,9 +203,11 @@ module csComp.Services {
             if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
             if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
             if (layerObj.maxNativeZoom) options.maxNativeZoom = layerObj.maxNativeZoom;
+            if (layerObj.tms) options.tms = true;
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;
+            if (layerObj.hasOwnProperty('noWrap')) options['noWrap'] = layerObj.noWrap;
 
             var layers = layerObj.url.split('|');
             var layer = L.tileLayer(layers[0], options);
@@ -319,6 +338,7 @@ module csComp.Services {
         }
 
         public addFeature(feature: IFeature): any {
+            if (!feature) return null;
             if (feature.geometry != null) {
                 var m = this.createFeature(feature);
                 if (m) {
@@ -359,7 +379,7 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
-                    if (!feature.geometry.coordinates.length || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
+                    if (!feature.geometry.coordinates || feature.geometry.coordinates.length < 2 || isNaN(feature.geometry.coordinates[0]) || isNaN(feature.geometry.coordinates[1])) return;
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
@@ -368,11 +388,12 @@ module csComp.Services {
 
                     marker.on('contextmenu', (e: any) => {
                         this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
+                        if (!this.service._activeContextMenu || this.service._activeContextMenu.length === 0) return;
 
                         //e.stopPropagation();
                         var button: any = $('#map-contextmenu-button');
                         var menu: any = $('#map-contextmenu');
-                        button.dropdown('toggle');
+                        if (button && button.dropdown) button.dropdown('toggle');
                         var mapSize = this.map.getSize();
                         if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
                             menu.css('left', e.originalEvent.x + 5);
@@ -394,6 +415,7 @@ module csComp.Services {
                     marker.on('dragend', (event: L.LeafletEvent) => {
                         var marker = event.target;
                         var position = marker.getLatLng();
+
                         feature.geometry.coordinates = [position.lng, position.lat];
                         //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
                         //map.panTo(new L.LatLng(position.lat, position.lng))
@@ -405,7 +427,7 @@ module csComp.Services {
                         imageUrl = feature.properties['imageUrl'],
                         opacity = feature.properties.hasOwnProperty('opacity') ? feature.properties['opacity'] : feature.fType.style.opacity,
                         attribution = feature.properties.hasOwnProperty('attribution') ? feature.properties['attribution'] : '';
-                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, { opacity: opacity, attribution: attribution } );
+                    let imageOverlay = L.imageOverlay(imageUrl, imageBounds, <L.ImageOverlayOptions>{ opacity: opacity, attribution: attribution });
                     feature._gui['imageOverlay'] = imageOverlay;
                     imageOverlay.addTo(this.map);
                     break;
@@ -416,11 +438,12 @@ module csComp.Services {
 
                         marker.on('contextmenu', (e: any) => {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
+                            if (!this.service._activeContextMenu || this.service._activeContextMenu.length === 0) return;
 
                             //e.stopPropagation();
                             var button: any = $('#map-contextmenu-button');
                             var menu: any = $('#map-contextmenu');
-                            button.dropdown('toggle');
+                            if (button && button.dropdown) button.dropdown('toggle');
                             var mapSize = this.map.getSize();
                             if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
                                 menu.css('left', e.originalEvent.x + 5);
@@ -430,7 +453,7 @@ module csComp.Services {
                             if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
                                 menu.css('top', e.originalEvent.y - 35);
                             } else {
-                                menu.css('top', e.originalEvent.y - 70 - menu.height());
+                                menu.css('top', e.originalEvent.y - 35 - menu.height());
                             }
                             if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                         });
@@ -482,9 +505,9 @@ module csComp.Services {
          * @param  {string} property: selected property
          * @param  {IPropertyType} meta: meta info added to the group or style filter
          * @param  {string} title: title of the entry
-         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
+         * @param  {string} faLabel: the fa-icon to use. Default a style icon will be applied.
          */
-        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, faLabel: string = 'fa-paint-brush') {
             if (!title || title.length === 0) return {
                 length: 0, content: content
             };
@@ -495,18 +518,15 @@ module csComp.Services {
                 value = Helpers.convertPropertyInfo(meta, value);
                 if (meta.type !== 'bbcode') valueLength = value.toString().length;
             } else {
-                if (feature.fType._propertyTypeData) {
-                    feature.fType._propertyTypeData.some(pt => {
-                        if (pt.label !== property) return false;
-                        meta = pt;
-                        value = Helpers.convertPropertyInfo(pt, value);
-                        return true;
-                    });
+                let pt = this.service.getPropertyType(feature, property);
+                if (pt) {
+                    meta = pt;
+                    value = Helpers.convertPropertyInfo(pt, value);
                 }
             }
             return {
                 length: valueLength + title.length,
-                content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
+                content: content + `<tr><td><div class="fa ${faLabel}"></td><td>${title}</td><td>${value}</td></tr>`
             };
         }
 
@@ -514,14 +534,14 @@ module csComp.Services {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = csComp.Helpers.getFeatureTitle(feature);
+            var title = csComp.Helpers.getFeatureTooltipTitle(feature);
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
-                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, true);
+                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, 'fa-filter');
                     content = entry.content;
                     rowLength = Math.max(rowLength, entry.length);
                 });
@@ -533,10 +553,29 @@ module csComp.Services {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => {
                         return f.property === s.property;
                     }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, false);
+                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, 'fa-paint-brush');
                         content = entry.content;
                         var tl = s.title ? s.title.length : 10;
                         rowLength = Math.max(rowLength, entry.length + tl);
+                    }
+                });
+            }
+
+            // add values for properties with a "visibleInTooltip = true" propertyType, only in case they haven't been added already as filter or style
+            let fType = this.service.getFeatureType(feature);
+            if (fType) {
+                let pTypes = fType._propertyTypeData.forEach((mi: IPropertyType) => {
+                    if (mi.visibleInTooltip) {
+                        if (!group.styles || !group.styles.find((s) => { return s.property === mi.label; })) {
+                            if (!group.filters || !group.filters.find((f: GroupFilter) => { return f.property === mi.label; })) {
+                                if (feature.properties.hasOwnProperty(mi.label)) {
+                                    let entry = this.addEntryToTooltip(content, feature, mi.label, null, mi.title, 'fa-info');
+                                    content = entry.content;
+                                    var tl = mi.title ? mi.title.length : 10;
+                                    rowLength = Math.max(rowLength, entry.length + tl);
+                                }
+                            }
+                        }
                     }
                 });
             }
@@ -622,6 +661,8 @@ module csComp.Services {
                     ha.callback(feature, this.service);
                 }
             });
+
+            this.$messageBusService.publish('feature', 'onFeatureHover', feature);
         }
 
         hideFeatureTooltip(e: L.LeafletMouseEvent) {

@@ -52,7 +52,7 @@ module csComp.Helpers {
 
             Plot.clearSvg(svgId);
 
-            if (values.length < numberOfBins) return;
+            // if (values.length < numberOfBins) return;
 
             // A formatter for counts.
             var formatCount = d3.format(",.0f");
@@ -378,7 +378,7 @@ module csComp.Helpers {
             var path = svg.selectAll(".solidArc")
                 .data(pie(data))
                 .enter().append("path")
-                .attr("fill", (d, i) => d.data.color || colors(i).hex())
+                .attr("fill", (d, i) => d.data.color || (<any>colors(i)).hex())
                 .attr("class", "solidArc")
                 .attr("stroke", "gray")
                 .attr("d", arc)
@@ -450,7 +450,7 @@ module csComp.Helpers {
             var path = svg.selectAll('.solidArc')
                 .data(pie(data))
                 .enter().append('path')
-                .attr('fill', (d, i) => d.data.color || colors(i).hex())
+                .attr('fill', (d, i) => d.data.color || (<any>colors(i)).hex())
                 .attr('class', 'solidArc')
                 .attr('stroke', 'gray')
                 .attr('d', arc)

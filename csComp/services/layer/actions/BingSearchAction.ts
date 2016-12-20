@@ -137,10 +137,11 @@ module csComp.Services {
         /** JSONP callback wrapper */
         private callRestService(request: string, callback: (result: IBingSearchResult, handler: SearchResultHandler, query: string) => void, handler: SearchResultHandler, query: string){
             this.$http.jsonp(request)
-                .success((r: IBingSearchResult) => {
+                .then((res: {data: IBingSearchResult}) => {
+                    let r = res.data;
                     callback(r, handler, query);
                 })
-                .error((data, status, error, thing) => {
+                .catch((error) => {
                     alert(error);
                 });
         }

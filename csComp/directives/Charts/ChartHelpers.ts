@@ -59,11 +59,18 @@ module Charts {
         // TODO: give a way to remove a function after its bound, other than removing all of them
         static windowResize(fun) {
             if (fun === undefined) return;
-            var oldresize = window.onresize;
+            // var oldresize = window.onresize;
 
-            window.onresize = function (e) {
-                if (typeof oldresize == 'function') oldresize(e);
-                fun(e);
+            // window.onresize = function (e) {
+            //     if (typeof oldresize == 'function') oldresize(e);
+            //     fun(e);
+            // }
+            // Replaced above code because it raises a TSC error in v2.0
+            // http://stackoverflow.com/a/17260173
+            if (window.addEventListener) {
+                window.addEventListener("resize", fun, false);
+            } else {
+                console.log("ChartHelpers: Could not add onresize eventlistener.");
             }
         }
 

@@ -9,7 +9,6 @@
 // * Copy this to test folder.
 
 var gulp = require('gulp'),
-    tsconfig = require('gulp-tsconfig'),
     exec = require('child_process').execSync,
     install = require('gulp-install'),
     runSequence = require('run-sequence'),
@@ -74,52 +73,6 @@ gulp.task('bower_install', function () {
     ]).pipe(install());
 });
 
-function buildTsconfig(config, globPattern, basedir) {
-    config.tsConfig.comment = '! This tsconfig.json file has been generated automatically, please DO NOT edit manually.';
-    return gulp.src(globPattern, { base: '.' })
-        .pipe(rename(function (path) {
-            path.dirname = path.dirname.replace(basedir, '.');
-        }))
-        .pipe(tsconfig(config)())
-        .pipe(gulp.dest(basedir));
-}
-
-// This task updates the typescript dependencies on tsconfig file
-gulp.task('tsconfig', function () {
-    var globPattern = [
-        './Scripts/**/*.d.ts',
-        './csComp/**/*.ts',
-        './csServerComp/**/*.ts',
-        './test/**/*.ts',
-        '!./csComp/includes/**/*.ts',
-        '!./dist-npm',
-        '!./dist-bower',
-        '!./docker-dev',
-        '!./docs',
-        '!./csServerComp/OfflineSearch/**/*.ts',
-        '!./node_modules/**/*.ts',
-    ];
-    var config = {
-        tsOrder: ['**/*.ts'],
-        tsConfig: {
-            version: '1.8.9',
-            compilerOptions: {
-                target: 'es5',
-                module: 'commonjs',
-                declaration: true,
-                noImplicitAny: false,
-                removeComments: false,
-                preserveConstEnums: true,
-                noLib: false,
-                outDir: outDir,
-                sourceMap: true,
-            },
-            filesGlob: globPattern
-        }
-    };
-    return buildTsconfig(config, globPattern, './');
-});
-
 // This task compiles typescript on csComp
 gulp.task('tsc', function (cb) {
     return run('tsc -p .', cb);
@@ -136,7 +89,7 @@ gulp.task('typings', function (cb) {
 gulp.task('travis', function (cb) {
     runSequence(
         'init',
-        'test',
+        // 'test', // travis automatically runs 'npm test'
         cb);
 });
 
@@ -191,8 +144,8 @@ gulp.task('built_csComp.d.ts', function () {
     return gulp.src(path2csWeb + outDir + '/csComp/**/*.d.ts')
         .pipe(plumber())
         .pipe(concat('csComp.d.ts'))
-        .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
-        .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
+        // .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
@@ -254,9 +207,8 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        'typings',
-        'tsconfig',
-        'tsc',
+        // 'typings', //performed by npm install
+        // 'tsc', //performed by npm install
         'built_csComp',
         'built_csComp.d.ts',
         'sass',
@@ -269,7 +221,6 @@ gulp.task('init', function (cb) {
 
 gulp.task('quick', function (cb) {
     runSequence(
-        'tsconfig',
         'tsc',
         'built_csComp',
         'built_csComp.d.ts',

@@ -9,10 +9,10 @@ module FocusTimeWidget {
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    } 
+    }
 
     /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    myModule.directive('focustimewidget', [function(): ng.IDirective {
+    myModule.directive('focustimewidget', [function (): ng.IDirective {
         return {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
@@ -38,6 +38,8 @@ module FocusTimeWidget {
     export interface IFocusTimeData {
         mode: string;
         layer: string;
+        tags : any[];
+        activeTag : string;
 
     }
 
@@ -46,17 +48,18 @@ module FocusTimeWidget {
         public disabled = false;
         public active = false;
         public layer: csComp.Services.ProjectLayer;
-        public time: Date;
-        public dateFormat : string;
-        public timeFormat : string;
+        public time: number;
+        public endTime: number;
+        public dateFormat: string;
+        public timeFormat: string;
         private handle: csComp.Services.MessageBusHandle;
-        public isOpen : boolean = true;
-        
+        public isOpen: boolean = true;
+
         private timeOptions = {
             readonlyInput: false,
             showMeridian: false
         };
-        
+
 
         public static $inject = [
             '$scope',
@@ -75,7 +78,7 @@ module FocusTimeWidget {
             private $timeout: ng.ITimeoutService
         ) {
             $scope.vm = this;
-            
+
             var par = <any>$scope.$parent;
             $scope.data = <IFocusTimeData>par.widget.data;
             (<csComp.Services.IWidget>par.widget).stop = () => {
@@ -87,8 +90,8 @@ module FocusTimeWidget {
                     this.checkLayerTimestamp();
                     this.layer = this.layerService.findLayer(this.$scope.data.layer);
                     this.handle = this.messageBusService.subscribe('layer', (a, l: csComp.Services.ProjectLayer) => {
-                        if (a === "sensordataUpdated") {                            
-                            if (l.id === $scope.data.layer) this.checkLayerTimestamp();                                                                                                 
+                        if (a === "sensordataUpdated") {
+                            if (l.id === $scope.data.layer) this.checkLayerTimestamp();
                         }
                     });
                     break;
@@ -96,9 +99,9 @@ module FocusTimeWidget {
                     this.handle = this.messageBusService.subscribe('timeline', (a, d) => {
                         if (a === "focusChange") {
                             $scope.$evalAsync(() => {
-                                this.time = this.layerService.project.timeLine.focusDate();
+                                this.time = this.layerService.project.timeLine.focusDate().getTime();
                             });
-                            //console.log(d);                            
+                            //console.log(d);
                         }
                     });
 
@@ -106,37 +109,52 @@ module FocusTimeWidget {
             }
 
         }
-        
-         public openCalendar(e: Event) {
+
+        public openCalendar(e: Event) {
             e.preventDefault();
             e.stopPropagation();
 
             this.isOpen = true;
         };
-        
-        public lastHour()
-        {
+
+        public lastHour() {
             this.layer.sensorLink.liveInterval = "1h";
             this.layerService.updateLayerSensorLink(this.layer);
-            
+
         }
-        
-        public lastDay()
-        {
+
+        public lastDay() {
             this.layer.sensorLink.liveInterval = "24h";
             this.layerService.updateLayerSensorLink(this.layer);
             console.log('last 24');
         }
-        
-       
 
-        public checkLayerTimestamp() {                   
+
+        public setTag(tag: string) {
+            this.layerService.$messageBusService.publish('viewmode', 'tag', tag);
+            this.$scope.data.activeTag = tag;
+        }
+
+        public checkLayerTimestamp() {
             if (this.layer)
                 if (this.layer._gui.hasOwnProperty("timestamp"))
                     this.$scope.$evalAsync(() => {
                         this.dateFormat = "dd-MM-yyyy EEE";
                         this.timeFormat = "HH:mm ";
-                        this.time = this.layer._gui["timestamp"];
+                        if (this.layer.sensorLink.actualInterval) {
+                            this.endTime = this.layer._gui["timestamp"];
+                            this.time = this.layer._gui["timestamp"] + this.layer.sensorLink.actualInterval;
+
+                            if (this.time > this.endTime) {
+                                let et = this.endTime;
+                                this.endTime = this.time;
+                                this.time = et;
+                            }
+                            //this.time = new Date(this.endTime.getTime() -this.layer.sensorLink.actualInterval);
+                        }
+                        else {
+                            this.time = this.layer._gui["timestamp"];
+                        }
                     });
         }
 
