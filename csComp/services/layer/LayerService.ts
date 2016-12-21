@@ -2650,7 +2650,7 @@ module csComp.Services {
             }
 
             if (this.project.legendTab) {
-                var rpt = csComp.Helpers.createRightPanelTab('legend-list', 'legend-list', {}, 'Icon legend', `{{'LEGEND' | translate}}`, 'list-ul');
+                var rpt = csComp.Helpers.createRightPanelTab('legend-list', 'legend-list', {}, 'Icon legend', `{{'LEGEND' | translate}}`, 'list-ul', false, false);
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
 
