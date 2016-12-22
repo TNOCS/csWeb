@@ -144,12 +144,24 @@ module csComp.Services {
                 res.push(reset);
             }
 
+            if (layer.enabled && layer.isDynamic) {
+                var erase = <IActionOption>{ title: 'Clean Layer', icon: 'eraser' };
+                erase.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    console.log('Eraseing features from layer: ' + layer.title);
+                    layer.data.features.forEach((f) => {
+                        layerService.removeFeature(f);
+                    });
+                    layer.data.features.length = 0;
+                };
+                res.push(erase);
+            }
+
             if (this.layerService.$mapService.isAdminExpert) {
                 var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
                 remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                     layerService.$messageBusService.confirm('Delete layer', 'Are you sure', (result) => {
                         if (result) layerService.removeLayer(layer, true);
-                    })
+                    });
                 };
                 res.push(remove);
             }
