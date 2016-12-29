@@ -179,13 +179,15 @@ module DataTable {
             if (data.featureTypes == null) data.featureTypes = {};
             if (data.features) {
                 data.features.forEach((f: IFeature) => {
-                    if (f.properties.hasOwnProperty('featureTypeId')) {
-                        f.featureTypeName = selectedLayer.typeUrl + '#' + f.properties['featureTypeId'];
-                    } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
-                        if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
-                            f.featureTypeName = selectedLayer.defaultFeatureType;
-                        } else {
-                            f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                    if (!f.featureTypeName) {
+                        if (f.properties.hasOwnProperty('featureTypeId')) {
+                            f.featureTypeName = selectedLayer.typeUrl + '#' + f.properties['featureTypeId'];
+                        } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
+                            if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
+                                f.featureTypeName = selectedLayer.defaultFeatureType;
+                            } else {
+                                f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                            }
                         }
                     }
                     if (!(f.featureTypeName in data.featureTypes))

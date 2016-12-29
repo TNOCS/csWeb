@@ -200,7 +200,7 @@ module Filters {
                     }, 100);
                 })
                 .on('filtered', (e) => {
-                    console.log('Filtered rowchart');
+                    console.log(`Filtered rowchart (${e.dimension().top(1000).length})`);
                 });
             this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
