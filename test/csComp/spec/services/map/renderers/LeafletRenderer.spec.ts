@@ -16,7 +16,17 @@ describe('csComp.Services.LeafletRenderer', function() {
         e: L.LeafletMouseEvent,
         group: csComp.Services.ProjectGroup,
         service: csComp.Services.LayerService,
-        renderer: csComp.Services.LeafletRenderer;
+        renderer: csComp.Services.LeafletRenderer,
+        layer: csComp.Services.ProjectLayer;
+
+    var mapService: csComp.Services.MapService;
+    var scope, translate, msgBusService, location;
+    beforeEach(inject(function($location, $translate, $mapService, messageBusService) {
+        location = $location,
+        translate = $translate;
+        msgBusService = messageBusService;
+        mapService = $mapService;
+    }));
 
     var mapService: csComp.Services.MapService;
     var scope, translate, msgBusService, location;
@@ -30,7 +40,7 @@ describe('csComp.Services.LeafletRenderer', function() {
     describe('A Leaflet tooltip', () => {
         beforeEach(() => {
             renderer = new csComp.Services.LeafletRenderer();
-            service = new csComp.Services.LayerService(location, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}});
+            service = new csComp.Services.LayerService(location, null, translate, msgBusService, mapService, null, null, null, null, <any>{init: () => {}}, null);
             renderer.init(service);
 
             f = <csComp.Services.IFeature>{};
@@ -59,6 +69,9 @@ describe('csComp.Services.LeafletRenderer', function() {
             };
 
             group = new csComp.Services.ProjectGroup();
+            layer = new csComp.Services.ProjectLayer();
+            layer.url = './layer';
+            f.layer = layer;
         });
 
         it ('should only have a title when no filter or style is selected', () => {
@@ -75,7 +88,7 @@ describe('csComp.Services.LeafletRenderer', function() {
             var tooltip = renderer.generateTooltipContent(e, group);
             expect(tooltip).toBeDefined();
             expect(tooltip.content).toContain('Number of men');
-            expect(tooltip.content.replace('.', ',')).toContain('1,000,000'); // change thousand separator in Dutch
+            expect(tooltip.content.replace(/\./g, ',')).toContain('1,000,000'); // change thousand separator in Dutch
         });
 
         it('should have an entry for each style.', () => {

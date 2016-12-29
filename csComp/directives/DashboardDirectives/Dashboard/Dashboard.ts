@@ -102,7 +102,7 @@ module Dashboard {
                 //template: html, // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file,
                 //FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
                 templateUrl: 'directives/DashboardDirectives/Dashboard/Dashboard.tpl.html',
-                link: (scope: any, element, attrs) => {
+                link: (scope: any, element: any, attrs: any) => {
                     // Deal with resizing the element list
                     angular.element($window).bind('resize', () => {
                         //scope.onResizeFunction();

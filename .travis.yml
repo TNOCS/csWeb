@@ -3,14 +3,14 @@ language: node_js
 node_js:
   - "6"
 install:
-  - "npm install -g npm@3.10.6"
-  - "npm install -g typescript@beta"
+  - "npm install -g npm@4.0.5"
   - "npm install -g bower"
   - "npm install -g typings"
   - "typings install"
   - "npm install"
 script:
     - gulp travis
+    - npm test
     # - cd .. && cat coverage/*/lcov.info | test/coveralls.js
 notifications:
   slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr

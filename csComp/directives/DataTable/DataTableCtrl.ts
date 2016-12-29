@@ -137,7 +137,14 @@ module DataTable {
         private loadLayer(): void {
             if (!this.selectedLayerId || this.selectedLayerId === this.mapLabel) return this.loadMapLayers();
             var selectedLayer = this.findLayerById(this.selectedLayerId);
-            if (selectedLayer == null) return this.loadMapLayers();
+            if (selectedLayer == null) {
+                return this.loadMapLayers();
+            } else {
+                if (selectedLayer.enabled && selectedLayer.data && selectedLayer.data.features) {
+                    this.processData(selectedLayer, selectedLayer.data, () => { });
+                    return;
+                }
+            }
 
             async.series([
                 (callback) => {
@@ -149,9 +156,14 @@ module DataTable {
                 },
                 (callback) => {
                     this.$http.get(selectedLayer.url).
-                        success((data: IGeoJsonFile) => {
+                        then((res: {data: IGeoJsonFile}) => {
+                            let data = res.data;
+                            if (selectedLayer.type.toLowerCase() === 'topojson') {
+                                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
+                            }
                             this.processData(selectedLayer, data, callback);
-                        }).error((data, status, headers, config) => {
+                        }).catch((error) => {
+                            this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
                             if (selectedLayer && selectedLayer.data && selectedLayer.data.features) {
                                 this.processData(selectedLayer, selectedLayer.data, callback);
                             } else {
@@ -168,13 +180,15 @@ module DataTable {
             if (data.featureTypes == null) data.featureTypes = {};
             if (data.features) {
                 data.features.forEach((f: IFeature) => {
-                    if (f.properties.hasOwnProperty('featureTypeId')) {
-                        f.featureTypeName = selectedLayer.typeUrl + '#' + f.properties['featureTypeId'];
-                    } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
-                        if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
-                            f.featureTypeName = selectedLayer.defaultFeatureType;
-                        } else {
-                            f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                    if (!f.featureTypeName) {
+                        if (f.properties.hasOwnProperty('featureTypeId')) {
+                            f.featureTypeName = selectedLayer.typeUrl + '#' + f.properties['featureTypeId'];
+                        } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
+                            if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
+                                f.featureTypeName = selectedLayer.defaultFeatureType;
+                            } else {
+                                f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                            }
                         }
                     }
                     if (!(f.featureTypeName in data.featureTypes))

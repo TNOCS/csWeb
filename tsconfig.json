@@ -1,5 +1,5 @@
 {
-    "version": "2.0.1",
+    "version": "2.1.4",
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
@@ -23,6 +23,7 @@
     "exclude": [
         "./csComp/includes/**/*.ts",
         "./csComp/node_modules/**/*",
+        "./typings/**/*",
         "./dist-npm/**/*",
         "./dist-bower/**/*",
         "./docker-dev/**/*",

@@ -62,6 +62,7 @@ module csComp.Services {
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
 
+
         getLayerActions(layer: IProjectLayer): IActionOption[] {
             return [];
         }
@@ -123,7 +124,7 @@ module csComp.Services {
                     };
                     res.push(fit);
                 }
-                
+
                 if (layer.hasSensorData && _.isFunction(layer.layerSource.fitTimeline)) {
                     var fit = <IActionOption>{ title: 'Fit Timeline', icon: 'map' };
                     fit.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
@@ -143,12 +144,24 @@ module csComp.Services {
                 res.push(reset);
             }
 
+            if (layer.enabled && layer.isDynamic) {
+                var erase = <IActionOption>{ title: 'Clean Layer', icon: 'eraser' };
+                erase.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    console.log('Eraseing features from layer: ' + layer.title);
+                    layer.data.features.forEach((f) => {
+                        layerService.removeFeature(f);
+                    });
+                    layer.data.features.length = 0;
+                };
+                res.push(erase);
+            }
+
             if (this.layerService.$mapService.isAdminExpert) {
                 var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
                 remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                     layerService.$messageBusService.confirm('Delete layer', 'Are you sure', (result) => {
                         if (result) layerService.removeLayer(layer, true);
-                    })
+                    });
                 };
                 res.push(remove);
             }
@@ -216,7 +229,7 @@ module csComp.Services {
                         score = f._gui['searchString'].score(query.query, null);
                     }
                     if (score > scoreMinThreshold) temp.push({ score: score, feature: f, title: f._gui['title'] });
-                }            
+                }
             });
         temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
             if (r.length < 10) {

@@ -10,6 +10,18 @@ module csComp.Services {
         kpiUrl? : string;
         /** interval for live link (15m, 1h, 24h, etc) */
         liveInterval? : string;
+        /** specify different interval for live KPI data (15m, 1h, 24h, etc) */
+        liveIntervalKPI? : string;
+        /** maximum timeline zoom level */
+        zoomMaxTimeline? : number;
+
+        /** minimum timeline zoom level */
+        zoomMinTimeline? : number;
+        /** actual interval in ms */
+        actualInterval? : number;
+
+        _outOfRange? : boolean;
+        _requestReference? : any;
     }
 
     /** Interface of a project layer
@@ -121,6 +133,8 @@ module csComp.Services {
         serverHandle?: MessageBusHandle;
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
+        /** Whether a confirmation message should be shown before applying a layerUpdate */
+        confirmUpdate?: boolean;
         parentFeature: IFeature;
         /** list of tags describing this layer */
         tags?: string;
@@ -134,6 +148,10 @@ module csComp.Services {
         fitToMap? : boolean;
         /** If true, specifies the properties to publish items on the timeline. */
         timelineConfig?: Timeline.ITimelineConfig;
+        /** if true, use local storage to save/retrieve layer data */
+        localStorage? : boolean;
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -252,6 +270,9 @@ module csComp.Services {
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
 
+        /** Whether a confirmation message should be shown before applying a layerUpdate */
+        confirmUpdate?: boolean;
+
         _lastSelectedFeature: IFeature;
 
         /** link to a parent feature, e.g. city layer references to a parent provence */
@@ -313,6 +334,12 @@ module csComp.Services {
         /** True when the layer features are transparent, e.g. when outside zoom range */
         isTransparent: boolean;
 
+        /** if true, use local storage to save/retrieve layer data */
+        localStorage : boolean;
+
+        /** if true, only update features within bounding box */
+        partialBoundingBoxUpdates : boolean;
+
         /** Get the features from the layer's original source, if present. */
         public static getFeatures(layer: ProjectLayer) {
             return (layer.data && layer.data.features)
@@ -343,6 +370,7 @@ module csComp.Services {
                 refreshBBOX:           pl.refreshBBOX,
                 refreshTimeInterval:   pl.refreshTimeInterval,
                 quickRefresh:          pl.quickRefresh,
+                confirmUpdate:         pl.confirmUpdate,
                 languages:             pl.languages,
                 events:                pl.events,
                 dataSourceParameters:  pl.dataSourceParameters,
@@ -358,7 +386,8 @@ module csComp.Services {
                 timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,
-                maxZoom:               pl.maxZoom
+                maxZoom:               pl.maxZoom,
+                localStorage:          pl.localStorage
             };
         }
     }
@@ -394,6 +423,12 @@ module csComp.Services {
         cesium_url?:     string;
         cesium_tileUrl?: string;
         cesium_maptype?: string;
+        /** Specify the resource type url: Only relevant for backgrounds with an UTF grid */
+        typeUrl?:        string;
+        /** Specify the default feature type: Only relevant for backgrounds with an UTF grid, and a specified typeUrl */
+        defaultFeatureType?: string;
+        tms?           : boolean;
+        noWrap?        : boolean;
     }
 
     export class BaseLayer implements IBaseLayer {
@@ -425,5 +460,12 @@ module csComp.Services {
         cesium_maptype: string;
         /** Height tiles */
         cesium_tileUrl: string;
+        /** Specify the resource type url: Only relevant for backgrounds with an UTF grid */
+        typeUrl:        string;
+        /** Specify the default feature type: Only relevant for backgrounds with an UTF grid, and a specified typeUrl */
+        defaultFeatureType: string;
+        /** is this a tms base layer */
+        tms : boolean;
+        noWrap? : boolean;
     }
 }

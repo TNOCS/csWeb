@@ -8,6 +8,7 @@ import MessageBus = require('../bus/MessageBus');
 import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('../database/Location');
 import BagDatabase = require('../database/BagDatabase');
+import IAddressSource = require('../database/IAddressSource');
 import LocalBag = require('../database/LocalBag');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
@@ -100,7 +101,7 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
+    constructor(private bag: IAddressSource.IAddressSource, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
         if (bag != null) {
             bag.init();
         }
@@ -446,8 +447,8 @@ export class MapLayerFactory {
             name: featureTypeName,
             style: {
                 iconUri: ld.iconUri,
-                iconWidth: ld.iconSize,
-                iconHeight: ld.iconSize,
+                iconWidth: +ld.iconSize,
+                iconHeight: +ld.iconSize,
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
                 strokeWidth: (typeof ld.strokeWidth !== 'undefined') ? ld.strokeWidth : 3,
@@ -587,6 +588,14 @@ export class MapLayerFactory {
                 this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [],
                     () => { callback(geojson); });
                 break;
+            case 'Internationaal':
+                if (!ld.parameter1) {
+                    console.log('Error: Parameter1 should be the name of the column containing the search query!');
+                    return;
+                }
+                this.createInternationalFeature(ld.parameter1, features, template.properties, template.sensors || [],
+                    () => { callback(geojson); });
+                break;
             default:
                 if (!ld.parameter1) {
                     console.log('Error: At least parameter1 should contain a value!');
@@ -720,6 +729,39 @@ export class MapLayerFactory {
             }
         });
         callback();
+    }
+
+    private createInternationalFeature(queryString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
+            async.eachLimit(properties, 10, (prop, innercallback) => {
+                var index = properties.indexOf(prop);
+                if (prop.hasOwnProperty(queryString) && typeof prop[queryString] === 'string') {
+                    var q = prop[queryString];
+                    this.bag.searchAddress(q, 4, (locations: any[]) => {
+                            if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
+                                console.log(`Cannot find location: ${q}`);
+                                this.featuresNotFound[`${q}`] = {
+                                    zip: `${q}`,
+                                    number: `0`
+                                };
+                                innercallback();
+                            } else {
+                                console.log('Found location (international)');
+                                console.log(`${locations[0].lon}, ${locations[0].lat}`);
+                                features.push(this.createFeature(+locations[0].lon, +locations[0].lat, prop, sensors[index] || {}));
+                                innercallback();
+                            }
+                    });
+                } else {
+                    innercallback();
+                }
+            }, (err) => {
+                if (err) {
+                    console.warn(`Error performing searches ${err}`);
+                } else {
+                    console.log('International search completed');
+                    callback();
+                }
+            });
     }
 
     private createLatLonFeature(latString: string, lonString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {

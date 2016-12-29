@@ -90,8 +90,8 @@ module csComp.Services {
             }
             $injector.invoke(($http) => {
                 $http.get(this.owsurl)
-                    .success((xml) => { this.parseXML(xml); })
-                    .error((xml, status) => {
+                    .then((res: {data: any}) => { this.parseXML(res.data); },
+                    (xml, status) => {
                         console.log('Unable to load OWSurl: ' + this.owsurl);
                         console.log('          HTTP status: ' + status);
                     });

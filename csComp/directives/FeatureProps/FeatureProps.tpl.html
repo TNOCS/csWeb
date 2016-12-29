@@ -1,8 +1,8 @@
-<div data-ng-cloak class="rightpanel-content" id="featureprops-content" style="max-width: 355px">
+<div data-ng-cloak class="rightpanel-content" id="featureprops-content">
     <h4 class="rightpanel-header">
         <!-- Show popup with complete title for long names -->
-        <div ng-if="callOut.title.length >= 21" uib-popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true" style="overflow: hidden;text-overflow: ellipsis;">
-            <img data-ng-if="false && callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+        <div ng-if="callOut.title.length >= 21" uib-popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="'mouseenter'" popover-append-to-body="true" style="overflow: hidden;text-overflow: ellipsis;">
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
         <div ng-if="callOut.title.length < 21">
             <img data-ng-if="false && callOut.icon" ng-src="{{callOut.icon}}" ng-style="{'background': ($parent.feature.effectiveStyle.fillColor ? $parent.feature.effectiveStyle.fillColor : 'none')}" class="callout-icon" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
@@ -60,17 +60,17 @@
             </div>-->
 
             <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable && !feature._gui.editMode" ng-click="vm.startEditFeature()" class="layer-action"
-                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                popover-placement="bottom" popover-width="300" popover-trigger="'mouseenter'" popover-append-to-body="true">
                 <span class="fa fa-pencil layer-action-icon" />{{'EDIT' | translate}}
             </button>
 
              <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable && feature._gui.editMode" ng-click="feature._gui.editMode=false;vm.saveFeature()" class="layer-action"
-                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                popover-placement="bottom" popover-width="300" popover-trigger="'mouseenter'" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'SAVE' | translate}}
             </button>
 
             <button ng-show="vm.$mapService.isExpert && feature.layer.isEditable" ng-click="vm.removeFeature()" class="layer-action"
-                popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true">
+                popover-placement="bottom" popover-width="300" popover-trigger="'mouseenter'" popover-append-to-body="true">
                 <span class="fa fa-check layer-action-icon" />{{'REMOVE' | translate}}
             </button>
 
@@ -81,7 +81,7 @@
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
-                    popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
+                    popover-trigger="'mouseenter'" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-if="feature._gui.editMode || item.propertyType.alwaysEditable" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
@@ -122,12 +122,15 @@
                                     <div ng-if="!item.configMode" ng-hide="item.propertyType.hideValue" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{item.value}}</div>
+                                          <div ng-switch-when="duration" class="feature-prop-value-align-right clickable-feature-prop">
+                                            {{item.value}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="textarea-right" class="enable-newlines" style="clear:both;text-align:right;" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
+                                        <div ng-switch-when="image"><img ng-click="vm.openImage(item.value)" ng-hide="item.propertyType.inlineImage" ng-src="{{item.value}}" style="width:300px;float:left;margin:5px"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div style="cursor:pointer;text-align:right" ng-repeat="media in item.feature.properties[item.property] track by $index">
@@ -135,25 +138,26 @@
                                                 <img ng-show="item.propertyType.inlineImage" ng-src="{{media}}" class="feature-prop-value-align-right" style="max-height:64px;max-width:172px;float:none">
                                             </div>
                                         </div>
+                                        <div ng-switch-when="slink" class="feature-prop-value-align-right clickable-feature-prop" ng-click="vm.activateSemanticLink(item.value)" data-ng-bind-html="vm.toSemanticLink(item.value)"></div>
                                         <div ng-switch-default class="feature-prop-value-align-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div class="feature-prop-content" ng-if="!item.configMode">
                                         <div ng-if="item.showMore" data-ng-switch="item.propertyType.type" style="margin-bottom:10px">
                                             <div ng-switch-when="number" class="feature-prop-stats">
-                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.COUNT_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true" translate>STATS.COUNT</span>
+                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.COUNT_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true" translate>STATS.COUNT</span>
                                                     <span class="item-stat-value">{{item.stats.count | number}}</span>
                                                 </span>
-                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MIN_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true" translate>STATS.MIN</span>
+                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MIN_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true" translate>STATS.MIN</span>
                                                     <span class="item-stat-value">{{item.stats.min | number}}</span>
                                                 </span>
-                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MAX_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true" translate>STATS.MAX</span>
+                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MAX_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true" translate>STATS.MAX</span>
                                                     <span class="item-stat-value">{{item.stats.max | number}}</span>
                                                 </span>
-                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.SUM_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true" translate>STATS.SUM</span>
+                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.SUM_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true" translate>STATS.SUM</span>
                                                     <span class="item-stat-value">{{item.stats.sum | number}}</span>
                                                     <!--<span class="item-stat-value" stringy ng-model="item.stats.sum"></span>-->
                                                 </span>
-                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MEAN_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true" translate>STATS.MEAN</span>
+                                                <span class="item-stat"><span class="item-stat-title" uib-popover="{{'STATS.MEAN_TOOLTIP' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true" translate>STATS.MEAN</span>
                                                     <span class="item-stat-value">{{item.stats.mean | number}}</span>
                                                 </span>
                                                 <!-- <button class="button" ng-click="vm.setCorrelation(item,$event)">cor</button> -->
@@ -166,23 +170,23 @@
                                             <!--<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>-->
                                         </div>
                                         <div class="icons-on-hover" ng-if="!item.configMode">
-                                            <div class="property-action" style="right:0px" uib-popover="{{'UTILS.FILTER' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div class="property-action" style="right:0px" uib-popover="{{'UTILS.FILTER' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true">
                                                 <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter pointer makeNarrow"
                                                 data-ng-click="vm.setFilter(item,$event)"></a>
                                                 <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow"
                                                 data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)"></a>
                                             </div>
-                                            <div data-ng-if="item.canStyle" class="property-action" style="left:15px" uib-popover="{{'UTILS.STYLE' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div data-ng-if="item.canStyle" class="property-action" style="left:15px" uib-popover="{{'UTILS.STYLE' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true">
                                                 <a data-ng-hide="item.feature._gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"></a>
                                                 <a data-ng-show="item.feature._gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow pointer" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"></a>
                                             </div>
-                                            <div ng-if="item.canShowStats && item.propertyType.type === 'number'" class="property-action" style="left:30px" uib-popover="{{'UTILS.STATS' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div ng-if="item.canShowStats && item.propertyType.type === 'number'" class="property-action" style="left:30px" uib-popover="{{'UTILS.STATS' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true">
                                                 <a class="fa fa-calculator makeNarrow pointer" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)"></a>
                                             </div>
-                                            <div ng-if="item.isSensor" class="property-action" style="left:45px" uib-popover="{{'UTILS.CHART' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div ng-if="item.isSensor" class="property-action" style="left:45px" uib-popover="{{'UTILS.CHART' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true">
                                                 <a class="fa fa-area-chart makeNarrow pointer" ng-click="vm.createSparkLineChart(item)"></a>
                                             </div>
-                                            <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:60px" uib-popover="{{'UTILS.CONFIG' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:60px" uib-popover="{{'UTILS.CONFIG' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="'mouseenter'" popover-append-to-body="true">
                                                 <a class="fa fa-cog makeNarrow pointer" data-toggle="collapse" ng-click="item.configMode=!item.configMode"></a>
                                             </div>
                                         </div>

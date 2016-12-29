@@ -211,7 +211,8 @@ module Translations {
             IMAGE_REQUESTED: 'Image is being generated...',
             IMAGE_WILL_APPEAR: 'The image will appear in a few moments.',
             ERROR_LOADING_LAYER: 'Error while loading layer',
-            COULD_NOT_GET_DATA: 'Could not get the data of layer "{{layer}}".'
+            COULD_NOT_GET_DATA: 'Could not get the data of layer "{{layer}}".',
+            COMPARE_TAB: 'Compare'
         };
     }
 }

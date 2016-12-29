@@ -27,7 +27,7 @@ Technically, we use the following frameworks:
 
 ### How do I get set up? ###
 
-The application is written in Typescript, which compiles to regular JavaScript, and further uses Angularjs as the framework, Leaflet and Cesium for rendering maps, d3 and others. A detailed guide is provided [here](https://github.com/TNOCS/csWeb/wiki/Getting-started), a concise installation checklist [here](https://github.com/TNOCS/csWeb/wiki/Installation-checklist).
+The application is written in Typescript, which compiles to regular JavaScript, and further uses Angularjs as the framework, Leaflet and Cesium for rendering maps, d3 and others. A detailed guide is provided [here](https://github.com/TNOCS/csWeb/wiki/Getting-started), a concise [installation checklist here](https://github.com/TNOCS/csWeb/wiki/Installation-checklist).
 
 This repository consists of several project folders. The  most important ones are csComp, a library containing client side functionality, and csServerComp, for server side components. Both libraries generate a JavaScript file that can be used by the actual map application which you can find in the `example` folder.
 

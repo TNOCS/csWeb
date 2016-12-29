@@ -372,7 +372,9 @@
         "expertMode": {
             "id": "http://jsonschema.net/expertMode",
             "type": "integer",
-            "description": "If true (default false), determines what the user sees (e.g. timeline is for experts)."
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Set the expertise level between 1 (beginner, e.g. no timeline, etc.) en 4 (admin)."
         },
         "groups": {
             "id": "http://jsonschema.net/groups",
@@ -441,6 +443,11 @@
                         "id": "http://jsonschema.net/groups/0/title",
                         "type": "string",
                         "description": "Title of the group."
+                    },
+                    "defaultLegendProperty": {
+                        "id": "http://jsonschema.net/groups/0/defaultLegendProperty",
+                        "type": "string",
+                        "description": "Supply the name of the property for which you wish to display a legend."
                     },
                     "layers": {
                         "id": "http://jsonschema.net/groups/0/layers",

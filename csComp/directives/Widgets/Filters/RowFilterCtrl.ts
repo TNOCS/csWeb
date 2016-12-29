@@ -59,13 +59,13 @@ module Filters {
             else {
 
             }
-            
+
             if ((<any>window).canvg) {
                 this.exporterAvailable = true;
             } else {
                 this.exporterAvailable = false;
             }
-            
+
             this.$messageBus.subscribe('filters', (title: string, groupId) => {
                 switch (title) {
                     case 'updateGroup': 
@@ -88,7 +88,7 @@ module Filters {
                             res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
-                    
+
                     if (this.exporterAvailable) {
                         res.push([$scope.saveAsImageString, () => this.exportToImage()]);
                     }
@@ -121,41 +121,33 @@ module Filters {
             this.$scope.$apply();
 
             var pt : csComp.Services.IPropertyType;
-            var orderList: {[key: string]: {nr: number, sortKey: string}} = {};          
+
 
             var dcDim = group.ndx.dimension(d => {
-                if (!pt) pt = this.$layerService.getPropertyType(d, filter.property);
-                if (!d.properties.hasOwnProperty(filter.property)) {
-                    if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
-                        return pt.legend.defaultLabel;
-                    } else {
-                        return null;
-                    }
-                } else {
-                    if (d.properties[filter.property] != null) {
-                        var a = d.properties[filter.property];
-                        if (pt.type === 'options') {
-                            var r;
-                            if (pt && pt.options && pt.options.hasOwnProperty(a)) {
-                                r = pt.options[a];
-                            } else {
-                                r = a;
-                            }
-                            return r;
-                        } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
-                            var label;
-                            pt.legend.legendEntries.some((le) => {
-                                if (a >= le.interval.min && le.interval.max >= a) {
-                                    label = le.label;
-                                    return true;
-                                }
-                            });
-                            if (!label) {
-                                if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
-                                    label = pt.legend.defaultLabel;
-                                } else {
-                                    label = 'Onbekend';
-                                }
+                if (!d.properties.hasOwnProperty(filter.property)) return null;
+                else {
+                    if (!pt) pt = this.$layerService.getPropertyType(d,filter.property);
+                        if (d.properties[filter.property] != null) {
+                            var a = d.properties[filter.property];
+                            if (pt.type === 'options') {
+                                var r;
+                                var key = a.toString();
+                                if (pt && pt.options && pt.options.hasOwnProperty(key)) {
+                                    r = key + "." + pt.options[key];
+                                } else { r = key + "." + key}
+                                return r;
+                            } else if (pt.type === 'number' && pt.hasOwnProperty('legend')) {
+                                var label;
+                                pt.legend.legendEntries.some((le) => {
+                                    if (a >= le.interval.min && le.interval.max >= a) {
+                                        label = le.label;
+                                        return true;
+                                    }
+                                });
+                                if (!label) label = 'other';
+                                return label;
+                            } else if (pt.type === 'text' || pt.type === 'textarea' || pt.type === 'textarea-right') {
+                                return a;
                             }
                             return label;
                         } else if (pt.type === 'text' || pt.type === 'textarea' || pt.type === 'textarea-right') {
@@ -167,7 +159,7 @@ module Filters {
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
-            
+
             // If a legend is present, add a group for each entry, such that it is shown in the filter even when there are no such features in the group (yet).
             if (pt && pt.legend) {
                 var allEntries = [];
@@ -191,18 +183,18 @@ module Filters {
                 sortKeys = sortKeys.sort();
                 _.each(orderList, (val, key) => { val.nr = sortKeys.indexOf(val.sortKey)});
             }
-            
+
             var ensuredGroup = (fakeGroup ? this.ensureAllBins(dcGroup, fakeGroup) : null);
             var h = (ensuredGroup && ensuredGroup.size() < 6) ? 180 : 250;
 
-            this.dcChart.width(275)
-                .height(h)        
-                .margins({top: 2, right: 2, bottom: 2, left: 2})        
+            this.dcChart.width(380)
+                .height(285)
+                .margins({top: 2, right: 2, bottom: 2, left: 2})
                 .dimension(dcDim)
                 .group(ensuredGroup || dcGroup)
                 .title(d=> {
                     return d.key })
-                .elasticX(true)                
+                .elasticX(true)
                 .colors(d=>{
                     if (pt && pt.legend) {
                         if (pt.options) {
@@ -256,15 +248,13 @@ module Filters {
                     }, 100);
                 })
                 .on('filtered', (e) => {
-                    console.log('Filtered rowchart ' + e.dimension().top(1000).length + ' ' + e.anchorName());
-                    group.filterResult = dcDim.top(Infinity);
-                    this.$layerService.updateMapFilter(group);
+                    console.log(`Filtered rowchart (${e.dimension().top(1000).length})`);
                 });
             this.dcChart.xAxis().ticks(8);
             this.dcChart.selectAll();
             this.updateRange();
         }
-        
+
         private ensureAllBins(source_group, fake_group) { // (source_group, bins...}
             var bins = fake_group.all().slice(0);
             return {
@@ -334,7 +324,7 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-        
+
         public exportToImage() {
             var canvg = (<any>window).canvg || undefined;
             if (!canvg) return;

@@ -12,10 +12,13 @@ module ChartsWidget {
         generator: any;
         _id: string;
         _view: any;
+        _csv: any;
     }
 
     declare var vg;
     declare var vl;
+    declare var domtoimage;
+    declare var saveAs;
 
     export interface IChartScope extends ng.IScope {
         vm: ChartCtrl;
@@ -24,7 +27,7 @@ module ChartsWidget {
         spec: string;
     }
 
-    export class ChartCtrl {
+    export class ChartCtrl implements csComp.Services.IWidgetCtrl {
         private scope: IChartScope;
         public widget: csComp.Services.BaseWidget;
         private parentWidget: JQuery;
@@ -112,16 +115,61 @@ module ChartsWidget {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
+            this.widget._ctrl = this;
 
             $scope.data = <ChartData>this.widget.data;
             $scope.data._id = this.widget.id;
             $('#' + this.widget.elementId).on('remove', () => {
                 if (this.generator) this.generator.stop();
             });
-            //$scope.$on('destroy', () => {
         }
 
         private keyHandle;
+
+        public startEdit() {
+
+        }
+
+        public goFullscreen() {
+
+
+        }
+
+        public getOptions() {
+            var options = [];
+            options.push({
+                title: "Export to image", action: (w) => {
+                    this.savePng();
+                }
+            });
+            if (this.$scope.data._csv) {
+                options.push({
+                    title: "Export to csv", action: (w) => {
+                        var blob = new Blob([this.$scope.data._csv], { type: "text/plain;charset=utf-8" });
+
+                        saveAs(blob, this.widget.data['title'] + "_export.csv");
+                    }
+                });
+            }
+            return options;
+        }
+
+        public savePng() {
+
+            domtoimage.toPng(document.querySelector('#' + this.widget.elementId))
+                .then((image) => {
+                    //image = image.replace('image/png;base64', '');
+                    csComp.Helpers.saveImage(image, this.widget.data['title'], "png");
+
+                    // var img = new Image();
+                    // img.src = dataUrl;
+                    // document.body.appendChild(img);
+                })
+                .catch((error) => {
+                    this.$layerService.$messageBusService.notify("Error saving chart", "When saving charts, only the latest version of chrome is supported");
+
+                });
+        }
 
         public initChart() {
 
@@ -133,7 +181,7 @@ module ChartsWidget {
                 if (d.lite) vgspec = vl.compile(d._spec);
                 //parse(vgspec);
                 if (vgspec)
-                    
+
 
                     var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
                         d._view = view;
@@ -147,13 +195,13 @@ module ChartsWidget {
             }
         }
 
-        public updateChart() {  
+        public updateChart() {
             try {
                 var d = this.$scope.data;
                 var vgspec = d._spec;
                 if (d.lite) vgspec = vl.compile(d._spec);
                 //if (d._view) d._view.update();
-                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id, renderer : "svg" }).update(); });
+                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id, renderer: "svg" }).update(); });
             }
             catch (e) {
 
@@ -163,7 +211,7 @@ module ChartsWidget {
 
         public startChart() {
             var d = this.$scope.data;
-            
+
             //console.log(d);
 
             // if a chart generator is specified, find it and start it
@@ -174,9 +222,9 @@ module ChartsWidget {
                     return;
                 }
             } else {
-                // if no generator is specified, use the spec from data                
-                    d._spec = d.spec || this.defaultSpec;
-                
+                // if no generator is specified, use the spec from data
+                d._spec = d.spec || this.defaultSpec;
+
                 this.initChart();
 
                 // check if a key is defined, a key can be used to listen to new data or complete vega specifications

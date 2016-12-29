@@ -147,7 +147,11 @@ module csComp.Services {
         }
 
         public connect(callback: Function) {
-            if (this.isConnected || this.isConnecting || typeof io === 'undefined') return;
+            if (this.isConnected || this.isConnecting || typeof io === 'undefined') {
+                console.log((typeof io === 'undefined') ? 'SocketIO is not defined!' : 'SocketIO already connected');
+                callback();
+                return;
+            }
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect', () => {
@@ -222,6 +226,7 @@ module csComp.Services {
 
         private connections: { [id: string]: Connection } = {};
         private notifications: any[] = [];
+        private confirms: any[] = [];
 
         // Locations: 
         private stack_topleft = {'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 125, 'firstpos2': 25};
@@ -267,7 +272,7 @@ module csComp.Services {
 
         public serverSendMessage(msg: ClientMessage, serverId = '') {
             var c = this.getConnection(serverId);
-            if (c == null) return null;
+            if (c == null || c.socket == null) return null;
             c.socket.emit('msg', msg);
         }
 
@@ -418,6 +423,7 @@ module csComp.Services {
                 hide: true
             };
             if (typeof duration != 'undefined') opts['delay'] = duration;
+            if (notifyType != NotifyType.Normal) opts['type'] = NotifyType[notifyType].toLowerCase();
 
             var PNot = new PNotify(opts);
             this.notifications.push(PNot);
@@ -428,7 +434,7 @@ module csComp.Services {
             var c = [];
             // buttons.forEach(b=>{
             //     c.push({ text: c, addClass: "", promptTrigger: true, click: (notice, value) =>{ notice.remove(); notice.get().trigger("pnotify.confirm", [notice, value]); } })
-            // })            
+            // })
             var options = {
                 title: title,
                 text: text,
@@ -468,7 +474,10 @@ module csComp.Services {
          * @text            : the contents of the notification
          * @callback        : the callback that will be called after the confirmation has been answered.
 		 */
-        public confirm(title: string, text: string, callback: (result: boolean) => any) : any {
+        public confirm(title: string, text: string, callback: (result: boolean) => any, allowDuplicate = true) : any {
+            if (!allowDuplicate && this.confirms && _.any(this.confirms,
+                (n) => { return (!n.options.closed && n.options.title === title && n.options.text === text ); })) return;
+
             var options = {
                 title: title,
                 text: text,
@@ -476,6 +485,7 @@ module csComp.Services {
                 width: '500px',
                 animation: 'fade',
                 hide: false,
+                closed : false,
                 confirm: {
                     confirm: true
                 },
@@ -493,8 +503,12 @@ module csComp.Services {
             };
 
             var pn = new PNotify(options).get()
-                .on('pnotify.confirm', () => { callback(true); })
-                .on('pnotify.cancel', () => { callback(false); });
+                .on('pnotify.confirm', (n) => {
+                    options.closed = true;  callback(true); })
+                .on('pnotify.cancel', (n) => { options.closed = true; callback(false); });
+            (<any>pn).options = options;
+
+            this.confirms.push(pn);
             return pn;
         }
 

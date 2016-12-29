@@ -52,7 +52,7 @@ module csComp.Helpers {
 
             Plot.clearSvg(svgId);
 
-            if (values.length < numberOfBins) return;
+            // if (values.length < numberOfBins) return;
 
             // A formatter for counts.
             var formatCount = d3.format(",.0f");

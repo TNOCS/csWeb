@@ -9,6 +9,23 @@
 module csComp.Helpers {
 
     /**
+     * Translate the object to the user's language.
+     */
+    export function translateObject(obj: any, language: string, recursive = false): any {
+        if (obj && obj.hasOwnProperty('languages') && obj.languages.hasOwnProperty(language)) {
+            for (var p in obj.languages[language]) {
+                obj[p] = obj.languages[language][p];
+            }
+        }
+        if (recursive) {
+            for (var key in obj) {
+                if (_.isObject(obj[key])) obj[key] = translateObject(obj[key], language, recursive);
+            }
+        }
+        return obj;
+    }
+
+    /**
      * Serialize an array of type T to a JSON string, by calling the callback on each array element.
      */
     export function serialize<T>(arr: Array<T>, callback: (T) => Object, skipTitlesOrIdStartingWithUnderscore = false) {
@@ -117,7 +134,7 @@ module csComp.Helpers {
             document.body.removeChild(a);
         }
     }
-    
+
     /**
      * Export image to the file system.
      */
@@ -256,7 +273,11 @@ module csComp.Helpers {
                 } else if (type._propertyTypeData != null) {
                     // If you cannot find it there, look it up in the featureType's propertyTypeData.
                     var result = $.grep(type._propertyTypeData, e => e.label === key);
-                    if (result.length >= 1) propertyTypes.push(result);
+                    if (result.length >= 1) {
+                        result.forEach((res) => {
+                            propertyTypes.push(res);
+                        });
+                    }
                 }
             });
         }
@@ -686,7 +707,7 @@ module csComp.Helpers {
             case 'Line':
                 break;
             case 'Polygon':
-                html = '<img src="images/bom.png"></img>';
+                html = `<img src="${iconUri || 'images/bom.png'}"></img>`;
                 break;
             case 'Point':
                 // TODO refactor to object

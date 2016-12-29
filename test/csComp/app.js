@@ -14,32 +14,32 @@ var App;
             this.geoService = geoService;
             this.layerMessageReceived = function (title, layer) {
                 switch (title) {
-                    case "loading":
+                    case 'loading':
                         _this.$scope.layersLoading += 1;
-                        console.log("Loading");
+                        console.log('Loading');
                         break;
-                    case "activated":
+                    case 'activated':
                         if (_this.$scope.layersLoading >= 1)
                             _this.$scope.layersLoading -= 1;
-                        console.log("Activated");
+                        console.log('Activated');
                         break;
-                    case "error":
+                    case 'error':
                         _this.$scope.layersLoading = 0;
-                        console.log("Error loading");
+                        console.log('Error loading');
                         break;
-                    case "deactivate":
+                    case 'deactivate':
                         break;
                 }
-                var $contextMenu = $("#contextMenu");
-                $("body").on("contextmenu", "table tr", function (e) {
+                var $contextMenu = $('#contextMenu');
+                $('body').on('contextmenu', 'table tr', function (e) {
                     $contextMenu.css({
-                        display: "block",
+                        display: 'block',
                         left: e.pageX,
                         top: e.pageY
                     });
                     return false;
                 });
-                $contextMenu.on("click", "a", function () {
+                $contextMenu.on('click', 'a', function () {
                     $contextMenu.hide();
                 });
                 // NOTE EV: You need to call apply only when an event is received outside the angular scope.
@@ -50,18 +50,13 @@ var App;
             };
             this.featureMessageReceived = function (title) {
                 switch (title) {
-                    case "onFeatureSelect":
+                    case 'onFeatureSelect':
                         _this.$scope.featureSelected = true;
                         break;
-                    case "onFeatureDeselect":
+                    case 'onFeatureDeselect':
                         _this.$scope.featureSelected = false;
                         break;
                 }
-                // NOTE EV: You need to call apply only when an event is received outside the angular scope.
-                // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
-                // if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                //     this.$scope.$apply();
-                // }
             };
             /**
              * Callback function
@@ -71,77 +66,69 @@ var App;
              */
             this.sidebarMessageReceived = function (title) {
                 switch (title) {
-                    case "toggle":
+                    case 'toggle':
                         _this.$scope.showMenuRight = !_this.$scope.showMenuRight;
                         break;
-                    case "show":
+                    case 'show':
                         _this.$scope.showMenuRight = true;
                         break;
-                    case "hide":
+                    case 'hide':
                         _this.$scope.showMenuRight = false;
                         break;
                     default:
                 }
             };
-            sffjs.setCulture("nl-NL");
+            sffjs.setCulture('nl-NL');
             $scope.vm = this;
             $scope.showMenuRight = false;
             $scope.featureSelected = false;
             $scope.layersLoading = 0;
-            $messageBusService.subscribe("project", function (action) {
-                if (action === "loaded") {
+            $messageBusService.subscribe('project', function (action) {
+                if (action === 'loaded') {
                     _this.areaFilter = new AreaFilter.AreaFilterModel();
                     _this.$layerService.addActionService(_this.areaFilter);
                     _this.contourAction = new ContourAction.ContourActionModel();
                     _this.$layerService.addActionService(_this.contourAction);
-                    // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
-                    // Alternatively, check for it or use (dependency injected) $timeout.
-                    if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest') {
+                    if ($scope.$root.$$phase !== '$apply' && $scope.$root.$$phase !== '$digest') {
                         $scope.$apply();
                     }
                 }
             });
-            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
-            $messageBusService.subscribe("layer", this.layerMessageReceived);
-            var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
-            this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            $messageBusService.subscribe('feature', this.featureMessageReceived);
+            $messageBusService.subscribe('layer', this.layerMessageReceived);
             this.$layerService.visual.rightPanelVisible = false; // otherwise, the rightpanel briefly flashes open before closing.
-            this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
+            this.$layerService.openSolution('data/projects/projects.json', $location.$$search.layers);
         }
         /**
          * Publish a toggle request.
          */
         AppCtrl.prototype.toggleMenuRight = function () {
-            this.$messageBusService.publish("sidebar", "toggle");
+            this.$messageBusService.publish('sidebar', 'toggle');
         };
         AppCtrl.prototype.toggleMenu = function () {
             this.$mapService.invalidate();
         };
         AppCtrl.prototype.toggleSidebar = function () {
-            this.$messageBusService.publish("sidebar", "toggle");
-            window.console.log("Publish toggle sidebar");
+            this.$messageBusService.publish('sidebar', 'toggle');
+            window.console.log('Publish toggle sidebar');
         };
-        //public showTable(tableVisible: boolean) {
-        //    this.$mapService.mapVisible = !tableVisible;
-        //}
         AppCtrl.prototype.isActive = function (viewLocation) {
             return viewLocation === this.$location.path();
         };
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        AppCtrl.$inject = [
-            '$scope',
-            '$location',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService',
-            'geoService'
-        ];
         return AppCtrl;
-    })();
+    }());
+    // It provides $injector with information about dependencies to be injected into constructor
+    // it is better to have it close to the constructor, because the parameters must match in count and type.
+    // See http://docs.angularjs.org/guide/di
+    AppCtrl.$inject = [
+        '$scope',
+        '$location',
+        'mapService',
+        'layerService',
+        'messageBusService',
+        'dashboardService',
+        'geoService'
+    ];
     App.AppCtrl = AppCtrl;
     // http://jsfiddle.net/mrajcok/pEq6X/
     //declare var google;
@@ -154,19 +141,23 @@ var App;
         'LocalStorageModule',
         'angularUtils.directives.dirPagination',
         'pascalprecht.translate',
-        'ngCookies', 
-        'angularSpectrumColorpicker',
-        'wiz.markdown',
-        'ngAnimate'
+        'ngCookies', 'angularSpectrumColorpicker',
+        'wiz.markdown', 'ngAnimate'
     ])
+        .config(function ($compileProvider) {
+        $compileProvider.preAssignBindingsEnabled(true);
+    })
+        .config(function ($qProvider) {
+        $qProvider.errorOnUnhandledRejections(false);
+    })
         .config(function (localStorageServiceProvider) {
         localStorageServiceProvider.prefix = 'csMap';
     })
         .config(function (TimelineServiceProvider) {
         TimelineServiceProvider.setTimelineOptions({
             'width': '100%',
-            "eventMargin": 0,
-            "eventMarginAxis": 0,
+            'eventMargin': 0,
+            'eventMarginAxis': 0,
             'editable': false,
             'layout': 'box'
         });
@@ -181,9 +172,22 @@ var App;
         // TODO ADD YOUR LOCAL TRANSLATIONS HERE, OR ALTERNATIVELY, CHECK OUT
         // http://angular-translate.github.io/docs/#/guide/12_asynchronous-loading
         // Translations.English.locale['MAP_LABEL'] = 'MY AWESOME MAP';
-        $translateProvider.translations('en', Translations.English.locale);
-        $translateProvider.translations('nl', Translations.Dutch.locale);
+        // Append local translations if present
+        if (Translations.DutchAdditional && Translations.DutchAdditional.locale) {
+            $translateProvider.translations('nl', $.extend(Translations.Dutch.locale, Translations.DutchAdditional.locale));
+        }
+        else {
+            $translateProvider.translations('nl', Translations.Dutch.locale);
+        }
+        if (Translations.EnglishAdditional && Translations.EnglishAdditional.locale) {
+            $translateProvider.translations('en', $.extend(Translations.English.locale, Translations.EnglishAdditional.locale));
+        }
+        else {
+            $translateProvider.translations('en', Translations.English.locale);
+        }
         $translateProvider.preferredLanguage('en');
+        // Enable escaping of HTML
+        $translateProvider.useSanitizeValueStrategy('escape');
     })
         .config(function ($languagesProvider) {
         // Defines the GUI languages that you wish to use in your project.

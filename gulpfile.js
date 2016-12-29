@@ -88,7 +88,7 @@ gulp.task('tsc', function (cb) {
 gulp.task('travis', function (cb) {
     runSequence(
         'init',
-        'test',
+        // 'test', // travis automatically runs 'npm test'
         cb);
 });
 
@@ -206,7 +206,8 @@ gulp.task('watch', function (cb) {
 
 gulp.task('init', function (cb) {
     runSequence(
-        'tsc',
+        // 'typings', //performed by npm install
+        // 'tsc', //performed by npm install
         'built_csComp',
         'built_csComp.d.ts',
         'minify_csComp',

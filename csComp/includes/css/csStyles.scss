@@ -4,6 +4,7 @@ $background-dark: #aaa;
 $background-light: #eee;
 $navbar-height: 50px;
 $tooltip-header: #aaa;
+$rightpanel-width: 355px;
 
 .modal-backdrop.in
 {
@@ -144,10 +145,10 @@ body,
         }
 
 /* general structure */
- .righttab-box {
+        .righttab-box {
             position: absolute;
-           left: 50%;
-           top:-1px;
+            left: 50%;
+            top:-1px;
             transform: translate(-50%, 0);
             width: 350px;
             height: 50px;
@@ -180,15 +181,14 @@ body,
         .lp-tab.active {
             background: lightskyblue
         }
-        
+
         .lp-tab.close-tab {
             width: 26px;
             float: right;
-            padding: 2px;
-            padding-top: 10px;
-            border-left: 1px solid lightgray;
+            padding: 0px;
             cursor: pointer;
             font-size: 28px;
+            margin-top: -4px;
         }
 
         .search-icon {
@@ -337,6 +337,12 @@ body,
     color:black
 }
 
+.focustime-widget-compare
+{
+    margin-left:20px;
+    font-size: 14px;
+}
+
 .focustime-widget-time
 {
     font-size: 30px;
@@ -399,8 +405,7 @@ body,
 
 .header-container
 {
-    background:rgba(66,22,95, 0.7);
-    color:white;
+    color:black;
     padding: 4px;
     height:40px;
 }
@@ -420,10 +425,11 @@ body,
 /* vega charts */
 .vega-title {
     font-size: 16px;
+    margin-bottom: 10px;
 }
 /* leaflet context menu */
 .leaflet-contextmenu {
-    display: none; 
+    display: none;
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -512,7 +518,7 @@ body,
     pointer-events: all;
     position: absolute;
     vertical-align: top;
-    width: 350px;
+    width: $rightpanel-width - 5px;
     height: 100%;
     background-color: white;
     right: 0;
@@ -574,6 +580,10 @@ body,
     font-size: 13px;
     position: absolute;
     left: 40px;
+}
+.legend-entry-row {
+    padding-left: 12px;
+    padding-bottom: 2px;
 }
 
 /* End StyleList */
@@ -697,6 +707,10 @@ body,
     position: absolute;
 }
 
+#compare-widget-table tbody > tr > td {
+    max-width: 150px;
+}
+
 .widgetShadow
 {
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4)
@@ -755,6 +769,16 @@ body,
     border-bottom-style: solid;
     border-bottom-width: 5px;
     height: 50px;
+}
+
+.credits-title {
+    margin-top: 16px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.no-margin {
+    margin: 0;
 }
 
 .project-logo
@@ -866,6 +890,7 @@ body,
    display: table;
    width: 100%;
    table-layout: fixed;
+   padding: 8px 4px 8px 4px;
 }
 .legendCellLeft {
     display: table-cell;
@@ -963,8 +988,8 @@ body,
 }
 
 .mca-criterion {
-    display: inline-block; 
-    width: 280px; 
+    display: inline-block;
+    width: 280px;
     font-weight: bold;
 }
 
@@ -1347,6 +1372,11 @@ body,
 #featureprops-content:hover leftpanel-header-button-container {
     opacity: 0.5;
 }
+
+#featureprops-content {
+    max-width: $rightpanel-width;
+}
+
 .enable-newlines {
     white-space: pre-wrap;
 }
@@ -1395,10 +1425,10 @@ body,
     height: 100%;
     margin: 0 0 8px;
     border-radius: 4px;
-    border: 1px black solid;
-    -webkit-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
-    -moz-box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
-    box-shadow: 4px 4px 6px 2px rgba(0,0,0,0.6);
+    border: 0px black solid;
+    -webkit-box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
+    box-shadow:  0 4px 5px rgba(0, 0, 0, 0.3);
 }
 
 .button-widget-description
@@ -1461,6 +1491,19 @@ body,
     background: #aaa;
     color: white;
 }
+
+.button-toggle-button
+{
+    cursor: pointer;
+    position: absolute;
+    color: black;
+    text-decoration: none;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+}
+
 
 .button-edit-button
 {
@@ -2375,7 +2418,7 @@ input[type="checkbox"] {
     right: 0;
     bottom:0;
     top: 0;
-    z-index: 2;
+    z-index: 9999;
 }
 #rightpanelTabPanes {
     @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));
@@ -2795,6 +2838,10 @@ input[type="checkbox"] {
     margin-top: -10px;
 }
 
+.tab-content {
+    width: $rightpanel-width;
+}
+
 /* custom inclusion of right, left and below tabs */
 #rightpanelTabContainer.tabs-below > .nav-tabs,
 #rightpanelTabContainer.tabs-right > .nav-tabs,
@@ -2902,6 +2949,7 @@ input[type="checkbox"] {
     /* Chrome */
     display: none !important;
     transition: 1s ease-in-out all;
+    width: $rightpanel-width;
 }
 .tab-pane.active {
     display: block !important;
@@ -3250,9 +3298,17 @@ input[type="checkbox"] {
     width: 32px;
     // height:20px;
 }
+
+.property-style
+{
+margin-left: -10px;
+    padding-left: 5px;
+}
+
 .property-style-selected {
-    background-color: lightskyblue;
-    border: 1px solid black;
+    height: 50px;
+
+    background: lightgray;
 }
 
 .pointer-cursor {

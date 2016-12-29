@@ -230,6 +230,8 @@ module FeatureProps {
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
         }
 
+
+
         public sectionCount(): number {
             return this.sectionKeys.length;
         }
@@ -316,7 +318,7 @@ module FeatureProps {
             $scope.vm = this;
             $scope.showMenu = false;
 
-            $scope.featureTabActivated = function(sectionTitle: string, section: CallOutSection) {
+            $scope.featureTabActivated = function (sectionTitle: string, section: CallOutSection) {
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
 
@@ -324,9 +326,9 @@ module FeatureProps {
             console.log('init featurepropsctrl');
             $messageBusService.subscribe('feature', this.featureMessageReceived);
 
-            var widthOfList = function() {
+            var widthOfList = function () {
                 var itemsWidth = 0;
-                $('#featureTabs>li').each(function() {
+                $('#featureTabs>li').each(function () {
                     var itemWidth = $(this).outerWidth();
 
                     itemsWidth += itemWidth;
@@ -334,7 +336,7 @@ module FeatureProps {
                 return itemsWidth;
             };
 
-            $scope.autocollapse = function(initializeTabPosition = false) {
+            $scope.autocollapse = function (initializeTabPosition = false) {
                 var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
@@ -412,8 +414,7 @@ module FeatureProps {
         }
 
         public openImage(img: string) {
-            window.open(img, 'mywindow', 'width=600')
-
+            window.open(img, 'mywindow', 'width=600');
         }
 
         public saveFeature() {
@@ -437,6 +438,8 @@ module FeatureProps {
 
         public setFilter(item: CallOutProperty, $event: ng.IAngularEvent) {
             this.$layerService.setPropertyFilter(item);
+            this.$layerService.visual.leftPanelVisible = true;
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show');
             $event.stopPropagation();
         }
 
@@ -451,6 +454,20 @@ module FeatureProps {
                 console.log(e + ': ' + html);
                 return '';
             }
+        }
+
+        public toSemanticLink(value: string): string {
+            var parts = value.split('@');
+            return parts[0];
+        }
+
+        public activateSemanticLink(value: string) {
+            this.$messageBusService.publish('semantic', 'activate', value);
+            // var parts = value.split('@');
+            // if (parts.length > 0) {
+            //     alert(parts[1]);
+            // }
+
         }
 
         public openLayer(property: FeatureProps.CallOutProperty) {

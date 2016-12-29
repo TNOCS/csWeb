@@ -38,7 +38,7 @@ module LayerEditor {
             private $dashboardService: csComp.Services.DashboardService
         ) {
             this.scope = $scope;
-            $scope.vm = this;            
+            $scope.vm = this;
             if (!this.scope.layer) {
                 if ($scope.$parent.hasOwnProperty("b")) {
                     this.layer = $scope.$parent["b"]["_layer"];
@@ -105,7 +105,7 @@ module LayerEditor {
                         if (tr.featureTypes.hasOwnProperty(key)) {
                             var ft = tr.featureTypes[key];
                             if (!ft._isInitialized) {
-                                this.$layerService.initFeatureType(ft, tr.propertyTypeData);
+                                this.$layerService.initFeatureType(ft, tr);
                             }
                             if (_.isArray(ft._propertyTypeData)) {
                                 for (var k in ft._propertyTypeData) {

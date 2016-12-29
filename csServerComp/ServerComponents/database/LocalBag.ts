@@ -4,11 +4,12 @@ import sqlite3 = require('sqlite3');
 import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('./Location');
 import IBagOptions = require('../database/IBagOptions');
+import IAddressSource = require('../database/IAddressSource');
 
 /**
  * Export a connection to the BAG database.
  */
-export class LocalBag {
+export class LocalBag implements IAddressSource.IAddressSource {
     private connectionString: string;
     private db: sqlite3.Database;
 
@@ -25,6 +26,20 @@ export class LocalBag {
 
         //console.log("Poolsize: " + pg.defaults.poolSize);
         // console.log("BAG connection: " + this.connectionString);
+    }
+
+    public init() {};
+
+    public searchAddress(query: string, limit: number = 15, callback: (searchResults) => void) {
+        console.log('Not implemented');
+        callback(null);
+        return;
+    }
+
+    public searchGemeente(query: string, limit: number = 15, callback: (searchResults) => void) {
+        console.log('Not implemented');
+        callback(null);
+        return;
     }
 
     /**
@@ -107,14 +122,20 @@ export class LocalBag {
         return null;
     }
 
-    public lookupBagArea(bounds: string, callback: (areas: Location[]) => void) {
+    public lookupBagArea(bounds: string, isArea: boolean, callback: Function) {
         console.log('Function not implemented');
+        callback(null);
+    }
+
+    public lookupBagBuurt(bounds: string, isArea: boolean, callback: Function) {
+        console.log('Function not implemented');
+        callback(null);
     }
 
     /**
      * Lookup the address from the BAG.
      */
-    public lookupBagAddress(zip: string, houseNumber: string, bagOptions: IBagOptions, callback: (addresses: Location[]) => void) {
+    public lookupBagAddress(zip: string, houseNumber: string, bagOptions: IBagOptions, callback: Function) {
         var zipCode: string = this.formatZipCode(zip);
         if (!zipCode) {
             console.log('No zip code: ' + zip);

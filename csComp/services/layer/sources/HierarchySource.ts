@@ -59,7 +59,8 @@ module csComp.Services {
                     // get data
 
                     this.$http.get(layer.url)
-                        .success((data: any) => {
+                        .then((res: {data: any}) => {
+                            let data = res.data;
                             layer.count = 0;
                             layer.isLoading = false;
 
@@ -92,7 +93,7 @@ module csComp.Services {
 
                             cb(null, null);
                         })
-                        .error(() => {
+                        .catch(() => {
                             layer.count = 0;
                             layer.isLoading = false;
                             this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + layer.url);

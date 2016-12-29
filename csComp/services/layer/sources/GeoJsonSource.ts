@@ -1,20 +1,107 @@
 module csComp.Services {
 
+    declare var LargeLocalStorage;
+
+
+
     export class GeoJsonSource implements ILayerSource {
         title = 'geojson';
         layer: ProjectLayer;
         requiresLayer = false;
         $http: ng.IHttpService;
 
-        public constructor(public service: LayerService, $http: ng.IHttpService) {
+        public constructor(public service: LayerService, $http: ng.IHttpService, public $storage: ng.localStorage.ILocalStorageService) {
             this.$http = $http;
         }
 
-        public refreshLayer(layer: ProjectLayer) {
-            var isEnabled = layer.enabled;
-            this.service.removeLayer(layer);
-            this.service.addLayer(layer);
-            layer.enabled = isEnabled;
+        public refreshLayer(layer: ProjectLayer, newLayer?: any) {
+            if (!_.isNull(newLayer)) {
+                var diffs = this.findFeatureDiff(layer, newLayer);
+                if (diffs) {
+                    diffs.forEach(d => {
+                        switch (d.type) {
+                            case ChangeType.Create:
+                                this.service.initFeature(<IFeature>d.value, layer, true, false);
+                                layer.data.features.push(d.value);
+                                var m = this.service.activeMapRenderer.addFeature(<IFeature>d.value);
+                                break;
+                            case ChangeType.Update:
+                                this.service.updateFeature(<IFeature>d.value);
+                                break;
+                            case ChangeType.Delete:
+                                this.service.removeFeature(<IFeature>d.value);
+                                break;
+                        }
+                    })
+                }
+            } else {
+                var isEnabled = layer.enabled;
+                this.service.removeLayer(layer);
+                this.service.addLayer(layer);
+                layer.enabled = isEnabled;
+            }
+
+        }
+
+        private findFeatureDiff(layer: ProjectLayer, newLayer: any): IChangeEvent[] {
+            if (!layer || !layer.data || !layer.data.features) return;
+            var featuresUpdates: IChangeEvent[] = [];
+            var updateTime = new Date().getTime();
+            let notUpdated = 0, updated = 0, added = 0, removed = 0;
+            let fts = newLayer.features;
+
+            let fCollectionIds = [];
+            if (_.isArray(fts)) {
+                fts.forEach((f: Feature) => {
+                    fCollectionIds.push(f.id);
+                    var feature = _.find(layer.data.features, (of: IFeature) => { return of.id === f.id; })
+                    if (!feature) {
+                        // ADD FEATURE
+                        //layer.features[f.id] = { f: f, updated: updateTime };
+                        featuresUpdates.push(<IChangeEvent>{ value: feature, type: ChangeType.Create, id: f.id });
+                        added += 1;
+                    } else if (!this.isFeatureUpdated(f, feature)) {
+                        // NO UPDATE
+                        notUpdated += 1;
+                    } else {
+                        // UPDATE
+                        //layer.features[f.id] = { f: f, updated: updateTime };
+                        featuresUpdates.push(<IChangeEvent>{ value: feature, type: ChangeType.Update, id: f.id });
+                        updated += 1;
+                    }
+                });
+            }
+            // // CHECK INACTIVE FEATURES
+            // let inactiveFeatures = _.difference(Object.keys(layer.features), fCollectionIds);
+            // if (inactiveFeatures && inactiveFeatures.length > 0) {
+            //     inactiveFeatures.forEach((fId) => {
+            //         if ((updateTime - layer.features[fId].updated) >= (this.restDataSourceOpts.pruneIntervalSeconds * 1000)) {
+            //             // REMOVE
+            //             featuresUpdates.push(<IChangeEvent>{ value: this.features[fId].f, type: Api.ChangeType.Delete, id: this.features[fId].f.id });
+            //             delete this.features[this.features[fId].f.id];
+            //             removed += 1;
+            //         }
+            //     });
+            // }
+            return featuresUpdates;
+
+        }
+
+        private isFeatureUpdated(f: IFeature, old: IFeature): boolean {
+            if (!f) return false;
+            // // Check geometry
+            // if (!this.restDataSourceOpts.diffIgnoreGeometry && !_.isEqual(f.geometry, this.features[f.id].f.geometry)) {
+            //     return true;
+            // }
+            if (!f.properties) return false;
+
+            // Check all properties
+            if (_.isEqual(f.properties, old.properties)) {
+                return false;
+            }
+            old.properties = f.properties;
+            old.geometry = f.geometry;
+            return true;
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
@@ -34,18 +121,17 @@ module csComp.Services {
                     let min = layer.timestamps[0];
                     let max = layer.timestamps[layer.timestamps.length - 1];
                     this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
-                }
-                else {
+                } else {
                     let min = null;
                     let max = null;
 
                     layer.data.features.forEach((f: Feature) => {
                         if (f.timestamps) {
-                            if (min === null)  { min = f.timestamps[0]; } else { if (min > f.timestamps[0]) min = f.timestamps[0]} 
-                            if (max === null) { max = f.timestamps[f.timestamps.length-1]; } else { if (max < f.timestamps[f.timestamps.length-1]) max = f.timestamps[f.timestamps.length-1]};                            
+                            if (min === null) { min = f.timestamps[0]; } else { if (min > f.timestamps[0]) min = f.timestamps[0] }
+                            if (max === null) { max = f.timestamps[f.timestamps.length - 1]; } else { if (max < f.timestamps[f.timestamps.length - 1]) max = f.timestamps[f.timestamps.length - 1] };
                         }
                     });
-                    
+
                     if (min !== null && max !== null) this.service.$messageBusService.publish('timeline', 'updateTimerange', { start: min, end: max });
 
                 }
@@ -86,24 +172,45 @@ module csComp.Services {
                         // check proxy
                         if (layer.useProxy) u = '/api/proxy?url=' + u;
 
-                        this.$http.get(u)
-                            .success((data) => {
+                        // check local storage
+
+                        if (layer.localStorage) {
+                            var d = window.localStorage.getItem('layer.' + layer.id);
+                            if (d) {
                                 layer.count = 0;
                                 layer.isLoading = false;
                                 layer.enabled = true;
-                                this.initLayer(data, layer);
+                                this.initLayer(JSON.parse(d), layer);
                                 if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
-                            })
-                            .error(() => {
-                                layer.count = 0;
-                                layer.isLoading = false;
-                                layer.enabled = false;
-                                layer.isConnected = false;
-                                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                                this.service.$messageBusService.publish('layer', 'error', layer);
-                                cb(null, null);
-                            });
+                            }
+                        }
+                        if (layer.isLoading) {
+
+                            this.$http.get(u)
+                                .then((res: {data: Solution}) => {
+                                    let data = res.data;
+                                    layer.count = 0;
+                                    layer.isLoading = false;
+                                    layer.enabled = true;
+                                    if (layer.localStorage) {
+                                        var d = JSON.stringify(data);
+                                        window.localStorage.setItem('layer.' + layer.id, d);
+                                        //this.$storage.set('layer.' + layer.id, JSON.stringify(data));
+                                    }
+                                    this.initLayer(data, layer);
+                                    if (layer.hasSensorData) this.fitTimeline(layer);
+                                    cb(null, null);
+                                }, () => {
+                                    layer.count = 0;
+                                    layer.isLoading = false;
+                                    layer.enabled = false;
+                                    layer.isConnected = false;
+                                    this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                                    this.service.$messageBusService.publish('layer', 'error', layer);
+                                    cb(null, null);
+                                });
+                        }
                     }
                 },
                 // Callback
@@ -144,6 +251,12 @@ module csComp.Services {
             if (!_.isUndefined(layer.data)) {
                 if (layer.data.geometries && !layer.data.features) {
                     layer.data.features = layer.data.geometries;
+                }
+
+                //Filter duplicate features (by feature.id)
+                let featuresWithoutId = layer.data.features.filter((f) => { return !f.hasOwnProperty('id') }); // Allow all features without id
+                if (featuresWithoutId.length !== layer.data.features.length) {
+                    layer.data.features = featuresWithoutId.concat(_.uniq(layer.data.features, false, (f: Feature) => { return f.id; }));
                 }
 
                 if (!_.isUndefined(layer.data.features)) {
@@ -277,8 +390,8 @@ module csComp.Services {
     export class EditableGeoJsonSource extends GeoJsonSource {
         title = 'editablegeojson';
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
             // subscribe
         }
 
@@ -419,8 +532,8 @@ module csComp.Services {
         title: "dynamicgeojson";
         connection: Connection;
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
@@ -438,7 +551,7 @@ module csComp.Services {
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, 'layer', (topic: string, msg: ClientMessage) => {
-                console.log('action:' + msg.action);
+                console.log('action:' + msg.action + ' ' + layer.id);
                 switch (msg.action) {
                     case 'unsubscribed':
                         this.service.$rootScope.$apply(() => {
@@ -548,8 +661,8 @@ module csComp.Services {
         connection: Connection;
         $http: ng.IHttpService;
 
-        constructor(public service: LayerService, $http: ng.IHttpService) {
-            super(service, $http);
+        constructor(public service: LayerService, $http: ng.IHttpService, $storage: ng.localStorage.ILocalStorageService) {
+            super(service, $http, $storage);
             // subscribe
         }
 
@@ -563,7 +676,8 @@ module csComp.Services {
                 url: url,
                 method: 'GET',
                 params: { url: layer.url }
-            }).success((data: any) => {
+            }).then((res: {data: any}) => {
+                let data = res.data;
                 if (typeof data === 'string') {
                     data = JSON.parse(data);
                 }
@@ -582,7 +696,7 @@ module csComp.Services {
                     this.service.initFeature(f, layer, false, false);
                 });
                 if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
-            }).error((e) => {
+            }, (e) => {
                 console.log('EsriJsonSource called $HTTP with errors: ' + e);
             }).finally(() => {
                 layer.isLoading = false;
