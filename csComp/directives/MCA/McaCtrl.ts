@@ -749,6 +749,7 @@ module Mca {
                     'description': 'An MCA legend',
                     'legendKind': 'discrete',
                     'visualAspect': 'fillColor',
+                    'defaultLabel': 'Unknown',
                     'legendEntries': [{
                         'label': 'Low',
                         'interval': {
@@ -780,6 +781,14 @@ module Mca {
                             'max': 100
                         },
                         'color': '#004408'
+                    },
+                    {
+                        'label': 'Unknown',
+                        'interval': {
+                            'min': 75,
+                            'max': 100
+                        },
+                        'color': '#444'
                     }]
                 };
         }

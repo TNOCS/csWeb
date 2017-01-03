@@ -33,7 +33,7 @@ module Filters {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            public $scope: IRowFilterScope,
+            public $scope: IWodkRowFilterScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $timeout: ng.ITimeoutService,

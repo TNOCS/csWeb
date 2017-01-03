@@ -48,7 +48,7 @@ module Legend {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $(`#${this.widget.elementId}-parent`);
             //console.log(JSON.stringify(this.widget.data));
             //$scope.title = this.widget.title;
             //$scope.timestamp = '19:45';

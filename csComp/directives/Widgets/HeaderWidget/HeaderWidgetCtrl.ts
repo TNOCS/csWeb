@@ -71,7 +71,7 @@ module HeaderWidget {
             }
                         
             this.dataProperties = {};
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $(`#${this.widget.elementId}-parent`);
 
            
         }

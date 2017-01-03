@@ -87,7 +87,7 @@ module LocationWidget {
             var par = <any>$scope.$parent;
             $scope.data = <ILocationData>par.widget.data;
             if ($scope.data.streetViewUrl) this.streetViewUrl = $scope.data.streetViewUrl;
-            this.parentWidget = $('#' + par.widget.elementId).parent();
+            this.parentWidget = $(`#${par.widget.elementId}-parent`);
             this.parentWidget.hide();
 
             messageBusService.subscribe('geocoding', (action: string, data: csComp.Services.IOCDFeature) => {

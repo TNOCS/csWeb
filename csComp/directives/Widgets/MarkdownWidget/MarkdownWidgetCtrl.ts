@@ -72,15 +72,14 @@ module MarkdownWidget {
             $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
             this.dataProperties = {};
-            
+
             if ((<any>window).jsPDF) {
                 this.exporterAvailable = true;
             } else {
                 this.exporterAvailable = false;
             }
-            
 
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $(`#${this.widget.elementId}-parent`);
 
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget

@@ -99,7 +99,7 @@ module InfoWidget {
             if ($scope.data && $scope.data.content)
             {
                 $scope.data.mdText = $scope.data.content;            
-                this.parentWidget = $('#' + this.widget.elementId).parent();
+                this.parentWidget = $(`#${this.widget.elementId}-parent`);
             }
 
            

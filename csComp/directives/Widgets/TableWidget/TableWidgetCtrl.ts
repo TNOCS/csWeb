@@ -96,7 +96,7 @@ module TableWidget {
             $scope.minimized = false;
             this.dataProperties = {};
 
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $(`#${this.widget.elementId}-parent`);
 
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
