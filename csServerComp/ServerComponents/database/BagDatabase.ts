@@ -189,6 +189,33 @@ export class BagDatabase implements IAddressSource.IAddressSource {
         });
     }
 
+     public searchGemeenteWithBuCode(query: string, limit: number = 10, callback: (searchResults) => void) {
+        if (!query) {
+            console.log('No valid query supplied');
+            callback(null);
+            return;
+        }
+        this.pg.connect(this.connectionString, (err, client, done) => {
+            if (err) {
+                console.log(err);
+                callback(null);
+                return;
+            }
+            var sql = `SELECT gm_naam AS gemeentenaam, gm_code AS gemeentecode FROM bagactueel.buurt_2014 WHERE bu_code = '${query}' LIMIT ${limit}`;
+            // console.log(sql);
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.log(err);
+                    console.log(`Cannot find gemeente with query: ${sql}`);
+                    callback(null);
+                } else {
+                    callback(result.rows);
+                }
+            });
+        });
+    }
+
     public searchBuurtAtLocation(query: string, limit: number = 10, callback: (searchResults) => void) {
         if (!query) {
             console.log('No valid query supplied');
@@ -227,7 +254,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
                 callback(null);
                 return;
             }
-            var sql = `SELECT pand.identificatie FROM bagactueel.buurt_2014, bagactueel.pand WHERE ST_Within(ST_Transform(ST_GeomFromGeoJSON('${coords}'),28992), pand.geovlak) LIMIT ${limit}`;
+            var sql = `SELECT pand.identificatie FROM bagactueel.pand WHERE ST_Within(ST_Transform(ST_GeomFromGeoJSON('${coords}'),28992), pand.geovlak) LIMIT ${limit}`;
             client.query(sql, (err, result) => {
                 done();
                 if (err) {
