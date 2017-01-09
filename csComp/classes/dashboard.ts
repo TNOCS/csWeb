@@ -89,6 +89,8 @@ module csComp.Services {
         hover?: boolean;
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
+        /** Place the widget in a responsive grid container (https://getbootstrap.com/examples/grid/) */
+        inGridContainer?: boolean;
 
         _options? : any;
         _ctrl?: IWidgetCtrl;
@@ -103,6 +105,7 @@ module csComp.Services {
         _bottom?: string;
         _right?: string;
         _zindex? : string;
+        _gridContainer?: boolean;
         _isFullscreen? : boolean;
     }
 
@@ -151,13 +154,14 @@ module csComp.Services {
         public _interaction: boolean;
         public _isMoving: boolean;
 
-           _width: string;
+        _width: string;
         _height: string;
         _left: string;
         _top: string;
         _bottom: string;
         _right: string;
         _zindex: string;
+        _gridContainer: boolean;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);

@@ -6,6 +6,8 @@ module Translations {
             CLOSE: 'Sluit',
             FROM: 'van',
             TO: 'tot',
+            PREVIOUS: 'Vorige',
+            NEXT: 'Volgende',
             ZOOM_IN: 'Inzoomen',
             ZOOM_OUT: 'Uitzoomen',
             ZOOM_LEVEL_LOW: 'Zoom niveau te laag',

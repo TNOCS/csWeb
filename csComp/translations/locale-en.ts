@@ -6,6 +6,8 @@ module Translations {
             CLOSE: 'Close',
             FROM: 'from',
             TO: 'to',
+            PREVIOUS: 'Previous',
+            NEXT: 'Next',
             ZOOM_IN: 'Zoom in',
             ZOOM_OUT: 'Zoom out',
             ZOOM_LEVEL_LOW: 'Zoom level too low',
