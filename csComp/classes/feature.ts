@@ -179,6 +179,7 @@ module csComp.Services {
         section?: string;
         stringFormat?: string;
         visibleInCallOut?: boolean;
+        visibleInTooltip?: boolean;
         canEdit?: boolean;
         /** If set to false, don't show the statistical information (for numbers) */
         canShowStats?: boolean;
@@ -234,6 +235,8 @@ module csComp.Services {
     export interface IFeatureTypeStyle {
         /** Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature. */
         nameLabel?: string;
+        /** String format for the tooltip title (e.g. "Province {0}" */
+        tooltipStringFormat?: string;
         /** Default marker type, e.g. default is a circle, other types include pin and bubble */
         marker?: string;
 

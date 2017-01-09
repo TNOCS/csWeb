@@ -707,6 +707,10 @@ body,
     position: absolute;
 }
 
+#compare-widget-table tbody > tr > td {
+    max-width: 150px;
+}
+
 .widgetShadow
 {
     box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4)
@@ -765,6 +769,16 @@ body,
     border-bottom-style: solid;
     border-bottom-width: 5px;
     height: 50px;
+}
+
+.credits-title {
+    margin-top: 16px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.no-margin {
+    margin: 0;
 }
 
 .project-logo
@@ -876,6 +890,7 @@ body,
    display: table;
    width: 100%;
    table-layout: fixed;
+   padding: 8px 4px 8px 4px;
 }
 .legendCellLeft {
     display: table-cell;
@@ -2403,7 +2418,7 @@ input[type="checkbox"] {
     right: 0;
     bottom:0;
     top: 0;
-    z-index: 2;
+    z-index: 9999;
 }
 #rightpanelTabPanes {
     @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));

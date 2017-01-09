@@ -146,7 +146,7 @@ module Filters {
                                 });
                                 if (!label) label = 'other';
                                 return label;
-                            } else if (pt.type === 'text' || pt.type === 'textarea') {
+                            } else if (pt.type === 'text' || pt.type === 'textarea' || pt.type === 'textarea-right') {
                                 return a;
                             }
                         }

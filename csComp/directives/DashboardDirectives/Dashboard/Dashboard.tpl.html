@@ -45,7 +45,7 @@
                     <div>
 
                         </div>
-                        <div ng-if="widget.data.description" uib-popover="{{widget.data.description}}"  popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" style="position:absolute;right:20px;top:3px;width:30px;height:25px;padding:5px;cursor:pointer" class="fa fa-info"></div>
+                        <div ng-if="widget.data.description" uib-popover="{{widget.data.description}}"  popover-placement="left" popover-trigger="'mouseenter'" popover-append-to-body="true" style="position:absolute;right:20px;top:3px;width:30px;height:25px;padding:5px;cursor:pointer" class="fa fa-info"></div>
                         <div style="position:absolute;right:-5px;top:3px " ng-hide="widget._options.length==0">
                            <div class="fa fa-ellipsis-v dropdown-toggle pull-right" style="width:30px;height:25px;padding:5px;cursor:pointer" ng-click="vm.getOptions(widget)" data-toggle="dropdown">
                            </div>

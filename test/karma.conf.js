@@ -20,7 +20,7 @@ module.exports = function(config) {
         // Note that we don't need to load angular.js separately, as it's already included in csWeb-dep.js
         files: [
             'dist-bower/csWeb-dep.js',
-            'test/bower_components/angular-mocks/angular-mocks.js',
+            'csComp/includes/bower_dep/bower_components/angular-mocks/angular-mocks.js',
             'test/bower_components/angularUtils-pagination/dirPagination.js',
             'dist-bower/csComp.js',
             'test/csComp/app.js',
@@ -68,6 +68,9 @@ module.exports = function(config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: ['PhantomJS'],
+        browserDisconnectTimeout: 10000,
+        browserDisconnectTolerance: 2,
+        browserNoActivityTimeout: 30000,
 
         // Which plugins to enable
         plugins: [

@@ -96,7 +96,8 @@ module csComp.Services {
         public static LoadData($http: ng.IHttpService, ds: DataSource, callback: Function) {
             if (ds.url != null) {
                 $http.get(ds.url)
-                    .success((temp: DataSource) => {
+                    .then((res: {data: DataSource}) => {
+                        let temp = res.data;
                         if (temp != null) {
                             ds.id = temp.id;
                             if (!ds.hasOwnProperty('sensors')) {
@@ -112,7 +113,7 @@ module csComp.Services {
                             callback();
                         }
                     })
-                    .error(() => { console.log('Error on Data source -- do something ?'); });
+                    .catch(() => { console.log('Error on Data source -- do something ?'); });
             }
         }
     }

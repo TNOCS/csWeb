@@ -223,7 +223,10 @@ module csComp.Services {
         expertMode         = Expertise.Expert;
         markers            = {};
         eventTab:          boolean;
+        legendTab:         boolean;
         hideLayerActions:  boolean;
+        /** Option to provide a list of attributions/credits in the project.json file, which will be listed in the projectSettings tab */
+        attributions:      string[];
         /**
          * default interface language
          * @type {string}
@@ -298,8 +301,10 @@ module csComp.Services {
                 groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData, true),
                 layerDirectory: project.layerDirectory,
                 eventTab: project.eventTab,
+                legendTab: project.legendTab,
                 searchProviders:   project.searchProviders,
-                hideLayerActions:  project.hideLayerActions
+                hideLayerActions:  project.hideLayerActions,
+                attributions: project.attributions
             };
         }
 

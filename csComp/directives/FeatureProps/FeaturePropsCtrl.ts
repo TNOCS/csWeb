@@ -444,6 +444,8 @@ module FeatureProps {
             try {
                 if (html === undefined || html === null)
                     return this.$sce.trustAsHtml(html);
+                if (typeof html === 'string' && (html.indexOf('http') === 0 || html.indexOf('www') === 0) )
+                    return this.$sce.trustAsHtml(`<a href=${html} target="_blank">${html.substring(0,32)}</a>`);
                 return this.$sce.trustAsHtml(html.toString());
             } catch (e) {
                 console.log(e + ': ' + html);

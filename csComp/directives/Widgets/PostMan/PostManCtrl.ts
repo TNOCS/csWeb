@@ -38,23 +38,23 @@ module PostMan {
             switch (msg.httpMethod.name.toUpperCase()) {
                 case 'POST':
                     this.$http.post(msg.url, msg.message)
-                        .success(() => { this.result = 'OK' })
-                        .error((err) => { this.result = `Error: ${err}` });
+                        .then(() => { this.result = 'OK' })
+                        .catch((err) => { this.result = `Error: ${err}` });
                     break;
                 case 'PUT':
                     this.$http.put(msg.url, msg.message)
-                        .success(() => { this.result = 'OK' })
-                        .error((err) => { this.result = `Error: ${err}` });
+                        .then(() => { this.result = 'OK' })
+                        .catch((err) => { this.result = `Error: ${err}` });
                     break;
                 case 'GET':
                     this.$http.get(msg.url, msg.message)
-                        .success((data) => { this.result = `Result: ${data}` })
-                        .error((err) => { this.result = `Error: ${err}` });
+                        .then((data) => { this.result = `Result: ${data.data}` })
+                        .catch((err) => { this.result = `Error: ${err}` });
                     break;
                 case 'DELETE':
                     this.$http.delete(msg.url, msg.message)
-                        .success(() => { this.result = 'OK' })
-                        .error((err) => { this.result = `Error: ${err}` });
+                        .then(() => { this.result = 'OK' })
+                        .catch((err) => { this.result = `Error: ${err}` });
                     break;
             }
         }

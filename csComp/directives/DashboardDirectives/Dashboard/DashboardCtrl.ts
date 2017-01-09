@@ -42,7 +42,7 @@ module Dashboard {
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: IDashboardScope,
-            private $compile: any,
+            private $compile: ng.ICompileService,
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -106,8 +106,8 @@ module Dashboard {
                     // The stop() function of a widget sits in the controller. We can reach the controller through the
                     // scope of the widget element.
                     try {
-                        var wElm = document.getElementById(w.elementId);
-                        var wScope = <any>angular.element((<any>(wElm.children[0])).children[0]).scope(); // The widget is a child of the widget-container
+                        var wElm = document.getElementById(`${w.elementId}-parent`);
+                        var wScope = <any>angular.element(wElm).children().children().scope(); // The widget is a grandchild of the widget-parent
                         if (wScope && wScope.vm && wScope.vm.stop) {
                             wScope.vm.stop();
                         }
@@ -192,40 +192,41 @@ module Dashboard {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
 
-            w._initialized = true;
-            var widgetElement;
-            var newScope = this.$scope;
-            (<any>newScope).widget = w;
+            this.$timeout(() => {
+                w._initialized = true;
+                var widgetElement;
+                var newScope = this.$scope;
+                (<any>newScope).widget = w;
 
-            if (w.position === 'rightpanel') {
-                var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
-                rpt.open = false;
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
-            }
-            else {
-                if (w.template) {
-                    widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
-                } else if (w.url) {
-                    widgetElement = this.$compile('<div>url</div>')(this.$scope);
-                } else if (w.directive) {
-                    //var newScope : ng.IScope;
-                    widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
+                if (w.position === 'rightpanel') {
+                    var rpt = csComp.Helpers.createRightPanelTab(w.id, w.directive, w.data, w.title, '{{"FEATURE_INFO" | translate}}', w.icon, true, false);
+                    rpt.open = false;
+                    this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 } else {
-                    widgetElement = this.$compile('<div></div>')(this.$scope);
+                    if (w.template) {
+                        widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
+                    } else if (w.url) {
+                        widgetElement = this.$compile('<div>url</div>')(this.$scope);
+                    } else if (w.directive) {
+                        //var newScope : ng.IScope;
+                        widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
+                    } else {
+                        widgetElement = this.$compile('<div></div>')(this.$scope);
+                    }
                 }
-            }
 
-            this.getOptions(w);
+                this.getOptions(w);
 
-            if (widgetElement) {
-                //alert(w.elementId);
-                this.updateWidgetPosition(w);
-                var el = $('#' + w.elementId);
-                //if (w._isFullscreen) el = $('#dashboard-widget-fullscreen');
-                el.empty();
-                el.append(widgetElement);
-            }
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                if (widgetElement) {
+                    //alert(w.elementId);
+                    this.updateWidgetPosition(w);
+                    var el = $('#' + w.elementId + '-parent');
+                    //if (w._isFullscreen) el = $('#dashboard-widget-fullscreen');
+                    el.empty();
+                    el.append(widgetElement);
+                }
+            }, 0);
+                // if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
         public toggleInteract(widget: csComp.Services.IWidget) {
@@ -461,25 +462,28 @@ module Dashboard {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
-            this.$timeout(() => {
-                d.widgets.forEach((w: csComp.Services.IWidget) => {
+            this.updateWidgetsThrottled(d.widgets, () => {
+                d._initialized = true;
+                //this.$layerService.rightMenuVisible = d.showLeftmenu;
+                //this.$mapService.rightMenuVisible = d.showRightmenu;
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+            });
+        }
+
+        private updateWidgetsThrottled(widgets: any[], cb: Function, count: number = 0) {
+            if (widgets && count < widgets.length) {
+                this.$timeout(() => {
+                    let w = widgets[count];
                     w._initialized = false;
                     this.updateWidget(w);
-                });
-
-                // this.$timeout(() => {
-                //     this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                //         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                //             this.updateWidget(w);
-                //         });
-                //     });
-                // }, 300);
-                d._initialized = true;
-            }, 500);
-
-            //this.$layerService.rightMenuVisible = d.showLeftmenu;
-            //this.$mapService.rightMenuVisible = d.showRightmenu;
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    console.log(`Update ${w.id} (${count + 1})`);
+                }, 500);
+            }
+            if (widgets && count < widgets.length - 1) {
+                setTimeout(() => {this.updateWidgetsThrottled( widgets, cb, count + 1); }, 500);
+            } else {
+                cb();
+            }
         }
     }
 }

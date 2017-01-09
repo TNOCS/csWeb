@@ -200,7 +200,7 @@ module csComp.Services {
 
         private setLanguage(project?: Project) {
             let params = this.$location.search();
-            if (params.hasOwnProperty('language')) {
+            if (params && params.hasOwnProperty('language')) {
                 this.currentLocale = params['language'];
             } else if (project && project.preferedLanguage) {
                 this.currentLocale = project.preferedLanguage;
@@ -278,7 +278,8 @@ module csComp.Services {
                 console.log('kpi:' + link);
                 layer._gui['loadingKpiLink'] = true;
                 this.$http.get(link)
-                    .success((data: ISensorLinkResult) => {
+                    .then((res: {data: ISensorLinkResult}) => {
+                        let data = res.data;
                         layer._gui['loadingKpiLink'] = false;
 
                         layer.kpiTimestamps = data.timestamps;
@@ -287,8 +288,7 @@ module csComp.Services {
                         }
 
                         this.$messageBusService.publish('timeline', 'sensorLinkUpdated');
-                    })
-                    .error((e) => {
+                    }, (e) => {
                         layer._gui['loadingKpiLink'] = false;
                         console.log('error loading sensor data');
                     });
@@ -803,10 +803,10 @@ module csComp.Services {
             console.log('saving feature type');
             if (resource.url) {
                 this.$http.put('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
-                    .success((data) => {
+                    .then((res: {data: Solution}) => {
+                        let data = res.data;
                         console.log('resource saved');
-                    })
-                    .error((e) => {
+                    }, (e) => {
                         console.log('error saving resource');
                     });
             }
@@ -854,7 +854,8 @@ module csComp.Services {
                     if (!this.typesResources.hasOwnProperty(url) || requestReload) {
                         var success = false;
                         this.$http.get(url)
-                            .success((resource: TypeResource | string) => {
+                            .then((res: {data: TypeResource | string}) => {
+                                let resource = res.data;
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notifyError('Error loading resource type', url);
@@ -867,8 +868,7 @@ module csComp.Services {
                                     }
                                 }
                                 callback();
-                            })
-                            .error((err) => {
+                            }, (err) => {
                                 this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
                                 console.log(err);
                             });
@@ -1590,6 +1590,13 @@ module csComp.Services {
                                         break;
                                     case 'fillColor':
                                         s.fillColor = csComp.Helpers.getColor(v, gs);
+                                        if (s.fillColor.length > 7) { // Convert RGBA to RGB & opacity
+                                            let res = csComp.Helpers.getColorAndOpacityFromRgbaString(s.fillColor);
+                                            if (res) {
+                                                s.fillColor = res.color;
+                                                s.fillOpacity = res.opacity;
+                                            }
+                                        }
                                         feature._gui['style'][gs.property] = s.fillColor;
                                         if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') {
                                             s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;
@@ -1611,6 +1618,13 @@ module csComp.Services {
                                         break;
                                     case 'fillColor':
                                         s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                        if (s.fillColor.length > 7) { // Convert RGBA to RGB & opacity
+                                            let res = csComp.Helpers.getColorAndOpacityFromRgbaString(s.fillColor);
+                                            if (res) {
+                                                s.fillColor = res.color;
+                                                s.fillOpacity = res.opacity;
+                                            }
+                                        }
                                         feature._gui['style'][gs.property] = s.fillColor;
                                         break;
                                 }
@@ -2206,7 +2220,7 @@ module csComp.Services {
 
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
-            if (!filter) return;
+            if (!filter || !filter.dimension) return;
             // dispose crossfilter dimension
             filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
             filter.dimension.dispose();
@@ -2438,7 +2452,12 @@ module csComp.Services {
             }
 
             this.$http.get(url)
-                .success((solution: Solution) => {
+                .then((res: {data: Solution}) => {
+                    if (!res || !res.data) {
+                        console.log('Error: no solution obtained!');
+                        return;
+                    }
+                    let solution = res.data;
                     if (typeof solution !== 'object') {
                         console.log('Error: obtained solution is not a json object!');
                         return;
@@ -2473,6 +2492,7 @@ module csComp.Services {
                             if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
                             if (b.tms != null) baselayer.tms = b.tms;
                             if (b.bounds != null) baselayer.bounds = b.bounds;
+                            if (b.noWrap != null) baselayer.noWrap = b.noWrap;
 
                             this.$mapService.baseLayers[b.title] = baselayer;
                             if (b.isDefault) {
@@ -2496,24 +2516,25 @@ module csComp.Services {
                             });
                             if (!foundProject) {
                                 this.$http.get(u)
-                                    .success(<Project>(data) => {
-                                        if (data) {
+                                    .then((res: {data: Project}) => {
+                                        let data;
+                                        if (res.data) {
+                                            data = res.data;
                                             this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                                         }
-                                    })
-                                    .error((data) => {
+                                    },
+                                    (err) => {
                                         this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                                     });
                             }
                         } else {
                             this.$http.get(u)
-                                .success(<Project>(data) => {
+                                .then(<Project>(data) => {
                                     if (data) {
                                         this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                                     }
-                                })
-
-                                .error((data) => {
+                                },
+                                (data) => {
                                     this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                                 });
                         }
@@ -2536,8 +2557,7 @@ module csComp.Services {
                     }
 
                     this.solution = solution;
-                })
-                .error(() => {
+                }, () => {
                     this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
                 });
         }
@@ -2583,14 +2603,14 @@ module csComp.Services {
 
             if (!project) {
                 this.$http.get(solutionProject.url)
-                    .success((prj: Project) => {
+                    .then((res: {data: Project}) => {
+                        let prj = res.data;
                         this.parseProject(prj, solutionProject, layerIds);
 
                         this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, this.project.timeLine.updateDelay);
                         var delayFocusChange = _.debounce((date) => { this.refreshActiveLayers(); }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
-                    })
-                    .error(() => {
+                    }, () => {
                         this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
                     });
             } else {
@@ -2626,7 +2646,12 @@ module csComp.Services {
             this.initTypeResources(this.project);
 
             if (this.project.eventTab) {
-                var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
+                var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', `{{'EVENT_INFO' | translate}}`, 'book');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            }
+
+            if (this.project.legendTab) {
+                var rpt = csComp.Helpers.createRightPanelTab('legend-list', 'legend-list', {}, 'Icon legend', `{{'LEGEND' | translate}}`, 'list-ul');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
 
@@ -2653,7 +2678,10 @@ module csComp.Services {
                     elementId: 'widget-datatable_id',
                     enabled: true,
                     width: '100%',
-                    height: '100%'
+                    top: "75px",
+                    height: '100%',
+                    bottom: '0px',
+                    position: 'dashboard'
                 }];
                 this.project.dashboards.push(d2);
             } else {

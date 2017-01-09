@@ -51,7 +51,7 @@ module ExpertMode {
                    //     }
                    //     var html = '<rating ng-model="expertMode" '
                    //         + attributeString
-                   //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="false"'
+                   //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false"'
                    //         + 'max="3"></rating>';
                    //     var e = $compile(html)(scope);
                    //     element.replaceWith(e);

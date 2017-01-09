@@ -250,13 +250,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private saveResourceFile(res: ResourceFile) {
         var fn = this.getResourceFilename(res);
-        fs.outputFile(fn, JSON.stringify(res,null,2), (error) => {
-            if (error) {
-                Winston.error('filestore: error writing resourcefile : ' + fn);
-            } else {
-                Winston.info('filestore: file saved : ' + fn);
-            }
-        });
+        if (res && !_.isEmpty(res)) {
+            fs.outputFile(fn, JSON.stringify(res, null, 2), (error) => {
+                if (error) {
+                    Winston.error('filestore: error writing resourcefile : ' + fn);
+                } else {
+                    Winston.info('filestore: file saved : ' + fn);
+                }
+            });
+        }
     }
 
 

@@ -245,7 +245,12 @@ module csComp.Services {
                 if (!tab.hasOwnProperty('container')) return;
                 var content = tab.container + '-content';
                 if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
-                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    let elm = (<any>$('#rightpanelTabs a[data-target="#' + content + '"]'));
+                    if (elm && elm.tab) {
+                        elm.tab('show');
+                    } else if (elm.tabs) {
+                        elm.tabs()[0].click();
+                    }
                     return;
                 }
 
@@ -258,7 +263,7 @@ module csComp.Services {
                 }
                 var popoverString = '';
                 if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
-                    popoverString = 'popover="' + tab.popover + '" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"';
+                    popoverString = `uib-popover="${tab.popover}" popover-placement="left" popover-trigger="'mouseenter'" popover-append-to-body="true"`;
                 }
                 $('#rightpanelTabs').append(
                     this.$compile('<li id="' +
@@ -284,7 +289,12 @@ module csComp.Services {
                 }
 
                 if (_.isUndefined(tab.open) || tab.open === true) {
-                    (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                    let elm = (<any>$('#rightpanelTabs a[data-target="#' + content + '"]'));
+                    if (elm && elm.tab) {
+                        elm.tab('show');
+                    } else if (elm.tabs) {
+                        elm.tabs()[0].click();
+                    }
                     this.$layerService.visual.rightPanelVisible = true;
                 }
                 this.rightPanelTabs[tab.container] = tab;

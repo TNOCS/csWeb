@@ -36,10 +36,10 @@ module LayersDirective {
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
                 $http.get(this.project.layerDirectory)
-                    .success((result: any) => {
-                        this.layers = result;
+                    .then((res: {data: any}) => {
+                        this.layers = res.data;
                     })
-                    .error(() => { console.log('AddLayerCtrl: error calling $http'); });
+                    .catch(() => { console.log('AddLayerCtrl: error calling $http'); });
             }
         }
 

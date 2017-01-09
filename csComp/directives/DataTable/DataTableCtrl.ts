@@ -156,12 +156,13 @@ module DataTable {
                 },
                 (callback) => {
                     this.$http.get(selectedLayer.url).
-                        success((data: IGeoJsonFile) => {
+                        then((res: {data: IGeoJsonFile}) => {
+                            let data = res.data;
                             if (selectedLayer.type.toLowerCase() === 'topojson') {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
                             }
                             this.processData(selectedLayer, data, callback);
-                        }).error((data, status, headers, config) => {
+                        }).catch((error) => {
                             this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
                             if (selectedLayer && selectedLayer.data && selectedLayer.data.features) {
                                 this.processData(selectedLayer, selectedLayer.data, callback);

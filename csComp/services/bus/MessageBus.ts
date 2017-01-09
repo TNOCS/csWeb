@@ -147,7 +147,11 @@ module csComp.Services {
         }
 
         public connect(callback: Function) {
-            if (this.isConnected || this.isConnecting || typeof io === 'undefined') return;
+            if (this.isConnected || this.isConnecting || typeof io === 'undefined') {
+                console.log((typeof io === 'undefined') ? 'SocketIO is not defined!' : 'SocketIO already connected');
+                callback();
+                return;
+            }
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect', () => {
@@ -370,6 +374,7 @@ module csComp.Services {
                 hide: true
             };
             if (typeof duration != 'undefined') opts['delay'] = duration;
+            if (notifyType != NotifyType.Normal) opts['type'] = NotifyType[notifyType].toLowerCase();
 
             var PNot = new PNotify(opts);
             this.notifications.push(PNot);

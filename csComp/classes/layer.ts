@@ -424,7 +424,12 @@ module csComp.Services {
         cesium_url?:     string;
         cesium_tileUrl?: string;
         cesium_maptype?: string;
-        tms? : boolean;
+        /** Specify the resource type url: Only relevant for backgrounds with an UTF grid */
+        typeUrl?:        string;
+        /** Specify the default feature type: Only relevant for backgrounds with an UTF grid, and a specified typeUrl */
+        defaultFeatureType?: string;
+        tms?           : boolean;
+        noWrap?        : boolean;
     }
 
     export class BaseLayer implements IBaseLayer {
@@ -457,7 +462,12 @@ module csComp.Services {
         cesium_maptype: string;
         /** Height tiles */
         cesium_tileUrl: string;
+        /** Specify the resource type url: Only relevant for backgrounds with an UTF grid */
+        typeUrl:        string;
+        /** Specify the default feature type: Only relevant for backgrounds with an UTF grid, and a specified typeUrl */
+        defaultFeatureType: string;
         /** is this a tms base layer */
         tms : boolean;
+        noWrap? : boolean;
     }
 }

@@ -96,6 +96,9 @@ module Legend {
                                 if (ptd && ptd.legend) {
                                     $scope.legend = ptd.legend;
                                     $scope.activeStyleProperty = ptd;
+                                } else if (data && data.activeLegend) {
+                                    $scope.legend = data.activeLegend;
+                                    $scope.activeStyleProperty = this.$layerService.propertyTypeData[data.property];
                                 }
                                 if ($scope.data.mode = 'lastSelectedStyle') {
                                     $scope.legend = this.createLegend(data);

@@ -18,7 +18,8 @@ module csComp.Services {
                 url: '/api/rss',
                 method: "GET",
                 params: { url: layer.url }
-            }).success((data) => {
+            }).then((res: {data: any}) => {
+                    let data = res.data;
                     layer.data = data;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
                     if (layer.data.geometries && !layer.data.features) {
@@ -32,7 +33,7 @@ module csComp.Services {
                     layer.isLoading = false;
                     callback(layer);
             })
-            .error(() => {
+            .catch(() => {
                 console.log('RssDataSource called $HTTP with errors...');
             });
         }
