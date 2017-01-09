@@ -39,11 +39,11 @@ export class csServer {
         this.httpServer = require('http').Server(this.server);
         this.cm = new csweb.ConnectionManager(this.httpServer);
         this.messageBus = new csweb.MessageBusService();
-        this.config = new csweb.ConfigurationService(path.join(this.dir, 'configuration.json'));
+        this.config = new csweb.ConfigurationService(path.resolve('configuration.json'));
 
         // all environments
         this.server.set('port', this.options.port);
-        this.server.use(favicon(this.dir + '/public/favicon.ico'));
+        this.server.use(favicon(path.resolve('public/favicon.ico')));
         //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
         this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
         this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true, parameterLimit: 100000 })); // support encoded bodies

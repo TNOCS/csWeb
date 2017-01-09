@@ -237,7 +237,7 @@ module csComp.Services {
             //this.sizeY = sY;
             //this.col = c;
             //this.row = r;
-            this.background = "red";
+            this.background = 'white';
             if (!this.id) this.id = "widget" + csComp.Helpers.getGuid().replace('-', '');
             //this.width = (width) ? width : 300;
             //this.height = (height) ? height : 150;

@@ -408,6 +408,7 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
+        bounds: L.LatLngBounds;
         /**
          * Max native zoom level:
          * Maximum zoom number the tiles source has available.
@@ -438,6 +439,7 @@ module csComp.Services {
         maxZoom:        number;
         /** Minimum zoom level */
         minZoom:        number;
+        bounds: L.LatLngBounds;
         /**
          * Max native zoom level:
          * Maximum zoom number the tiles source has available.

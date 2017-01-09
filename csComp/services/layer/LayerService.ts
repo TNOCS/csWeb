@@ -2472,6 +2472,7 @@ module csComp.Services {
                             if (b.cesium_tileUrl != null) baselayer.cesium_tileUrl = b.cesium_tileUrl;
                             if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
                             if (b.tms != null) baselayer.tms = b.tms;
+                            if (b.bounds != null) baselayer.bounds = b.bounds;
 
                             this.$mapService.baseLayers[b.title] = baselayer;
                             if (b.isDefault) {

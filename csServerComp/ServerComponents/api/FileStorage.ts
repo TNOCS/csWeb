@@ -292,7 +292,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private saveLayerFile(layer: Layer) {
         try {
             var fn = this.getLayerFilename(layer.id);
-            fs.writeFile(fn, JSON.stringify(layer, null, 2), (error) => {
+            fs.writeFile(fn, JSON.stringify(layer), (error) => {
                 if (error) {
                     Winston.info('error writing file : ' + fn);
                 }
@@ -303,7 +303,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
             if (layer.type === "dynamicgeojson") {
                 var backup = this.getLayerBackupFilename(layer.id);
-                fs.writeFile(backup, JSON.stringify(layer, null, 2), (error) => {
+                fs.writeFile(backup, JSON.stringify(layer), (error) => {
                     if (error) {
                         Winston.info('error writing file : ' + backup);
                     }
