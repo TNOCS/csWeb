@@ -206,9 +206,23 @@ module Translations {
             CONVERT: 'Converteer',
             VIEW_PROJECT: 'Bekijk je project',
             PASTE_HERE: 'Plak hier uw data',
+            DROP_HERE: 'Sleep uw data hier naartoe',
             OPTION: 'Optie {{number}}',
             PASSWORD: 'Wachtwoord',
-            COMPARE_TAB: 'Vergelijk'
+            COMPARE_TAB: 'Vergelijk',
+            STRINGFORMAT: 'Nummer opmaak',
+            ADD: 'Voeg toe',
+            NEW: 'Nieuw',
+            SECTION: 'Sectie',
+            GROUP: 'Groep',
+            LAYER_TITLE: 'Kaartlaag titel',
+            LAYER_SETTINGS: 'Kaartlaag instellingen',
+            LAYER_SETTINGS_HELP: 'Wijzig hier de instellingen van je kaartlaag, zoals de titel en de groep waartoe de laag behoort.',
+            PROPERTY_SETTINGS: 'Data eigenschappen',
+            PROPERTY_DESCRIPTION: 'Eigenschap beschrijving',
+            PROPERTY_TYPE: 'Eigenschap type',
+            PROPERTY_TITLE: 'Eigenschap titel',
+            VISIBLE_IN_CALLOUT: 'Toon eigenschap in menu'
         };
     }
 }
