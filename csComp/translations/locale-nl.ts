@@ -207,7 +207,6 @@ module Translations {
             DROP_HERE: 'Sleep uw data hier naartoe',
             OPTION: 'Optie {{number}}',
             PASSWORD: 'Wachtwoord',
-            COMPARE_TAB: 'Vergelijk',
             STRINGFORMAT: 'Nummer opmaak',
             ADD: 'Voeg toe',
             NEW: 'Nieuw',

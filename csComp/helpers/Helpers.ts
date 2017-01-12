@@ -263,7 +263,6 @@ module csComp.Helpers {
      */
     export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData, feature?: csComp.Services.IFeature) {
         var propertyTypes: Array<csComp.Services.IPropertyType> = [];
-
         if (type.propertyTypeKeys && type.propertyTypeKeys.length > 0 && typeof type.propertyTypeKeys === 'string') {
             var keys = type.propertyTypeKeys.split(/[,;]+/);
             keys.forEach((key) => {
@@ -281,14 +280,6 @@ module csComp.Helpers {
                 }
             });
         }
-        // EV REMOVE?
-        // if (type.showAllProperties && feature && feature.properties) {
-        //     for (var key in feature.properties) {
-        //         if (!propertyTypes.some((pt: csComp.Services.IPropertyType) => pt.label === key)) {
-        //             //var pt =
-        //         }
-        //     }
-        // }
         if (type._propertyTypeData != null) {
             if (type._propertyTypeData.forEach) {
                 type._propertyTypeData.forEach((pt) => {

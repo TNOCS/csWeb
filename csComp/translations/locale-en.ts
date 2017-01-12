@@ -208,7 +208,6 @@ module Translations {
             DROP_HERE: 'Drop your data here',
             OPTION: 'Option {{number}}',
             PASSWORD: 'Password',
-            COMPARE_TAB: 'Compare',
             STRINGFORMAT: 'Number format',
             ADD: 'Add',
             NEW: 'New',
