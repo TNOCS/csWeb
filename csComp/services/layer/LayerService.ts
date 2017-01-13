@@ -195,7 +195,6 @@ module csComp.Services {
             // });
 
             this.checkMobile();
-            this.enableDrop();
         }
 
         private setLanguage(project?: Project) {
@@ -2622,7 +2621,9 @@ module csComp.Services {
             this.setLanguage(prj);
             this.project = new Project().deserialize(prj);
 
-
+            if (!this.project.disableDrop) {
+                this.enableDrop();
+            }
 
             this.$mapService.initDraw(this);
 

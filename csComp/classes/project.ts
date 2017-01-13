@@ -227,6 +227,8 @@ module csComp.Services {
         hideLayerActions:  boolean;
         /** Option to provide a list of attributions/credits in the project.json file, which will be listed in the projectSettings tab */
         attributions:      string[];
+        /** Option to disable the 'drag'n'drop functionality to add new layers */
+        disableDrop:       boolean;
         /**
          * default interface language
          * @type {string}
@@ -304,7 +306,8 @@ module csComp.Services {
                 legendTab: project.legendTab,
                 searchProviders:   project.searchProviders,
                 hideLayerActions:  project.hideLayerActions,
-                attributions: project.attributions
+                attributions: project.attributions,
+                disableDrop: project.disableDrop
             };
         }
 
