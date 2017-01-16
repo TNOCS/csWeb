@@ -298,9 +298,14 @@ module csComp.Services {
             this.$translate(title).then((translatedTitle) => {
                 this.$translate(text, variableReplacement).then((translatedText) => {
                     this.notify(translatedTitle, translatedText, location, type, duration);
+                }).catch((err) => {
+                    this.notify(translatedTitle || title, text, location, type, duration);
                 });
+            }).catch((err) => {
+                this.notify(title, text, location, type, duration);
             });
         }
+
 
         public notifyError(title: string, text: string) {
             this.notify(title, text, NotifyLocation.TopBar, NotifyType.Error);
