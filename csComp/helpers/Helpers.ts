@@ -246,7 +246,8 @@ module csComp.Helpers {
             } else if (feature.properties.hasOwnProperty('naam')) {
                 title = feature.properties['naam'];
             }
-        } else if (type != null && type.style != null && type.style.nameLabel) {
+        }
+        if (title === '' && type != null && type.style != null && type.style.nameLabel) {
             title = feature.properties[type.style.nameLabel];
         }
         if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
