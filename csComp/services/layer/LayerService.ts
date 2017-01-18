@@ -1529,16 +1529,16 @@ module csComp.Services {
                 if (typeof style.strokeWidth !== 'undefined') s.strokeWidth = style.strokeWidth;
                 if (style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(style.selectedStrokeColor, '#000');
                 if (style.selectedFillColor) s.selectedFillColor = csComp.Helpers.getColorString(style.selectedFillColor);
-                if (style.selectedStrokeWidth) s.selectedStrokeWidth = style.selectedStrokeWidth;
-                if (style.iconWidth) s.iconWidth = style.iconWidth;
-                if (style.iconHeight) s.iconHeight = style.iconHeight;
+                if (style.selectedStrokeWidth >= 0) s.selectedStrokeWidth = style.selectedStrokeWidth;
+                if (style.iconWidth >= 0) s.iconWidth = style.iconWidth;
+                if (style.iconHeight >= 0) s.iconHeight = style.iconHeight;
                 if (style.heightAboveSeaProperty) s.heightAboveSeaProperty = style.heightAboveSeaProperty;
                 if (style.modelUri) s.modelUri = style.modelUri;
                 if (style.modelScale) s.modelScale = style.modelScale;
                 if (style.modelMinimumPixelSize) s.modelMinimumPixelSize = style.modelMinimumPixelSize;
                 if (style.innerTextProperty) s.innerTextProperty = style.innerTextProperty;
-                if (style.innerTextSize) s.innerTextSize = style.innerTextSize;
-                if (style.cornerRadius) s.cornerRadius = style.cornerRadius;
+                if (style.innerTextSize >= 0) s.innerTextSize = style.innerTextSize;
+                if (style.cornerRadius >= 0) s.cornerRadius = style.cornerRadius;
                 if (style.rotateProperty && properties.hasOwnProperty(style.rotateProperty)) {
                     s.rotate = Number(properties[style.rotateProperty]);
                 }

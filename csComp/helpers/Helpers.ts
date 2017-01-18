@@ -226,7 +226,7 @@ module csComp.Helpers {
      * @returns {string} Formatted title
      */
     export function getFeatureTooltipTitle(feature: IFeature): string {
-        if (!feature.fType || !feature.fType.style || !feature.fType.style.tooltipStringFormat) return featureTitle(null, feature);
+        if (!feature.fType || !feature.fType.style || !feature.fType.style.tooltipStringFormat) return featureTitle(feature.fType, feature);
         let sf: string = feature.fType.style.tooltipStringFormat;
         let title: string = featureTitle(feature.fType, feature);
         return String.format(sf, title);
