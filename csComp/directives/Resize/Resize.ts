@@ -14,7 +14,7 @@ module Helpers.Resize {
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    } 
+    };
 
     /**
       * Directive to resize an element by settings its width or height,
@@ -33,7 +33,8 @@ module Helpers.Resize {
                 // Name if optional. Text Binding (Prefix: @), One-way Binding (Prefix: &), Two-way Binding (Prefix: =)
                 scope: {
                     resizeX: '@',
-                    resizeY: '@'
+                    resizeY: '@',
+                    resizeRelativeToParent: '@'
                 },
                 // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
                 // * scope is an Angular scope object.
@@ -42,13 +43,19 @@ module Helpers.Resize {
                 link: (scope: any, element, attrs) => {
                     scope.onResizeFunction = () => {
                         // console.log(scope.resizeX + "-" + scope.resizeY);
+                        let height, width;
+                        if (scope.resizeRelativeToParent) {
+                            height = element.parent().innerHeight();
+                            width = element.parent().innerWidth();
+                        } else {
+                            height = $window.innerHeight;
+                            width = $window.innerWidth;
+                        }
                         if (scope.resizeX) {
-                            var windowWidth = $window.innerWidth;
-                            element.width((windowWidth - scope.resizeX) + 'px');
+                            element.width((width - +scope.resizeX) + 'px');
                         }
                         if (scope.resizeY) {
-                            var windowHeight = $window.innerHeight;
-                            element.height((windowHeight - scope.resizeY) + 'px');
+                            element.height((height - +scope.resizeY) + 'px');
                         }
                     };
 
@@ -61,10 +68,10 @@ module Helpers.Resize {
                         scope.$apply();
                     });
                 }
-            }
+            };
         }
     ]);
-    
+
     var inputresizerApp = angular.module('inputresizer', []);
 
 myModule.directive('expandTo', ()=> {
@@ -73,7 +80,6 @@ myModule.directive('expandTo', ()=> {
       link: ($scope, $element, $attributes)=> {
         var expandsize = $attributes['expandTo'] || '50px';
         var original = $element.width();
-        
         $element.on('focus', ()=>{
           $element.animate({
             width: expandsize
