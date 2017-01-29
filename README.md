@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c1bf4babb31d4e7196dbda21088647d2)](https://www.codacy.com/app/erikvullings/csWeb?utm_source=github.com&utm_medium=referral&utm_content=TNOCS/csWeb&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=master)](https://travis-ci.org/TNOCS/csWeb)
 [![Stories in Ready](https://badge.waffle.io/tnocs/csweb.png?label=ready&title=Ready)](https://waffle.io/tnocs/csweb)
 [![bitHound Score](https://www.bithound.io/github/TNOCS/csWeb/badges/score.svg)](https://www.bithound.io/github/TNOCS/csWeb/layer-sources-renders)
