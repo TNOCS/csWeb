@@ -105,10 +105,20 @@ module Mca.Models {
         mapToMinMax = true;
         minValue                                          : number;
         maxValue                                          : number;
+        /**
+         * Add dynamic value bounds for a criterion. When 'iqr' is chosen, the value range is the interquartile range of all measurements.
+         * Similarly, '1.5_iqr' is 1.5 times the interquartile range. When 'none' is chosen (default), no dynamic bounds are calculated, however, the 
+         * minValue and maxValue will still be applied if they are not null. 
+         */
+        dynamicBoundsValue                                : 'none' | 'iqr' | '1.5_iqr';
         minCutoffValue                                    : number;
         maxCutoffValue                                    : number;
+        /* When a feature has no value for a criterion, give it score 0 (default), 0.5 or the average score of all other features, or a custom value */
+        unknownValue                                      : 'zero' | 'half' | 'average' | number;
         // Do not serialize the following properties
-        _propValues                                       : number[] = [];
+        _stats                                            : {avg: number, stdDev: number};
+        _propValues                                       : Dictionary <number> = {};
+        _scoreVals                                        : Dictionary <number> = {};
         _x                                                : number[] = [];
         _y                                                : number[] = [];
 
@@ -125,6 +135,8 @@ module Mca.Models {
             this.maxCutoffValue = input.maxCutoffValue;
             this.minValue       = input.minValue;
             this.maxValue       = input.maxValue;
+            this.unknownValue   = input.unknownValue || 'zero';
+            this.dynamicBoundsValue    = input.dynamicBoundsValue || 'none';
 
             if (input.criteria) {
                 input.criteria.forEach((c) => {
@@ -177,30 +189,31 @@ module Mca.Models {
             // Replace min and max by their values:
             if (this.scores == null) { return; }
             var scores = this.scores;
-            this._propValues = [];
+            this._propValues = {};
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
                     if (feature.properties.hasOwnProperty(this.label)) {
                         // The property is available. I use the '+' to convert the string value to a number.
                         var prop = feature.properties[this.label];
-                        if ($.isNumeric(prop)) { this._propValues.push(prop); }
+                        if ($.isNumeric(prop)) { this._propValues[feature.id] = prop; }
                     }
                 });
             }
+            let _propValuesArray = _.values(this._propValues);
+            this._stats = csComp.Helpers.standardDeviation(_propValuesArray);
             var max = this.maxValue,
                 min = this.minValue;
             if (this.isPlaScaled || this.requiresMaximum()) {
-                max = max || Math.max.apply(null, this._propValues);
+                max = max || Math.max.apply(null, _propValuesArray);
                 scores.replace('max', max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
-                min = min || Math.min.apply(null, this._propValues);
+                min = min || Math.min.apply(null, _propValuesArray);
                 scores.replace('min', min.toPrecision(3));
             }
             if (this.isPlaScaled) {
-                var stats = csComp.Helpers.standardDeviation(this._propValues);
-                max = (max != undefined) ? max : Math.min(max, stats.avg + 2 * stats.stdDev);
-                min = (min != undefined) ? min : Math.max(min, stats.avg - 2 * stats.stdDev);
+                max = (max != undefined) ? max : Math.min(max, this._stats.avg + 2 * this._stats.stdDev);
+                min = (min != undefined) ? min : Math.max(min, this._stats.avg - 2 * this._stats.stdDev);
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
@@ -211,9 +224,23 @@ module Mca.Models {
             if (this.minValue != null || this.maxValue != null) {
                 a = range / 10;
                 b = min;
+            } else if (this.dynamicBoundsValue === 'iqr') {
+                let quartiles = csComp.Helpers.quartiles(_propValuesArray);
+                let iqr = quartiles.q3 - quartiles.q1;
+                min = quartiles.q1 - iqr;
+                max = quartiles.q3 + iqr;
+                a = (max - min) / 10,
+                b = min;
+            } else if (this.dynamicBoundsValue === '1.5_iqr') {
+                let quartiles = csComp.Helpers.quartiles(_propValuesArray);
+                let iqr = quartiles.q3 - quartiles.q1;
+                min = quartiles.q1 - (1.5 * iqr);
+                max = quartiles.q3 + (1.5 * iqr);
+                a = (max - min) / 10,
+                b = min;
             } else if (this.mapToMinMax) {
-                min = _.min(this._propValues); 
-                max = _.max(this._propValues);
+                min = _.min(_propValuesArray);
+                max = _.max(_propValuesArray);
                 a = (max - min) / 10,
                 b = min;
             } else {
@@ -250,34 +277,78 @@ module Mca.Models {
             this.isPlaUpdated = true;
         }
 
+        featureHasProperty(f: IFeature): boolean {
+            return f.properties.hasOwnProperty(this.label) && f.properties[this.label] != null;
+        }
+
+        getFeatureScore(x: number) {
+            if (this.maxCutoffValue <= x || x <= this.minCutoffValue) {
+                return 0;
+            }
+            if (x < this._x[0]) {
+                return this._y[0];
+            }
+            let last = this._x.length - 1;
+            if (x > this._x[last]) {
+                return this._y[last];
+            }
+            //for (var k in this.x) {
+            for (let k = 0; k < this._x.length; k++) {
+                if (x < this._x[k]) {
+                    // Found relative position of x in this.x
+                    let x0 = this._x[k - 1];
+                    let x1 = this._x[k];
+                    let y0 = this._y[k - 1];
+                    let y1 = this._y[k];
+                    // Use linear interpolation
+                    let linInterpol = (y1 - y0) * (x - x0) / (x1 - x0);
+                    return linInterpol;
+                }
+            }
+            return this.getScoreForUnknownValue(this.unknownValue || 'zero');
+        }
+
+        getScoreForUnknownValue(unknownValue: 'zero' | 'half' | 'average' | number): number {
+            let score;
+            if (typeof unknownValue === 'number') {
+                score = unknownValue;
+            } else {
+                switch (unknownValue) {
+                    case 'zero':
+                        score = 0;
+                        break;
+                    case 'half':
+                        score = 0.5;
+                        break;
+                    case 'average':
+                        score = 0.5; // this._stats.avg;// TODO: problem, the average score can only be calculated after all other scores are obtained...
+                        break;
+                    default:
+                        score = 0;
+                        break;
+                }
+            }
+            return score;
+        }
+
         getScore(feature: IFeature): number {
             if (!this.isPlaUpdated) {
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
             }
             if (this.criteria.length === 0) {
                 // End point: compute the score for each feature
-                if (feature.properties.hasOwnProperty(this.label)) {
+                if (this.featureHasProperty(feature)) {
                     // The property is available
-                    var x = feature.properties[this.label];
-                    if (this.maxCutoffValue <= x || x <= this.minCutoffValue) { return 0; }
-                    if (x < this._x[0]) { return this._y[0]; }
-                    var last = this._x.length - 1;
-                    if (x > this._x[last]) { return this._y[last]; }
-                    //for (var k in this.x) {
-                    for (var k = 0; k < this._x.length; k++) {
-                        if (x < this._x[k]) {
-                            // Found relative position of x in this.x
-                            var x0 = this._x[k - 1];
-                            var x1 = this._x[k];
-                            var y0 = this._y[k - 1];
-                            var y1 = this._y[k];
-                            // Use linear interpolation
-                            return (y1 - y0) * (x - x0) / (x1 - x0);
-                        }
-                    }
+                    let featureValue = feature.properties[this.label];
+                    let featureScore = this.getFeatureScore(featureValue);
+                    this._scoreVals[feature.id] = featureScore;
+                    return featureScore;
                 } else {
-                    // If the feature does not have a value for the selected property, return zero.                    
-                    return 0;
+                    // If the feature does not have a value for the selected property, check the return policy to return. 
+                    // Options: return zero, return 0.5 or return the average score of all other features.
+                    let score = this.getScoreForUnknownValue(this.unknownValue);
+                    this._scoreVals[feature.id] = score;
+                    return score;
                 }
             } else {
                 // Sum all the sub-criteria.
@@ -290,7 +361,6 @@ module Mca.Models {
                 });
                 return finalScore;
             }
-            return 0;
         }
     }
 
@@ -327,6 +397,8 @@ module Mca.Models {
                 this.weight = 1;
                 this.isPlaUpdated = false;
                 this.calculationMode = McaCalculationMode.AllFeatures;
+                this.unknownValue = 'zero';
+                this.dynamicBoundsValue = 'none';
             }
         }
 

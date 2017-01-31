@@ -407,7 +407,7 @@ module Mca {
                 if (crit.criteria.length === 0) {
                     var y1 = crit._y;
                     if (crit.userWeight < 0) { y1 = y1.map((v) => 1 - v); }
-                    csComp.Helpers.Plot.drawMcaPlot(crit._propValues, {
+                    csComp.Helpers.Plot.drawMcaPlot(_.values(crit._propValues), {
                         id: id,
                         width: 220,
                         height: 70,
@@ -419,7 +419,7 @@ module Mca {
                     crit.criteria.forEach((c) => {
                         var y2 = c._y;
                         if (crit.userWeight < 0) { y2 = y2.map((v) => 1 - v); }
-                        csComp.Helpers.Plot.drawMcaPlot(c._propValues, {
+                        csComp.Helpers.Plot.drawMcaPlot(_.values(c._propValues), {
                             id: id + '_' + j++,
                             width: 220,
                             height: 70,
@@ -582,9 +582,9 @@ module Mca {
                 var tempScores: { score: number; index: number; }[] = [];
                 var index = 0;
                 this.features.forEach((feature) => {
-                    var score = mca.getScore(feature);
+                    let score = mca.getScore(feature);
                     if (mca.rankTitle) {
-                        var tempItem = { score: score, index: index++ };
+                        let tempItem = { score: score, index: index++ };
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
