@@ -222,7 +222,10 @@ module Translations {
             PROPERTY_DESCRIPTION: 'Eigenschap beschrijving',
             PROPERTY_TYPE: 'Eigenschap type',
             PROPERTY_TITLE: 'Eigenschap titel',
-            VISIBLE_IN_CALLOUT: 'Toon eigenschap in menu'
+            VISIBLE_IN_CALLOUT: 'Toon eigenschap in menu',
+            DESCRIPTION: 'Beschrijving',
+            TYPE: 'Type',
+            TITLE: 'Titel'
         };
     }
 }

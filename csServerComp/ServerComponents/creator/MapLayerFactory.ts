@@ -80,7 +80,9 @@ export interface ILayerTemplate {
     properties: IProperty[];
     sensors?: IProperty[];
     projectId?: string;
+    projectLogo?: string;
     iconBase64?: string;
+    logoBase64?: string;
 }
 
 export interface IBagContourRequest {
@@ -149,6 +151,7 @@ export class MapLayerFactory {
             var data = {
                 project: ld.projectTitle,
                 projectId: template.projectId,
+                projectLogo: template.projectLogo || 'images/CommonSenseRound.png',
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: layerId,
@@ -160,6 +163,7 @@ export class MapLayerFactory {
                 geojson: geojson,
                 enabled: ld.isEnabled,
                 iconBase64: template.iconBase64,
+                logoBase64: template.logoBase64,
                 geometryFile: ld.geometryFile,
                 geometryKey: ld.geometryKey
             };
@@ -177,7 +181,8 @@ export class MapLayerFactory {
             console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
             var combinedjson = this.splitJson(data);
-            this.sendIconThroughApiManager(data.iconBase64, path.basename(ld.iconUri));
+            this.sendIconThroughApiManager(data.iconBase64, data.projectId, path.basename(ld.iconUri));
+            this.sendIconThroughApiManager(data.logoBase64, data.projectId, path.basename(data.projectLogo));
             this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
             this.sendLayerThroughApiManager(data);
         });
@@ -226,8 +231,9 @@ export class MapLayerFactory {
         return { geojson: geojson, resourcejson: resourcejson };
     }
 
-    public sendIconThroughApiManager(b64: string, path: string) {
-        this.apiManager.addFile(b64, '', path, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
+    public sendIconThroughApiManager(b64: string, folder: string, filePath: string) {
+        if (!b64 || !filePath) return;
+        this.apiManager.addFile(b64, folder, filePath, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
             console.log(result);
         });
     }

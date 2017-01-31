@@ -194,7 +194,7 @@ module csComp.Helpers {
         return !(isOldIE || isIE11);  //Return true if not any IE
     }
 
-    export function standardDeviation(values: number[]) {
+    export function standardDeviation(values: number[]): { avg: number, stdDev: number } {
         var avg = average(values);
 
         var squareDiffs = values.map(value => {
@@ -215,7 +215,14 @@ module csComp.Helpers {
         return avg;
     }
 
-    
+    export function quartiles(data: number[]): { q1: number, q3: number } {
+        if (!data || !_.isArray(data)) return null;
+        let sorted = data.sort();
+        let q1 = d3.quantile(sorted, 0.25);
+        let q3 = d3.quantile(sorted, 0.75);
+        return {q1: q1, q3: q3};
+    }
+
     /**
      * Generates the title for the feature tooltip. A string format can be 
      * defined in the featureType parameter 'tooltipStringFormat'. 

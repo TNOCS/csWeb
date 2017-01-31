@@ -1567,6 +1567,7 @@ module csComp.Services {
 
             feature._gui['style'] = {};
             if (feature.layer) {
+                if (!feature.layer.hasOwnProperty('opacity')) feature.layer.opacity = 100;
                 s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
                 s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
                 s.iconHeight = (feature.layer.isTransparent) ? 0 : s.iconHeight;
@@ -2267,6 +2268,7 @@ module csComp.Services {
         */
         public getFeatureTypeId(feature: IFeature): string {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
+            if (!feature.hasOwnProperty('properties')) feature['properties'] = {};
             var ftId = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             // if (name.toLowerCase().startsWith('http://')) return name;

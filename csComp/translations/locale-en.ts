@@ -223,7 +223,10 @@ module Translations {
             PROPERTY_DESCRIPTION: 'Property description',
             PROPERTY_TYPE: 'Property type',
             PROPERTY_TITLE: 'Property title',
-            VISIBLE_IN_CALLOUT: 'Show property in menu'
+            VISIBLE_IN_CALLOUT: 'Show property in menu',
+            DESCRIPTION: 'Description',
+            TYPE: 'Type',
+            TITLE: 'Title'
         };
     }
 }
