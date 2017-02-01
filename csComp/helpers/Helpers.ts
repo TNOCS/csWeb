@@ -217,9 +217,12 @@ module csComp.Helpers {
 
     export function quartiles(data: number[]): { q1: number, q3: number } {
         if (!data || !_.isArray(data)) return null;
-        let sorted = data.sort();
+        let sorted = data.sort((a, b) => { return +a - +b; });
         let q1 = d3.quantile(sorted, 0.25);
         let q3 = d3.quantile(sorted, 0.75);
+        if (q3 < q1) {
+            throw Error(`Third quartile cannot be smaller than first quartile (Q1: ${q1}, Q3: ${q3})`);
+        }
         return {q1: q1, q3: q3};
     }
 
@@ -453,7 +456,7 @@ module csComp.Helpers {
                 break;
             case 'number':
                 if (!$.isNumeric(text)) {
-                    if (typeof text === 'string' && $.isNumeric(text.replace(',', '.'))) {
+                    if (typeof text === 'string' && pt.stringFormat && $.isNumeric(text.replace(',', '.'))) {
                         // E.g. "9,876E-02" is not recognized as numeric, but "9.876E-02" is.
                         displayValue = String.format(pt.stringFormat, parseFloat(text.replace(',', '.')));
                     } else {

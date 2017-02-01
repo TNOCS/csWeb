@@ -106,11 +106,11 @@ module Mca.Models {
         minValue                                          : number;
         maxValue                                          : number;
         /**
-         * Add dynamic value bounds for a criterion. When 'iqr' is chosen, the value range is the interquartile range of all measurements.
-         * Similarly, '1.5_iqr' is 1.5 times the interquartile range. When 'none' is chosen (default), no dynamic bounds are calculated, however, the 
+         * Add dynamic value bounds for a criterion. When '1.5_iqr' is chosen, the value range is the 1.5 times the interquartile range of all measurements.
+         * Similarly, '3_iqr' is 3 times the interquartile range. When 'none' is chosen (default), no dynamic bounds are calculated, however, the 
          * minValue and maxValue will still be applied if they are not null. 
          */
-        dynamicBoundsValue                                : 'none' | 'iqr' | '1.5_iqr';
+        dynamicBoundsValue                                : 'none' | '1.5_iqr' | '3_iqr';
         minCutoffValue                                    : number;
         maxCutoffValue                                    : number;
         /* When a feature has no value for a criterion, give it score 0 (default), 0.5 or the average score of all other features, or a custom value */
@@ -224,18 +224,18 @@ module Mca.Models {
             if (this.minValue != null || this.maxValue != null) {
                 a = range / 10;
                 b = min;
-            } else if (this.dynamicBoundsValue === 'iqr') {
-                let quartiles = csComp.Helpers.quartiles(_propValuesArray);
-                let iqr = quartiles.q3 - quartiles.q1;
-                min = quartiles.q1 - iqr;
-                max = quartiles.q3 + iqr;
-                a = (max - min) / 10,
-                b = min;
             } else if (this.dynamicBoundsValue === '1.5_iqr') {
                 let quartiles = csComp.Helpers.quartiles(_propValuesArray);
                 let iqr = quartiles.q3 - quartiles.q1;
                 min = quartiles.q1 - (1.5 * iqr);
                 max = quartiles.q3 + (1.5 * iqr);
+                a = (max - min) / 10,
+                b = min;
+            } else if (this.dynamicBoundsValue === '3_iqr') {
+                let quartiles = csComp.Helpers.quartiles(_propValuesArray);
+                let iqr = quartiles.q3 - quartiles.q1;
+                min = quartiles.q1 - (3 * iqr);
+                max = quartiles.q3 + (3 * iqr);
                 a = (max - min) / 10,
                 b = min;
             } else if (this.mapToMinMax) {
