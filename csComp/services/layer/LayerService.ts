@@ -1920,8 +1920,8 @@ module csComp.Services {
             this.$messageBusService.publish('updatelegend', 'updatedstyle', gs);
         }
 
-        public setStyleForProperty(layer: ProjectLayer, property: string) {
-            this.setStyle({
+        public setStyleForProperty(layer: ProjectLayer, property: string): GroupStyle {
+            return this.setStyle({
                 feature: {
                     featureTypeName: layer.url + '#' + property,
                     layer: layer
@@ -1937,7 +1937,7 @@ module csComp.Services {
          * Already existing groups (for the same visualAspect) are replaced by the new group.
          * Restoring a previously used groupstyle is possible by sending that GroupStyle object.
          */
-        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle) {
+        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle): GroupStyle {
             // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {

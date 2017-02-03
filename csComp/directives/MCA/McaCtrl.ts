@@ -72,7 +72,7 @@ module Mca {
         expertMode = false;
         showSparkline = false;
 
-        private groupStyle: csComp.Services.GroupStyle;
+        groupStyle: csComp.Services.GroupStyle;
 
         static $inject = [
             '$scope',
@@ -704,7 +704,7 @@ module Mca {
             return result;
         }
 
-        private getLegend(mca: Models.Mca): csComp.Services.Legend {
+        public getLegend(mca: Models.Mca): csComp.Services.Legend {
             let legend;
             if (mca.legend) {
                 legend = mca.legend;

@@ -14,6 +14,10 @@ module MCAWidget {
          * defaultFeatureType of an enabled layer. 
          */
         filterByDefaultFeatureType: boolean;
+        /** 
+         * When the widget is loaded, automatically apply the style for the first MCA to all features.
+         */
+        autoApplyStyle: boolean;
     }
 
     export interface IMCAWidgetScope extends ng.IScope {
@@ -26,6 +30,7 @@ module MCAWidget {
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
         private mcaScope: Mca.IMcaScope;
+        private layer: csComp.Services.ProjectLayer;
 
         public selectedMCA: string;
         public mBusHandles: csComp.Services.MessageBusHandle[] = [];
@@ -48,10 +53,10 @@ module MCAWidget {
             private $mapService: csComp.Services.MapService
         ) {
             $scope.vm = this;
-            var par = <any>$scope.$parent;
+            var par = < any > $scope.$parent;
             this.widget = par.widget;
 
-            $scope.data = <MCAWidgetData>this.widget.data;
+            $scope.data = < MCAWidgetData > this.widget.data;
             $scope.data.filterByDefaultFeatureType = $scope.data.filterByDefaultFeatureType || false;
 
             if (typeof $scope.data.layerId !== 'undefined') {
@@ -89,10 +94,14 @@ module MCAWidget {
         private activateLayer(layer: csComp.Services.ProjectLayer) {
             this.mcaScope = this.getMcaScope();
             if (!this.mcaScope) return;
-
+            this.selectedMCA = this.mcaScope.vm.mca.id;
             if (layer.id !== this.$scope.data.layerId || (layer.id === this.$scope.data.layerId && !layer.enabled)) {
                 this.parentWidget.hide();
                 return;
+            }
+            this.layer = layer;
+            if (this.$scope.data.autoApplyStyle) {
+                this.setStyleForProperty();
             }
             this.$timeout(() => {
                 this.parentWidget.show();
@@ -105,7 +114,7 @@ module MCAWidget {
                 console.log('Mca element not found.');
                 return;
             }
-            var mcaScope = <Mca.IMcaScope>mcaElm.scope();
+            var mcaScope = < Mca.IMcaScope > mcaElm.scope();
             if (!mcaScope) {
                 console.log('Mca controller scope not found.');
                 return;
@@ -122,28 +131,39 @@ module MCAWidget {
             return mcaScope;
         }
 
+        private setStyleForProperty() {
+            if (!this.mcaScope || !this.mcaScope.vm.mca) {
+                console.log('Mca controller scope not found.');
+                return;
+            }
+            let gs = this.$layerService.setStyleForProperty(this.layer, this.mcaScope.vm.mca.label);
+            if (!gs) return;
+            gs.activeLegend = this.mcaScope.vm.getLegend(this.mcaScope.vm.mca);
+            this.$layerService.updateStyle(gs);
+        }
+
         private setMcaAsStyle(mcaId: string) {
             if (!this.mcaScope || !this.mcaScope.vm.mca) {
                 console.log('Mca controller scope not found.');
                 return;
-            } else {
-                if (!this.$layerService.lastSelectedFeature) {
-                    this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
-                    return;
-                }
-                var vm = this.mcaScope.vm;
-                var mca = vm.findMcaById(mcaId);
-                vm.updateAvailableMcas(mca);
-                vm.updateSelectedFeature(this.$layerService.lastSelectedFeature);
-                if (!vm.showFeature) {
-                    this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
-                    return;
-                }
-                if (vm.properties.length > 0) {
-                    vm.updateMca();
-                    console.log('Set mca style.');
-                    vm.setStyle(vm.properties[0]);
-                }
+            }
+            if (!this.$layerService.lastSelectedFeature) {
+                // this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
+                this.setStyleForProperty();
+                return;
+            }
+            var vm = this.mcaScope.vm;
+            var mca = vm.findMcaById(mcaId);
+            vm.updateAvailableMcas(mca);
+            vm.updateSelectedFeature(this.$layerService.lastSelectedFeature);
+            if (!vm.showFeature) {
+                this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
+                return;
+            }
+            if (vm.properties.length > 0) {
+                vm.updateMca();
+                console.log('Set mca style.');
+                vm.setStyle(vm.properties[0]);
             }
         }
     }
