@@ -382,6 +382,8 @@ module Mca.Models {
         scaleMaxValue  : number;
         scaleMinValue  : number;
 
+        /** Legendtype can either be static, or dynamic based on MCA results (it's IQR and median) */
+        legendType    ?: 'static' | 'dynamic';
         legend        ?: csComp.Services.Legend;
         calculationMode: McaCalculationMode;
 
@@ -417,6 +419,7 @@ module Mca.Models {
             this.maxValue        = input.maxValue;
             this.scaleMinValue   = input.scaleMinValue;
             this.scaleMaxValue   = input.scaleMaxValue;
+            this.legendType      = input.legendType;
             this.legend          = input.legend;
             this.calculationMode = input.calculationMode || McaCalculationMode.AllFeatures;
             super.deserialize(input);

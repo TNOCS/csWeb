@@ -73,10 +73,10 @@
                                         <div class="legend-label-d" style="float: left">{{le.label}}</div>
                                         <div>&nbsp;</div>
                                     </li>-->
-                                    <div class="row legend-entry-row" data-ng-repeat="le in style.activeLegend.legendEntries | reverse">
+                                    <div class="row legend-entry-row" data-ng-repeat="le in style.activeLegend.legendEntries | sortLegend">
                                         <div class="col-md-2 legend-color-square" ng-style="{'float': 'left', 'background': le.color}"></div>
                                         <div class="col-md-6 legend-label-d" style="float: left">{{le.label}}</div>
-                                        <div class="col-md-4 legend-label-d" style="float: right">{{le.interval.min}} - {{le.interval.max}}</div>
+                                        <div class="col-md-4 legend-label-d" style="padding-left: 0;float: right">{{le.interval.min | number:1}} {{'TO' | translate}} {{le.interval.max | number:1}}</div>
                                     </div>
                                 </ul>
                             </div>

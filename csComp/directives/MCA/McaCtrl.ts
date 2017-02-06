@@ -102,7 +102,6 @@ module Mca {
                         break;
                     case 'activated':
                         this.updateAvailableMcas();
-                        this.calculateMca();
                         break;
                 }
             });
@@ -542,6 +541,7 @@ module Mca {
 
         calculateMca() {
             if (!this.mca) return;
+            let t0 = performance.now();
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
@@ -623,6 +623,7 @@ module Mca {
                 this.messageBusService.publish('feature', 'onFeatureSelect', this.selectedFeature);
             }
             if (this.groupStyle) { this.layerService.updateStyle(this.groupStyle); }
+            console.log(`Calculated MCA in ${(performance.now() - t0).toFixed(2)} ms`);
         }
 
         private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: IFeatureType) {
@@ -708,13 +709,41 @@ module Mca {
 
         public getLegend(mca: Models.Mca): csComp.Services.Legend {
             let legend;
-            if (mca.legend) {
+            let type = mca.legendType || 'static';
+            if (type === 'static' && mca.legend) {
                 legend = mca.legend;
+            } else if (type === 'dynamic') {
+                legend = this.getDynamicLegend(mca);
             } else {
                 legend = McaCtrl.defaultLegend();
             }
             legend.id = mca.label;
             return legend;
+        }
+
+        public getDynamicLegend(mca: Mca.Models.Mca): csComp.Services.Legend {
+            let scores = this.getFeatureScores(mca.label);
+            let quartiles = csComp.Helpers.quartiles(scores);
+            let iqr = quartiles.q3 - quartiles.q1;
+            let legendKeyValues: Dictionary<number> = {
+                '1.5 * IQR': quartiles.q3 + 1.5 * iqr,
+                '3rd quartile': quartiles.q3,
+                'median': quartiles.median,
+                '1st quartile': quartiles.q1,
+                '-1.5 * IQR': quartiles.q1 - 1.5 * iqr
+            };
+            let legend = csComp.Helpers.createDiscreteLegend(mca.getTitle(), <any>legendKeyValues, mca.id);
+            return legend;
+        }
+
+        public getFeatureScores(mcaLabel: string): any[] {
+            let scores = [];
+            this.features.forEach((f) => {
+                if (f.properties.hasOwnProperty(mcaLabel)) {
+                    scores.push(f.properties[mcaLabel]);
+                }
+            });
+            return scores;
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {

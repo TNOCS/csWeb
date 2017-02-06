@@ -48,7 +48,7 @@ describe('StyleHelpers', function() {
             expect(color).toEqual('#001100');
             color = csComp.Helpers.getColorFromStringLegend('red', legend);
             expect(color).toEqual('#000000');
-            legend.legendKind = 'notExisting';
+            legend.legendKind = < any > 'notExisting';
             color = csComp.Helpers.getColorFromStringLegend('green', legend);
             expect(color).toEqual('#000000');
         });
@@ -78,7 +78,7 @@ describe('StyleHelpers', function() {
             expect(color).toEqual('#000011');
             color = csComp.Helpers.getColorFromLegend(-0.1, legend);
             expect(color).toEqual('#000011');
-            legend.legendKind = 'notExisting';
+            legend.legendKind = < any > 'notExisting';
             color = csComp.Helpers.getColorFromLegend(0.5, legend);
             expect(color).toEqual('#000000');
         });

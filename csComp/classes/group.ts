@@ -247,7 +247,7 @@ module csComp.Services {
     export class Legend {
         id: string;
         description: string;
-        legendKind: string;
+        legendKind: 'discrete' | 'discreteStrings' | 'interpolated';
         visualAspect: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals

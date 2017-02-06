@@ -19,9 +19,13 @@ module StyleList {
       * Directive to display the available map layers.
       */
     myModule
-        .filter('reverse', function() {
-            return function(items) {
-                return items.slice().reverse();
+        .filter('sortLegend', function() {
+            return (legendItems: csComp.Services.LegendEntry[]) => {
+                if (_.pluck(legendItems, 'sortKey').length === legendItems.length) {
+                    return legendItems.sort((a, b) => { return a.sortKey.localeCompare(b.sortKey); });
+                } else {
+                    return legendItems.slice().reverse();
+                }
             };
         })
         .directive('styleList', ['$window', '$compile', function ($window, $compile)  : ng.IDirective {

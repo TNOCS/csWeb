@@ -215,15 +215,16 @@ module csComp.Helpers {
         return avg;
     }
 
-    export function quartiles(data: number[]): { q1: number, q3: number } {
+    export function quartiles(data: number[]): { q1: number, median: number, q3: number } {
         if (!data || !_.isArray(data)) return null;
         let sorted = data.sort((a, b) => { return +a - +b; });
         let q1 = d3.quantile(sorted, 0.25);
+        let median = d3.quantile(sorted, 0.50);
         let q3 = d3.quantile(sorted, 0.75);
         if (q3 < q1) {
-            throw Error(`Third quartile cannot be smaller than first quartile (Q1: ${q1}, Q3: ${q3})`);
+            throw Error(`Third quartile cannot be smaller than first quartile (Q1: ${q1}, Q3: ${q3}, median: ${median})`);
         }
-        return {q1: q1, q3: q3};
+        return {q1: q1, median: median, q3: q3};
     }
 
     /**
@@ -439,6 +440,43 @@ module csComp.Helpers {
         type.style = getDefaultFeatureStyle(feature);
         this.addPropertyTypes(feature, type, resource);
         return type;
+    }
+
+    export function createDiscreteLegend(description: string, legendEntries: any, id?: string, colors?: string[]): csComp.Services.Legend {
+        let leg = new csComp.Services.Legend();
+        leg.id = id || this.getGuid();
+        leg.description = description || 'Legend';
+        leg.legendKind = 'discrete';
+        leg.legendEntries = [];
+        if (_.isEmpty(legendEntries)) return leg;
+        let entryColors = chroma.scale(colors || ['green', 'yellow', 'red']).mode('lab').colors(_.size(legendEntries) + 2);
+        Object.keys(legendEntries).forEach((key, index, allKeys) => {
+            if (index === 0) {
+                leg.legendEntries.push(this.createLegendEntry('> ' + key, entryColors[index], legendEntries[allKeys[index]], Infinity, String.fromCharCode(65 + index)));
+            }
+            if (index === allKeys.length - 1) {
+                leg.legendEntries.push(this.createLegendEntry('< ' + key, entryColors[index + 1], -Infinity, legendEntries[allKeys[index]], String.fromCharCode(65 + index + 1)));
+            } else {
+                leg.legendEntries.push(this.createLegendEntry(key, entryColors[index + 1], legendEntries[allKeys[index + 1]], legendEntries[allKeys[index]], String.fromCharCode(65 + index + 1)));
+            }
+        });
+        leg.legendEntries = leg.legendEntries.reverse();
+        return leg;
+    }
+
+    export function createLegendEntry(label: string, color: string, min: number, max: number, sortKey?: string) {
+        let le: csComp.Services.LegendEntry = {
+            interval: {
+                max: max,
+                min: min
+            },
+            label: label,
+            color: color,
+        };
+        if (sortKey) {
+            le.sortKey = sortKey;
+        }
+        return le;
     }
 
     /**
