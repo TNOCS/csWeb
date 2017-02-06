@@ -5,7 +5,8 @@
         </h4>
     </div>
     <div>
-        <label data-ng-repeat="mca in data.availableMcas" class="row" style="margin: 5px; cursor:pointer" popover="{{'MCA.SET_STYLE' | translate}}" popover-placement="right" popover-trigger="'mouseenter'" popover-append-to-body="true">
+        <label data-ng-repeat="mca in data.availableMcas" class="row" style="margin: 5px; cursor:pointer" uib-tooltip="{{'MCA.SET_STYLE' | translate}}"
+            tooltip-placement="bottom" tooltip-append-to-body="true">
             <input type="radio" ng-model="vm.selectedMCA" value="{{mca.id}}" ng-click="vm.setMcaAsStyle(mca.id)">&nbsp;&nbsp;{{mca.title}}
         </label><br/>
     </div>

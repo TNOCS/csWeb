@@ -74,6 +74,23 @@ module MCAWidget {
                     }
                 }));
 
+                this.mBusHandles.push(this.$messageBus.subscribe('mca', (action: string, mca: Mca.Models.Mca) => {
+                    switch (action) {
+                        case 'updated':
+                        case 'deactivate':
+                            if (!mca) break;
+                            $timeout(() => {
+                                if (this.selectedMCA !== mca.id) {
+                                    this.selectedMCA = mca.id;
+                                    this.setMcaAsStyle(this.selectedMCA);
+                                }
+                            }, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                }));
+
                 // Activate widget when layer is already loaded
                 let l = this.$layerService.findLoadedLayer($scope.data.layerId);
                 if (l) {
@@ -147,14 +164,15 @@ module MCAWidget {
                 console.log('Mca controller scope not found.');
                 return;
             }
+            var vm = this.mcaScope.vm;
+            var mca = vm.findMcaById(mcaId);
+            vm.updateAvailableMcas(mca);
+            vm.updateMca();
             if (!this.$layerService.lastSelectedFeature) {
                 // this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
                 this.setStyleForProperty();
                 return;
             }
-            var vm = this.mcaScope.vm;
-            var mca = vm.findMcaById(mcaId);
-            vm.updateAvailableMcas(mca);
             vm.updateSelectedFeature(this.$layerService.lastSelectedFeature);
             if (!vm.showFeature) {
                 this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');

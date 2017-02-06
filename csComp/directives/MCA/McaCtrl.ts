@@ -231,6 +231,7 @@ module Mca {
             this.features = [];
             this.calculateMca();
             this.drawChart(criterion);
+            this.messageBusService.publish('mca', 'updated', this.selectedCriterion || this.mca);
         }
 
         editMca(mca: Models.Mca) {
@@ -532,6 +533,7 @@ module Mca {
                     });
                 });
             }
+            this.availableMcas = _.sortBy(this.availableMcas, 'title');
             if (!mca && this.availableMcas.length > 0) {
                 this.mca = this.availableMcas[0];
                 this.updateMca();
