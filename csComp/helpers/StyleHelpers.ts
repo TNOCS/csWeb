@@ -72,6 +72,12 @@ module csComp.Helpers {
 
     export function getColorFromLegend(v: any, l: csComp.Services.Legend, defaultcolor = '#000000') {
         var n = l.legendEntries.length;
+        if (l.defaultLabel) {
+            let defaultLE = _.find(l.legendEntries, (le) => { return le.label === l.defaultLabel; });
+            if (defaultLE && defaultLE.color) {
+                defaultcolor = defaultLE.color;
+            }
+        }
         if (n === 0) return (defaultcolor);
         if (l.legendKind.toLowerCase() === 'discretestrings') {
             var i: number = 0;
@@ -85,15 +91,16 @@ module csComp.Helpers {
             return defaultcolor;
         }
         if (l.legendKind.toLowerCase() === 'interpolated') {
-            var e1 = _.min(l.legendEntries, (le) => { return le.value; });    // minimum
-            var e2 = _.max(l.legendEntries, (le) => { return le.value; });    // maximum
+            var entries = _.sortBy(l.legendEntries, (le) => { return le.value; });
+            var e1 = _.first(entries); // minimum value
+            var e2 = _.last(entries);  // maximum value
             // interpolate between two colors
             if (v < e1.value) return e1.color;
             if (v > e2.value) return e2.color;
             var i: number = 0;
             while (i < n - 1) {
-                e1 = l.legendEntries[i];
-                e2 = l.legendEntries[i + 1];
+                e1 = entries[i];
+                e2 = entries[i + 1];
                 if ((v >= e1.value) && (v <= e2.value)) {
                     var bezInterpolator = (<any>chroma).bezier([e1.color, e2.color]);
                     var r = bezInterpolator((v - e1.value) / (e2.value - e1.value)).hex();
@@ -104,17 +111,18 @@ module csComp.Helpers {
             return (defaultcolor);
         }
         if (l.legendKind.toLowerCase() === 'discrete') {
-            var e1 = _.min(l.legendEntries, (le) => { return (le.interval.min || Infinity); });    // minimum value
-            var e2 = _.max(l.legendEntries, (le) => { return (le.interval.max || -Infinity); });    // maximum value
+            var entries = _.sortBy(l.legendEntries, (le) => { return (le.interval ? le.interval.min : Infinity); });
+            var e1 = _.first(entries); // minimum value
+            var e2 = _.last(entries);  // maximum value
             if (e1.interval && e2.interval && typeof e1.interval.min !== 'undefined' && typeof e2.interval.max !== 'undefined') {
                 if (v < e1.interval.min) return e1.color;
                 if (v > e2.interval.max) return e2.color;
             }
             var i: number = 0;
             while (i < n) {
-                var e = l.legendEntries[i];
-                if (e.value) {
-                    if (v === e.value) return e.color;
+                var e = entries[i];
+                if (e.value && v === e.value) {
+                    return e.color;
                 } else if (e.interval && (v >= e.interval.min) && (v <= e.interval.max)) {
                     return e.color;
                 }
@@ -127,7 +135,7 @@ module csComp.Helpers {
 
     export function getColor(v: number, gs: csComp.Services.GroupStyle) {
         if (gs.activeLegend) {
-            return getColorFromLegend(v, gs.activeLegend)
+            return getColorFromLegend(v, gs.activeLegend);
         }
 
         var max = gs.info.userMax || gs.info.max;

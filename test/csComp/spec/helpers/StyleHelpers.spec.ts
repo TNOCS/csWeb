@@ -62,7 +62,7 @@ describe('StyleHelpers', function() {
             expect(color).toEqual('#001100');
             legend.legendKind = 'interpolated';
             legend.legendEntries.push({ stringValue: 'blue' , color: '#000011', label: 'blue', interval: { min: 0, max: 1 }, value: 0 });
-            legend.legendEntries.push({ stringValue: 'green', color: '#001100', label: 'blue', interval: { min: 0, max: 1 }, value: 1 });
+            legend.legendEntries.push({ stringValue: 'green', color: '#001100', label: 'green', interval: { min: 1, max: 2 }, value: 1 });
             color = csComp.Helpers.getColorFromLegend(-0.5, legend, '#000000');
             expect(color).toEqual('#000011');
             color = csComp.Helpers.getColorFromLegend(1.5, legend, '#000000');
@@ -78,6 +78,10 @@ describe('StyleHelpers', function() {
             expect(color).toEqual('#000011');
             color = csComp.Helpers.getColorFromLegend(-0.1, legend);
             expect(color).toEqual('#000011');
+            legend.legendEntries.push({ stringValue: 'unknown', color: '#555555', label: 'unknown' });
+            legend.defaultLabel = 'unknown';
+            color = csComp.Helpers.getColorFromLegend(-0.1, legend);
+            expect(color).toEqual('#555555');
             legend.legendKind = < any > 'notExisting';
             color = csComp.Helpers.getColorFromLegend(0.5, legend);
             expect(color).toEqual('#000000');
