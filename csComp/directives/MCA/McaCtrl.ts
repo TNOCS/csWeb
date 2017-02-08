@@ -582,11 +582,10 @@ module Mca {
                 mca.updatePla(this.features, true);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
-                var index = 0;
-                this.features.forEach((feature) => {
+                this.features.forEach((feature, index) => {
                     let score = mca.getScore(feature);
                     if (mca.rankTitle) {
-                        let tempItem = { score: score, index: index++ };
+                        let tempItem = { score: score, index: index };
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
@@ -730,14 +729,18 @@ module Mca {
             let scores = this.getFeatureScores(mca.label);
             let quartiles = csComp.Helpers.quartiles(scores);
             let iqr = quartiles.q3 - quartiles.q1;
-            let legendKeyValues = {
-                '1.5 * IQR': quartiles.q3 + 1.5 * iqr,
-                '3rd quartile': quartiles.q3,
-                'median': quartiles.median,
-                '1st quartile': quartiles.q1,
-                '-1.5 * IQR': quartiles.q1 - 1.5 * iqr
-            };
-            let legend = csComp.Helpers.createDiscreteLegend(mca.getTitle(), <any>legendKeyValues, mca.id);
+            let legendKeyValues = [
+                {key: '100', val: 100},
+                {key: '1.5*IQR', val: quartiles.q3 + 1.5 * iqr},
+                {key: 'Q3', val: quartiles.q3},
+                {key: 'median', val: quartiles.median},
+                {key: 'Q1', val: quartiles.q1},
+                {key: '-1.5*IQR', val: quartiles.q1 - 1.5 * iqr},
+                {key: '0', val: 0}
+            ];
+            let legend = csComp.Helpers.createDiscreteLegend(mca.getTitle(), legendKeyValues, mca.id);
+            legend.defaultLabel = 'Incomplete';
+            legend.legendEntries.push({label: 'Incomplete', color: '#555555', sortKey: 'ZZ'});
             return legend;
         }
 
