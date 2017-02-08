@@ -82,6 +82,7 @@ describe('StyleHelpers', function() {
             legend.defaultLabel = 'unknown';
             color = csComp.Helpers.getColorFromLegend(-0.1, legend);
             expect(color).toEqual('#555555');
+            delete legend.defaultLabel;
             legend.legendKind = < any > 'notExisting';
             color = csComp.Helpers.getColorFromLegend(0.5, legend);
             expect(color).toEqual('#000000');
