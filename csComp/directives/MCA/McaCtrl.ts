@@ -679,14 +679,19 @@ module Mca {
             }
         }
 
-        setStyle(item: FeatureProps.CallOutProperty) {
+        isMcaStyleSet() {
             // If groupStyle has been set, we have called it before.
             // However, make sure that not another filter has set the fillColor too, overwriting our label.
-            if (this.groupStyle
+            return (this.groupStyle
                 && this.groupStyle.group != null
                 && this.groupStyle.group.styles != null
-                && this.groupStyle.group.styles.length > 0                
-                && this.groupStyle.group.styles.filter((s) => { return s.visualAspect === 'fillColor'; })[0].property === this.mca.label) {
+                && this.groupStyle.group.styles.length > 0
+                && this.groupStyle.group.styles.filter((s) => { return s.visualAspect === 'fillColor'; })[0].property === this.mca.label);
+        }
+
+        setStyle(item: FeatureProps.CallOutProperty) {
+            if (this.isMcaStyleSet()) {
+                this.groupStyle.activeLegend = this.getLegend(this.mca);
                 this.layerService.updateStyle(this.groupStyle);
             } else {
                 this.groupStyle = this.layerService.setStyle(item, false);
@@ -725,7 +730,7 @@ module Mca {
             let scores = this.getFeatureScores(mca.label);
             let quartiles = csComp.Helpers.quartiles(scores);
             let iqr = quartiles.q3 - quartiles.q1;
-            let legendKeyValues: Dictionary<number> = {
+            let legendKeyValues = {
                 '1.5 * IQR': quartiles.q3 + 1.5 * iqr,
                 '3rd quartile': quartiles.q3,
                 'median': quartiles.median,

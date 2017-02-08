@@ -21,7 +21,7 @@ module StyleList {
     myModule
         .filter('sortLegend', function() {
             return (legendItems: csComp.Services.LegendEntry[]) => {
-                if (_.pluck(legendItems, 'sortKey').length === legendItems.length) {
+                if (_.pluck(legendItems, 'sortKey').filter( function(item) {return item != undefined; }).length === legendItems.length) {
                     return legendItems.sort((a, b) => { return a.sortKey.localeCompare(b.sortKey); });
                 } else {
                     return legendItems.slice().reverse();

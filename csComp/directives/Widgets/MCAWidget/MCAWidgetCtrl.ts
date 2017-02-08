@@ -156,6 +156,7 @@ module MCAWidget {
             let gs = this.$layerService.setStyleForProperty(this.layer, this.mcaScope.vm.mca.label);
             if (!gs) return;
             gs.activeLegend = this.mcaScope.vm.getLegend(this.mcaScope.vm.mca);
+            this.mcaScope.vm.groupStyle = gs;
             this.$layerService.updateStyle(gs);
         }
 

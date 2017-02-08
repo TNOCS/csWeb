@@ -442,14 +442,24 @@ module csComp.Helpers {
         return type;
     }
 
-    export function createDiscreteLegend(description: string, legendEntries: any, id?: string, colors?: string[]): csComp.Services.Legend {
+    /**
+     * Create a legend with discrete intervals based on the provided input arguments. It will create an additional interval befor and after the supplied interval values.
+     * E.g. providing 1m, 2m and 3m will result in the entries: <1m, 1m-2m, 2m-3m and >3m.
+     * @export
+     * @param {string} description Description/title of the legend
+     * @param {Dictionary<number>} legendEntries Key/value object of the legend interval values, e.g. {"1m": 1, "2m": 2, "3m": 3}.
+     * @param {string} [id] Id of the legend
+     * @param {string[]} [colors] string of color values used for the legend (optional)
+     * @returns {csComp.Services.Legend}
+     */
+    export function createDiscreteLegend(description: string, legendEntries: Dictionary<number>, id?: string, colors?: string[]): csComp.Services.Legend {
         let leg = new csComp.Services.Legend();
         leg.id = id || this.getGuid();
         leg.description = description || 'Legend';
         leg.legendKind = 'discrete';
         leg.legendEntries = [];
         if (_.isEmpty(legendEntries)) return leg;
-        let entryColors = chroma.scale(colors || ['green', 'yellow', 'red']).mode('lab').colors(_.size(legendEntries) + 2);
+        let entryColors = chroma.scale(colors || ['green', 'yellow', 'red']).mode('lab').colors(_.size(legendEntries) + 1);
         Object.keys(legendEntries).forEach((key, index, allKeys) => {
             if (index === 0) {
                 leg.legendEntries.push(this.createLegendEntry('> ' + key, entryColors[index], legendEntries[allKeys[index]], Infinity, String.fromCharCode(65 + index)));
@@ -460,7 +470,7 @@ module csComp.Helpers {
                 leg.legendEntries.push(this.createLegendEntry(key, entryColors[index + 1], legendEntries[allKeys[index + 1]], legendEntries[allKeys[index]], String.fromCharCode(65 + index + 1)));
             }
         });
-        leg.legendEntries = leg.legendEntries.reverse();
+        leg.legendEntries = leg.legendEntries.sort((a, b) => { return a.interval.min - b.interval.min; });
         return leg;
     }
 

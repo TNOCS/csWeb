@@ -84,9 +84,9 @@ module csComp.Helpers {
             }
             return defaultcolor;
         }
-        var e1 = l.legendEntries[0];    // first
-        var e2 = l.legendEntries[n - 1];  // last
         if (l.legendKind.toLowerCase() === 'interpolated') {
+            var e1 = _.min(l.legendEntries, (le) => { return le.value; });    // minimum
+            var e2 = _.max(l.legendEntries, (le) => { return le.value; });    // maximum
             // interpolate between two colors
             if (v < e1.value) return e1.color;
             if (v > e2.value) return e2.color;
@@ -104,6 +104,8 @@ module csComp.Helpers {
             return (defaultcolor);
         }
         if (l.legendKind.toLowerCase() === 'discrete') {
+            var e1 = _.min(l.legendEntries, (le) => { return (le.interval.min || Infinity); });    // minimum value
+            var e2 = _.max(l.legendEntries, (le) => { return (le.interval.max || -Infinity); });    // maximum value
             if (e1.interval && e2.interval && typeof e1.interval.min !== 'undefined' && typeof e2.interval.max !== 'undefined') {
                 if (v < e1.interval.min) return e1.color;
                 if (v > e2.interval.max) return e2.color;
