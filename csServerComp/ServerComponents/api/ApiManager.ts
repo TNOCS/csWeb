@@ -449,7 +449,7 @@ export class ApiManager extends events.EventEmitter {
         this.projectsFile = path.join(this.rootPath, 'projects.json');
 
         fs.stat(this.projectsFile, (err, stats) => {
-            // Create file if it doesn't exist            
+            // Create file if it doesn't exist
             if (err && err.code === 'ENOENT') {
                 fs.writeFileSync(this.projectsFile, '{}');
                 Winston.info(`Create projects.json file ${this.projectsFile}`);
@@ -485,7 +485,7 @@ export class ApiManager extends events.EventEmitter {
     }, 1000);
 
     /**
-     * Store layer config file
+     * Store project config file
      */
     public saveProjectConfig() {
         fs.writeFile(this.projectsFile, JSON.stringify(this.projects), (error) => {
@@ -561,8 +561,7 @@ export class ApiManager extends events.EventEmitter {
     public addResource(resource: ResourceFile, replace: boolean, meta: ApiMeta, callback: Function) {
         if (this.resources.hasOwnProperty(resource.id) && !replace) {
             callback(<CallbackResult>{ result: ApiResult.ResourceAlreadyExists, error: 'Resource already exists' });
-        }
-        else {
+        } else {
             // reuse existing local file location
             if (this.resources.hasOwnProperty(resource.id)) {
                 resource._localFile = this.resources[resource.id]._localFile;
@@ -572,7 +571,7 @@ export class ApiManager extends events.EventEmitter {
             this.resources[resource.id] = <ResourceFile>{ _localFile: resource._localFile, id: resource.id, title: resource.title, storage: resource.storage };
 
             // don't actually save it, if this method is called from the storage connector it self
-            if (resource.storage != meta.source) {
+            if (resource.storage !== meta.source) {
                 var s = this.findStorage(resource);
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.addResource(resource, meta, () => { });
@@ -596,12 +595,10 @@ export class ApiManager extends events.EventEmitter {
                 s.getResource(id, meta, (r: CallbackResult) => {
                     callback(r);
                 });
-            }
-            else {
+            } else {
                 callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
             }
-        }
-        else {
+        } else {
             callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
         }
     }
@@ -640,7 +637,7 @@ export class ApiManager extends events.EventEmitter {
         } else {
             var group = p.groups.filter((pg) => { return (pg.id === groupId); })[0];
             if (group.layers.some((pl) => { return (pl.id === layerId); })) {
-                group.layers = group.layers.filter((pl) => { return (pl.id !== layerId) });
+                group.layers = group.layers.filter((pl) => { return (pl.id !== layerId); });
                 this.updateProject(p, meta, () => { });
                 Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
                 callback(<CallbackResult>{ result: ApiResult.OK });
@@ -668,7 +665,7 @@ export class ApiManager extends events.EventEmitter {
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
         if (!p.groups) { p.groups = []; }
         if (!group.id) { group.id = helpers.newGuid(); }
-        if (p.groups.some((pg) => { return (group.id === pg.id) })) {
+        if (p.groups.some((pg) => { return (group.id === pg.id); })) {
             p.groups.some((pg) => {
                 if (group.id === pg.id && group.clusterLevel) {
                     pg['clusterLevel'] = group.clusterLevel;
@@ -702,7 +699,7 @@ export class ApiManager extends events.EventEmitter {
                 return false;
             });
             this.updateProject(p, meta, () => { });
-            callback(<CallbackResult>{ result: ApiResult.OK }); return;
+            callback(<CallbackResult>{ result: ApiResult.OK });
         } else {
             callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group Not Found' }); return;
         }
@@ -715,11 +712,11 @@ export class ApiManager extends events.EventEmitter {
         if (!p.groups.some((pg) => { return (groupId === pg.id) })) {
             callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group not found' }); return;
         } else {
-            var group = p.groups.filter((pg) => { return (groupId === pg.id) })[0];
+            var group = p.groups.filter((pg) => { return (groupId === pg.id); })[0];
             group.layers.forEach(pl => {
                 this.removeLayerFromProject(projectId, groupId, pl.id, meta, () => { });
             });
-            p.groups = p.groups.filter((pg) => { return (pg.id !== groupId) });
+            p.groups = p.groups.filter((pg) => { return (pg.id !== groupId); });
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
@@ -771,13 +768,13 @@ export class ApiManager extends events.EventEmitter {
         connectors.forEach((c) => {
             c.s.id = c.key;
             this.connectors[c.key] = c.s;
-        })
+        });
         async.eachSeries(connectors, (c, callb) => {
             c.s.init(this, c.options, () => { });
             callb();
         }, () => {
             callback();
-        })
+        });
     }
 
     /**
@@ -801,7 +798,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
-     * Find layer for a specific layerId (can return null)
+     * Find key for a specific keyId (can return null)
      */
     public findKey(keyId: string): Key {
         return this.keys.hasOwnProperty(keyId)
@@ -1001,8 +998,8 @@ export class ApiManager extends events.EventEmitter {
         });
 
         // store layer
-        if (s && s.id != meta.source) {
-            s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
+        if (s && s.id !== meta.source) {
+            s.addLayer(layer, meta, (r: CallbackResult) => callback(r));
         } else {
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
@@ -1094,7 +1091,7 @@ export class ApiManager extends events.EventEmitter {
                 this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Update, value: project });
                 this.saveProjectDelay(project);
             }
-        ])
+        ]);
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
@@ -1112,7 +1109,7 @@ export class ApiManager extends events.EventEmitter {
     public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForProjectId(projectId);
         if (!s) {
-            callback(<CallbackResult>{ result: ApiResult.Error, error: 'Project not found.' })
+            callback(<CallbackResult>{ result: ApiResult.Error, error: 'Project not found.' });
             return;
         }
         s.deleteProject(projectId, meta, (r: CallbackResult) => {
@@ -1144,8 +1141,7 @@ export class ApiManager extends events.EventEmitter {
         var layer = this.findLayer(layerId);
         if (!layer) {
             callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
-        }
-        else {
+        } else {
             this.setUpdateLayer(layer, meta);
             var s = this.findStorage(layer);
             if (s) s.addFeature(layerId, feature, meta, (result) => {
@@ -1294,10 +1290,11 @@ export class ApiManager extends events.EventEmitter {
 
     public getKey(id: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForKeyId(id);
-        if (s) s.getKey(id, meta, (r: CallbackResult) => {
-            callback(r);
-        })
-        else { callback(<CallbackResult>{ result: ApiResult.KeyNotFound }); }
+        if (s) {
+            s.getKey(id, meta, (r: CallbackResult) => {
+                callback(r);
+            });
+        } else { callback(<CallbackResult>{ result: ApiResult.KeyNotFound }); }
     }
 
     public updateKey(keyId: string, value: Object, meta?: ApiMeta, callback?: Function) {
@@ -1332,7 +1329,7 @@ export class ApiManager extends events.EventEmitter {
         this.emit(Event[Event.KeyChanged], <IChangeEvent>{ id: keyId, type: ChangeType.Update, value: value });
 
         // check subscriptions
-        callback(<CallbackResult>{ result: ApiResult.OK })
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     /**
