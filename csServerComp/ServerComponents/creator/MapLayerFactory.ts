@@ -143,8 +143,12 @@ export class MapLayerFactory {
             //if (!fs.existsSync("public/data/projects/DynamicExample/" + ld.group)) fs.mkdirSync("public/data/projects/DynamicExample/" + ld.group);
             //fs.writeFileSync("public/data/projects/DynamicExample/" + ld.group + "/" + ld.layerTitle + ".json", JSON.stringify(geojson));
 
-            if (!template.projectId || !ld.reference) {
-                console.log('Error: No project or layer ID');
+            if (!template.projectId) {
+                console.warn('Error: No project ID found in the template');
+                return;
+            }
+            if (!ld.reference) {
+                console.warn('Error: No layer reference found in the template');
                 return;
             }
             var layerId = template.projectId + ld.reference.toLowerCase();
@@ -155,7 +159,7 @@ export class MapLayerFactory {
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: layerId,
-                featureType: layerId,
+                featureType: Object.keys(geojson.featureTypes)[0] || 'Default',
                 opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
                 clustering: ld.useClustering,

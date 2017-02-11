@@ -281,7 +281,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     /** save media file */
     private saveBase64(media: Media) {
         var binaryData = new Buffer(media.base64, 'base64');
-        fs.writeFile(media.fileUri, binaryData, (error) => {
+        fs.writeFile(media.fileUri, binaryData, {encoding: 'base64'}, (error) => {
             if (error) {
                 Winston.error('filestore: error writing base64-file : ' + media.fileUri + ' (err: ' + error + ')');
             } else {

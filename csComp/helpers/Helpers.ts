@@ -8,6 +8,11 @@
 
 module csComp.Helpers {
 
+    export interface IKeyVal {
+        key: string;
+        val: number;
+    }
+
     /**
      * Translate the object to the user's language.
      */
@@ -443,32 +448,28 @@ module csComp.Helpers {
     }
 
     /**
-     * Create a legend with discrete intervals based on the provided input arguments. It will create an additional interval befor and after the supplied interval values.
-     * E.g. providing 1m, 2m and 3m will result in the entries: <1m, 1m-2m, 2m-3m and >3m.
+     * Create a legend with discrete intervals based on the provided input arguments. Creates n-1 intervals for n input arguments.
+     * E.g. providing 1m, 2m and 3m will result in the entries: 1m-2m and 2m-3m.
      * @export
      * @param {string} description Description/title of the legend
-     * @param {Dictionary<number>} legendEntries Key/value object of the legend interval values, e.g. {"1m": 1, "2m": 2, "3m": 3}.
+     * @param {IKeyVal[]} legendEntries Key/value object of the legend interval values, e.g. {"1m": 1, "2m": 2, "3m": 3}.
      * @param {string} [id] Id of the legend
      * @param {string[]} [colors] string of color values used for the legend (optional)
      * @returns {csComp.Services.Legend}
      */
-    export function createDiscreteLegend(description: string, legendEntries: Dictionary<number>, id?: string, colors?: string[]): csComp.Services.Legend {
+    export function createDiscreteLegend(description: string, legendEntries: IKeyVal[], id?: string, colors?: string[]): csComp.Services.Legend {
         let leg = new csComp.Services.Legend();
         leg.id = id || this.getGuid();
         leg.description = description || 'Legend';
         leg.legendKind = 'discrete';
         leg.legendEntries = [];
-        if (_.isEmpty(legendEntries)) return leg;
-        let entryColors = chroma.scale(colors || ['green', 'yellow', 'red']).mode('lab').colors(_.size(legendEntries) + 1);
-        Object.keys(legendEntries).forEach((key, index, allKeys) => {
-            if (index === 0) {
-                leg.legendEntries.push(this.createLegendEntry('> ' + key, entryColors[index], legendEntries[allKeys[index]], Infinity, String.fromCharCode(65 + index)));
-            }
-            if (index === allKeys.length - 1) {
-                leg.legendEntries.push(this.createLegendEntry('< ' + key, entryColors[index + 1], -Infinity, legendEntries[allKeys[index]], String.fromCharCode(65 + index + 1)));
-            } else {
-                leg.legendEntries.push(this.createLegendEntry(key, entryColors[index + 1], legendEntries[allKeys[index + 1]], legendEntries[allKeys[index]], String.fromCharCode(65 + index + 1)));
-            }
+        if (!_.isArray(legendEntries) || _.size(legendEntries) < 2) return leg;
+        let entryColors = chroma.scale(colors || ['green', 'yellow', 'red']).mode('lab').colors(_.size(legendEntries) - 1);
+        legendEntries.forEach((keyValObj: IKeyVal, i, allObjects: IKeyVal[]) => {
+            if (i === 0) return;
+            let prevKeyValObj = allObjects[i - 1];
+            let le = this.createLegendEntry(`${keyValObj.key} - ${prevKeyValObj.key}`, entryColors[i - 1], keyValObj.val, prevKeyValObj.val, String.fromCharCode(65 + i));
+            leg.legendEntries.push(le);
         });
         leg.legendEntries = leg.legendEntries.sort((a, b) => { return a.interval.min - b.interval.min; });
         return leg;

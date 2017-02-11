@@ -168,7 +168,7 @@ module Mca.Models {
 
         getTitle() {
             return this.title
-                ? this.title 
+                ? this.title
                 : this.label;
         }
 
@@ -266,10 +266,10 @@ module Mca.Models {
                 }
                 this._x.push(x);
                 // Test that y in [0, 1].
-                var y = parseFloat(pla[2*i+1]);
+                var y = parseFloat(pla[2 * i + 1]);
                 if (y < 0) {
                     y = 0;
-                } else if (y > 1) { 
+                } else if (y > 1) {
                     y = 1;
                 }
                 this._y.push(y);

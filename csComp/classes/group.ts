@@ -249,6 +249,8 @@ module csComp.Services {
         description: string;
         legendKind: 'discrete' | 'discreteStrings' | 'interpolated';
         visualAspect: string;
+        /** Optionally provide a label of a LegendEntry for values not present in the Legend */
+        defaultLabel?: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
