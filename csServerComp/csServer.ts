@@ -1,8 +1,8 @@
 import * as express from 'express';
 import * as core from 'express-serve-static-core';
+import * as fileSystem from 'fs';
 
 import async = require('async');
-import http = require('http');
 import path = require('path');
 import Winston = require('winston');
 import _ = require('underscore');
@@ -20,6 +20,19 @@ export class csServerOptions {
     corrsSupportedMethods = 'GET';
 }
 
+/**
+ * Optional start options that you can use to start the server instead of loading the
+ * configuration from file. This is type-safe, and easier when testing the server.
+ *
+ * @export
+ * @interface StartOptions
+ */
+export interface StartOptions {
+    bagConnectionString?: string;
+    resolveAddress?: string;
+    [key: string]: any;
+}
+
 export class csServer {
     public server = express();
     public cm: csweb.ConnectionManager;
@@ -32,18 +45,21 @@ export class csServer {
 
     }
 
-    public start(started: Function) {
-        Winston.info("starting csServer")
+    public start(started: Function, options?: StartOptions) {
+        Winston.info('starting csServer');
         var favicon = require('serve-favicon');
         var bodyParser = require('body-parser');
         this.httpServer = require('http').Server(this.server);
         this.cm = new csweb.ConnectionManager(this.httpServer);
         this.messageBus = new csweb.MessageBusService();
-        this.config = new csweb.ConfigurationService(path.join(this.dir, 'configuration.json'));
+        this.config = new csweb.ConfigurationService(options || path.join(this.dir, 'configuration.json'));
 
         // all environments
         this.server.set('port', this.options.port);
-        this.server.use(favicon(this.dir + '/public/favicon.ico'));
+        const faviconPath = this.dir + '/public/favicon.ico';
+        if (fileSystem.existsSync(faviconPath)) {
+            this.server.use(favicon(faviconPath));
+        }
         //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
         this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
         this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true, parameterLimit: 100000 })); // support encoded bodies
@@ -105,7 +121,7 @@ export class csServer {
                 //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });
 
                 if (c.hasOwnProperty('kafka')) {
-                    console.log("TEST:" + JSON.stringify(c['kafka']));
+                    console.log('TEST:' + JSON.stringify(c['kafka']));
                     connectors.push({ key: 'kafka', s: new csweb.KafkaAPI(c['kafka'].server, c['kafka'].port, c['kafka']), options: {} });
                 }
 
@@ -117,26 +133,26 @@ export class csServer {
     }
 
     private gracefulShutdown() {
-        Winston.info("Attempting to shut down ...");
+        Winston.info('Attempting to shut down ...');
         if (this.api && this.api.connectors) {
 
             async.each(_.toArray(this.api.connectors), (c: csweb.IConnector, cb) => {
                 if (c.exit) {
-                    console.log("Closing " + c.id);
+                    console.log('Closing ' + c.id);
 
                     c.exit(() => {
-                        Winston.info("Finished closing " + c.id);
+                        Winston.info('Finished closing ' + c.id);
 
                         //  delete this.api.connectors[c.id];
                         cb();
-                    })
+                    });
                 }
             }, () => {
-                Winston.info("Stopping server");
+                Winston.info('Stopping server');
                 this.httpServer.close();
-                Winston.info("Done closing connectors");
+                Winston.info('Done closing connectors');
                 process.exit(0);
-            })
+            });
 
         }
 

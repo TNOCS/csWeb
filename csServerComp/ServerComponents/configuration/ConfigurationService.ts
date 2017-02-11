@@ -11,10 +11,15 @@ export class ConfigurationService implements IConfiguration {
     /**
      * Create a configuration service based on a configuration file.
      */
-    constructor(private configurationFile?: string) {
+    constructor(private configurationFile?: string | Object) {
         if (!configurationFile) return;
-        var data = fs.readFileSync(configurationFile, 'utf8');
-        var content: Object = JSON.parse(data);
+        let content: Object;
+        if (typeof configurationFile === 'string') {
+            var data = fs.readFileSync(configurationFile, 'utf8');
+            content = JSON.parse(data);
+        } else {
+            content = configurationFile;
+        }
         for (var key in content) {
             if (content.hasOwnProperty(key)) {
                 var value = content[key];
