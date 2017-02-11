@@ -10,7 +10,8 @@
   },
   "scripts": {
     "postinstall": "./node_modules/.bin/typings install && npm run tsc",
-    "test": "karma start ./test/karma.conf.js",
+    "test": "jasmine-node --verbose ./out/test/csServerComp && karma start ./test/karma.conf.js",
+    "test2": "karma start ./test/karma.conf.js",
     "tsc": "./node_modules/.bin/tsc",
     "tsc:w": "./node_modules/.bin/tsc -w",
     "typings": "typings"

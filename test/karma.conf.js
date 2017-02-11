@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Wed Jun 03 2015 16:17:08 GMT+0200 (W. Europe Daylight Time)
 
-// To run from the command line, make sure you have karma-cli installed using 
+// To run from the command line, make sure you have karma-cli installed using
 // npm i -g karma-cli
 // so you can run
 // karma start --auto-watch=true --single-run=false --browsers=Chrome test\karma.conf.js
