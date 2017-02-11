@@ -1,6 +1,8 @@
 import * as chai from 'chai';
+import * as fs from 'fs';
 import { csServer, csServerOptions, StartOptions } from '../../../../csServerComp/csServer';
 import { ResourceFile, Project, Group } from '../../../../csServerComp/ServerComponents/api/ApiManager';
+import { deleteFolderRecursively } from '../../../../csServerComp/ServerComponents/helpers/Utils';
 
 chai.should();
 chai.use(require('chai-http'));
@@ -55,11 +57,13 @@ describe('RestAPI: ', () => {
     });
 
     let serverStarted = false;
-    beforeEach((done) => {
+    beforeEach((done: Function) => {
         if (serverStarted) {
             done();
             return;
         }
+        const testFolder = './out/test/csServerComp/ServerComponents/api/public';
+        deleteFolderRecursively(testFolder);
         server.start(() => {
             this.config = server.config;
             this.config.add('server', 'http://localhost:' + server.options.port);
@@ -84,7 +88,7 @@ describe('RestAPI: ', () => {
     });
 
     describe('The resource API', () => {
-        it('should create a new resource file', (done) => {
+        it('should create a new resource file', (done: Function) => {
             chai.request(server.httpServer)
                 .post('/api/resources')
                 .send(resourceFile)
@@ -94,7 +98,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should get a specific resource', (done) => {
+        it('should get a specific resource', (done: Function) => {
             chai.request(server.httpServer)
                 .get(`/api/resources/${resourceFile.id}`)
                 .end((err, res) => {
@@ -104,7 +108,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should update an existing resource file', (done) => {
+        it('should update an existing resource file', (done: Function) => {
             const newTitle = 'New name';
             resourceFile.title = newTitle;
             chai.request(server.httpServer)
@@ -123,7 +127,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should get resources', (done) => {
+        it('should get resources', (done: Function) => {
             chai.request(server.httpServer)
                 .get('/api/resources')
                 .end((err, res) => {
@@ -135,7 +139,7 @@ describe('RestAPI: ', () => {
     });
 
     describe('The project API', () => {
-        it('should create new projects', done => {
+        it('should create new projects', (done: Function) => {
             chai.request(server.httpServer)
                 .post('/api/projects')
                 .send(projectFile)
@@ -146,7 +150,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should get existing projects', done => {
+        it('should get existing projects', (done: Function) => {
             chai.request(server.httpServer)
                 .get('/api/projects')
                 .end((err, res) => {
@@ -157,7 +161,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should get an existing project', done => {
+        it('should get an existing project', (done: Function) => {
             chai.request(server.httpServer)
                 .get(`/api/projects/${projectFile.id}`)
                 .end((err, res) => {
@@ -169,7 +173,7 @@ describe('RestAPI: ', () => {
                 });
         });
 
-        it('should update an existing project', done => {
+        it('should update an existing project', (done: Function) => {
             const newTitle = 'New project title';
             projectFile.title = newTitle;
             chai.request(server.httpServer)
@@ -187,6 +191,12 @@ describe('RestAPI: ', () => {
                         });
                 });
         });
+
+        it('should stop', () => {
+            server.httpServer.close();
+            process.exit(0);
+        });
+
 
     });
 });
