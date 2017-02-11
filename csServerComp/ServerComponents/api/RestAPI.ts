@@ -1,5 +1,5 @@
+import { Request, Response, Express, Router } from 'express';
 import ApiManager = require('./ApiManager');
-import express = require('express');
 import cors = require('cors');
 import Project = ApiManager.Project;
 import Group = ApiManager.Group;
@@ -26,17 +26,320 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public proxyUrl;
     public tilesUrl;
 
-    constructor(public server: express.Express, public baseUrl: string = '/api') {
+    constructor(public server: Express, public baseUrl: string = '/api') {
         super();
         this.isInterface = true;
-        this.resourceUrl = baseUrl + '/resources/';
-        this.layersUrl = baseUrl + '/layers/';
-        this.searchUrl = baseUrl + '/search/';
-        this.filesUrl = baseUrl + '/files/';
-        this.keysUrl = baseUrl + '/keys/';
-        this.projectsUrl = baseUrl + '/projects/';
-        this.proxyUrl = baseUrl + '/proxy';
-        this.tilesUrl = baseUrl + '/tiles/';
+        this.resourceUrl = '/resources/';
+        this.layersUrl = '/layers/';
+        this.searchUrl = '/search/';
+        this.filesUrl = '/files/';
+        this.keysUrl = '/keys/';
+        this.projectsUrl = '/projects/';
+        this.proxyUrl = '/proxy';
+        this.tilesUrl = '/tiles/';
+    }
+
+    private getResources(req: Request, res: Response) {
+        res.json(this.cloneWithoutUnderscore(this.manager.resources));
+    }
+
+    private getTheResource(req: Request, res: Response) {
+        this.manager.getResource(req.params.resourceId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            if (result.result === ApiResult.OK) {
+                res.json(this.cloneWithoutUnderscore(result.resource));
+            } else {
+                res.sendStatus(result.result);
+            }
+        });
+    }
+
+    private createTheResource(req: Request, res: Response) {
+        var resource = new ResourceFile();
+        resource = req.body;
+        this.manager.addResource(resource, false, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    private updateTheResource(req: Request, res: Response) {
+        var resource = new ResourceFile();
+        resource = req.body;
+        this.manager.addResource(resource, true, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    private getLayers(req: Request, res: Response) {
+        res.json(this.manager.layers);
+    }
+
+    private getTheProjects(req: Request, res: Response) {
+        res.json(this.manager.projects);
+    }
+
+    private getTheProject(req: Request, res: Response) {
+        this.manager.getProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            if (result.result === ApiResult.OK) {
+                res.json(result.project);
+            } else {
+                res.sendStatus(result.result);
+            }
+        });
+    }
+
+    private updateTheProject(req: Request, res: Response) {
+        req['projectId'] = req.params.projectId;
+        this.manager.updateProject(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.sendStatus(result.result);
+        });
+    }
+
+    private createTheProject(req: Request, res: Response) {
+        var project = new Project();
+        project = req.body;
+        this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            if (result.result === ApiResult.OK || result.result === ApiResult.ProjectAlreadyExists) {
+                res.json(result.project);
+            }
+        });
+    }
+
+    private deleteTheProject(req: Request, res: Response) {
+        this.manager.deleteProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.sendStatus(result.result);
+        });
+    }
+
+    private addTheLayer(req: Request, res: Response) {
+        this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    deleteTheLayer(req: Request, res: Response) {
+        this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    private deleteTheLayer2(req: Request, res: Response) {
+        this.manager.deleteLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.sendStatus(result.result);
+        });
+    }
+
+    private getTheGroups(req: Request, res: Response) {
+        this.manager.allGroups(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            if (result.result === ApiResult.OK) {
+                res.send(result.groups);
+            } else {
+                res.sendStatus(result.result);
+            }
+        });
+    }
+
+    private createTheGroup(req: Request, res: Response) {
+        var group = new Group();
+        group = req.body;
+        this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    private deleteTheGroup(req: Request, res: Response) {
+        this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    private createTheLayer(req: Request, res: Response) {
+        var layer = new Layer();
+        //layer.features = req.body.features;
+        layer = <Layer>req.body;
+        this.manager.addUpdateLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
+    /** Similar to createLayer, but also checks if a layer exists: Should probably be removed as it is an update! */
+    private createTheLayer2(req: Request, res: Response) {
+        Winston.warn('DEPRECATED - USE PUT TO UPDATE A LAYER');
+        req['layerId'] = req.params.layerId;
+        if (this.manager.layers.hasOwnProperty(req['layerId'])) {
+            res.sendStatus(ApiResult.LayerAlreadyExists);
+        } else {
+            this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.sendStatus(result.result);
+            });
+        }
+    }
+
+    private getTheLayer(req: Request, res: Response) {
+        this.manager.getLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            if (result.result === ApiResult.OK) {
+                res.json(result.layer);
+            } else {
+                res.sendStatus(result.result);
+            }
+        });
+    }
+
+    private updateTheLayer(req: Request, res: Response) {
+        req['layerId'] = req.params.layerId;
+        this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.sendStatus(result.result);
+        });
+    }
+
+    private addTheFeature(req: Request, res: Response) {
+        this.manager.addFeature(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private getTheFeature(req: Request, res: Response) {
+        this.manager.getFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.sendStatus(result.result);
+        });
+    }
+
+    private updateTheFeature(req: Request, res: Response) {
+        var feature = new Feature();
+        feature = req.body;
+        this.manager.updateFeature(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private deleteTheFeature(req: Request, res: Response) {
+        this.manager.deleteFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private searchLayers(req: Request, res: Response) {
+        this.manager.searchLayers(req.params.keyword, [], <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.json(result);
+        });
+    }
+
+    private getLayerFeaturesInBBox(req: Request, res: Response) {
+        var southWest: number[] = [Number(req.query.swlng), Number(req.query.swlat)];
+        var northEast: number[] = [Number(req.query.nelng), Number(req.query.nelat)];
+        this.manager.getBBox(req.params.layerId, southWest, northEast, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private getLayerFeaturesInSphere(req: Request, res: Response) {
+        this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            // this.server.post(this.sensorsUrl + ':sensorId', (req: Request, res: Response) => {
+            //     this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
+            // });
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private getLayerFeaturesInPolygon(req: Request, res: Response) {
+        var feature: Feature = req.body;
+        // this.server.get(this.sensorsUrl, (req: Request, res: Response) => {
+        //     this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+        // });
+        this.manager.getWithinPolygon(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private updateTheKey(req: Request, res: Response) {
+        this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private getTheKeys(req: Request, res: Response) {
+        this.manager.getKeys(<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result.keys);
+        });
+    }
+
+    private getTheKey(req: Request, res: Response) {
+        this.manager.getKey(req.params.keyId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.send(result.key);
+        });
+    }
+
+    private addTheFile(req: Request, res: Response) {
+        if (!req.body.hasOwnProperty('base64')) {
+            Winston.error('Error receiving base64 encoded image: post the data as JSON, with the base64 property set to the base64 encoded string!');
+            return;
+        }
+        this.manager.addFile(req.body['base64'], req.params.folderId, req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private addTheLogs(req: Request, res: Response) {
+        var logs: { [key: string]: Logs[] };
+        logs = req.body;
+        this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private addTheLog(req: Request, res: Response) {
+        this.manager.addLog(req.params.layerId, req.params.featureId, req.body.prop, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            console.log('received log');
+            res.send(result);
+        });
+    }
+
+    private getTheLog(req: Request, res: Response) {
+        this.manager.getLog(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private deleteTheLog(req: Request, res: Response) {
+        this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private getLogs(req: Request, res: Response) {
+        var logs: { [key: string]: Logs[] };
+        logs = req.body;
+        this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            //todo: check error
+            res.send(result);
+        });
+    }
+
+    private proxyTheUrl(req: Request, res: Response) {
+        var id = req.query.url;
+        console.log(id);
+        this.getUrl(id, req, res);
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
@@ -45,358 +348,104 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //enables cors, used for external swagger requests
         this.server.use(cors());
+        const router = Router();
 
-        // get all resource types
-        this.server.get(this.resourceUrl, (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.cloneWithoutUnderscore(this.manager.resources)));
-        });
+        router.route(this.resourceUrl)
+            .get((req: Request, res: Response) => this.getResources(req, res))
+            .put((req: Request, res: Response) => this.updateTheResource(req, res))
+            .post((req: Request, res: Response) => this.createTheResource(req, res));
 
-        /** add a new resource type file, returns an error if it already exists */
-        this.server.post(this.resourceUrl, (req: express.Request, res: express.Response) => {
-            var resource = new ResourceFile();
-            resource = req.body;
-            this.manager.addResource(resource, false, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
+        router.route(this.resourceUrl + ':resourceId')
+            .get((req: Request, res: Response) => this.getTheResource(req, res));
 
-        /** update/add a resource type file, overwrites if it already exists */
-        this.server.put(this.resourceUrl, (req: express.Request, res: express.Response) => {
-            var resource = new ResourceFile();
-            resource = req.body;
-            this.manager.addResource(resource, true, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
-
-        // get an existing resource type file
-        this.server.get(this.resourceUrl + ':resourceId', (req: express.Request, res: express.Response) => {
-            this.manager.getResource(req.params.resourceId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                if (result.result === ApiResult.OK) {
-                    res.send(this.cloneWithoutUnderscore(result.resource));
-                }
-                else {
-                    res.sendStatus(result.result);
-                }
-            });
-            //res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
-        });
-
-        // get all available public layers
-        this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.layers));
-        });
+        router.route(this.layersUrl)
+            .get((req: Request, res: Response) => this.getLayers(req, res));
 
         //------ Project API paths, in CRUD order
 
-        // get all available projects
-        this.server.get(this.projectsUrl, (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.projects));
-        });
+        router.route(this.projectsUrl)
+            .get((req: Request, res: Response) => this.getTheProjects(req, res))
+            .post((req: Request, res: Response) => this.createTheProject(req, res));
 
-        // create a new project
-        this.server.post(this.projectsUrl, (req: express.Request, res: express.Response) => {
-            var project = new Project();
-            project = req.body;
-            this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                if (result.result === ApiResult.OK || result.result === ApiResult.ProjectAlreadyExists) {
-                    res.send(result.project);
-                }
-            });
-        });
+        router.route(this.projectsUrl + ':projectId')
+            .get((req: Request, res: Response) => this.getTheProject(req, res))
+            .put((req: Request, res: Response) => this.updateTheProject(req, res))
+            .delete((req: Request, res: Response) => this.deleteTheProject(req, res));
 
-        // gets the entire project
-        this.server.get(this.projectsUrl + ':projectId', (req: any, res: any) => {
-            this.manager.getProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                if (result.result === ApiResult.OK) {
-                    res.send(result.project);
-                } else {
-                    res.sendStatus(result.result);
-                }
-            });
-        });
+        router.route(this.projectsUrl + ':projectId/group/')
+            .get((req: Request, res: Response) => this.getTheGroups(req, res))
+            .post((req: Request, res: Response) => this.createTheGroup(req, res));
 
-        //Updates EVERY layer in the project.
-        this.server.put(this.projectsUrl + ':projectId', (req: any, res: any) => {
-            req.projectId = req.params.projectId;
-            this.manager.updateProject(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.sendStatus(result.result);
-            });
-        });
+        router.route(this.projectsUrl + ':projectId/group/:groupId')
+            .delete((req: Request, res: Response) => this.deleteTheGroup(req, res));
 
-        // gets the entire layer, which is stored as a single collection
-        // TODO: what to do when this gets really big? Offer a promise?
-        this.server.delete(this.projectsUrl + ':projectId', (req: any, res: any) => {
-            this.manager.deleteProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.sendStatus(result.result);
-            });
-        });
-
-        //adds a layer to a project
-        this.server.post(this.projectsUrl + ':projectId/group/:groupId/layer/:layerId', (req: express.Request, res: express.Response) => {
-            this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
-
-        //removes a layer from a project
-        this.server.delete(this.projectsUrl + ':projectId/group/:groupId/layer/:layerId', (req: express.Request, res: express.Response) => {
-            this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
-
-        this.server.get(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
-            this.manager.allGroups(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                if (result.result === ApiResult.OK) {
-                    res.send(result.groups);
-                } else {
-                    res.sendStatus(result.result);
-                }
-            });
-        });
-
-        this.server.post(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
-            var group = new Group();
-            group = req.body;
-            this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
-
-        this.server.delete(this.projectsUrl + ':projectId/group/:groupId', (req: any, res: any) => {
-            this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
+        router.route(this.projectsUrl + ':projectId/group/:groupId/layer/:layerId')
+            .delete((req: Request, res: Response) => this.deleteTheLayer(req, res))
+            .post((req: Request, res: Response) => this.addTheLayer(req, res));
 
         //------ layer API paths, in CRUD order
 
-        // Or post to a layer collection that should be shielded-off (e.g. system or users)
-        // And what if an agent starts sending gibberish?
-        this.server.post(this.layersUrl, (req: express.Request, res: express.Response) => {
-            var layer = new Layer();
-            //layer.features = req.body.features;
-            layer = <Layer>req.body;
-            this.manager.addUpdateLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result);
-            });
-        });
+        router.route(this.layersUrl)
+            .post((req: Request, res: Response) => this.createTheLayer(req, res));
 
-        // gets the entire layer, which is stored as a single collection
-        // TODO: what to do when this gets really big? Offer a promise?
-        this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.getLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                if (result.result === ApiResult.OK) {
-                    res.send(result.layer);
-                } else {
-                    res.sendStatus(result.result);
-                }
-            });
-        });
-
-        //Updates EVERY feature in the layer.
-        this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
-            req.layerId = req.params.layerId;
-            this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.sendStatus(result.result);
-            });
-        });
-
-        /** creates a new layer, returns an error if it already exists */
-        this.server.post(this.layersUrl + ':layerId', (req: any, res: any) => {
-            req.layerId = req.params.layerId;
-            if (this.manager.layers.hasOwnProperty(req.layerId)) {
-                res.sendStatus(ApiResult.LayerAlreadyExists);
-            }
-            else {
-                this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                    //todo: check error
-                    res.sendStatus(result.result);
-                });
-            }
-        });
-
-        // gets the entire layer, which is stored as a single collection
-        // TODO: what to do when this gets really big? Offer a promise?
-        this.server.delete(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.deleteLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.sendStatus(result.result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId')
+            .get((req: Request, res: Response) => this.getTheLayer(req, res))
+            .put((req: Request, res: Response) => this.updateTheLayer(req, res))
+            .post((req: Request, res: Response) => this.createTheLayer2(req, res))
+            .delete((req: Request, res: Response) => this.deleteTheLayer2(req, res));
 
         //------ feature API paths, in CRUD order
 
-        //adds a feature
-        this.server.post(this.layersUrl + ':layerId/feature', (req: express.Request, res: express.Response) => {
-            this.manager.addFeature(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId/feature')
+            .post((req: Request, res: Response) => this.addTheFeature(req, res));
 
-        //returns a feature
-        this.server.get(this.layersUrl + ':layerId/feature/:featureId', (req: express.Request, res: express.Response) => {
-            this.manager.getFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.sendStatus(result.result);
-            });
-        });
-
-        // updates a feature corresponding to a query on ID (should be one)
-        // Takes a feature as input in the body of the PUT request
-        this.server.put(this.layersUrl + ':layerId/feature/:featureId', (req: express.Request, res: express.Response) => {
-            var feature = new Feature();
-            feature = req.body;
-            this.manager.updateFeature(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
-
-        // for some reason (TS?) express doesn't work with del as http verb
-        // unlike the JS version, which simply uses del as a keyword.
-        // deletes a feature
-        this.server.delete(this.layersUrl + ':layerId/feature/:featureId', (req: express.Request, res: express.Response) => {
-            this.manager.deleteFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
-
-        this.server.get(this.searchUrl + ':keyword', (req: express.Request, res: express.Response) => {
-            this.manager.searchLayers(req.params.keyword, [], <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId/feature/:featureId')
+            .get((req: Request, res: Response) => this.getTheFeature(req, res))
+            .put((req: Request, res: Response) => this.updateTheFeature(req, res))
+            .delete((req: Request, res: Response) => this.deleteTheFeature(req, res));
 
         // LOGS
 
-        // addLog
-        this.server.put(this.layersUrl + ':layerId/:featureId/log', (req: express.Request, res: express.Response) => {
-            this.manager.addLog(req.params.layerId, req.params.featureId, req.body.prop, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                console.log('received log');
-                res.send(result);
-            });
-        });
+        // ROUTE should be :layerId/features/:featureId/log
+        router.route(this.layersUrl + ':layerId/:featureId/log')
+            .get((req: Request, res: Response) => this.getTheLog(req, res))
+            .put((req: Request, res: Response) => this.addTheLog(req, res))
+            .delete((req: Request, res: Response) => this.deleteTheLog(req, res)); // Shouldn't it be post?
 
-        //getLog (path doesnt make sense)
-        this.server.get(this.layersUrl + ':layerId/:featureId/log', (req: express.Request, res: express.Response) => {
-            this.manager.getLog(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId/:featureId/logs')
+            .put((req: Request, res: Response) => this.addTheLogs(req, res));
 
-        //deleteLog
-        this.server.delete(this.layersUrl + ':layerId/:featureId/log', (req: express.Request, res: express.Response) => {
-            this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.searchUrl + ':keyword')
+            .get((req: Request, res: Response) => this.searchLayers(req, res));
 
-        // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.layersUrl + ':layerId/:featureId/logs', (req: express.Request, res: express.Response) => {
-            var logs: { [key: string]: Logs[] };
-            logs = req.body;
-            this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId/bbox')
+            .get((req: Request, res: Response) => this.getLayerFeaturesInBBox(req, res));
 
-        // Some geospatial queries that are only supported for mongo.
-        // We chose to work with GET and params here for ease of accessibility
-        // (majority of web APIs implement similar constructions)
+        router.route(this.layersUrl + ':layerId/getsphere')
+            .get((req: Request, res: Response) => this.getLayerFeaturesInSphere(req, res));
 
-        // gets all points in a rectangular shape.
-        this.server.get(this.layersUrl + ':layerId/bbox', (req: express.Request, res: express.Response) => {
-            var southWest: number[] = [Number(req.query.swlng), Number(req.query.swlat)];
-            var northEast: number[] = [Number(req.query.nelng), Number(req.query.nelat)];
-            this.manager.getBBox(req.params.layerId, southWest, northEast, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.layersUrl + ':layerId/getwithinpolygon')
+            .post((req: Request, res: Response) => this.getLayerFeaturesInPolygon(req, res));
 
-        // fetches all points in a spherical method
-        this.server.get(this.layersUrl + ':layerId/getsphere', (req: express.Request, res: express.Response) => {
-            this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                // this.server.post(this.sensorsUrl + ':sensorId', (req: express.Request, res: express.Response) => {
-                //     this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
-                // });
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.keysUrl)
+            .post((req: Request, res: Response) => this.getTheKeys(req, res));
 
-        //works with post - so we can receive a GeoJSON as input
-        this.server.post(this.layersUrl + ':layerId/getwithinpolygon', (req: express.Request, res: express.Response) => {
-            var feature: Feature = req.body;
-            // this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
-            //     this.manager.getSensors((result: CallbackResult) => { res.send(result) });
-            // });
-            this.manager.getWithinPolygon(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.keysUrl + ':keyId')
+            .get((req: Request, res: Response) => this.getTheKey(req, res))
+            .post((req: Request, res: Response) => this.updateTheKey(req, res));
 
-        //update a key
-        this.server.post(this.keysUrl + ':keyId', (req: express.Request, res: express.Response) => {
-            this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
+        router.route(this.filesUrl + ':folderId/:fileName')
+            .post((req: Request, res: Response) => this.addTheFile(req, res));
 
-        //get all keys
-        this.server.get(this.keysUrl, (req: express.Request, res: express.Response) => {
-            this.manager.getKeys(<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result.keys);
-            });
-        });
+        router.route(this.proxyUrl)
+            .get((req: Request, res: Response) => this.proxyTheUrl(req, res));
 
-        //get a key
-        this.server.get(this.keysUrl + ':keyId', (req: express.Request, res: express.Response) => {
-            this.manager.getKey(req.params.keyId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.send(result.key);
-            });
-        });
-
-        //add file
-        this.server.post(this.filesUrl + ':folderId/:fileName', (req: express.Request, res: express.Response) => {
-            if (!req.body.hasOwnProperty('base64')) {
-                Winston.error('Error receiving base64 encoded image: post the data as JSON, with the base64 property set to the base64 encoded string!');
-                return;
-            }
-            this.manager.addFile(req.body['base64'], req.params.folderId, req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
-
-        // proxy service
-        this.server.get(this.proxyUrl, (req, res) => {
-            var id = req.query.url;
-            console.log(id);
-            this.getUrl(id, req, res);
-        });
+        this.server.use(this.baseUrl, router);
 
         callback();
     }
 
-    private getUrl(feedUrl: string, req: express.Request, res: express.Response) {
+    private getUrl(feedUrl: string, req: Request, res: Response) {
         Winston.info('proxy request 2: ' + feedUrl);
         //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
         var options = {
