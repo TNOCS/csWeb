@@ -47,7 +47,10 @@
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
+    "@types/chai": "^3.4.34",
     "ansi-styles": "^2.2.0",
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
     "chokidar": "^1.4.3",
     "coveralls": "^2.11.9",
     "del": "^2.2.0",

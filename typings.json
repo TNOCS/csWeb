@@ -14,6 +14,7 @@
     "bcryptjs": "registry:dt/bcryptjs#2.3.0+20151217030501",
     "body-parser": "registry:dt/body-parser#0.0.0+20160619023215",
     "cesium": "github:rinzeb/DefinitelyTyped/cesium/cesium.d.ts#09e844c1ef5a2b4b5bda6c672453cc7f1fdfe0c6",
+    "chai-http": "registry:dt/chai-http#0.0.0+20170201082344",
     "chroma-js": "registry:dt/chroma-js#1.1.1+20160815215350",
     "core-js": "registry:dt/core-js#0.0.0+20160725163759",
     "cors": "registry:dt/cors#0.0.0+20160708202709",
@@ -25,6 +26,7 @@
     "form-data": "registry:dt/form-data#0.0.0+20160724024111",
     "fs-extra": "registry:dt/fs-extra#0.0.0+20160517121359",
     "geojson": "registry:dt/geojson#0.0.0+20160619034323",
+    "http-status-codes": "registry:lib/http-status-codes#1.0.0+20160723033700",
     "hypertimer": "github:rinzeb/DefinitelyTyped/hypertimer/hypertimer.d.ts#09e844c1ef5a2b4b5bda6c672453cc7f1fdfe0c6",
     "jasmine": "registry:dt/jasmine#2.2.0+20160621224255",
     "jquery": "registry:dt/jquery#1.10.0+20160704162008",
@@ -53,5 +55,6 @@
     "winston": "registry:dt/winston#0.0.0+20160417152829",
     "xbbcode": "github:rinzeb/DefinitelyTyped/xbbcode/xbbcode.d.ts#09e844c1ef5a2b4b5bda6c672453cc7f1fdfe0c6",
     "xml2js": "registry:dt/xml2js#0.0.0+20160317120654"
-  }
+  },
+  "dependencies": {}
 }
