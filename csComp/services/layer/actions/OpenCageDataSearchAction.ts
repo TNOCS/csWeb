@@ -54,8 +54,8 @@ module csComp.Services {
             };
         };
         bounds: {
-            southwest: {lat: number; lng: number};
-            northeast: {lat: number; lng: number};
+            southwest: { lat: number; lng: number };
+            northeast: { lat: number; lng: number };
         };
         components?: {
             city?: string;
@@ -112,7 +112,7 @@ module csComp.Services {
             super();
 
             this.queryUrl = this.searchUrl
-                + `?pretty=1&no_dedupe=1&limit=10&jsonp=JSON_CALLBACK&key=${this.apiKey}`
+                + `?pretty=1&no_dedupe=1&limit=10&key=${this.apiKey}`
                 + (this.data.bounds ? `&bounds=${this.data.bounds}` : '')
                 + (this.data.culture ? `&countrycode=${this.data.culture}` : '&nl')
                 + (this.data.language ? `&language=${this.data.language}` : '&nl-NL');
@@ -121,7 +121,7 @@ module csComp.Services {
 
             this.messageBus = data.messageBus;
             this.messageBus.subscribe('geocoding', (action: string, point: L.LatLng) => {
-                if (action.toLowerCase() !== 'reverselookup') return;
+                if (action.toLowerCase() !== 'reverselookup') { return; }
                 this.reverseGeocodeLookup(point);
             });
         }
@@ -134,8 +134,8 @@ module csComp.Services {
         private reverseGeocodeLookup(point: L.LatLng) {
             var geocodeRequest = `${this.queryUrl}&q=${point.lat},${point.lng}`;
 
-            this.$http.jsonp(geocodeRequest)
-                .then((res: {data: IOCDSearchResult}) => {
+            this.$http.get(geocodeRequest)
+                .then((res: { data: IOCDSearchResult }) => {
                     let r = res.data;
                     if (!r.results || r.results.length === 0) return;
                     this.messageBus.publish('geocoding', 'reverseLookupResult', r.results[0]);
@@ -164,7 +164,7 @@ module csComp.Services {
         /** JSONP callback wrapper */
         private callRestService(request: string, callback: (result: IOCDSearchResult, handler: SearchResultHandler, query: string) => void, handler: SearchResultHandler, query: string) {
             this.$http.jsonp(request)
-                .then((res: {data: IOCDSearchResult}) => {
+                .then((res: { data: IOCDSearchResult }) => {
                     let r = res.data;
                     callback(r, handler, query);
                 })

@@ -39,8 +39,8 @@ module LocationWidget {
         streetViewApiKey: string;
         /** Optionally, specify the StreetView url, e.g. https://maps.googleapis.com/maps/api/streetview */
         streetViewUrl: string;
-        showCoordinates : boolean;
-        showSunMoonRise : boolean;
+        showCoordinates: boolean;
+        showSunMoonRise: boolean;
     }
 
     export interface LocationInfo {
@@ -52,7 +52,7 @@ module LocationWidget {
         sunrise?: string;
         sunset?: string;
         locations?: string[];
-        defaultLocation? : string;
+        defaultLocation?: string;
         streetViewUrlThumb?: string;
         streetViewUrlFull?: string;
     }
@@ -87,7 +87,7 @@ module LocationWidget {
             var par = <any>$scope.$parent;
             $scope.data = <ILocationData>par.widget.data;
             if ($scope.data.streetViewUrl) this.streetViewUrl = $scope.data.streetViewUrl;
-            this.parentWidget = $('#' + par.widget.elementId).parent();
+            this.parentWidget = $('#' + par.widget.elementId + '-parent');
             this.parentWidget.hide();
 
             messageBusService.subscribe('geocoding', (action: string, data: csComp.Services.IOCDFeature) => {
