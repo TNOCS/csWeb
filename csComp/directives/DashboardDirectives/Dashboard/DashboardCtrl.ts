@@ -462,6 +462,7 @@ module Dashboard {
             if (!d._initialized) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+                this.$layerService.visual.navbarVisible = d.showNavbar;
             }
             this.updateWidgetsThrottled(d.widgets, () => {
                 d._initialized = true;

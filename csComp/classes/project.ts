@@ -21,6 +21,7 @@ module csComp.Services {
         public leftPanelVisible: boolean = false;
         public rightPanelVisible: boolean = false;
         public dashboardVisible: boolean = true;
+        public navbarVisible: boolean = true;
         public mapVisible: boolean = true;
         public mapWidth: string = '100%';
         public alignMapRight: boolean = false; // Default align map left

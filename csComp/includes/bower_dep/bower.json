@@ -59,7 +59,7 @@
     "togeojson": "~0.16.0",
     "topojson": "~2.1.0",
     "underscore": "~1.8.3",
-    "angular-mocks": "^1.6.1",
+    "angular-mocks": "^1.6.2",
     "angular-summernote": "^0.8.1"
   },
   "resolutions": {
