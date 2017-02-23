@@ -276,6 +276,7 @@ module csComp.Services {
         showBackgroundImage: boolean = false;
         /** don't show hamburger menu for this dashboard */
         hideleftPanelToggle : boolean = false;
+        showNavbar: boolean = true;
         background: string;
         backgroundimage: string;
         disabledFeatures: string[];
@@ -322,6 +323,7 @@ module csComp.Services {
                 showLegend: d.showLegend,
                 showRightmenu: d.showRightmenu,
                 showBackgroundImage: d.showBackgroundImage,
+                showNavbar: d.showNavbar,
                 background: d.background,
                 backgroundimage: d.backgroundimage,
                 visiblelayers: d.visiblelayers,
