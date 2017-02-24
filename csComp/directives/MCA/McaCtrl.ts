@@ -731,11 +731,11 @@ module Mca {
             let iqr = quartiles.q3 - quartiles.q1;
             let legendKeyValues = [
                 {key: '100', val: 100},
-                {key: '1.5*IQR', val: quartiles.q3 + 1.5 * iqr},
+                {key: '1.5*IQR', val: Math.min(quartiles.q3 + 1.5 * iqr, 99)},
                 {key: 'Q3', val: quartiles.q3},
                 {key: 'median', val: quartiles.median},
                 {key: 'Q1', val: quartiles.q1},
-                {key: '-1.5*IQR', val: quartiles.q1 - 1.5 * iqr},
+                {key: '-1.5*IQR', val: Math.max(quartiles.q1 - 1.5 * iqr, 1)},
                 {key: '0', val: 0}
             ];
             let legend = csComp.Helpers.createDiscreteLegend(mca.getTitle(), legendKeyValues, mca.id);
