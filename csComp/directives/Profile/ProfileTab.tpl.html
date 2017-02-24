@@ -1,50 +1,43 @@
 <div>
-     <h4 class="rightpanel-header">
+    <h4 class="rightpanel-header">
         <i class="layersIcon rightpanel-header-icon" />User Login
     </h4>
-    <div ng-hide="vm.profileService.loggedIn" >
-     <form name="loginForm" ng-submit="vm.validateUser()"  novalidate>
-
+    <div ng-hide="vm.profileService.loggedIn">
+        <form name="loginForm" ng-submit="vm.validateUser()" novalidate>
             <div class="layer-actions">
-
                 <button ng-disabled="!loginForm.$valid" type="submit" class="layer-action save">
                     <span class="fa fa-save layer-action-icon" />login
                 </button>
-
                 <button class="layer-action">
                     <span class="fa fa-times layer-action-icon" />cancel
                 </button>
             </div>
 
             <div style="padding:10px">
-
                 <div class="form-group" ng-class="{ 'has-error': loginForm.userName.$invalid }">
                     <label class="editor-title input-xlarge" for="groupDescription">Username</label>
                     <input type="text" class="form-control" name="userName" id="userName" ng-model="vm.userName" placeholder="Enter username"
-                    required>
+                        required>
                     <span class="help-block" ng-show="loginForm.userName.$error.required">Not a valid username</span>
                 </div>
-                
+
                 <div class="form-group" ng-class="{ 'has-error': loginForm.userPassword.$required }">
                     <label class="editor-title input-xlarge" for="groupDescription">Password</label>
                     <input type="password" class="form-control" name="userPassword" id="userPassword" ng-model="vm.userPassword" placeholder="Enter password"
-                    required>
+                        required>
                     <span class="help-block" ng-show="loginForm.userPassword.$error.required">Not a valid password</span>
                 </div>
-               
+
                 <!--<button type="submit" ng-disabled="!loginForm.$valid" class="btn btn-primary">Create layer</button>
                 <button ng-click="vm.exitDirectory()" class="btn btn-primary">Cancel</button>-->
             </div>
         </form>
+    </div>
+    <div ng-show="vm.profileService.loggedIn">
+        <div class="layer-actions">
+            <button ng-click="vm.logout()" class="layer-action save">
+                <span class="fa fa-save layer-action-icon" />logout
+            </button>
         </div>
-        <div ng-show="vm.profileService.loggedIn">
-            <div class="layer-actions">
-
-                <button ng-click="vm.logout()"  class="layer-action save">
-                    <span class="fa fa-save layer-action-icon" />logout
-                </button>
-
-            </div>
-            
-            </div>
+    </div>
 </div>

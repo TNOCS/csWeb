@@ -47,8 +47,8 @@ module ProfileHeader {
     }
 
     /**
-* Config
-*/
+     * Config
+     */
     var moduleName = 'csComp';
 
     /**
