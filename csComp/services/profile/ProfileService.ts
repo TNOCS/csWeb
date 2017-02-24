@@ -1,69 +1,50 @@
 module csComp.Services {
-    'use strict';
-
     /*
      * Singleton service that holds a reference to the map.
      * In case other controllers need access to the map, they can inject this service.
      */
     export class ProfileService {
-        
-        public loggedIn : boolean;
-        public validate : Function;
-        public logout : Function;
-        public isValidating : boolean;
-        
+        public loggedIn: boolean;
+        public validate: Function;
+        public logout: Function;
+        public isValidating: boolean;
+
         public static $inject = [
-            
             'localStorageService',
             '$timeout',
             'messageBusService'
-
         ];
-        
-        
-        public startLogin()
-        {
-            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user',true,false);
-            this.$messageBusService.publish('rightpanel', 'activate', rpt); 
-        }
-        
-        public validateUser(userName, userPassword)
-        {
-           if (_.isFunction(this.validate) && !this.isValidating)
-           {
-               this.isValidating = true;
-               this.validate(userName, userPassword,(status : boolean,profile)=>{
-                   this.isValidating = false;
-                   this.loggedIn = status;
-                   if (!this.loggedIn)
-                   {
-                       this.$messageBusService.notify("Login Result","Login Failed");
-                   }
-               })
-           } 
-        }
-        
-        public logoutUser()
-        {
-            this.loggedIn = false;
-            if (_.isFunction(this.logout))
-            {
-               this.logout();
-            }
-        }
 
-        
-        constructor(            
+        constructor(
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $timeout: ng.ITimeoutService,
             private $messageBusService: csComp.Services.MessageBusService
-        ) {
+        ) {}
 
-         
-            
+        public startLogin() {
+            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user', true, false);
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
-       
+        public validateUser(userName, userPassword) {
+            if (_.isFunction(this.validate) && !this.isValidating) {
+                this.isValidating = true;
+                this.validate(userName, userPassword, (status: boolean, profile) => {
+                    this.isValidating = false;
+                    this.loggedIn = status;
+                    if (!this.loggedIn) {
+                        this.$messageBusService.notify('Login Result', 'Login Failed');
+                    }
+                });
+            }
+        }
+
+        public logoutUser() {
+            this.loggedIn = false;
+            if (_.isFunction(this.logout)) {
+                this.logout();
+            }
+        }
     }
 
     /**

@@ -2,8 +2,8 @@ module ProfileHeader {
     import Expertise = csComp.Services.Expertise;
 
     export interface IProfileHeaderScope extends ng.IScope {
-        vm: ProfileHeaderCtrl;        
-        enabled : boolean;
+        vm: ProfileHeaderCtrl;
+        enabled: boolean;
     }
 
     export class ProfileHeaderCtrl {
@@ -14,15 +14,13 @@ module ProfileHeader {
             'mapService',
             'messageBusService',
             'profileService'
-        ]; 
-        
-        public startLogin()
-        {
+        ];
+
+        public startLogin() {
             this.profileService.startLogin();
         }
-        
-        public logout()
-        {
+
+        public logout() {
             this.profileService.logoutUser();
         }
 
@@ -32,32 +30,25 @@ module ProfileHeader {
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
             private $messageBus: csComp.Services.MessageBusService,
-            public profileService : csComp.Services.ProfileService
-            ) {
-                
+            public profileService: csComp.Services.ProfileService
+        ) {
             $scope.vm = this;
             console.log('init profile service');
-                        
-                        
-            $messageBus.subscribe('project',(action, value)=>{
-               if (this.$layerService.project) {
-                   this.$scope.enabled = this.$layerService.project.profile.authenticationMethod != csComp.Services.authMethods.none;
-                   console.log(this.$layerService.project.profile.authenticationMethod);
-                   switch (this.$layerService.project.profile.authenticationMethod)
-                   {
-                       
-                   }
-               } 
+
+            $messageBus.subscribe('project', (action, value) => {
+                if (this.$layerService.project) {
+                    this.$scope.enabled = this.$layerService.project.profile.authenticationMethod !== csComp.Services.authMethods.none;
+                    console.log(this.$layerService.project.profile.authenticationMethod);
+                    switch (this.$layerService.project.profile.authenticationMethod) {
+                    }
+                }
             });
-
         }
-
-      
     }
-    
-      /**
-  * Config
-  */
+
+    /**
+* Config
+*/
     var moduleName = 'csComp';
 
     /**
@@ -94,30 +85,28 @@ module ProfileHeader {
                     templateUrl: 'directives/Profile/ProfileHeader.tpl.html',
                     compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
                         var fn = $compile(el);
-                        return scope => { 
+                        return scope => {
                             fn(scope);
                         };
                     },
-                   //link: function (scope, element, attrs) {
-                   //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
-                   //     // so I copy the existing attributes manually.
-                   //     var attributeString = '';
-                   //     for (var key in attrs) {
-                   //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
-                   //     }
-                   //     var html = '<rating ng-model="expertMode" '
-                   //         + attributeString
-                   //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false"'
-                   //         + 'max="3"></rating>';
-                   //     var e = $compile(html)(scope);
-                   //     element.replaceWith(e);
-                   // },
+                    //link: function (scope, element, attrs) {
+                    //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
+                    //     // so I copy the existing attributes manually.
+                    //     var attributeString = '';
+                    //     for (var key in attrs) {
+                    //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
+                    //     }
+                    //     var html = '<rating ng-model="expertMode" '
+                    //         + attributeString
+                    //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false"'
+                    //         + 'max="3"></rating>';
+                    //     var e = $compile(html)(scope);
+                    //     element.replaceWith(e);
+                    // },
                     replace: true,     // Remove the directive from the DOM
                     transclude: true,  // Add elements and attributes to the template
                     controller: ProfileHeaderCtrl
-                }
+                };
             }
         ]);
-        
-        
 }

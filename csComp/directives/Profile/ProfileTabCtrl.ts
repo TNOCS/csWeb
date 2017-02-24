@@ -1,9 +1,7 @@
 module ProfileTab {
-    
-
     export interface IProfileTabScope extends ng.IScope {
-        vm: ProfileTabCtrl;        
-        enabled : boolean;
+        vm: ProfileTabCtrl;
+        enabled: boolean;
     }
 
     export class ProfileTabCtrl {
@@ -14,59 +12,48 @@ module ProfileTab {
             'mapService',
             'messageBusService',
             'profileService'
-        ]; 
-        
-        public userName : string;
-        public userPassword : string;
-        
-        public startLogin()
-        {
+        ];
+
+        public userName: string;
+        public userPassword: string;
+
+        public startLogin() {
             this.profileService.startLogin();
         }
-        
-        public validateUser()
-        {
-            this.profileService.validateUser(this.userName,this.userPassword);
-            this.userPassword = "";
+
+        public validateUser() {
+            this.profileService.validateUser(this.userName, this.userPassword);
+            this.userPassword = '';
         }
-        
-        public logout()
-        {
+
+        public logout() {
             this.profileService.logoutUser();
         }
-        
-     
+
         constructor(
             private $scope: IProfileTabScope,
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
             private $messageBus: csComp.Services.MessageBusService,
-            public profileService : csComp.Services.ProfileService
-            ) {
-                
+            public profileService: csComp.Services.ProfileService
+        ) {
             $scope.vm = this;
-            
-                       
-            $messageBus.subscribe('project',(action, value)=>{
-               if (this.$layerService.project) {
-                   this.$scope.enabled = this.$layerService.project.profile.authenticationMethod != csComp.Services.authMethods.none;
-                   console.log(this.$layerService.project.profile.authenticationMethod);
-                   switch (this.$layerService.project.profile.authenticationMethod)
-                   {
-                       
-                   }
-               } 
+
+            $messageBus.subscribe('project', (action, value) => {
+                if (this.$layerService.project) {
+                    this.$scope.enabled = this.$layerService.project.profile.authenticationMethod !== csComp.Services.authMethods.none;
+                    console.log(this.$layerService.project.profile.authenticationMethod);
+                    switch (this.$layerService.project.profile.authenticationMethod) {
+                    }
+                }
             });
-
         }
-
-      
     }
-    
-      /**
-  * Config
-  */
+
+    /**
+     * Config
+     */
     var moduleName = 'csComp';
 
     /**
@@ -102,31 +89,29 @@ module ProfileTab {
                     scope: {},
                     templateUrl: 'directives/Profile/ProfileTab.tpl.html',
                     compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                        var fn = $compile(el); 
-                        return scope => { 
+                        var fn = $compile(el);
+                        return scope => {
                             fn(scope);
                         };
                     },
-                   //link: function (scope, element, attrs) {
-                   //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
-                   //     // so I copy the existing attributes manually.
-                   //     var attributeString = '';
-                   //     for (var key in attrs) {
-                   //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
-                   //     }
-                   //     var html = '<rating ng-model="expertMode" '
-                   //         + attributeString
-                   //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false"'
-                   //         + 'max="3"></rating>';
-                   //     var e = $compile(html)(scope);
-                   //     element.replaceWith(e);
-                   // },
+                    //link: function (scope, element, attrs) {
+                    //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
+                    //     // so I copy the existing attributes manually.
+                    //     var attributeString = '';
+                    //     for (var key in attrs) {
+                    //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
+                    //     }
+                    //     var html = '<rating ng-model="expertMode" '
+                    //         + attributeString
+                    //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="'mouseenter'" tooltip-append-to-body="false"'
+                    //         + 'max="3"></rating>';
+                    //     var e = $compile(html)(scope);
+                    //     element.replaceWith(e);
+                    // },
                     replace: true,     // Remove the directive from the DOM
                     transclude: true,  // Add elements and attributes to the template
                     controller: ProfileTabCtrl
-                }
+                };
             }
         ]);
-        
-        
 }

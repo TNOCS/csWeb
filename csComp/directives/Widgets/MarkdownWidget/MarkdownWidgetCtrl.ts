@@ -72,13 +72,12 @@ module MarkdownWidget {
             $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
             this.dataProperties = {};
-            
+
             if ((<any>window).jsPDF) {
                 this.exporterAvailable = true;
             } else {
                 this.exporterAvailable = false;
             }
-            
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
 
@@ -201,7 +200,7 @@ module MarkdownWidget {
                 this.$scope.data.mdText = md;
             }, 0);
         }
-        
+
         private exportToPDF() {
             var jsPDF: any = (<any>window).jsPDF || undefined;
             if (!jsPDF) return;
