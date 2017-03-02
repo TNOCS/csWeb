@@ -242,6 +242,8 @@ module csComp.Services {
         /** Default marker type, e.g. default is a circle, other types include pin and bubble */
         marker?: string;
 
+        /** The background fill color on hover */
+        hoverColor?: string;
         /** The background fill color */
         fillColor?: string;
         /** The stroke/outline color */

@@ -372,8 +372,14 @@ module csComp.Services {
                     var l = <ProjectLayer>feature.layer;
                     l.group.markers[feature.id] = m;
                     m.on({
-                        mouseover: (a) => this.showFeatureTooltip(a, l.group),
-                        mouseout: (s) => this.hideFeatureTooltip(s),
+                        mouseover: (a) => {
+                            this.showFeatureTooltip(a, l.group);
+                            this.setHoverColor(a);
+                        },
+                        mouseout: (s) => {
+                            this.hideFeatureTooltip(s);
+                            this.resetHoverColor(s);
+                        },
                         mousemove: (d) => this.updateFeatureTooltip(d),
                         click: (e) => {
                             this.selectFeature(feature);
@@ -611,6 +617,24 @@ module csComp.Services {
                 content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
                 widthInPixels: widthInPixels
             };
+        }
+
+        setHoverColor(e: L.LeafletMouseEvent) {
+            var layer = e.target;
+            var feature = <Feature>layer.feature;
+            var fType = this.service.getFeatureType(feature);
+            var hoverColor = fType.style.hoverColor;
+            if (!hoverColor) return;
+            feature.effectiveStyle.fillColor = hoverColor;
+            this.updateFeature(feature);
+        }
+
+        resetHoverColor(e: L.LeafletMouseEvent) {
+            var layer = e.target;
+            var feature = <Feature>layer.feature;
+            var fType = this.service.getFeatureType(feature);
+            this.service.calculateFeatureStyle(feature);
+            this.updateFeature(feature);
         }
 
         /**
