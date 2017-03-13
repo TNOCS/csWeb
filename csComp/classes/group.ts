@@ -115,11 +115,11 @@ module csComp.Services {
                     // TODO: should be using layerService.initLayer(theGroup, layer);
                     // But I don't know how to 'inject' layerService :(
                     var layer = theGroup.buildLayer(baseurl, title, layerName);
-                    if(featureType!='') {
+                    if (featureType !== '') {
                         layer.defaultFeatureType = featureType;
                         layer.typeUrl = 'data/resourceTypes/resources.json';
                     }
-                    if(resourceURL!='') {
+                    if (resourceURL !== '') {
                         layer.typeUrl = resourceURL;
                     }
 
@@ -265,7 +265,7 @@ module csComp.Services {
         value?: number;
         stringValue?: string;
         color: string;  // hex string; rgb
-        sortKey?: string; // Sort entries based on this key 
+        sortKey?: string; // Sort entries based on this key
     }
 
 }

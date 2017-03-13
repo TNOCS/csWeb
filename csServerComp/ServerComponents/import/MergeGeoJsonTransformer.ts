@@ -1,14 +1,14 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class MergeGeoJsonTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "MergeGeoJsonTransformer";
+  type = 'MergeGeoJsonTransformer';
 
   /**
    * Accepted input types.
@@ -28,28 +28,28 @@ class MergeGeoJsonTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
-    var featuresToMergeUrlProperty = opt.parameters.filter((p)=>p.type.title == "featuresToMergeUrl")[0];
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
+    var featuresToMergeUrlProperty = opt.parameters.filter((p) => p.type.title === 'featuresToMergeUrl')[0];
     if (!featuresToMergeUrlProperty) {
-      callback("feature url missing");
+      callback('feature url missing');
       return;
     }
 
-    var keyPropertyParameter = opt.parameters.filter((p)=>p.type.title == "keyProperty")[0];
+    var keyPropertyParameter = opt.parameters.filter((p) => p.type.title === 'keyProperty')[0];
     if (!keyPropertyParameter) {
-      callback("key property missing");
+      callback('key property missing');
       return;
     }
     this.keyProperty = <string>keyPropertyParameter.value;
 
-    request({ url: <string>featuresToMergeUrlProperty.value }, (error, response, body)=>{
+    request({ url: <string>featuresToMergeUrlProperty.value }, (error, response, body) =>{
       if (error) {
         callback(error);
         return;
       }
 
       this.geometry = JSON.parse(body);
-      console.log("Merge geojson loaded");
+      console.log('Merge geojson loaded');
 
       callback(null);
     });
@@ -61,8 +61,8 @@ class MergeGeoJsonTransformer implements transform.ITransform {
 
     var baseGeo: any;
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);
@@ -71,10 +71,10 @@ class MergeGeoJsonTransformer implements transform.ITransform {
 
       var featureKeyValue = <string>feature.properties[this.keyProperty];
 
-      var mergeFeature = this.geometry.features.filter(f=>f.properties[this.keyProperty] == featureKeyValue)[0];
+      var mergeFeature = this.geometry.features.filter(f => f.properties[this.keyProperty] === featureKeyValue)[0];
 
       if (!mergeFeature) {
-        console.log("No merge feature found based on " + this.keyProperty + "=" + featureKeyValue);
+        console.log('No merge feature found based on ' + this.keyProperty + '=' + featureKeyValue);
         done();
         return;
       }

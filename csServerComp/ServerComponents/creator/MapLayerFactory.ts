@@ -103,13 +103,13 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: IAddressSource.IAddressSource, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
+constructor(private bag: IAddressSource.IAddressSource, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
         if (bag != null) {
             bag.init();
         }
         var fileList: IProperty[] = [];
         var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
-        fs.access(templateFolder, fs.F_OK, (err) => {
+        fs.access(templateFolder, fs.constants.F_OK, (err) => {
             if (err) {
                 console.log(`Template-folder "${templateFolder}" not found`);
             } else {
@@ -709,7 +709,7 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===) 
+                if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===)
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
@@ -794,7 +794,7 @@ export class MapLayerFactory {
     private createRDFeature(rdX: string, rdY: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
         if (!properties) { callback(); }
         //https://github.com/yuletide/node-proj4js-defs/blob/master/epsg.js
-        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 
+        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000
         //+ellps=bessel + towgs84=565.417, 50.3319, 465.552, -0.398957, 0.343988, -1.8774, 4.0725 + units=m + no_defs";
         proj4.defs('RD', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 ' +
             ' +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs');

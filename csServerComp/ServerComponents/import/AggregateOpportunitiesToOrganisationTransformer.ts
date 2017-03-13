@@ -1,12 +1,12 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
 class AggregateOpportunitiesToOrganisationTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "AggregateOpportunitiesToOrganisationTransformer";
+  type = 'AggregateOpportunitiesToOrganisationTransformer';
 
   /**
    * Accepted input types.
@@ -25,28 +25,28 @@ class AggregateOpportunitiesToOrganisationTransformer implements transform.ITran
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
-    var urlParameter = opt.parameters.filter((p)=>p.type.title == "opportunitiesUrl")[0];
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
+    var urlParameter = opt.parameters.filter((p) => p.type.title === 'opportunitiesUrl')[0];
     if (!urlParameter) {
-      callback("opportunitiesUrl missing");
+      callback('opportunitiesUrl missing');
       return;
     }
 
-    var parameter = opt.parameters.filter(p=>p.type.title == "keyProperty")[0];
+    var parameter = opt.parameters.filter(p => p.type.title === 'keyProperty')[0];
     if (!parameter) {
-      callback("keyProperty missing")
+      callback('keyProperty missing');
       return;
     }
     this.keyProperty = <string>parameter.value;
 
-    request({ url: <string>urlParameter.value }, (error, response, body)=>{
+    request({ url: <string>urlParameter.value }, (error, response, body) => {
       if (error) {
         callback(error);
         return;
       }
 
       this.geometry = JSON.parse(body);
-      console.log("Opportunity Geojson loaded: " + this.geometry.features.length + " features");
+      console.log('Opportunity Geojson loaded: ' + this.geometry.features.length + ' features');
 
       callback(null);
     });
@@ -60,22 +60,22 @@ class AggregateOpportunitiesToOrganisationTransformer implements transform.ITran
 
     var index = 0;
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
        var startTs = new Date();
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
       /*console.log("##### GJAT #####");*/
 
       if (!this.geometry) {
-        console.log("No target geometry found");
+        console.log('No target geometry found');
         done();
         return;
       }
 
       var feature = JSON.parse(chunk);
 
-      console.log("Start aggregation");
-      var organisatieOpportunities :any[] = this.geometry.features.filter(f=>f.properties[this.keyProperty] == feature.properties[this.keyProperty]);
+      console.log('Start aggregation');
+      var organisatieOpportunities :any[] = this.geometry.features.filter(f => f.properties[this.keyProperty] === feature.properties[this.keyProperty]);
       var aggregateProperties = organisatieOpportunities.map((value: any, index: number, array: any[]) => {
         var brutoOmvang = value.properties.brutoOmvang;
         var kans = value.properties.kans;
@@ -84,7 +84,7 @@ class AggregateOpportunitiesToOrganisationTransformer implements transform.ITran
           brutoOmvang: brutoOmvang,
           nettoOmvang: brutoOmvang * (kans / 100),
           opportunityManager: value.properties.OpportunityManager
-        }
+        };
       });
 
       var aggregatedOpportunities = aggregateProperties.reduce((previousValue: any, currentValue: any, currentIndex: number, array: any[]) => {
@@ -127,10 +127,10 @@ class AggregateOpportunitiesToOrganisationTransformer implements transform.ITran
       aggregatedOpportunities.brutoOmvang_gemiddeld = aggregatedOpportunities.brutoOmvang_totaal / aggregatedOpportunities.aantalOpportunities;
       aggregatedOpportunities.nettoOmvang_gemiddeld = aggregatedOpportunities.nettoOmvang_totaal / aggregatedOpportunities.aantalOpportunities;
 
-      console.log("Aggregation finished");
+      console.log('Aggregation finished');
       console.log(aggregatedOpportunities);
 
-      for(var field in aggregatedOpportunities) {
+      for (var field in aggregatedOpportunities) {
         feature.properties[field] = aggregatedOpportunities[field];
       }
 

@@ -1,11 +1,11 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
 class SplitAdresTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "SplitAdresTransformer";
+  type = 'SplitAdresTransformer';
 
   /**
    * Accepted input types.
@@ -24,13 +24,13 @@ class SplitAdresTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
-    var zipcodeCityPropertyParameter = opt.parameters.filter(p=>p.type.title == "zipcodeCityProperty")[0];
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
+    var zipcodeCityPropertyParameter = opt.parameters.filter(p => p.type.title === 'zipcodeCityProperty')[0];
     if (zipcodeCityPropertyParameter) {
       this.zipcodeCityProperty = <string>zipcodeCityPropertyParameter.value;
     }
 
-    var streetHouseNumberPropertyParameter = opt.parameters.filter(p=>p.type.title == "streetHouseNumberProperty")[0];
+    var streetHouseNumberPropertyParameter = opt.parameters.filter(p => p.type.title === 'streetHouseNumberProperty')[0];
     if (streetHouseNumberPropertyParameter) {
       this.streetHouseNumberProperty = <string>streetHouseNumberPropertyParameter.value;
     }
@@ -42,8 +42,8 @@ class SplitAdresTransformer implements transform.ITransform {
     var t = new stream.Transform();
     /*stream.Transform.call(t);*/
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
       var feature = JSON.parse(chunk);
 
       // console.log("##### SAT #####");
@@ -54,14 +54,14 @@ class SplitAdresTransformer implements transform.ITransform {
         var adres:string = feature.properties[this.streetHouseNumberProperty];
         // console.log(this.streetHouseNumberProperty + ": " + adres);
 
-        var street = adres.slice(0,adres.search(/\d/)).trim();
+        var street = adres.slice(0, adres.search(/\d/)).trim();
         var addressNumberWithAddition = adres.slice(adres.search(/\d/)).trim();
         var nonDigitIndex = addressNumberWithAddition.search(/\D/);
-        if (nonDigitIndex == -1) {
+        if (nonDigitIndex === -1) {
           nonDigitIndex = addressNumberWithAddition.length;
         }
-        var strAddressNumber = addressNumberWithAddition.slice(0,nonDigitIndex).trim();
-        var addressNumber = parseInt(strAddressNumber);
+        var strAddressNumber = addressNumberWithAddition.slice(0, nonDigitIndex).trim();
+        var addressNumber = parseInt(strAddressNumber, 10);
         feature.properties.straat = street;
         feature.properties.huisnummer = addressNumber;
 
@@ -72,10 +72,9 @@ class SplitAdresTransformer implements transform.ITransform {
 
       if (this.zipcodeCityProperty) {
         var pc_plaats:string = feature.properties[this.zipcodeCityProperty];
-        var postcode = pc_plaats.slice(0,7);
+        var postcode = pc_plaats.slice(0, 7);
         feature.properties.postcode = postcode;
       }
-
 
       t.push(JSON.stringify(feature));
 

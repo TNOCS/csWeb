@@ -1,14 +1,14 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class GeoJsonAggregateTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "GeoJsonAggregateTransformer";
+  type = 'GeoJsonAggregateTransformer';
 
   /**
    * Accepted input types.
@@ -26,14 +26,14 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions[], callback: (error)=>void) {
-    request({ url: "http://localhost:3456/data/wijk-empty.geojson" }, (error, response, body)=>{
+  initialize(opt: transform.ITransformFactoryOptions[], callback: (error) => void) {
+    request({ url: 'http://localhost:3456/data/wijk-empty.geojson' }, (error, response, body) => {
       if (error) {
         callback(error);
         return;
       }
 
-      console.log("Gemeente geojson loaded");
+      console.log('Gemeente geojson loaded');
       this.geometry = JSON.parse(body);
 
       callback(null);
@@ -48,8 +48,8 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
 
     var accumulator:any = {};
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);
@@ -63,7 +63,7 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
       // console.log("=== Before:")
       // console.log(feature);
 
-      this.geometry.features.forEach((f)=>{
+      this.geometry.features.forEach((f) => {
         // console.log("=== Gemeente feature:")
         // console.log(f);
         // console.log("=== Piped feature:");
@@ -75,12 +75,11 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
           // console.log(accEntry);
           if (accEntry) {
             accEntry.sum++;
-          }
-          else {
+          } else {
             accEntry = {
               feature: f,
               sum:1
-            }
+            };
             accumulator[f.properties.wk_code] = accEntry;
           }
         }
@@ -94,23 +93,22 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
 
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
-        console.log("#### start GJAT flush")
+        console.log('#### start GJAT flush');
 
-        for(var wijkCode in accumulator) {
+        for (var wijkCode in accumulator) {
           var wijkAcc = accumulator[wijkCode];
-          console.log ("#### push wijk");
+          console.log ('#### push wijk');
           console.log(wijkAcc);
           wijkAcc.feature.properties.total = wijkAcc.sum;
           t.push(JSON.stringify(wijkAcc.feature));
         }
         done();
-      }
-      catch(error) {
+      } catch (error) {
         done();
       }
-    }
+    };
 
     return t;
   }

@@ -1,11 +1,11 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
 class CollateStreamTransformer implements transform.ITransform {
     id:          string;
     description: string;
-    type = "CollateStreamTransformer";
+    type = 'CollateStreamTransformer';
     headers:string[] = null;
     /**
      * Accepted input types.
@@ -32,19 +32,19 @@ class CollateStreamTransformer implements transform.ITransform {
       /*stream.Transform.call(t);*/
 
       var split = -1;
-      var buffer = "";
+      var buffer = '';
 
-      t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      t.setEncoding('utf8');
+      (<any>t)._transform = (chunk, encoding, done) => {
           // console.log("##### CST #####");
 
-          var strChunk :string= chunk.toString("utf8");
+          var strChunk :string = chunk.toString('utf8');
           buffer += strChunk;
 
           done();
-        }
+        };
 
-      t._flush = (done) => {
+      (<any>t)._flush = (done) => {
         try {
            /*console.log("push buffer: ");*/
            /*console.log(buffer);*/
@@ -53,14 +53,13 @@ class CollateStreamTransformer implements transform.ITransform {
             buffer = null;
           }
           done();
-        }
-        catch(error) {
+        } catch (error) {
           done();
         }
-      }
+      };
 
     return t;
   }
 
 }
-export=CollateStreamTransformer;
+export= CollateStreamTransformer;

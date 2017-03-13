@@ -84,7 +84,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
 
         var index = 0;
         t.setEncoding('utf8');
-        t._transform = (chunk, encoding, done) => {
+        (<any>t)._transform = (chunk, encoding, done) => {
             var startTs = new Date();
             // console.log((new Date().getTime() - startTs.getTime()) + ': start');
             /*console.log(index++);*/
@@ -95,7 +95,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
             if (this.generateMetadata && !featureCollection.featureTypes) {
                 console.log('map %O', featureCollection.features[0].properties);
                 var propertyNames = Object.getOwnPropertyNames(featureCollection.features[0].properties);
-                propertyNames.forEach(p=> {
+                propertyNames.forEach(p => {
                     console.log(p);
                     var propValue = featureCollection.features[0].properties[p];
                     var isNumeric = typeof propValue === 'number';
@@ -139,7 +139,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
             }
 
             if (this.FeatureTypeId) {
-                featureCollection.features.forEach(f=> f.properties['FeatureTypeId'] = this.FeatureTypeId);
+                featureCollection.features.forEach(f => f.properties['FeatureTypeId'] = this.FeatureTypeId);
             }
 
             /*console.log('##### GJST #####');*/
@@ -158,7 +158,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
                 fs.mkdirSync(this.targetFolder);
             }
 
-            var outputStream = fs.createWriteStream(this.targetFolder + '/' + filename)
+            var outputStream = fs.createWriteStream(this.targetFolder + '/' + filename);
             outputStream.write(JSON.stringify(featureCollection));
             outputStream.close();
             console.log('Output written to ' + this.targetFolder + '/' + filename);
@@ -167,13 +167,10 @@ class GeoJsonSaveTransformer implements transform.ITransform {
             // console.log(feature);
 
             t.push(JSON.stringify(featureCollection));
-
             done();
         };
-
         return t;
     }
-
 }
 
 export = GeoJsonSaveTransformer;

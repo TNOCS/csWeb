@@ -36,17 +36,17 @@ class CsvSaveTransformer implements transform.ITransform {
   }
 
   initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
-    var keyPropertyParameter = opt.parameters.filter(p=>p.type.title === 'filenameKeyProperty')[0];
+    var keyPropertyParameter = opt.parameters.filter(p => p.type.title === 'filenameKeyProperty')[0];
     if (keyPropertyParameter) {
       this.filenameKey = <string>keyPropertyParameter.value;
     }
 
-    var filenameParameter = opt.parameters.filter(p=>p.type.title === 'filename')[0];
+    var filenameParameter = opt.parameters.filter(p => p.type.title === 'filename')[0];
     if (filenameParameter) {
       this.filename = <string>filenameParameter.value;
     }
 
-    var targetFolderParameter = opt.parameters.filter(p=>p.type.title === 'targetFolder')[0];
+    var targetFolderParameter = opt.parameters.filter(p => p.type.title === 'targetFolder')[0];
     if (targetFolderParameter) {
       this.targetFolder = <string>targetFolderParameter.value;
     }
@@ -56,23 +56,23 @@ class CsvSaveTransformer implements transform.ITransform {
       return;
     }
 
-    var generateMetadataParameter = opt.parameters.filter(p=>p.type.title === 'generateMetadata')[0];
+    var generateMetadataParameter = opt.parameters.filter(p => p.type.title === 'generateMetadata')[0];
     if (generateMetadataParameter) {
       this.generateMetadata = <boolean>generateMetadataParameter.value;
     }
 
-    var generateKeysOnlyParameter = opt.parameters.filter(p=>p.type.title === 'generateKeysOnly')[0];
+    var generateKeysOnlyParameter = opt.parameters.filter(p => p.type.title === 'generateKeysOnly')[0];
     if (generateKeysOnlyParameter) {
       this.generateKeysOnly = <boolean>generateKeysOnlyParameter.value;
     }
 
 
-    var nameLabelParameter = opt.parameters.filter(p=>p.type.title === 'nameLabel')[0];
+    var nameLabelParameter = opt.parameters.filter(p => p.type.title === 'nameLabel')[0];
     if (nameLabelParameter) {
       this.nameLabel = <string>nameLabelParameter.value;
     }
 
-    var featureTypeIdParameter = opt.parameters.filter(p=>p.type.title === 'FeatureTypeId')[0];
+    var featureTypeIdParameter = opt.parameters.filter(p => p.type.title === 'FeatureTypeId')[0];
     if (featureTypeIdParameter) {
       this.FeatureTypeId = <string>featureTypeIdParameter.value;
     }
@@ -86,7 +86,7 @@ class CsvSaveTransformer implements transform.ITransform {
 
     var index = 0;
     t.setEncoding('utf8');
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ': start');
       /*console.log(index++);*/
@@ -115,7 +115,7 @@ class CsvSaveTransformer implements transform.ITransform {
           };
         });
 
-        var typeId = this.FeatureTypeId||'Default';
+        var typeId = this.FeatureTypeId || 'Default';
         var featureTypes = {};
         featureTypes[typeId] = {
       			'name' : typeId,
@@ -130,7 +130,7 @@ class CsvSaveTransformer implements transform.ITransform {
       				'iconUri':     'bower_components/csweb/dist-bower/images/marker.png'
       			}
       	};
-        console.log(JSON.stringify(featureTypes,null,4));
+        console.log(JSON.stringify(featureTypes, null, 4));
         featureTypes[typeId].propertyTypeKeys = propertyNames.join(';');
         if (!this.generateKeysOnly) {
           featureTypes[typeId].propertyTypeData = propertyTypeData;
@@ -173,8 +173,8 @@ class CsvSaveTransformer implements transform.ITransform {
     //   var outputStream = fs.createWriteStream(this.targetFolder + '/' + filename)
     //   outputStream.write(JSON.stringify(featureCollection));
     //   outputStream.close();
-      fs.writeFileSync(this.targetFolder + '/' + filename, csvString);//JSON.stringify(featureCollection));
-      console.log('Output written to ' +this.targetFolder + '/' + filename );
+      fs.writeFileSync(this.targetFolder + '/' + filename, csvString); //JSON.stringify(featureCollection));
+      console.log('Output written to ' + this.targetFolder + '/' + filename );
 
       // console.log("=== After:");
       // console.log(feature);

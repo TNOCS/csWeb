@@ -1,7 +1,7 @@
-import Utils = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream = require('stream');
-import BagDatabase = require("../database/BagDatabase");
+import BagDatabase = require('../database/BagDatabase');
 import ConfigurationService = require('../configuration/ConfigurationService');
 import IBagOptions = require('../database/IBagOptions');
 import Location = require('../database/Location');
@@ -9,7 +9,7 @@ import Location = require('../database/Location');
 class BagDetailsTransformer implements transform.ITransform {
     id: string;
     description: string;
-    type = "BagDetailsTransformer";
+    type = 'BagDetailsTransformer';
 
     /**
      * Accepted input types.
@@ -31,7 +31,7 @@ class BagDetailsTransformer implements transform.ITransform {
 
     create(config: ConfigurationService.ConfigurationService, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
         if (!config) {
-            console.error("Configuration service instance is required");
+            console.error('Configuration service instance is required');
             return null;
         }
 
@@ -43,13 +43,13 @@ class BagDetailsTransformer implements transform.ITransform {
         var index = 1;
         var prevTs = new Date();
 
-        t.setEncoding("utf8");
-        t._transform = (chunk, encoding, done) => {
+        t.setEncoding('utf8');
+        (<any>t)._transform = (chunk, encoding, done) => {
             /*console.log(".");*/
 
-            if (index % 100 == 0) {
+            if (index % 100 === 0) {
                 var currTs = new Date();
-                console.log(new Date() + ": " + index + " entries processed; " + ((currTs.getTime() - prevTs.getTime()) / 1000 / 100) + "s per feature");
+                console.log(new Date() + ': ' + index + ' entries processed; ' + ((currTs.getTime() - prevTs.getTime()) / 1000 / 100) + 's per feature');
                 prevTs = currTs;
             }
             // console.log("##### BDT #####");
@@ -76,7 +76,7 @@ class BagDetailsTransformer implements transform.ITransform {
                     // console.log("=== Query bag result:");
                     // console.log(addresses);
                     if (!addresses || !(addresses[0])) {
-                        console.log("Address not found: " + postcode + " " + huisnummer);
+                        console.log('Address not found: ' + postcode + ' ' + huisnummer);
                         done();
                         return;
                     }
@@ -85,8 +85,8 @@ class BagDetailsTransformer implements transform.ITransform {
 
                     // Add details to feature
                     feature.geometry = {
-                        "type": "Point",
-                        "coordinates": [firstAddress.lon, firstAddress.lat]
+                        'type': 'Point',
+                        'coordinates': [firstAddress.lon, firstAddress.lat]
                     };
 
                     feature.properties.woonplaats = firstAddress.woonplaatsnaam;
@@ -102,7 +102,7 @@ class BagDetailsTransformer implements transform.ITransform {
                     done();
                 });
             } catch (error) {
-                console.log("Error querying bag: " + error);
+                console.log('Error querying bag: ' + error);
                 index++;
                 prevTs = currTs;
             }

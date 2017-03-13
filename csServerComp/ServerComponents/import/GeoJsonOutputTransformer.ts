@@ -1,14 +1,14 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class GeoJsonOutputTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "GeoJsonOutputTransformer";
+  type = 'GeoJsonOutputTransformer';
 
   /**
    * Accepted input types.
@@ -26,7 +26,7 @@ class GeoJsonOutputTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions[], callback: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions[], callback: (error) => void) {
     callback(null);
   }
 
@@ -36,8 +36,8 @@ class GeoJsonOutputTransformer implements transform.ITransform {
 
     this.geoJson = [];
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);
@@ -55,27 +55,26 @@ class GeoJsonOutputTransformer implements transform.ITransform {
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
 
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
-        console.log("#### start GJOT flush")
+        console.log('#### start GJOT flush');
         var result = {
-          type: "FeatureCollection",
+          type: 'FeatureCollection',
           features: this.geoJson
         };
 
-        console.log ("nFeatures: " + result.features.length);
+        console.log ('nFeatures: ' + result.features.length);
         var strResult = JSON.stringify(result);
         // console.log(result);
         t.push(strResult);
 
         this.geoJson = [];
         done();
-      }
-      catch(error) {
-        console.log("#### GJOT flush error: " + error);
+      } catch (error) {
+        console.log('#### GJOT flush error: ' + error);
         done();
       }
-    }
+    };
 
     return t;
   }

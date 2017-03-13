@@ -1,13 +1,13 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
-var splitStream = require("split");
+var splitStream = require('split');
 
 class CsvToJsonTransformer implements transform.ITransform {
     id:          string;
     description: string;
-    type = "CsvToJsonTransformer";
+    type = 'CsvToJsonTransformer';
     headers:string[] = null;
     /**
      * Accepted input types.
@@ -31,22 +31,22 @@ class CsvToJsonTransformer implements transform.ITransform {
     }
 
     initialize(opt, callback) {
-      var propertyParameter = opt.parameters.filter((p)=>p.type.title == "fieldDelimiter")[0];
+      var propertyParameter = opt.parameters.filter((p) => p.type.title === 'fieldDelimiter')[0];
       if (propertyParameter) {
         this.fieldDelimiter = propertyParameter.value;
       }
 
-      propertyParameter = opt.parameters.filter((p)=>p.type.title == "textQualifier")[0];
+      propertyParameter = opt.parameters.filter((p) => p.type.title === 'textQualifier')[0];
       if (propertyParameter) {
         this.textQualifier = propertyParameter.value;
       }
 
-      propertyParameter = opt.parameters.filter((p)=>p.type.title == "latField")[0];
+      propertyParameter = opt.parameters.filter((p) => p.type.title === 'latField')[0];
       if (propertyParameter) {
         this.latField = propertyParameter.value;
       }
 
-      propertyParameter = opt.parameters.filter((p)=>p.type.title == "longField")[0];
+      propertyParameter = opt.parameters.filter((p) => p.type.title === 'longField')[0];
       if (propertyParameter) {
         this.longField = propertyParameter.value;
       }
@@ -61,21 +61,22 @@ class CsvToJsonTransformer implements transform.ITransform {
       var split = -1;
       var headers :string[];
 
-      t.setEncoding("utf8");
+      t.setEncoding('utf8');
 
-      t._transform = (chunk, encoding, done) => {
-           /*console.log("##### CTJT #####");*/
-          // console.log(chunk.toString("utf8"));
+      (<any>t)._transform = (chunk, encoding, done) => {
+           /*console.log('##### CTJT #####');*/
+          // console.log(chunk.toString('utf8'));
 
-          var line :string= chunk.toString("utf8");
+          var line :string = chunk.toString('utf8');
 
-          if (!line || line.trim() == "") {
-            console.log("Empty line, ignore");
+          if (!line || line.trim() === '') {
+            console.log('Empty line, ignore');
             done();
             return;
           }
 
-          var textQualifierRegExp = new RegExp("(?:\\s*(?:" + this.textQualifier + "([^" + this.textQualifier + "]*)" + this.textQualifier + "|([^" + this.fieldDelimiter + "]+))?\\s*" + this.fieldDelimiter + "?)+?","g");
+          var textQualifierRegExp =
+            new RegExp('(?:\\s*(?:' + this.textQualifier + '([^' + this.textQualifier + ']*)' + this.textQualifier + '|([^' + this.fieldDelimiter + ']+))?\\s*' + this.fieldDelimiter + '?)+?', 'g');
           var fields:any[] = [];
           var result:RegExpExecArray;
           var prevIndex = -1;
@@ -87,11 +88,10 @@ class CsvToJsonTransformer implements transform.ITransform {
               strValue = result[2];
             }
 
-              //console.log("Number: '" + strValue + "': " + /^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue));
+              //console.log('Number: '' + strValue + '': ' + /^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue));
             if (/^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue)) {
-              fields.push(parseFloat(strValue.replace(/,/,'.')));
-            }
-            else {
+              fields.push(parseFloat(strValue.replace(/,/, '.')));
+            } else {
               fields.push(strValue);
             }
 
@@ -103,20 +103,19 @@ class CsvToJsonTransformer implements transform.ITransform {
 
           if (!headers) {
             headers = [];
-            fields.filter(f=>f && f!='').forEach(f=>{
+            fields.filter(f => f && f !== '').forEach(f => {
               headers.push(f.toString());
             });
             console.log(headers);
             done();
             return;
-          }
-          else {
-            var obj:any = {type:"Feature", properties:{}};
+          } else {
+            var obj:any = {type:'Feature', properties:{}};
 
-            headers.forEach(h=>{
+            headers.forEach(h => {
               var hIndex = headers.indexOf(h);
               obj.properties[h] = fields[hIndex];
-            })
+            });
 
             /*console.log(obj);*/
 
@@ -125,28 +124,25 @@ class CsvToJsonTransformer implements transform.ITransform {
               var strLat:string = obj.properties[this.longField];
               var strLong:string = obj.properties[this.latField];
 
-              console.log("lat: " + strLat);
+              console.log('lat: ' + strLat);
               strLat = strLat.replace(/,/g,'.');
               strLong = strLong.replace(/,/g,'.');
               */
               var lat = obj.properties[this.longField];
               var long = obj.properties[this.latField];
 
-              /*console.log(lat + " - " + long);*/
-
-
+              /*console.log(lat + ' - ' + long);*/
               obj.geometry = {
-                type: "Point",
+                type: 'Point',
                 coordinates: [lat, long]
-              }
-
+              };
             }
 
             // console.log(obj);
             t.push(JSON.stringify(obj));
             done();
           }
-        }
+        };
 
     //var s = splitStream().pipe(t);
 
@@ -154,4 +150,4 @@ class CsvToJsonTransformer implements transform.ITransform {
   }
 
 }
-export=CsvToJsonTransformer;
+export = CsvToJsonTransformer;

@@ -1,14 +1,14 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class FieldFilterTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "FieldFilterTransformer";
+  type = 'FieldFilterTransformer';
 
   /**
    * Accepted input types.
@@ -29,34 +29,34 @@ class FieldFilterTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
-    var filterPropertyParameter = opt.parameters.filter((p)=>p.type.title == "property")[0];
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
+    var filterPropertyParameter = opt.parameters.filter((p) => p.type.title === 'property')[0];
     if (!filterPropertyParameter) {
-      callback("property missing");
+      callback('property missing');
       return;
     }
     this.filterProperty = <string>filterPropertyParameter.value;
 
-    var filterValueParameter = opt.parameters.filter((p)=>p.type.title == "value")[0];
+    var filterValueParameter = opt.parameters.filter((p) => p.type.title === 'value')[0];
     if (!filterValueParameter) {
       /*console.log("value missing");*/
-      callback("value missing");
+      callback('value missing');
       return;
     }
 
-    if (typeof filterValueParameter.value  === "string") {
+    if (typeof filterValueParameter.value  === 'string') {
       var strValue = <string>filterValueParameter.value;
       try {
         var regExp = new RegExp(strValue);
         this.filterValue = regExp;
         /*console.log(strValue + ": regex");*/
-      } catch(error) {
-        callback("Error parsing regex: " + strValue);
+      } catch (error) {
+        callback('Error parsing regex: ' + strValue);
         return;
       }
-    } else if (typeof filterValueParameter.value === "number") {
+    } else if (typeof filterValueParameter.value === 'number') {
       this.filterValue = <number>filterValueParameter.value;
-      console.log(strValue + ": number");
+      console.log(strValue + ': number');
     }
 
     callback(null);
@@ -68,8 +68,8 @@ class FieldFilterTransformer implements transform.ITransform {
 
     var baseGeo: any;
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);
@@ -84,7 +84,7 @@ class FieldFilterTransformer implements transform.ITransform {
           // console.log(feature.properties[this.filterProperty] + " does not match " + this.filterValue + " regex.")
         }
       } else if (<any>this.filterValue instanceof Number) {
-        if (feature.properties[this.filterProperty] == this.filterValue) {
+        if (feature.properties[this.filterProperty] === this.filterValue) {
           // console.log(feature.properties[this.filterProperty] + " matches " + this.filterValue + " numerical.")
           t.push(JSON.stringify(feature));
         } else {

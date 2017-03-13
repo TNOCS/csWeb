@@ -1,13 +1,13 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
-var turf = require("turf");
+import request                    = require('request');
+var turf = require('turf');
 
 class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "AggregateOpportunitiesToGeoJsonTransformer";
+  type = 'AggregateOpportunitiesToGeoJsonTransformer';
 
   /**
    * Accepted input types.
@@ -26,33 +26,30 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
-    var urlParameter = opt.parameters.filter((p)=>p.type.title == "aggregateShapeUrl")[0];
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
+    var urlParameter = opt.parameters.filter((p) => p.type.title === 'aggregateShapeUrl')[0];
     if (!urlParameter) {
-      callback("opportunitiesUrl missing");
+      callback('opportunitiesUrl missing');
       return;
     }
 
-    var parameter = opt.parameters.filter(p=>p.type.title == "keyProperty")[0];
+    var parameter = opt.parameters.filter(p => p.type.title === 'keyProperty')[0];
     if (!parameter) {
-      callback("keyProperty missing")
+      callback('keyProperty missing');
       return;
     }
     this.keyProperty = <string>parameter.value;
 
-    request({ url: <string>urlParameter.value }, (error, response, body)=>{
+    request({ url: <string>urlParameter.value }, (error, response, body) => {
       if (error) {
         callback(error);
         return;
       }
-
       this.geometry = JSON.parse(body);
-      console.log("Geojson loaded: " + this.geometry.features.length + " features");
+      console.log('Geojson loaded: ' + this.geometry.features.length + ' features');
 
       callback(null);
     });
-
-
   }
 
   create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {
@@ -62,14 +59,14 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
     var accumulator: any = {};
     var index = 0;
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    t.setEncoding('utf8');
+    (<any>t)._transform =  (chunk, encoding, done) => {
        var startTs = new Date();
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
       /*console.log("##### GJAT #####");*/
 
       if (!this.geometry) {
-        console.log("No target geometry found");
+        console.log('No target geometry found');
         done();
         return;
       }
@@ -79,10 +76,10 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
       /*console.log("Start aggregation");*/
 
       var found = false;
-      this.geometry.features.forEach(f=>{
+      this.geometry.features.forEach(f => {
         if (found) return;
 
-        if (turf.inside(feature,f)) {
+        if (turf.inside(feature, f)) {
           var keyValue = f.properties[this.keyProperty];
           var accEntry = accumulator[keyValue];
 
@@ -127,7 +124,7 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
       });
 
       if (!found) {
-        console.log("feature " + feature.properties.name + " could not be aggregated, town: " + feature.properties.town + ". " + feature.geometry.coordinates);
+        console.log('feature ' + feature.properties.name + ' could not be aggregated, town: ' + feature.properties.town + '. ' + feature.geometry.coordinates);
       }
 
       /*console.log("Aggregation finished");*/
@@ -140,12 +137,12 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
       /*console.log((new Date().getTime() - startTs.getTime()) + ": finish " + index++);*/
     };
 
-    t._flush = (done)=>{
+    (<any>t)._flush = (done) => {
       try {
-        console.log("#### start AOTGJT flush");
+        console.log('#### start AOTGJT flush');
         /*console.log(accumulator);*/
 
-        for(var key in accumulator) {
+        for (var key in accumulator) {
           console.log(key);
           var featureAcc = accumulator[key];
           /*console.log ("#### push feature");*/
@@ -169,21 +166,20 @@ class AggregateOpportunitiesToGeoJsonTransformer implements transform.ITransform
           featureAcc.feature.properties.nettoOmvang_totaal = featureAcc.nettoOmvang_totaal;
           featureAcc.feature.properties.nettoOmvang_gemiddeld = featureAcc.nettoOmvang_totaal / featureAcc.aantalOpportunities;
 
-          featureAcc.feature.properties.opportunityManagers = featureAcc.opportunityManagers
+          featureAcc.feature.properties.opportunityManagers = featureAcc.opportunityManagers;
 
-          featureAcc.feature.properties.aantalOpportunities = featureAcc.aantalOpportunities
+          featureAcc.feature.properties.aantalOpportunities = featureAcc.aantalOpportunities;
 
           /*console.log(JSON.stringify(featureAcc.feature));*/
 
           t.push(JSON.stringify(featureAcc.feature));
         }
         done();
-      }
-      catch(error) {
-        console.log("Agg error: " + error);
+      } catch (error) {
+        console.log('Agg error: ' + error);
         done();
       }
-    }
+    };
 
     return t;
   }

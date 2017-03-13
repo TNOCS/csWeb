@@ -566,8 +566,8 @@ module csComp.Services {
             if (fType) {
                 let pTypes = fType._propertyTypeData.forEach((mi: IPropertyType) => {
                     if (mi.visibleInTooltip) {
-                        if (!group.styles || !group.styles.find((s) => { return s.property === mi.label; })) {
-                            if (!group.filters || !group.filters.find((f: GroupFilter) => { return f.property === mi.label; })) {
+                        if (!group.styles || !(<any>group.styles).find((s) => { return s.property === mi.label; })) {
+                            if (!group.filters || !(<any>group.filters).find((f: GroupFilter) => { return f.property === mi.label; })) {
                                 if (feature.properties.hasOwnProperty(mi.label)) {
                                     let entry = this.addEntryToTooltip(content, feature, mi.label, null, mi.title, 'fa-info');
                                     content = entry.content;

@@ -1,14 +1,14 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
-import request                    = require("request");
+import request                    = require('request');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class GeoJsonSplitTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "GeoJsonSplitTransformer";
+  type = 'GeoJsonSplitTransformer';
 
   /**
    * Accepted input types.
@@ -28,37 +28,37 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
     /*console.log(JSON.stringify(opt,null,4));*/
 
-    var splitShapeUrlParameter = opt.parameters.filter((p)=>p.type.title == "splitShapeUrl")[0];
+    var splitShapeUrlParameter = opt.parameters.filter((p) => p.type.title === 'splitShapeUrl')[0];
     if (!splitShapeUrlParameter) {
-      callback("splitShapeUrl missing");
+      callback('splitShapeUrl missing');
       return;
     }
 
-    var keyPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeKeyProperty")[0];
+    var keyPropertyParameter = opt.parameters.filter(p => p.type.title === 'splitShapeKeyProperty')[0];
     if (!keyPropertyParameter) {
-      callback("splitShapeKeyProperty missing")
+      callback('splitShapeKeyProperty missing');
       return;
     }
     this.keyProperty = <string>keyPropertyParameter.value;
 
-    var identifierPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeIdentifierProperty")[0];
+    var identifierPropertyParameter = opt.parameters.filter(p => p.type.title === 'splitShapeIdentifierProperty')[0];
     if (!identifierPropertyParameter) {
-      callback("splitShapeIdentifierProperty missing")
+      callback('splitShapeIdentifierProperty missing');
       return;
     }
     this.identifierProperty = <string>identifierPropertyParameter.value;
 
-    request({ url: <string>splitShapeUrlParameter.value }, (error, response, body)=>{
+    request({ url: <string>splitShapeUrlParameter.value }, (error, response, body) =>{
       if (error) {
         callback(error);
         return;
       }
 
       this.geometry = JSON.parse(body);
-      console.log("Split shape geojson loaded");
+      console.log('Split shape geojson loaded');
 
       callback(null);
     });
@@ -73,16 +73,16 @@ class GeoJsonSplitTransformer implements transform.ITransform {
 
     var accumulator:any = {};
 
-    t.setEncoding("utf8");
+    t.setEncoding('utf8');
     var index = 0;
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        /*var startTs = new Date();*/
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
        /*console.log(index++);*/
       var feature = JSON.parse(chunk);
 
       if (!feature.geometry) {
-        console.log("No geometry");
+        console.log('No geometry');
         done();
         return;
       }
@@ -90,10 +90,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
        /*console.log("##### GJST #####");*/
       // console.log("=== Before:")
       // console.log(feature);
-
-
-
-      this.geometry.features.forEach((f)=>{
+      this.geometry.features.forEach((f) =>{
         // console.log("=== Gemeente feature:")
         // console.log(f);
         // console.log("=== Piped feature:");
@@ -109,8 +106,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
           var accEntry = accumulator[f.properties[this.keyProperty]];
           if (accEntry) {
             accEntry.push(feature);
-          }
-          else {
+          } else {
             accEntry = [feature];
             accumulator[f.properties[this.keyProperty]] = accEntry;
           }
@@ -124,32 +120,31 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       done();
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
 
         var keys = Object.keys(accumulator);
          /*console.log(JSON.stringify(keys));*/
         // for(var wijkCode in keys) {
         /*console.log(keys.length);*/
-        keys.forEach(key=> {
+        keys.forEach(key => {
           /*console.log(key);*/
           var group = accumulator[key];
           // console.log ("#### push wijk: " + wijkCode + " - " + wijkFeatures.length + " features");
 
           // console.log(wijkAcc);
           var groupGeoJson = {
-            type: "FeatureCollection",
+            type: 'FeatureCollection',
             features: group
           };
           t.push(JSON.stringify(groupGeoJson));
         });
         done();
-      }
-      catch(error) {
+      } catch (error) {
         console.error(error);
         done();
       }
-    }
+    };
 
     return t;
   }

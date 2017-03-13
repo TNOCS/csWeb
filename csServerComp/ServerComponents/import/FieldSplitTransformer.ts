@@ -1,13 +1,13 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
-var turf = require("turf");
+var turf = require('turf');
 
 class FieldSplitTransformer implements transform.ITransform {
   id:          string;
   description: string;
-  type = "FieldSplitTransformer";
+  type = 'FieldSplitTransformer';
 
   /**
    * Accepted input types.
@@ -25,12 +25,12 @@ class FieldSplitTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error) => void) {
     /*console.log(JSON.stringify(opt,null,4));*/
 
-    var keyPropertyParameter = opt.parameters.filter(p=>p.type.title == "keyProperty")[0];
+    var keyPropertyParameter = opt.parameters.filter(p => p.type.title === 'keyProperty')[0];
     if (!keyPropertyParameter) {
-      callback("keyProperty missing")
+      callback('keyProperty missing');
       return;
     }
     this.keyProperty = <string>keyPropertyParameter.value;
@@ -44,9 +44,9 @@ class FieldSplitTransformer implements transform.ITransform {
 
     var accumulator:any = {};
 
-    t.setEncoding("utf8");
+    t.setEncoding('utf8');
     var index = 0;
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        /*var startTs = new Date();*/
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
        /*console.log(index++);*/
@@ -57,36 +57,34 @@ class FieldSplitTransformer implements transform.ITransform {
       var accEntry = accumulator[keyValue];
       if (accEntry) {
         accEntry.push(feature);
-      }
-      else {
+      } else {
         accEntry = [feature];
         accumulator[keyValue] = accEntry;
       }
       done();
     };
 
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
 
         var keys = Object.keys(accumulator);
 
-        keys.forEach(key=> {
+        keys.forEach(key => {
           /*console.log(key);*/
           var group = accumulator[key];
 
           var groupGeoJson = {
-            type: "FeatureCollection",
+            type: 'FeatureCollection',
             features: group
           };
           t.push(JSON.stringify(groupGeoJson));
         });
         done();
-      }
-      catch(error) {
+      } catch (error) {
         console.error(error);
         done();
       }
-    }
+    };
 
     return t;
   }

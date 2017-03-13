@@ -49,6 +49,8 @@
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
+    "@types/express-serve-static-core": "^4.0.41",
+    "@types/node": "^7.0.8",
     "ansi-styles": "^2.2.0",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",

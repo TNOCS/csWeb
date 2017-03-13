@@ -1,13 +1,13 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
-var splitStream = require("split");
+var splitStream = require('split');
 
 class KvKToJsonTransformer implements transform.ITransform {
     id:          string;
     description: string;
-    type = "KvKToJsonTransformer";
+    type = 'KvKToJsonTransformer';
     headers:string[] = null;
     /**
      * Accepted input types.
@@ -25,8 +25,52 @@ class KvKToJsonTransformer implements transform.ITransform {
         //this.description = description;
     }
 
-    initialize(opt, callback){
-      this.headers = ["Registerletter","Dossiernummer","Subdossiernummer","Vestigingsnummer","Handelsnaam","adres","pc_plaats","adres_CA", "pc_plaats_CA", "Handelsnaam1x2x30", "Handelsnaam2x2x30", "Handelsnaam1x45", "postcode", "postcode_CA", "BeherendKamer-nummer", "GeografischKamer-nummer", "BoekjaarDeponeringJaarstuk", "DatumOpheffing", "DatumOprichting", "DatumVestiging", "DatumVestigingHuidigAdres", "Domeinnaam", "HoofdzaakFiliaalIndicatie", "IndicatieEconomischActief","NonMailingindicator", "Rechtsvorm", "RSIN", "Telefoonnummer", "gemeentecode", "HoofdactiviteitenCode", "NevenactiviteitenCode1", "NevenactiviteitenCode2", "HoofdactiviteitenOmschrijving", "HandelsnaamVolledig", "VennootschapnaamVolledig", "straat", "huisnummer", "toevoeging", "postcode", "woonplaats", "straat_CA", "huisnummer_CA", "toevoeging_CA", "postcode_CA", "woonplaats_CA"];
+    initialize(opt, callback) {
+      this.headers = ['Registerletter',
+        'Dossiernummer',
+        'Subdossiernummer',
+        'Vestigingsnummer',
+        'Handelsnaam',
+        'adres',
+        'pc_plaats',
+        'adres_CA',
+        'pc_plaats_CA',
+        'Handelsnaam1x2x30',
+        'Handelsnaam2x2x30',
+        'Handelsnaam1x45',
+        'postcode',
+        'postcode_CA',
+        'BeherendKamer-nummer',
+        'GeografischKamer-nummer',
+        'BoekjaarDeponeringJaarstuk',
+        'DatumOpheffing',
+        'DatumOprichting',
+        'DatumVestiging',
+        'DatumVestigingHuidigAdres',
+        'Domeinnaam',
+        'HoofdzaakFiliaalIndicatie',
+        'IndicatieEconomischActief',
+        'NonMailingindicator',
+        'Rechtsvorm',
+        'RSIN',
+        'Telefoonnummer',
+        'gemeentecode',
+        'HoofdactiviteitenCode',
+        'NevenactiviteitenCode1',
+        'NevenactiviteitenCode2',
+        'HoofdactiviteitenOmschrijving',
+        'HandelsnaamVolledig',
+        'VennootschapnaamVolledig',
+        'straat',
+        'huisnummer',
+        'toevoeging',
+        'postcode',
+        'woonplaats',
+        'straat_CA',
+        'huisnummer_CA',
+        'toevoeging_CA',
+        'postcode_CA',
+        'woonplaats_CA'];
       callback(null);
     }
 
@@ -37,45 +81,44 @@ class KvKToJsonTransformer implements transform.ITransform {
       var split = -1;
       var headers :string[] = this.headers;
 
-      t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      t.setEncoding('utf8');
+      (<any>t)._transform = (chunk, encoding, done) => {
           // console.log("##### KvKTJT #####");
           // console.log(chunk.toString("utf8"));
 
-          var line :string= chunk.toString("utf8");
+          var line :string = chunk.toString('utf8');
 
-          if (!line || line.trim() == "") {
-            console.log("Empty line, ignore");
+          if (!line || line.trim() === '') {
+            console.log('Empty line, ignore');
             done();
             return;
           }
 
-          var lineMod = line.slice(1, line.length-1);
+          var lineMod = line.slice(1, line.length - 1);
           var fields = lineMod.split(/\",\"/);
           // console.log(line);
 
           if (!headers) {
             headers = [];
-            fields.forEach(f=>{
+            fields.forEach(f => {
               headers.push(f);
             });
 
             // console.log(headers);
             done();
-          }
-          else {
+          } else {
             var obj:any = {properties:{}};
 
-            headers.forEach(h=>{
+            headers.forEach(h => {
               var hIndex = headers.indexOf(h);
               obj.properties[h] = fields[hIndex];
-            })
+            });
 
             // console.log(obj);
             t.push(JSON.stringify(obj));
             done();
           }
-        }
+        };
 
     //var s = splitStream().pipe(t);
 
@@ -83,4 +126,4 @@ class KvKToJsonTransformer implements transform.ITransform {
   }
 
 }
-export=KvKToJsonTransformer;
+export= KvKToJsonTransformer;

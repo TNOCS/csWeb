@@ -86,7 +86,7 @@ export class csServer {
         var c = this.options.connectors;
 
         // Create FileStorage
-        if (!c.hasOwnProperty('file')) c['file'] = { path: path.join(path.resolve(this.dir), 'public/data/api/') };
+        if (!c.hasOwnProperty('file')) c['file'] = { path: path.resolve(this.dir, 'public/data/api/') };
         var fsWatch = (c['file'].hasOwnProperty('watch') ? c['file'].watch : true);
         var fsIgnoreInitial = (c['file'].hasOwnProperty('ignoreInitial') ? c['file'].ignoreInitial : false);
         var fs = new csweb.FileStorage(c['file'].path, fsWatch, fsIgnoreInitial);
@@ -108,9 +108,7 @@ export class csServer {
              * API platform
              */
             this.api = new csweb.ApiManager('cs', 'cs');
-            this.api.init(path.join(path.resolve(this.dir), 'public/data/api'), () => {
-                //api.authService = new csweb.AuthAPI(api, server, '/api');
-
+            this.api.init(path.resolve(this.dir, 'public/data/api'), () => {
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
                     { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
                     { key: 'file', s: fs, options: {} },

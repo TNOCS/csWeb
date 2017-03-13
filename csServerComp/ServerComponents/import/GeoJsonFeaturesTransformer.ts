@@ -1,11 +1,11 @@
-import Utils     = require("../helpers/Utils");
-import transform = require("./ITransform");
+import Utils     = require('../helpers/Utils');
+import transform = require('./ITransform');
 import stream  = require('stream');
 
 class GeoJsonFeaturesTransformer implements transform.ITransform {
     id:          string;
     description: string;
-    type = "GeoJsonFeaturesTransformer";
+    type = 'GeoJsonFeaturesTransformer';
     headers:string[] = null;
     /**
      * Accepted input types.
@@ -23,7 +23,7 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
         //this.description = description;
     }
 
-    initialize(opt, callback){
+    initialize(opt, callback) {
       callback(null);
     }
 
@@ -34,14 +34,14 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
       var split = -1;
       var headers :string[] = this.headers;
 
-      t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      t.setEncoding('utf8');
+      (<any>t)._transform = (chunk, encoding, done) => {
            /*console.log(chunk.toString("utf8"));*/
 
-          var line :string= chunk.toString("utf8");
+          var line :string = chunk.toString('utf8');
 
-          if (!line || line.trim() == "") {
-            console.log("Empty line, ignore");
+          if (!line || line.trim() === '') {
+            console.log('Empty line, ignore');
             done();
             return;
           }
@@ -50,25 +50,24 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
             // console.log("parse");
             // console.log(line);
             var geoJson = JSON.parse(line);
-          }
-          catch(err) {
-            console.error("Error parsing input feature:" + err);
+          } catch (err) {
+            console.error('Error parsing input feature:' + err);
             done();
             return;
           }
 
           /*console.log(geoJson.features.length);*/
           if (geoJson.features.length > 0) {
-            geoJson.features.forEach(f=>{
+            geoJson.features.forEach(f => {
               t.push(JSON.stringify(f));
             });
           }
 
           done();
-        }
+        };
 
     return t;
   }
 
 }
-export=GeoJsonFeaturesTransformer;
+export= GeoJsonFeaturesTransformer;

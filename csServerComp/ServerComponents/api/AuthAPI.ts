@@ -93,9 +93,9 @@ export class AuthAPI {
 
     /** Read user details */
     private getUser(req: express.Request, res: express.Response) {
-        User.findById(req.params.teamId, req.user, (err: string, user: User) => {
+        User.findById(req.params.teamId, req['user'], (err: string, user: User) => {
             if (err) {
-                Winston.error('Error: couldn\'t find user: team ' + req.params.teamId, ', user ' + req.user);
+                Winston.error('Error: couldn\'t find user: team ' + req.params.teamId, ', user ' + req['user']);
                 return res.status(401).send({ message: 'Couldn\'t find user.' });
             } else {
                 res.send(user);
@@ -105,9 +105,9 @@ export class AuthAPI {
 
     /** Update user details */
     private updateUser(req: express.Request, res: express.Response) {
-        User.findById(req.params.teamId, req.user, (err: string, user: User) => {
+        User.findById(req.params.teamId, req['user'], (err: string, user: User) => {
             if (!user) {
-                Winston.warn('Updating user not possible. User not found: Team ' + req.params.teamId, ', user ' + req.user);
+                Winston.warn('Updating user not possible. User not found: Team ' + req.params.teamId, ', user ' + req['user']);
                 return res.status(400).send({ message: 'User not found' });
             }
             user.displayName = req.body.displayName || user.displayName;
@@ -178,7 +178,7 @@ export class AuthAPI {
         if (payload.exp <= Date.now()) {
             return res.status(401).send({ message: 'Token has expired' });
         }
-        req.user = payload.sub;
+        req['user'] = payload.sub;
         //Winston.error('Passed ensureAuthenticated...')
         next();
     }
@@ -203,7 +203,7 @@ export class AuthAPI {
             return res.status(400).send({ message: 'Unknown OAuth Provider' });
         }
 
-        User.findById(req.params.teamId, req.user, function(err, user) {
+        User.findById(req.params.teamId, req['user'], function(err, user) {
             if (!user) {
                 return res.status(400).send({ message: 'User Not Found' });
             }
