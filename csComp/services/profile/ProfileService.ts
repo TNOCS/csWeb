@@ -139,6 +139,7 @@ module csComp.Services {
                 if (expiresInMsec > 0) {
                     this.addJwtToHeader();
                     this.loggedIn = true;
+                    this.userProfile = this.$localStorageService.get('profile');
                     setTimeout(() => this.validateUser(), expiresInMsec - 5 * 60 * 1000);
                 }
             }
@@ -153,6 +154,9 @@ module csComp.Services {
         }
 
         public set userProfile(profile: IProfile) {
+            this.profile = profile;
+            this.$localStorageService.set('profile', profile);
+            if (!_.isFunction(this.update)) return;
             this.update(profile, error => {
                 if (error) {
                     this.$messageBusService.notify('profile', `update_failed: ${error.message}`);
@@ -175,7 +179,7 @@ module csComp.Services {
                     this.isValidating = false;
                     this.loggedIn = success;
                     if (this.loggedIn) {
-                        this.profile = profile;
+                        this.userProfile = profile;
                     } else {
                         this.$messageBusService.notify('Login Result', 'Login Failed');
                     }
@@ -220,6 +224,7 @@ module csComp.Services {
          */
         public clearToken() {
             this.token = '';
+            this.userProfile = {};
         }
 
         /**
