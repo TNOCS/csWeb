@@ -559,7 +559,7 @@ module csComp.Services {
             }
             return {
                 length: valueLength + title.length,
-                content: content + `<tr><td><div class="fa ${faLabel}"></td><td>${title}</td><td>${value}</td></tr>`
+                content: content + `<div class=\"csweb-tooltip-label-entry\">${title}</div><div class=\"csweb-tooltip-value\">${value}</div></div>`
             };
         }
 
@@ -569,7 +569,15 @@ module csComp.Services {
             // add title
             var title = csComp.Helpers.getFeatureTooltipTitle(feature);
             var rowLength = (title) ? title.length : 1;
-            var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            var titleLabel;
+            if (feature.fType && feature.fType.style.nameLabel) {
+                let pt = this.service.getPropertyType(feature, feature.fType.style.nameLabel);
+                titleLabel = pt.title;
+            }
+            var content = '';
+            content += `<div class="\csweb-tooltip-padding\">`;
+            content += '<div class=\"csweb-tooltip-label\">' + titleLabel + '</div>';
+            content += '<div class=\"csweb-tooltip-value\">' + title + '</div>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
@@ -612,9 +620,10 @@ module csComp.Services {
                     }
                 });
             }
-            var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+            content += `</div">`;
+            var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 180);
             return {
-                content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
+                content: '<div class=\"csweb-tooltip\"><div style=\'width:' + widthInPixels + 'px;\'>' + content + '</div></div>',
                 widthInPixels: widthInPixels
             };
         }

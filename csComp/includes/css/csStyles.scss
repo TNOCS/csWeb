@@ -2987,6 +2987,60 @@ input[type="checkbox"] {
     color: #000;
 }
 
+
+.csweb-tooltip {
+    background: white;
+    background-color: white;
+    text-align: left;
+    font-family: "RO Sans";
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.csweb-tooltip-label {
+    background: white;
+    background-color: white;
+    text-align: left;
+    font-family: "RO Sans";
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    padding: 8px 8px 0px 14px;
+    line-height: 1em;
+}
+
+.csweb-tooltip-value {
+    background: white;
+    background-color: white;
+    text-align: left;
+    font-family: "RO Sans";
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 8px 8px 14px;
+    line-height: 1em;
+}
+
+.csweb-tooltip-label-entry {
+    background: white;
+    background-color: white;
+    text-align: left;
+    font-family: "RO Sans";
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    padding: 8px 8px 0px 14px;
+    line-height: 1em;
+    border-top: solid 1px #ccc;
+}
+
+.csweb-tooltip-padding {
+    padding: 8px;
+    background: white;
+}
+
+
 /* Overrule icons in menu */
 .mapIcon {
     background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAG7AAABuwBHnU4NQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGJSURBVFiF7ddPqA1hGMfxz3McFF2kS8qflWwU1ux0d7JQFmThT+rKio2U1NnfnRUbCys73aW1smSl3CRRFkKWSngszD3NPc3MmXOdOql56q2ZeZ/n9/su3rd+E5lpltWbqft/AxAR+yJiKSJuRsSmiDixHrOI6EXEuYh4ERFnQWbWLhzBI/xAYoBjxfMyDjfNl3T6uISVYjYxyMxqACzgaak5SwCXS+8/8RD7a3Q24xreVWmtASgoL+BlRXMZ4F7F9+9Yws5Cawtu4GOT1hAAe/G+obkM8Kxh/xvu41MbrczUL87HFRwwvgJHG/Z3YLGFzrBWb8GGlv0HMTeJQVuAtnVymubrAdgza4CpVwfQAXQAHUAHMCnA7yl6v54E4AOuYxdu4fM/GL/BYmY+xjARDVSnlre4io0jWW8rbuNLzVzVeo4z6K3RqgFYwUX0x6TdOdzB1xrTX3iC47UaIwCvcH6UskXs3oa7/mbC1ZD6AIfGzhYC8ziNmMS4AmQ7TmF325nofk5nDfAHT/azUWnxRlsAAAAASUVORK5CYII=')/*../images/1005 kaart.png*/
