@@ -511,6 +511,11 @@ module DataTable {
             this.selectAllBool = !this.selectAllBool;
         }
 
+        private returnToMap() {
+            let dashboard = this.$layerService.project.dashboards[0];
+            this.$messageBusService.publish('dashboard-main', 'activated', dashboard);
+        }
+
         /**
          * Convert to trusted html string.
          */

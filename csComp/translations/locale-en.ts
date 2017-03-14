@@ -226,7 +226,8 @@ module Translations {
             IMAGE_WILL_APPEAR: 'The image will appear in a few moments.',
             ERROR_LOADING_LAYER: 'Error while loading layer',
             COULD_NOT_GET_DATA: 'Could not get the data of layer "{{layer}}".',
-            COMPARE_TAB: 'Compare'
+            COMPARE_TAB: 'Compare',
+            BACK_TO_MAP: 'Return to the map'
         };
     }
 }

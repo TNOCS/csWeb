@@ -886,6 +886,12 @@ body,
 .datatable-propertytype-admin {
     color: #777;
 }
+.table-return {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 25px;
+    padding: 0px 20px;
+}
 .legendTable {
    display: table;
    width: 100%;
@@ -2185,6 +2191,7 @@ input[type="radio"],
 input[type="checkbox"] {
     margin: 0;
 }
+
 #loading {
     height: 19px;
     left: 50%;
