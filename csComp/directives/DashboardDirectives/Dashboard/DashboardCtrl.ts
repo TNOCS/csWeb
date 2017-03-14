@@ -133,7 +133,7 @@ module Dashboard {
                 widget._bottom = widget.bottom;
                 widget._left = widget.left;
                 widget._right = widget.right;
-                widget._zindex = '1';
+                widget._zindex = widget.zIndex || '1';
                 widget._gridContainer = widget.inGridContainer; // Responsive container https://getbootstrap.com/examples/grid/
             }
         }

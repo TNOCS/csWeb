@@ -69,6 +69,7 @@ module csComp.Services {
         top?: string;
         bottom?: string;
         padding? : string;
+        zIndex? : string;
 
         icon?: string;
         /** When true, hide the widget. */
