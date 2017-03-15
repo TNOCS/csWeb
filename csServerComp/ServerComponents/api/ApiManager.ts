@@ -220,6 +220,7 @@ export interface ILayer extends StorageObject {
     hasSensorData?: boolean;
     quickRefresh?: boolean;
     confirmUpdate?: boolean;
+    geometryTypeId?: string;
 }
 
 /**
@@ -910,6 +911,7 @@ export class ApiManager extends events.EventEmitter {
             confirmUpdate: layer.confirmUpdate,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
+            geometryTypeId: layer.geometryTypeId,
             // We are returning a definition, so remove the data
             features: [],
             data: '',
@@ -1047,13 +1049,15 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    public updateProjectTitle(projectTitle: string, projectId: string, meta: ApiMeta, callback: Function) {
+    public updateProjectProperties(props: {title: string, logo: string, description: string}, projectId: string, meta: ApiMeta, callback: Function) {
         // Does not send update to connections and storages, should be done separately!
         var p: Project = this.findProject(projectId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
-        p.title = projectTitle;
+        p.title = props.title || p.title;
+        p.logo = props.logo || p.logo;
+        p.description = props.description || p.description;
         this.projects[projectId] = p;
-        callback(<CallbackResult>{ result: ApiResult.OK, error: 'Changed title' });
+        callback(<CallbackResult>{ result: ApiResult.OK, error: 'Changed project properties' });
     }
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {

@@ -8,6 +8,7 @@ import _ = require('underscore');
 
 export class NominatimSource implements IAddressSource.IAddressSource {
     private connectionString: string = 'http://nominatim.openstreetmap.org/search?';
+    public name = 'nominatim (openstreetmap)';
 
     constructor(config: ConfigurationService.ConfigurationService) {
         if (config['osmUrl']) this.connectionString = config['osmUrl'];
@@ -43,20 +44,5 @@ export class NominatimSource implements IAddressSource.IAddressSource {
         console.log('Not implemented');
         callback(null);
         return;
-    }
-
-    public lookupBagArea(bounds: string, isArea: boolean, callback: Function) {
-        console.log('Function not implemented');
-        callback(null);
-    }
-
-    public lookupBagBuurt(bounds: string, isArea: boolean, callback: Function) {
-        console.log('Function not implemented');
-        callback(null);
-    }
-
-    public lookupBagAddress(zip: string, houseNumber: string, bagOptions: IBagOptions, callback: Function) {
-        console.log('Not implemented');
-        callback(null);
     }
 }

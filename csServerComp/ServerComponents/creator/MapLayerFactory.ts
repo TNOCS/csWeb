@@ -17,6 +17,7 @@ import Utils = require('../helpers/Utils');
 import async = require('async');
 import winston = require('winston');
 import path = require('path');
+import _ = require('underscore');
 import IProperty = Api.IProperty;
 
 export interface ILayerDefinition {
@@ -103,13 +104,19 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-constructor(private bag: IAddressSource.IAddressSource, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
-        if (bag != null) {
-            bag.init();
-        }
+constructor(private addressSources: IAddressSource.IAddressSource[], private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
+        addressSources.slice().reverse().forEach((src, ind, arr) => {
+            if (src == null) {
+                addressSources.splice(arr.length - 1 - ind, 1);
+                console.warn('Removed unknown address source');
+            } else {
+                src.init();
+                console.log('Init address source ' + src.name);
+            }
+        });
         var fileList: IProperty[] = [];
         var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
-        fs.access(templateFolder, fs.constants.F_OK, (err) => {
+        fs.access(templateFolder, fs.F_OK, (err) => {
             if (err) {
                 console.log(`Template-folder "${templateFolder}" not found`);
             } else {
@@ -155,7 +162,7 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
             var data = {
                 project: ld.projectTitle,
                 projectId: template.projectId,
-                projectLogo: template.projectLogo || 'images/CommonSenseRound.png',
+                projectLogo: template.projectLogo || 'CommonSenseRound.png',
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: layerId,
@@ -278,7 +285,8 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
                 });
             },
             (cb: Function) => {
-                this.apiManager.updateProjectTitle(data.project, data.projectId, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
+                let props = {title: data.project, logo: path.join('data', 'images', data.projectLogo), description: data.description};
+                this.apiManager.updateProjectProperties(props, data.projectId, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
                     cb();
                 });
@@ -334,111 +342,143 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
         layer.data = {};
         layer.data.features = [];
         layer.type = 'database';
-        this.bag.lookupBagArea(bounds || bu_code, layer.refreshBBOX, (areas: Location[]) => {
-            if (!areas || !areas.length || areas.length === 0) {
-                res.status(404).send({});
-            } else {
-                areas.forEach((area: Location) => {
-                    var props: { [key: string]: any } = {};
-                    for (var p in area) {
-                        if (area.hasOwnProperty(p) && area[p] != null) {
-                            // Save all columns to properties, except the ones used as geometry.
-                            if ((!getPointFeatures && (p === 'contour' || p === 'latlon'))
-                                || (getPointFeatures && p === 'latlon')) {
-                                // skip
-                            } else {
-                                if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
-                                    props[p] = +area[p];
-                                } else {
-                                    props[p] = area[p];
+        this.addressSources.some((src) => {
+            if (typeof src.lookupBagArea === 'function') {
+                src.lookupBagArea(bounds || bu_code, layer.refreshBBOX, (areas: Location[]) => {
+                    if (!areas || !areas.length || areas.length === 0) {
+                        res.status(404).send({});
+                    } else {
+                        areas.forEach((area: Location) => {
+                            var props: {
+                                [key: string]: any
+                            } = {};
+                            for (var p in area) {
+                                if (area.hasOwnProperty(p) && area[p] != null) {
+                                    // Save all columns to properties, except the ones used as geometry.
+                                    if ((!getPointFeatures && (p === 'contour' || p === 'latlon')) ||
+                                        (getPointFeatures && p === 'latlon')) {
+                                        // skip
+                                    } else {
+                                        if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
+                                            props[p] = +area[p];
+                                        } else {
+                                            props[p] = area[p];
+                                        }
+                                    }
                                 }
                             }
-                        }
+                            var f: IGeoJsonFeature = {
+                                type: 'Feature',
+                                geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
+                                properties: props,
+                                id: (getPointFeatures) ? 'p_' + props['pandid'] || Utils.newGuid() : 'c_' + props['pandid'] || Utils.newGuid()
+                            };
+                            layer.data.features.push(f);
+                        });
+                        var diff = new Date().getTime() - start;
+                        console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
+                        res.status(Api.ApiResult.OK).send({
+                            layer: layer
+                        });
+                        // this.messageBus.publish('bagcontouren', 'layer-update', layer);
                     }
-                    var f: IGeoJsonFeature = {
-                        type: 'Feature',
-                        geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
-                        properties: props,
-                        id: (getPointFeatures) ? 'p_' + props['pandid'] || Utils.newGuid() : 'c_' + props['pandid'] || Utils.newGuid()
-                    };
-                    layer.data.features.push(f);
                 });
-                var diff = new Date().getTime() - start;
-                console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
-                res.status(Api.ApiResult.OK).send({ layer: layer });
-                // this.messageBus.publish('bagcontouren', 'layer-update', layer);
+                return true;
+            } else {
+                return false;
             }
         });
-    }
+        }
 
-    public processBagSearchQuery(req: express.Request, res: express.Response) {
-        var start = new Date().getTime();
-        var template: IBagSearchRequest = req.body;
-        var query = template.query;
-        var nrItems = template.nrItems;
-        this.bag.searchGemeente(query, nrItems, (results) => {
-            if (!results || !results.length || results.length === 0) {
-                res.status(200).send({});
-            } else {
-                var searchResults = [];
-                results.forEach((r) => {
-                    var sr = {
-                        title: `${r.title}`,
-                        description: `${r.description}`,
-                        score: 0.99,
-                        location: r.location
-                    };
-                    searchResults.push(sr);
-                });
-                var diff = new Date().getTime() - start;
-                console.log('Updated bag layer: returning ' + results.length + ' search results after ' + diff + ' ms.');
-                res.status(Api.ApiResult.OK).send({ result: searchResults });
-            }
-        });
-    }
-
-    public processBagBuurten(req: express.Request, res: express.Response) {
-        console.log('Received bag buurten request. Processing...');
-        var start = new Date().getTime();
-        var template: IBagContourRequest = req.body;
-        var bounds = template.bounds;
-        var gm_code = template.searchProp;
-        var layer: csComp.Services.ProjectLayer = template.layer;
-
-        layer.data = {};
-        layer.data.features = [];
-        layer.type = 'database';
-        this.bag.lookupBagBuurt(bounds || gm_code, layer.refreshBBOX, (areas: Location[]) => {
-            if (!areas || !areas.length || areas.length === 0) {
-                res.status(404).send({});
-            } else {
-                areas.forEach((area: Location) => {
-                    var props: { [key: string]: any } = {};
-                    for (var p in area) {
-                        if (area.hasOwnProperty(p) && area[p] != null && p !== 'contour') {
-                            // Save all columns to properties, except the ones used as geometry.
-                            if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
-                                props[p] = +area[p];
-                            } else {
-                                props[p] = area[p];
-                            }
+        public processBagSearchQuery(req: express.Request, res: express.Response) {
+            var start = new Date().getTime();
+            var template: IBagSearchRequest = req.body;
+            var query = template.query;
+            var nrItems = template.nrItems;
+            this.addressSources.some((src) => {
+                if (typeof src.searchGemeente === 'function') {
+                    src.searchGemeente(query, nrItems, (results) => {
+                        if (!results || !results.length || results.length === 0) {
+                            res.status(200).send({});
+                        } else {
+                            var searchResults = [];
+                            results.forEach((r) => {
+                                var sr = {
+                                    title: `${r.title}`,
+                                    description: `${r.description}`,
+                                    score: 0.99,
+                                    location: r.location
+                                };
+                                searchResults.push(sr);
+                            });
+                            var diff = new Date().getTime() - start;
+                            console.log('Updated bag layer: returning ' + results.length + ' search results after ' + diff + ' ms.');
+                            res.status(Api.ApiResult.OK).send({
+                                result: searchResults
+                            });
                         }
-                    }
-                    var f: IGeoJsonFeature = {
-                        type: 'Feature',
-                        geometry: JSON.parse(area.contour),
-                        properties: props,
-                        id: props['bu_code'] || Utils.newGuid()
-                    };
-                    layer.data.features.push(f);
-                });
-                var diff = new Date().getTime() - start;
-                console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
-                res.status(Api.ApiResult.OK).send({ layer: layer });
-                // this.messageBus.publish('bagcontouren', 'layer-update', layer);
-            }
-        });
-    }
+                    });
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
+
+        public processBagBuurten(req: express.Request, res: express.Response) {
+            console.log('Received bag buurten request. Processing...');
+            var start = new Date().getTime();
+            var template: IBagContourRequest = req.body;
+            var bounds = template.bounds;
+            var gm_code = template.searchProp;
+            var layer: csComp.Services.ProjectLayer = template.layer;
+
+            layer.data = {};
+            layer.data.features = [];
+            layer.type = 'database';
+            this.addressSources.some((src) => {
+                if (typeof src.lookupBagBuurt === 'function') {
+                    src.lookupBagBuurt(bounds || gm_code, layer.refreshBBOX, (areas: Location[]) => {
+                        if (!areas || !areas.length || areas.length === 0) {
+                            res.status(404).send({});
+                        } else {
+                            areas.forEach((area: Location) => {
+                                var props: {
+                                    [key: string]: any
+                                } = {};
+                                for (var p in area) {
+                                    if (area.hasOwnProperty(p) && area[p] != null && p !== 'contour') {
+                                        // Save all columns to properties, except the ones used as geometry.
+                                        if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
+                                            props[p] = +area[p];
+                                        } else {
+                                            props[p] = area[p];
+                                        }
+                                    }
+                                }
+                                var f: IGeoJsonFeature = {
+                                    type: 'Feature',
+                                    geometry: JSON.parse(area.contour),
+                                    properties: props,
+                                    id: props['bu_code'] || Utils.newGuid()
+                                };
+                                layer.data.features.push(f);
+                            });
+                            var diff = new Date().getTime() - start;
+                            console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
+                            res.status(Api.ApiResult.OK).send({
+                                layer: layer
+                            });
+                            // this.messageBus.publish('bagcontouren', 'layer-update', layer);
+                        }
+                    });
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
+
 
     public createMapLayer(template: ILayerTemplate, callback: (Object) => void) {
         var ld = template.layerDefinition[0];
@@ -598,7 +638,7 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
                 this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [],
                     () => { callback(geojson); });
                 break;
-            case 'Internationaal':
+            case 'OpenStreetMap':
                 if (!ld.parameter1) {
                     console.log('Error: Parameter1 should be the name of the column containing the search query!');
                     return;
@@ -611,12 +651,67 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
                     console.log('Error: At least parameter1 should contain a value!');
                     return;
                 }
+                this.getPolygonType(ld, template.properties);
                 this.createPolygonFeature(ld.geometryFile, ld.geometryKey, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
                     () => { callback(geojson); });
                 break;
         }
         //console.log("Drawing mode" + ld.drawingMode);
         return geojson;
+    }
+
+    private getPolygonType(ld: ILayerDefinition, props: IProperty[]) {
+        let type = this.determineType(props, ld.parameter1);
+        switch (ld.geometryType) {
+            case 'Provincie':
+                if (type === 'both') {
+                    ld.geometryFile = 'CBS_Provincie_op_code';
+                    ld.geometryKey = 'Name';
+                } else {
+                    ld.geometryFile = 'CBS_Provincie_op_naam';
+                    ld.geometryKey = 'Name';
+                }
+                break;
+            case 'Gemeente':
+                ld.geometryFile = 'CBS_Gemeente';
+                if (type === 'both') {
+                    ld.geometryKey = 'GM_CODE';
+                } else {
+                    ld.geometryKey = 'GM_NAAM';
+                }
+                break;
+            case 'Buurt':
+                ld.geometryFile = 'CBS_Buurt';
+                if (type === 'both') {
+                    ld.geometryKey = 'BU_CODE';
+                } else {
+                    ld.geometryKey = 'BU_NAAM';
+                }
+                break;
+            default:
+                break;
+            }
+    }
+
+    private determineType(props: IProperty[], label: string): 'name' | 'number' | 'both' {
+        let nrNames, nrNumbers, nrBoth;
+        nrNames = nrNumbers = nrBoth = 0;
+        props.slice(0, 10).forEach((prop) => {
+            if (prop.hasOwnProperty(label)) {
+                let text = (prop[label].toString().match(/[a-zA-Z]+/g));
+                let number = (prop[label].toString().match(/\d/g));
+                if (text && number) {
+                    nrBoth += 1;
+                } else if (text) {
+                    nrNames += 1;
+                } else if (number) {
+                    nrNumbers += 1;
+                }
+            }
+        });
+        let results = [{key: 'name', val: nrNames}, {key: 'number', val: nrNumbers}, {key: 'both', val: nrBoth}];
+        results = _.sortBy(results, (obj) => { return obj.val; });
+        return <'name' | 'number' | 'both'>_.first(results).key;
     }
 
     /**
@@ -746,21 +841,29 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
                 var index = properties.indexOf(prop);
                 if (prop.hasOwnProperty(queryString) && typeof prop[queryString] === 'string') {
                     var q = prop[queryString];
-                    this.bag.searchAddress(q, 4, (locations: any[]) => {
-                            if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
-                                console.log(`Cannot find location: ${q}`);
-                                this.featuresNotFound[`${q}`] = {
-                                    zip: `${q}`,
-                                    number: `0`
-                                };
-                                innercallback();
-                            } else {
-                                console.log('Found location (international)');
-                                console.log(`${locations[0].lon}, ${locations[0].lat}`);
-                                features.push(this.createFeature(+locations[0].lon, +locations[0].lat, prop, sensors[index] || {}));
-                                innercallback();
-                            }
+                    let searchPerformed = this.addressSources.some((src) => {
+                        if (typeof src.searchAddress === 'function') {
+                            src.searchAddress(q, 4, (locations: any[]) => {
+                                    if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
+                                        console.log(`Cannot find location: ${q}`);
+                                        this.featuresNotFound[`${q}`] = {
+                                            zip: `${q}`,
+                                            number: `0`
+                                        };
+                                        innercallback();
+                                    } else {
+                                        console.log('Found location (international)');
+                                        console.log(`${locations[0].lon}, ${locations[0].lat}`);
+                                        features.push(this.createFeature(+locations[0].lon, +locations[0].lat, prop, sensors[index] || {}));
+                                        innercallback();
+                                    }
+                            });
+                            return true;
+                        } else {
+                            return false;
+                        }
                     });
+                    if (!searchPerformed) innercallback();
                 } else {
                     innercallback();
                 }
@@ -834,7 +937,6 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
         properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) { callback(); }
         var todo = properties.length;
-        var bg = this.bag;
         var asyncthis = this;
 
         async.eachSeries(properties, function(prop, innercallback) {
@@ -843,26 +945,39 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
             if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
                 var zip = prop[zipCode].replace(/ /g, '');
                 var nmb = prop[houseNumber];
-                bg.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
-                    //console.log(todo);
-                    if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
-                        console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-                        asyncthis.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
-                    } else {
-                        for (var key in locations[0]) {
-                            if (key !== 'lon' && key !== 'lat') {
-                                if (locations[0][key]) {
-                                    prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-                                    asyncthis.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), 'BAG');
+                let searchPerformed = this.addressSources.some((src) => {
+                    if (typeof src.lookupBagAddress === 'function') {
+                        src.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
+                            //console.log(todo);
+                            if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
+                                console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                                asyncthis.featuresNotFound[`${zip}${nmb}`] = {
+                                    zip: `${zip}`,
+                                    number: `${nmb}`
+                                };
+                            } else {
+                                for (var key in locations[0]) {
+                                    if (key !== 'lon' && key !== 'lat') {
+                                        if (locations[0][key]) {
+                                            prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
+                                            asyncthis.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), 'BAG');
+                                        }
+                                    }
                                 }
+                                if (prop.hasOwnProperty('_mergedHouseNumber')) {
+                                    delete prop['_mergedHouseNumber'];
+                                }
+                                //console.log('locations[0] ' + locations[0]);
+                                features.push(asyncthis.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                             }
-                        }
-                        if (prop.hasOwnProperty('_mergedHouseNumber')) { delete prop['_mergedHouseNumber']; }
-                        //console.log('locations[0] ' + locations[0]);
-                        features.push(asyncthis.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
+                            innercallback();
+                        });
+                        return true;
+                    } else {
+                        return false;
                     }
-                    innercallback();
                 });
+                if (!searchPerformed) innercallback();
             } else {
                 //console.log('No valid zipcode found: ' + prop[zipCode]);
                 innercallback();
@@ -870,39 +985,6 @@ constructor(private bag: IAddressSource.IAddressSource, private messageBus: Mess
         }, function(err) {
             callback();
         });
-
-
-        // properties.forEach((prop, index) => {
-        //     if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
-        //         var zip = prop[zipCode].replace(/ /g, '');
-        //         var nmb = prop[houseNumber];
-        //         this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
-        //             //console.log(todo);
-        //             if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
-        //                 console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-        //                 this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
-        //             } else {
-        //                 for (var key in locations[0]) {
-        //                     if (key !== "lon" && key !== "lat") {
-        //                         if (locations[0][key]) {
-        //                             prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-        //                             this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
-        //                         }
-        //                     }
-        //                 }
-        //                 if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
-        //                 //console.log('locations[0] ' + locations[0]);
-        //                 features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
-        //             }
-        //         });
-        //         todo--;
-        //         if (todo <= 0)
-        //           callback();
-        //     } else {
-        //         console.log('No valid zipcode found: ' + prop[zipCode]);
-        //         todo--;
-        //     }
-        // });
     }
 
     private createFeature(lon: number, lat: number, properties: IProperty, sensors?: IProperty): IGeoJsonFeature {

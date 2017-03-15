@@ -12,6 +12,7 @@ import IAddressSource = require('../database/IAddressSource');
 export class LocalBag implements IAddressSource.IAddressSource {
     private connectionString: string;
     private db: sqlite3.Database;
+    public name: string = 'LocalBag';
 
     constructor(path: string) {
         this.connectionString = path;//process.env.DATABASE_URL || config["bagConnectionString"];

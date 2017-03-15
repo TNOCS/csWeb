@@ -11,6 +11,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
     private connectionString: string;
     private isInitialized: boolean = false;
     private pg;
+    public name: string = 'BagDatabase';
 
     constructor(config: ConfigurationService.ConfigurationService) {
         this.connectionString = process.env.DATABASE_URL || config["bagConnectionString"];
