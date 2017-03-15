@@ -945,7 +945,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
             if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
                 var zip = prop[zipCode].replace(/ /g, '');
                 var nmb = prop[houseNumber];
-                let searchPerformed = this.addressSources.some((src) => {
+                let searchPerformed = asyncthis.addressSources.some((src) => {
                     if (typeof src.lookupBagAddress === 'function') {
                         src.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
                             //console.log(todo);
