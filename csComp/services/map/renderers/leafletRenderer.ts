@@ -570,7 +570,7 @@ module csComp.Services {
             var title = csComp.Helpers.getFeatureTooltipTitle(feature);
             var rowLength = (title) ? title.length : 1;
             var titleLabel;
-            if (feature.fType && feature.fType.style.nameLabel) {
+            if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
                 let pt = this.service.getPropertyType(feature, feature.fType.style.nameLabel);
                 titleLabel = pt.title;
             }
