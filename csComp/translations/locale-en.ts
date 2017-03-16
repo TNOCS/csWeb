@@ -227,7 +227,8 @@ module Translations {
             ERROR_LOADING_LAYER: 'Error while loading layer',
             COULD_NOT_GET_DATA: 'Could not get the data of layer "{{layer}}".',
             COMPARE_TAB: 'Compare',
-            BACK_TO_MAP: 'Return to the map'
+            BACK_TO_MAP: 'Return to the map',
+            DOWNLOAD_SELECTION_AS: 'Download this selection as'
         };
     }
 }

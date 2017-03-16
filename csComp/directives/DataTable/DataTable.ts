@@ -34,4 +34,43 @@ module DataTable {
             }
         }
     ]);
+
+    myModule.directive('fitRows', [ '$window',
+        function ($window): ng.IDirective {
+            return {
+                terminal: false, // do not compile any other internal directives
+                // E = elements, A=attributes and C=css classes. Can be compined, e.g. EAC
+                restrict: 'A',
+                // Name if optional. Text Binding (Prefix: @), One-way Binding (Prefix: &), Two-way Binding (Prefix: =)
+                scope: {
+                    rowheight: '@',
+                    tablepadding: '@'
+                },
+                // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
+                // * scope is an Angular scope object.
+                // * element is the jqLite wrapped element that this directive matches.
+                // * attrs is a hash object with key-value pairs of normalized attribute names and their corresponding attribute values.
+                link: (scope: any, element, attrs) => {
+                    scope.onResizeFunction = () => {
+                        if (scope.rowheight) {
+                            var windowHeight = $window.innerHeight;
+                            var tableHeight = windowHeight - +scope.tablepadding;
+                            if (scope.$parent && scope.$parent.$parent && scope.$parent.$parent.vm) {
+                                scope.$parent.$parent.vm.numberOfItems = (+tableHeight / +scope.rowheight).toFixed(0);
+                            }
+                        }
+                    };
+
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+
+                    // Listen to the resize event.
+                    angular.element($window).bind('resize', () => {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                }
+            }
+        }
+    ]);
 }

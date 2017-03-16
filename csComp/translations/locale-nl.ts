@@ -226,7 +226,8 @@ module Translations {
             ERROR_LOADING_LAYER: 'Fout tijdens het laden van de kaartlaag',
             COULD_NOT_GET_DATA: 'Kan de data van kaartlaag "{{layer}}" niet ophalen.',
             COMPARE_TAB: 'Vergelijk',
-            BACK_TO_MAP: 'Terug naar de kaart'
+            BACK_TO_MAP: 'Terug naar de kaart',
+            DOWNLOAD_SELECTION_AS: 'Download deze selectie als'
         };
     }
 }
