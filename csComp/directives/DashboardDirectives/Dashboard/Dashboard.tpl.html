@@ -26,7 +26,7 @@
             <li ng-repeat="widget in dashboard.widgets | filter:{position:'dashboard'}" id="{{widget.elementId}}-container" when-ready="vm.isReady(widget)" class="widget-parent"
                 ng-class="{widgethover : widget.hover}" ng-show="!(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
                 <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-class="{widgetShadow : widget.effectiveStyle.shadow === true}"
-                    ng-hide="widget.collapse" style="position:absolute" " ng-style="{ 'background' : widget.effectiveStyle.background,
+                    ng-hide="widget.collapse" style="position:absolute" ng-style="{ 'background' : widget.effectiveStyle.background,
                     'border-color':widget.effectiveStyle.borderColor, 'top':widget._top, 'bottom':widget._bottom, 'left':widget._left, 'z-index' : widget._zindex,
                     'right':widget._right, 'border-width':widget.effectiveStyle.borderWidth, 'border-radius':widget.effectiveStyle.borderRadius,
                     'width':widget._width, 'height':widget._height, 'opacity' : widget.effectiveStyle.opacity, 'padding':widget.padding} ">

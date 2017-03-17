@@ -29,7 +29,7 @@ module DataTable {
         public selectedLayerId: string;
         public layerOptions: Array<any> = [];
         public propertyTypes: Array<IPropertyType> = [];
-        public headers: Array<string> = [];
+        public headers: {value: string, type: 'number'|'other'}[];
         public sortingColumn: number;
         public rows: Array<Array<TableField>> = [];
         private mapFeatureTitle: string;
@@ -287,19 +287,22 @@ module DataTable {
             this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lon'));
 
             // Select the first couple of headers
-            const nmbrOfDefaultSelectedHeaders = 3;
+            const nmbrOfDefaultSelectedHeaders = 4;
             for (var i = 0; i < nmbrOfDefaultSelectedHeaders; i++) {
-                this.headers.push(titles[i]);
+                if (titles.length > i) {
+                    let pt = _.findWhere(this.propertyTypes, {'title': titles[i]});
+                    this.headers.push({value: titles[i], type: (pt.type === 'number' ? 'number' : 'other')});
+                }
             }
             this.rows = this.getRows();
         }
 
-        public toggleSelection(propertyTypeTitle: string) {
-            var idx = this.headers.indexOf(propertyTypeTitle);
+        public toggleSelection(propertyTypeTitle: string, propertyTypeType: string) {
+            var idx = _.pluck(this.headers, 'value').indexOf(propertyTypeTitle);
             if (idx > -1) { // is currently selected
                 this.headers.splice(idx, 1);
             } else { // is newly selected
-                this.headers.push(propertyTypeTitle);
+                this.headers.push({value: propertyTypeTitle, type: (propertyTypeType === 'number' ? 'number' : 'other')});
             }
             this.rows = this.getRows();
         }
@@ -323,7 +326,7 @@ module DataTable {
             var meta: Array<IPropertyType> = [this.headers.length];
             this.propertyTypes.forEach((mi: IPropertyType) => {
                 // Keep headers and mi in the right order
-                var index = this.headers.indexOf(mi.title);
+                var index = _.pluck(this.headers, 'value').indexOf(mi.title);
                 if (index >= 0) meta[index] = mi;
             });
             var props: Array<Array<TableField>> = [];
@@ -491,7 +494,7 @@ module DataTable {
                     this.selectAllText = translation;
                 });
                 this.propertyTypes.forEach((mi) => {
-                    var idx = this.headers.indexOf(mi.title);
+                    var idx = _.pluck(this.headers, 'value').indexOf(mi.title);
                     if (idx > -1) {
                         this.headers.splice(idx, 1);
                     }
@@ -502,13 +505,17 @@ module DataTable {
                     this.selectAllText = translation;
                 });
                 this.propertyTypes.forEach((mi) => {
-                    if (this.headers.indexOf(mi.title) <= -1) {
-                        this.headers.push(mi.title);
+                    if (_.pluck(this.headers, 'value').indexOf(mi.title) <= -1) {
+                        this.headers.push({value: mi.title, type: (mi.type === 'number' ? 'number' : 'other')});
                     }
                 });
                 this.rows = this.getRows();
             }
             this.selectAllBool = !this.selectAllBool;
+        }
+
+        private isHeaderSelected(title: string) {
+           return _.pluck(this.headers, 'value').indexOf(title) > -1;
         }
 
         private returnToMap() {

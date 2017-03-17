@@ -1,6 +1,6 @@
 <div class="data-table">
-    <div class="table-return" ng-click="vm.returnToMap()">
-        <div style="float:right" ng-click="vm.returnToMap()">
+    <div class="table-return">
+        <div class="pointer" style="float:right" ng-click="vm.returnToMap()">
             <!--<i class="fa fa-times pointer-cursor"></i>-->
             <i class="wodk-ico-kruis"></i>
         </div>
@@ -27,7 +27,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-xs-7 col-sm-8 col-md-9">
+                <div class="col-xs-7 col-sm-8 col-md-9" style="padding-right: 0px;">
                     <!--Download to CSV option-->
                     <div class="datatable-top-row-height datatable-download datatable-download-large">
                         <div class="datatable-download-text">
@@ -58,14 +58,11 @@
                 </li>
             </ul>
             <!-- List of headers -->
-            <ul class="form-group datatable-grey datatable-padding-left" style="overflow-y: auto; overflow-x: hidden;" resize resize-y="220" ng-show="vm.selectedLayerId != vm.mapLabel">
+            <ul class="form-group datatable-grey datatable-padding-left" style="overflow-y: auto; overflow-x: hidden;" resize resize-y="236" ng-show="vm.selectedLayerId != vm.mapLabel">
                 <!-- PropertyTypes -->
                 <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled wodk-checkbox" style="white-space: nowrap; text-overflow: ellipsis">
-                    <!--<label ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}">
-                            <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1" data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
-                        </label>-->
-                    <input type="checkbox" id="checkbox-{{$index}}" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1"
-                        data-ng-click="vm.toggleSelection(mi.title)" />
+                    <input type="checkbox" id="checkbox-{{$index}}" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.isHeaderSelected(mi.title)"
+                        data-ng-click="vm.toggleSelection(mi.title, mi.type)" />
                     <label for="checkbox-{{$index}}" ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}"></label>
                     <div style="display: inline;padding: 0px 10px;">{{mi.title}}</div>
                 </li>
@@ -77,10 +74,10 @@
         <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10">
 
             <!-- Data table -->
-            <table class="table table-striped table-condensed">
+            <table class="table table-condensed table-horiz-scroll">
                 <tr>
-                    <th data-ng-repeat="header in vm.headers track by $index">
-                        {{header}}&nbsp;
+                    <th class="no-border" data-ng-repeat="header in vm.headers track by $index" data-ng-class="{'text-right': header.type == 'number'}">
+                        {{header.value}}&nbsp;
                         <a class="black" data-ng-click="reverseSort = !reverseSort; vm.orderBy($index, reverseSort);"><i data-ng-class="vm.sortOrderClass($index, reverseSort)">&nbsp;&nbsp;</i></a>
                     </th>
                 </tr>

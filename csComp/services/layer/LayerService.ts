@@ -2027,6 +2027,10 @@ module csComp.Services {
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
 
+                    if (ptd && ptd.title) {
+                        gs.title = ptd.title;
+                    }
+
                     if (ft.style && ft.style.fillColor) {
                         gs.colors = ['white', '#FF5500'];
                     } else {
