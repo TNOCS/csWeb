@@ -108,30 +108,32 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         addressSources.slice().reverse().forEach((src, ind, arr) => {
             if (src == null) {
                 addressSources.splice(arr.length - 1 - ind, 1);
-                console.warn('Removed unknown address source');
+                winston.warn('Removed unknown address source');
             } else {
                 src.init();
-                console.log('Init address source ' + src.name);
+                winston.info('Init address source ' + src.name);
             }
         });
         var fileList: IProperty[] = [];
         var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
-        fs.access(templateFolder, (fs.constants || fs).F_OK, (err) => {
+        fs.stat(templateFolder, (err, stats) => {
             if (err) {
-                console.log(`Template-folder "${templateFolder}" not found`);
-            } else {
-                fs.readdir(templateFolder, function (err, files) {
-                    if (err) {
-                        console.log('Error while looking for templates in ' + templateFolder);
-                    } else {
-                        files.forEach((f) => {
-                            fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
-                        });
-                        console.log(`Loaded ${files.length} templates from ${templateFolder}.`);
-                    }
-                });
+                return console.error(`Template-folder "${templateFolder}" not found`);
             }
+            if (!stats.isDirectory()) {
+                return winston.info(`Template-folder "${templateFolder}" is not a valid directory`);
+            }
+            fs.readdir(templateFolder, function (err, files) {
+                if (err) {
+                    return winston.info('Error while looking for templates in ' + templateFolder);
+                }
+                files.forEach((f) => {
+                    fileList[f.replace(/\.[^/.]+$/, '')] = path.join(templateFolder, f); // Filter extension from key and store in dictionary
+                });
+                winston.info(`Loaded ${files.length} templates from ${templateFolder}.`);
+            });
         });
+
         this.templateFiles = fileList;
         this.featuresNotFound = {};
         this.apiManager = apiManager;
