@@ -1,6 +1,5 @@
 import { Request, Response, Express, Router } from 'express';
 import ApiManager = require('./ApiManager');
-import cors = require('cors');
 import Project = ApiManager.Project;
 import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
@@ -346,8 +345,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.manager = layerManager;
         console.log('Init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.baseUrl);
 
-        //enables cors, used for external swagger requests
-        this.server.use(cors());
         const router = Router();
 
         router.route(this.resourceUrl)

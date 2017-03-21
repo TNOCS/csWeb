@@ -116,7 +116,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         });
         var fileList: IProperty[] = [];
         var templateFolder: string = path.join(workingDir, 'public', 'data', 'templates');
-        fs.access(templateFolder, fs.F_OK, (err) => {
+        fs.access(templateFolder, fs.constants.F_OK, (err) => {
             if (err) {
                 console.log(`Template-folder "${templateFolder}" not found`);
             } else {

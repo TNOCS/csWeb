@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as core from 'express-serve-static-core';
 import * as fileSystem from 'fs';
 
+import cors = require('cors');
 import async = require('async');
 import path = require('path');
 import Winston = require('winston');
@@ -12,6 +13,7 @@ import csweb = require('./index');
 
 export class csServerOptions {
     port = 3002;
+    apiFolder = 'public/data/api';
     swagger: boolean;
     connectors: Object;
     /** If true (default), use CORRS. Optionally, specify the supported methods in corsSupportedMethods. */
@@ -40,15 +42,12 @@ export class csServer {
     public httpServer;
     public config: csweb.ConfigurationService;
     public api: csweb.ApiManager;
+    private apiFolder: string;
 
     constructor(public dir: string, public options = new csServerOptions()) {
-
-    }
-
-    public start(started: Function, options?: StartOptions) {
-        Winston.info('starting csServer');
-        var favicon = require('serve-favicon');
-        var bodyParser = require('body-parser');
+        this.apiFolder = options.apiFolder || 'public/data/api/';
+        const favicon = require('serve-favicon');
+        const bodyParser = require('body-parser');
         this.httpServer = require('http').Server(this.server);
         this.cm = new csweb.ConnectionManager(this.httpServer);
         this.messageBus = new csweb.MessageBusService();
@@ -66,27 +65,62 @@ export class csServer {
         this.server.use(compress());
 
         if (this.options.corrsEnabled) {
-            // CORRS: see http://stackoverflow.com/a/25148861/319711
-            this.server.use(function (req, res, next) {
-                res.header('Access-Control-Allow-Origin', 'http://localhost');
-                res.header('Access-Control-Allow-Methods', this.options.corrsSupportedMethods);
-                res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, cache-control');
-                // res.header('Access-Control-Max-Age', '3600');
-                // res.header('Access-Control-Expose-Headers', 'Location');
-                // res.header('cache-control', 'no-store');
-                next();
-            });
+            this.server.use(cors());
+            // // CORRS: see http://stackoverflow.com/a/25148861/319711
+            // this.server.use(function (req, res, next) {
+            //     res.header('Access-Control-Allow-Origin', 'http://localhost');
+            //     res.header('Access-Control-Allow-Methods', this.options.corrsSupportedMethods);
+            //     res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, cache-control');
+            //     // res.header('Access-Control-Max-Age', '3600');
+            //     // res.header('Access-Control-Expose-Headers', 'Location');
+            //     // res.header('cache-control', 'no-store');
+            //     next();
+            // });
         }
+    }
+
+    public start(started: Function, options?: StartOptions) {
+        Winston.info('starting csServer');
+        // var favicon = require('serve-favicon');
+        // var bodyParser = require('body-parser');
+        // this.httpServer = require('http').Server(this.server);
+        // this.cm = new csweb.ConnectionManager(this.httpServer);
+        // this.messageBus = new csweb.MessageBusService();
+        // this.config = new csweb.ConfigurationService(options || path.join(this.dir, 'configuration.json'));
+
+        // // all environments
+        // this.server.set('port', this.options.port);
+        // const faviconPath = this.dir + '/public/favicon.ico';
+        // if (fileSystem.existsSync(faviconPath)) {
+        //     this.server.use(favicon(faviconPath));
+        // }
+        // //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
+        // this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
+        // this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true, parameterLimit: 100000 })); // support encoded bodies
+        // this.server.use(compress());
+
+        // if (this.options.corrsEnabled) {
+        //     // CORRS: see http://stackoverflow.com/a/25148861/319711
+        //     this.server.use(function (req, res, next) {
+        //         res.header('Access-Control-Allow-Origin', 'http://localhost');
+        //         res.header('Access-Control-Allow-Methods', this.options.corrsSupportedMethods);
+        //         res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, cache-control');
+        //         // res.header('Access-Control-Max-Age', '3600');
+        //         // res.header('Access-Control-Expose-Headers', 'Location');
+        //         // res.header('cache-control', 'no-store');
+        //         next();
+        //     });
+        // }
 
         this.config.add('server', 'http://localhost:' + this.options.port);
 
         if (this.options.swagger === true) this.server.use('/swagger', express.static(path.join(this.dir, 'swagger')));
-        this.server.use(express.static(path.join(this.dir, 'public')));
+        this.server.use(express.static(path.resolve(this.dir, 'public')));
         if (!this.options.hasOwnProperty('connectors')) this.options.connectors = {};
         var c = this.options.connectors;
 
         // Create FileStorage
-        if (!c.hasOwnProperty('file')) c['file'] = { path: path.resolve(this.dir, 'public/data/api/') };
+        if (!c.hasOwnProperty('file')) c['file'] = { path: path.resolve(this.dir, this.apiFolder) };
         var fsWatch = (c['file'].hasOwnProperty('watch') ? c['file'].watch : true);
         var fsIgnoreInitial = (c['file'].hasOwnProperty('ignoreInitial') ? c['file'].ignoreInitial : false);
         var fs = new csweb.FileStorage(c['file'].path, fsWatch, fsIgnoreInitial);
@@ -108,7 +142,7 @@ export class csServer {
              * API platform
              */
             this.api = new csweb.ApiManager('cs', 'cs');
-            this.api.init(path.resolve(this.dir, 'public/data/api'), () => {
+            this.api.init(path.resolve(this.dir, this.apiFolder), () => {
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
                     { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
                     { key: 'file', s: fs, options: {} },

@@ -240,6 +240,7 @@ module csComp.Services {
             const token = this.token;
             if (!token) { return; }
             this.$http.defaults.headers.common.Authorization = token;
+            console.log('Security token set.');
         }
     }
 
