@@ -149,6 +149,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
     }
 
+    private updateTheGroup(req: Request, res: Response) {
+        this.manager.updateGroup(req.params.projectId, req.params.groupId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.sendStatus(result.result);
+        });
+    }
+
     private deleteTheGroup(req: Request, res: Response) {
         this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
             res.sendStatus(result.result);
@@ -374,6 +380,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             .post((req: Request, res: Response) => this.createTheGroup(req, res));
 
         router.route(this.projectsUrl + ':projectId/group/:groupId')
+            .put((req: Request, res: Response) => this.updateTheGroup(req, res))
             .delete((req: Request, res: Response) => this.deleteTheGroup(req, res));
 
         router.route(this.projectsUrl + ':projectId/group/:groupId/layer/:layerId')

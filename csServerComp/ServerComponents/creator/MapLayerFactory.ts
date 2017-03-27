@@ -527,6 +527,29 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         // Convert types (from a readable key to type notation)
         this.convertTypes(template.propertyTypes, template.properties);
         // Add geometry
+        this.addGeometry(ld, template, geojson, callback);
+        //console.log("Drawing mode" + ld.drawingMode);
+        return geojson;
+    }
+
+    public addGeometryRequest(req: express.Request, res: express.Response) {
+        console.log('Received layer template. Adding geometry...');
+        var layer = req.body.layer;
+        var features = [];
+        var template = <ILayerTemplate> { properties: layer.data.properties, propertyTypes: [] };
+        this.addGeometry(layer.data.layerDefinition, template, layer, () => {
+            console.log('Finished adding geometry...');
+            delete layer.data.properties;
+            delete layer.data.features;
+            this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
+                console.log(result);
+                res.sendStatus(result.result);
+            });
+        });
+    }
+
+    private addGeometry(ld: ILayerDefinition, template: ILayerTemplate, geojson, callback: Function) {
+        var features: IGeoJsonFeature[] = geojson.features;
         switch (ld.geometryType) {
             case 'Postcode6_en_huisnummer':
                 if (!ld.parameter1) {
@@ -658,8 +681,6 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                     () => { callback(geojson); });
                 break;
         }
-        //console.log("Drawing mode" + ld.drawingMode);
-        return geojson;
     }
 
     private getPolygonType(ld: ILayerDefinition, props: IProperty[]) {

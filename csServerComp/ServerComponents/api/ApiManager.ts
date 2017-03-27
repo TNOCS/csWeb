@@ -702,7 +702,8 @@ export class ApiManager extends events.EventEmitter {
             this.updateProject(p, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK });
         } else {
-            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group Not Found' }); return;
+            // callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group Not Found' }); return;
+            this.addGroup(newGroup, projectId, meta, callback);
         }
     }
 
