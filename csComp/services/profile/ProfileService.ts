@@ -180,6 +180,7 @@ module csComp.Services {
                     this.loggedIn = success;
                     if (this.loggedIn) {
                         this.userProfile = profile;
+                        this.$messageBusService.publish('profileservice', 'login', profile);
                     } else {
                         this.$messageBusService.notify('Login Result', 'Login Failed');
                     }
@@ -190,6 +191,7 @@ module csComp.Services {
         public logoutUser() {
             this.loggedIn = false;
             this.clearToken();
+            this.$messageBusService.publish('profileservice', 'logout');
             if (_.isFunction(this.logout)) {
                 this.logout();
             }
