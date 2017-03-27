@@ -29,8 +29,8 @@ export class NominatimSource implements IAddressSource.IAddressSource {
         }, '');
         console.log(`Find nominatim: ${url}`);
         request.get(url, (error: any, response: http.IncomingMessage, body: any) => {
-            if (error) {
-                console.log(`Error in nominatim search: ${error}`);
+            if (error || response.statusCode !== 200) {
+                console.log(`Error in nominatim search: code ${response.statusCode}; ${error}`);
                 callback(null);
                 return;
             }
