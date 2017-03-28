@@ -262,6 +262,7 @@ module csComp.Services {
             if (!token) { return; }
             this.$http.defaults.headers.common.Authorization = token;
             console.log('Security token set.');
+            this.$messageBusService.publish('profileservice', 'setToken');
         }
     }
 
