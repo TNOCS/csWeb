@@ -226,7 +226,9 @@ module Translations {
             VISIBLE_IN_CALLOUT: 'Show property in menu',
             DESCRIPTION: 'Description',
             TYPE: 'Type',
-            TITLE: 'Title'
+            TITLE: 'Title',
+            NAME: 'Name',
+            EMAIL: 'E-mail'
         };
     }
 }

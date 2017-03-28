@@ -115,7 +115,9 @@ module csComp.Services {
          */
         public update?: (profile: IProfile, cb: (error: Error) => void) => void;
         public logout: Function;
+        public signup: Function;
         private isValidating: boolean;
+        private isSignupping: boolean;
         private profile?: IProfile;
         private jwtToken: string;
         private jwtDecoded: IJwtToken;
@@ -183,6 +185,23 @@ module csComp.Services {
                         this.$messageBusService.publish('profileservice', 'login', profile);
                     } else {
                         this.$messageBusService.notify('Login Result', 'Login Failed');
+                    }
+                });
+            }
+        }
+
+        public signupUser(name?: string, userName?: string, userPassword?: string) {
+            if (_.isFunction(this.signup) && !this.isSignupping) {
+                this.isSignupping = true;
+                this.signup(name, userName, userPassword, (success: boolean, profile?: IProfile) => {
+                    this.isSignupping = false;
+                    this.loggedIn = success;
+                    if (this.loggedIn) {
+                        this.userProfile = profile;
+                        this.$messageBusService.publish('profileservice', 'login', profile);
+                        this.$messageBusService.notify('Login Result', 'Signed up and logged in successfully');
+                    } else {
+                        this.$messageBusService.notify('Login Result', 'Signup Failed');
                     }
                 });
             }

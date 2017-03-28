@@ -2,6 +2,7 @@ module ProfileTab {
     export interface IProfileTabScope extends ng.IScope {
         vm: ProfileTabCtrl;
         enabled: boolean;
+        showRegisterForm: boolean;
     }
 
     export class ProfileTabCtrl {
@@ -14,6 +15,7 @@ module ProfileTab {
             'profileService'
         ];
 
+        public name: string;
         public userName: string;
         public userPassword: string;
 
@@ -24,6 +26,10 @@ module ProfileTab {
         public validateUser() {
             this.profileService.validateUser(this.userName, this.userPassword);
             this.userPassword = '';
+        }
+
+        public signupUser() {
+            this.profileService.signupUser(this.name, this.userName, this.userPassword);
         }
 
         public logout() {

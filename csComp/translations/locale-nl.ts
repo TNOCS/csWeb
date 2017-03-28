@@ -225,7 +225,9 @@ module Translations {
             VISIBLE_IN_CALLOUT: 'Toon eigenschap in menu',
             DESCRIPTION: 'Beschrijving',
             TYPE: 'Type',
-            TITLE: 'Titel'
+            TITLE: 'Titel',
+            NAME: 'Naam',
+            EMAIL: 'E-mail'
         };
     }
 }
