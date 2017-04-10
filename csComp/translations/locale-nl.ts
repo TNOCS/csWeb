@@ -227,7 +227,10 @@ module Translations {
             TYPE: 'Type',
             TITLE: 'Titel',
             NAME: 'Naam',
-            EMAIL: 'E-mail'
+            EMAIL: 'E-mail',
+            YES: 'Ja',
+            NO: 'Nee',
+            LOGIN_OR_OUT: 'In- of uitloggen'
         };
     }
 }

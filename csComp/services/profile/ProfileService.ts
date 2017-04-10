@@ -142,6 +142,7 @@ module csComp.Services {
                     this.addJwtToHeader();
                     this.loggedIn = true;
                     this.userProfile = this.$localStorageService.get('profile');
+                    this.$messageBusService.publish('profileservice', 'login', this.userProfile);
                     setTimeout(() => this.validateUser(), expiresInMsec - 5 * 60 * 1000);
                 }
             }
@@ -170,7 +171,7 @@ module csComp.Services {
         }
 
         public startLogin() {
-            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user', true, false);
+            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', `{{'LOGIN_OR_OUT' | translate}}`, 'user', true, false);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
@@ -216,6 +217,10 @@ module csComp.Services {
             }
         }
 
+        public isLoggedIn(): boolean {
+            return this.loggedIn;
+        }
+
         /**
          * Returns the JSON Web Token, if available.
          *
@@ -233,8 +238,8 @@ module csComp.Services {
          * @memberOf ProfileService
          */
         public set token(myToken: string) {
-            this.addJwtToHeader();
             this.jwtToken = myToken;
+            this.addJwtToHeader();
             this.$localStorageService.set('jwt', myToken);
         }
 
@@ -246,6 +251,9 @@ module csComp.Services {
         public clearToken() {
             this.token = '';
             this.userProfile = {};
+            this.$localStorageService.remove('jwt');
+            this.$http.defaults.headers.common.Authorization = '';
+            this.$messageBusService.publish('profileservice', 'setToken');
         }
 
         /**

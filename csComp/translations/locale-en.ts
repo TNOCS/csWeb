@@ -228,7 +228,10 @@ module Translations {
             TYPE: 'Type',
             TITLE: 'Title',
             NAME: 'Name',
-            EMAIL: 'E-mail'
+            EMAIL: 'E-mail',
+            YES: 'Yes',
+            NO: 'No',
+            LOGIN_OR_OUT: 'Login or logout'
         };
     }
 }
