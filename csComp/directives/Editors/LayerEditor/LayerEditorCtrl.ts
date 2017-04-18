@@ -99,7 +99,6 @@ module LayerEditor {
                         f.geometry = {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
-                        f.properties = { "featureTypeId": key, "Name": fid };
 
                         var fid = "new object"
                         if (tr.featureTypes.hasOwnProperty(key)) {
@@ -117,6 +116,10 @@ module LayerEditor {
                             }
                             fid = ft.name;
                         }
+                        
+                        fid += '-'+csComp.Helpers.getGuid();
+                        f.properties = { "featureTypeId": key, "Name": fid };
+                        
                         layer.data.features.push(f);
                         this.$messageBusService.publish("feature", "dropped", f);
                         this.$layerService.initFeature(f, layer);
