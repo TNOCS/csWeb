@@ -439,7 +439,7 @@ module DataTable {
         public downloadCsv() {
             var csvRows: Array<string> = [];
 
-            csvRows.push(this.headers.join(';'));
+            csvRows.push(_.pluck(this.headers, 'value').join(';'));
 
             for (var i = 0; i < this.rows.length; i++) {
                 csvRows.push(this.rows[i].map((f) => { return f.displayValue; }).join(';'));
