@@ -69,7 +69,7 @@ class FieldFilterTransformer implements transform.ITransform {
     var baseGeo: any;
 
     t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);

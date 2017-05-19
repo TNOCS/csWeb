@@ -43,7 +43,7 @@ class SplitAdresTransformer implements transform.ITransform {
     /*stream.Transform.call(t);*/
 
     t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
       var feature = JSON.parse(chunk);
 
       // console.log("##### SAT #####");

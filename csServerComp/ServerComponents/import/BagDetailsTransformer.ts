@@ -44,7 +44,7 @@ class BagDetailsTransformer implements transform.ITransform {
         var prevTs = new Date();
 
         t.setEncoding("utf8");
-        t._transform = (chunk, encoding, done) => {
+        (<any>t)._transform = (chunk, encoding, done) => {
             /*console.log(".");*/
 
             if (index % 100 == 0) {

@@ -63,7 +63,7 @@ class CsvToJsonTransformer implements transform.ITransform {
 
       t.setEncoding("utf8");
 
-      t._transform = (chunk, encoding, done) => {
+      (<any>t)._transform = (chunk, encoding, done) => {
            /*console.log("##### CTJT #####");*/
           // console.log(chunk.toString("utf8"));
 

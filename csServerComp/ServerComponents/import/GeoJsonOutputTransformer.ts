@@ -37,7 +37,7 @@ class GeoJsonOutputTransformer implements transform.ITransform {
     this.geoJson = [];
 
     t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
       var feature = JSON.parse(chunk);
@@ -55,7 +55,7 @@ class GeoJsonOutputTransformer implements transform.ITransform {
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
 
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
         console.log("#### start GJOT flush")
         var result = {

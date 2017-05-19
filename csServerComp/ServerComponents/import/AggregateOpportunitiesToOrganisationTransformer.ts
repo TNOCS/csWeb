@@ -61,7 +61,7 @@ class AggregateOpportunitiesToOrganisationTransformer implements transform.ITran
     var index = 0;
 
     t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        var startTs = new Date();
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
       /*console.log("##### GJAT #####");*/

@@ -68,7 +68,7 @@ class BushalteAggregateTransformer implements transform.ITransform {
       var index = 0;
 
     t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        var startTs = new Date();
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
       /*console.log("##### GJAT #####");*/
@@ -158,7 +158,7 @@ class BushalteAggregateTransformer implements transform.ITransform {
       /*console.log((new Date().getTime() - startTs.getTime()) + ": finish " + index++);*/
     };
 
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
         /*console.log("#### start BAT flush");*/
         /*console.log(accumulator);*/

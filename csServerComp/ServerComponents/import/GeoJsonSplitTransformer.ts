@@ -75,7 +75,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
 
     t.setEncoding("utf8");
     var index = 0;
-    t._transform =  (chunk, encoding, done) => {
+    (<any>t)._transform =  (chunk, encoding, done) => {
        /*var startTs = new Date();*/
        /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
        /*console.log(index++);*/
@@ -124,7 +124,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       done();
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
-    t._flush = (done) => {
+    (<any>t)._flush = (done) => {
       try {
 
         var keys = Object.keys(accumulator);

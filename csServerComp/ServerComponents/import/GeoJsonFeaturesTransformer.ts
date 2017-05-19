@@ -35,7 +35,7 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
       var headers :string[] = this.headers;
 
       t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      (<any>t)._transform = (chunk, encoding, done) => {
            /*console.log(chunk.toString("utf8"));*/
 
           var line :string= chunk.toString("utf8");

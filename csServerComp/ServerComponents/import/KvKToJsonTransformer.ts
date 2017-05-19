@@ -38,7 +38,7 @@ class KvKToJsonTransformer implements transform.ITransform {
       var headers :string[] = this.headers;
 
       t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      (<any>t)._transform = (chunk, encoding, done) => {
           // console.log("##### KvKTJT #####");
           // console.log(chunk.toString("utf8"));
 

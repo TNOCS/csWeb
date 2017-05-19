@@ -35,7 +35,7 @@ class CollateStreamTransformer implements transform.ITransform {
       var buffer = "";
 
       t.setEncoding("utf8");
-      t._transform = (chunk, encoding, done) => {
+      (<any>t)._transform = (chunk, encoding, done) => {
           // console.log("##### CST #####");
 
           var strChunk :string= chunk.toString("utf8");
@@ -44,7 +44,7 @@ class CollateStreamTransformer implements transform.ITransform {
           done();
         }
 
-      t._flush = (done) => {
+      (<any>t)._flush = (done) => {
         try {
            /*console.log("push buffer: ");*/
            /*console.log(buffer);*/

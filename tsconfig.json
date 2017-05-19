@@ -1,6 +1,9 @@
 {
-    "version": "2.1.4",
+    "version": "2.2.2",
     "compilerOptions": {
+        "types": [
+            "node"
+        ],
         "target": "es5",
         "module": "commonjs",
         "declaration": true,
