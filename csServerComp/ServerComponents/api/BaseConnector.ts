@@ -90,6 +90,9 @@ export class BaseConnector implements ApiManager.IConnector {
 
     public addResource(resource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {}
 
+    public addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function) {}
+
+
     /** Get a resource file  */
     public getResource(resourceId : string, meta : ApiMeta, callback : Function) {}
 

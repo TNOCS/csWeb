@@ -117,7 +117,9 @@ export interface IConnector {
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
     /** Add a resource type file to the store. */
-    addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+    addResource(resource: ResourceFile, meta: ApiMeta, callback: Function);
+    /** Update a resource type file to the store. */
+    addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function);
     /** Get a resource file  */
     getResource(resourceId: string, meta: ApiMeta, callback: Function);
     /** Add a file to the store, e.g. an icon or other media. */
@@ -304,7 +306,7 @@ export class Log {
 }
 
 export class FeatureType {
-
+    propertyTypeKeys?: string;
 }
 
 export class PropertyType {
@@ -586,6 +588,26 @@ export class ApiManager extends events.EventEmitter {
                     callback(<CallbackResult>{ result: ApiResult.OK });
                 }
             }
+        }
+    }
+
+    public addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function) {
+        if (!this.resources.hasOwnProperty(resourceId)) {
+            callback(<CallbackResult>{ result: ApiResult.ResourceAlreadyExists, error: 'Resource already exists' });
+            return;
+        }
+        var resource = this.resources[resourceId];
+        var s = this.findStorage(resource);
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.addPropertyTypes(resourceId, data, meta, () => { });
+        });
+        // store resource
+        if (s) {
+            s.addPropertyTypes(resourceId, data, meta, (r: CallbackResult) => {
+                callback(<CallbackResult>{ result: ApiResult.OK, error: 'Resource updated' });
+            });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 

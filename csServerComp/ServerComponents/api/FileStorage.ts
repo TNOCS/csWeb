@@ -689,6 +689,25 @@ export class FileStorage extends BaseConnector.BaseConnector {
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
+    public addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function) {
+        if (!this.resources.hasOwnProperty(resourceId) || !data || !_.isArray(data)) {
+            callback(<CallbackResult>{ result: ApiResult.ResourceNotFound });
+            return;
+        }
+        var resource = this.resources[resourceId];
+        var ptKeys = '';
+        data.forEach((pt: IPropertyType) => {
+            if (resource.propertyTypeData.hasOwnProperty(pt.label)) return;
+            resource.propertyTypeData[pt.label] = pt;
+            ptKeys += `;${pt.label}`;
+        });
+        _.each(resource.featureTypes, (ft: ApiManager.FeatureType) => {
+            if (ft.propertyTypeKeys) ft.propertyTypeKeys += ptKeys;
+        });
+        this.saveResourcesDelay(resource);
+        callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+
     /** Get a resource file  */
     public getResource(resourceId: string, meta: ApiMeta, callback: Function) {
         if (this.resources.hasOwnProperty(resourceId)) {

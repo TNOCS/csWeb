@@ -536,7 +536,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         console.log('Received layer template. Adding geometry...');
         var layer = req.body.layer;
         var features = [];
-        var template = <ILayerTemplate> { properties: layer.data.properties, propertyTypes: [] };
+        var template = <ILayerTemplate> { properties: layer.data.properties, propertyTypes: layer.data.propertyTypes || [] };
         this.addGeometry(layer.data.layerDefinition, template, layer, () => {
             console.log('Finished adding geometry...');
             delete layer.data.properties;
@@ -678,7 +678,12 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 this.getPolygonType(ld, template.properties);
                 this.createPolygonFeature(ld.geometryFile, ld.geometryKey, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
-                    () => { callback(geojson); });
+                    () => {
+                        this.apiManager.addPropertyTypes(ld['featureTypeId'], template.propertyTypes, {}, () => {
+                            console.log('Added propertytypes to resources');
+                        });
+                        callback(geojson);
+                    });
                 break;
         }
     }
@@ -696,6 +701,18 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 break;
             case 'Gemeente':
+            case 'CBS_Gemeente_2015':
+            case 'CBS_Gemeente':
+                ld.geometryFile = 'CBS_Gemeente_2015';
+                if (type === 'both') {
+                    ld.geometryKey = 'GM_CODE';
+                } else if (type === 'name') {
+                    ld.geometryKey = 'Name';
+                } else {
+                    //todo: convert to GM_CODE
+                }
+                break;
+            case 'Gemeente(2014)':
                 ld.geometryFile = 'CBS_Gemeente';
                 if (type === 'both') {
                     ld.geometryKey = 'GM_CODE';
@@ -733,7 +750,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
             }
         });
         let results = [{key: 'name', val: nrNames}, {key: 'number', val: nrNumbers}, {key: 'both', val: nrBoth}];
-        results = _.sortBy(results, (obj) => { return obj.val; });
+        results = _.sortBy(results, (obj) => { return -1 * obj.val; });
         return <'name' | 'number' | 'both'>_.first(results).key;
     }
 
