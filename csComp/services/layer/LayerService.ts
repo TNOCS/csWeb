@@ -1579,7 +1579,7 @@ module csComp.Services {
                 feature.layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                         //delete feature.gui[gs.property];
-                        var v = Number(feature.properties[gs.property]);
+                        var v = Number(+feature.properties[gs.property]);
                         try {
                             if (!isNaN(v)) {
 
@@ -3229,7 +3229,7 @@ module csComp.Services {
                 if (l.enabled) {
                     this.project.features.forEach((f: IFeature) => {
                         if (f.layerId === l.id && f.properties.hasOwnProperty(property)) {
-                            var v = Number(f.properties[property]);
+                            var v = Number(+f.properties[property]);
                             if (isNaN(v)) return;
                             r.count++;
                             sumOfElements += v;
