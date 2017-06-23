@@ -238,6 +238,7 @@ export class Layer implements StorageObject, ILayer {
     public useLog: boolean;
     public updated: number;
     public enabled: boolean;
+    public fitToMap: boolean;
     public opacity: number;
     public id: string;
     public type: string;

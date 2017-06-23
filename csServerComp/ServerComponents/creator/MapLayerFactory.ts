@@ -40,6 +40,7 @@ export interface ILayerDefinition {
     selectedStrokeColor: string;
     strokeWidth: number;
     isEnabled: boolean;
+    fitToMap: boolean;
     clusterLevel: number;
     useClustering: boolean;
     opacity: number;
@@ -175,6 +176,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled,
+                fitToMap: ld.fitToMap,
                 iconBase64: template.iconBase64,
                 logoBase64: template.logoBase64,
                 geometryFile: ld.geometryFile,
@@ -264,8 +266,10 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 description: data.description,
                 id: data.reference,
                 enabled: data.enabled,
+                fitToMap: data.fitToMap,
                 defaultFeatureType: data.defaultFeatureType,
                 typeUrl: 'data/api/resourceTypes/' + data.reference + '.json',
+                url: 'api/layers/' + data.reference,
                 opacity: data.opacity,
                 dynamicResource: true
             });
@@ -707,7 +711,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 if (type === 'both') {
                     ld.geometryKey = 'GM_CODE';
                 } else if (type === 'name') {
-                    ld.geometryKey = 'Name';
+                    ld.geometryKey = 'GM_NAAM';
                 } else {
                     //todo: convert to GM_CODE
                 }
