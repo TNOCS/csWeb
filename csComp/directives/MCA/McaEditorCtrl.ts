@@ -162,7 +162,7 @@ module Mca {
         private updatePropertyInfo(featureType: IFeatureType): void {
             this.propInfos = [];
             this.headers   = [];
-            var titles: Array<string>                = [];
+            var labels: Array<string>                = [];
             var pis   : Array<IExtendedPropertyInfo> = [];
             // Push the Name, so it always appears on top.
             pis.push({
@@ -189,11 +189,11 @@ module Mca {
             }
             pis.forEach((pi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.
-                if (pi.visibleInCallOut && pi.type === 'number' && pi.label.indexOf('mca_') < 0 && titles.indexOf(pi.title) < 0) {
-                    titles.push(pi.title);
+                if (pi.visibleInCallOut && pi.type === 'number' && pi.label.indexOf('mca_') < 0 && labels.indexOf(pi.label) < 0) {
+                    labels.push(pi.label);
                     // Clone object inline. See http://stackoverflow.com/a/122704/319711
                     this.propInfos.push({
-                        title       : pi.title,
+                        title       : (pi.section ? pi.section.concat(' ', pi.title) : pi.title),
                         label       : pi.label,
                         stringFormat: pi.stringFormat,
                         isSelected  : false,
@@ -201,7 +201,7 @@ module Mca {
                         minValue    : pi.minValue,
                         defaultValue: pi.defaultValue,
                         description : pi.description
-                    }); 
+                    });
                 }
             });
         }
