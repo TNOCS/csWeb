@@ -309,12 +309,12 @@ export class BagDatabase implements IAddressSource.IAddressSource {
     public lookupAddress(req: express.Request, res: express.Response): void {
         var zipCode: string = this.formatZipCode(req.params.zip);
         if (!zipCode) {
-            res.send(400, 'zip code is missing');
+            res.status(400).send('zip code is missing');
             return;
         }
         var houseNumber: number = this.formatHouseNumber(req.params.number);
         if (!houseNumber) {
-            res.send(400, 'house number is missing');
+            res.status(400).send('house number is missing');
             return;
         }
 
