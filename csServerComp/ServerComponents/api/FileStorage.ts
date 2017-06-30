@@ -26,7 +26,7 @@ export interface Media {
 export class FileStorage extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager;
 
-    public layers: { [key: string]: Layer } = {};
+    public layers: string[] = [];
     public projects: { [key: string]: Project } = {};
     public keys: { [key: string]: Key } = {};
     public resources: { [key: string]: ResourceFile } = {};
@@ -84,7 +84,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     //this.addLayer(path);
                 }
             }));
-        }, 1000);
+        }, 1500);
     }
 
     private getDirectories(srcpath) {
@@ -161,7 +161,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     }
                 }
             }));
-        }, 1000);
+        }, 2500);
     }
 
     public watchResourcesFolder() {
@@ -180,12 +180,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 if (action === 'change') {
                 }
             }));
-        }, 1000);
+        }, 2000);
     }
 
     saveProjectDelay = _.debounce((project: Project) => {
         this.saveProjectFile(project);
-    }, 5000);
+    }, 2000);
 
     saveResourcesDelay = _.debounce((res: ResourceFile) => {
         this.saveResourceFile(res);
@@ -350,32 +350,49 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.manager.deleteProject(id, {}, () => { });
     }
 
+    private fetchLayer(layerId: string): Layer {
+        let fileName = this.getLayerFilename(layerId);
+        let data = fs.readFileSync(fileName, 'utf8');
+        if (!data) {
+            Winston.warn(`Error reading file ${fileName}`);
+            return null;
+        }
+        var layer: Layer;
+        try {
+            layer = <Layer>JSON.parse(data);
+        } catch (e) {
+            Winston.warn(`Error parsing file: ${fileName}. Skipped. (Data length: ${(data) ? data.length : 0})`);
+            return null;
+        }
+        layer.storage = this.id;
+        layer.id = layerId;
+        return layer;
+    }
+
     private openLayerFile(fileName: string) {
         if ((fileName.indexOf('.backup')) > 0) return;
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
-        if (!this.layers.hasOwnProperty(id)) {
-            fs.readFile(fileName, 'utf8', (err, data) => {
-                if (!err) {
-                    var layer: Layer;
-                    try {
-                        layer = <Layer>JSON.parse(data);
-                    } catch (e) {
-                        Winston.warn(`Error parsing file: ${fileName}. Skipped. (Data length: ${(data) ? data.length : 0})`);
-                        return;
-                    }
-                    layer.storage = this.id;
-                    layer.id = id;
-                    this.layers[id] = layer;
-                    //layer.title = id;
-                    layer.storage = this.id;
-                    //layer.type = "geojson";
-                    layer.url = '/api/layers/' + id;
-                    (layer.storage) ? Winston.debug('storage ' + layer.storage) : Winston.warn(`No storage found for ${layer}`);
-                    this.manager && this.manager.addUpdateLayer(layer, {}, () => { });
+        fs.readFile(fileName, 'utf8', (err, data) => {
+            if (!err) {
+                var layer: Layer;
+                try {
+                    layer = <Layer>JSON.parse(data);
+                } catch (e) {
+                    Winston.warn(`Error parsing file: ${fileName}. Skipped. (Data length: ${(data) ? data.length : 0})`);
+                    return;
                 }
-            });
-        }
+                layer.storage = this.id;
+                layer.id = id;
+                // this.layers[id] = layer;
+                //layer.title = id;
+                layer.storage = this.id;
+                //layer.type = "geojson";
+                layer.url = '/api/layers/' + id;
+                (layer.storage) ? Winston.debug('storage ' + layer.storage) : Winston.warn(`No storage found for ${layer}`);
+                this.manager && this.manager.addUpdateLayer(layer, {}, () => { });
+            }
+        });
         if (path.basename(fileName) === 'project.json') return;
     }
 
@@ -457,8 +474,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
      * Find layer for a specific layerId (can return null)
      */
     public findLayer(layerId: string): Layer {
-        if (this.layers.hasOwnProperty(layerId)) {
-            return this.layers[layerId];
+        if (this.layers.indexOf(layerId) >= 0) {
+            return this.fetchLayer(layerId);
         } else { return null; };
     }
 
@@ -504,10 +521,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     // layer methods first, in crud order.
-
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         try {
-            this.layers[layer.id] = layer;
+            if (this.layers.indexOf(layer.id) < 0) {
+                this.layers.push(layer.id);
+            }
             this.saveLayerDelay(layer);
             callback(<CallbackResult>{ result: ApiResult.OK });
         } catch (e) {
@@ -516,17 +534,20 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
-
-        if (this.layers.hasOwnProperty(layerId)) {
-            callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
-        } else {
-            callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+        if (this.layers.indexOf(layerId) >= 0) {
+            let l = this.fetchLayer(layerId);
+            if (l) {
+                callback(<CallbackResult>{ result: ApiResult.OK, layer: l });
+                return;
+            } else {
+                Winston.warn(`Layer ${layerId} is empty`);
+            }
         }
+        callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        if (this.layers.hasOwnProperty(layer.id)) {
-            this.layers[layer.id] = layer;
+        if (this.layers.indexOf(layer.id) >= 0) {
             this.saveLayerDelay(layer);
             Winston.info('FileStorage: updated layer ' + layer.id);
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
@@ -537,7 +558,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
-            delete this.layers[layerId];
+            this.layers = this.layers.filter((l) => {return l !== layerId; });
             var fn = this.getLayerFilename(layerId);
             fs.unlink(fn, (err) => {
                 if (err) {
@@ -614,14 +635,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
-        var l = this.layers[layerId];
         var found = false;
-        l.features.forEach((f: Feature) => {
-            if (f.id === featureId) {
-                found = true;
-                callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
-            }
-        });
+        var l = this.findLayer(layerId);
+        if (l) {
+            l.features.some((f: Feature) => {
+                if (f.id === featureId) {
+                    found = true;
+                    callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
+                    return true;
+                }
+            });
+        }
         if (!found) callback(<CallbackResult>{ result: ApiResult.Error });
     }
 
