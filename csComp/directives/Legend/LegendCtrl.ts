@@ -48,7 +48,7 @@ module Legend {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.parentWidget = $('#' + `${this.widget.elementId}-parent`);
             //console.log(JSON.stringify(this.widget.data));
             //$scope.title = this.widget.title;
             //$scope.timestamp = '19:45';
@@ -156,11 +156,11 @@ module Legend {
                     leg.legendEntries.push(le);
                 });
             } else {
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.min));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.min + activeStyle.info.max) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.min + activeStyle.info.max) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.min + activeStyle.info.max) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.max));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.userMin));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.userMin + activeStyle.info.userMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.userMin + activeStyle.info.userMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.userMin + activeStyle.info.userMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.userMax));
                 leg.legendEntries = leg.legendEntries.sort((a, b) => { return (a.value - b.value) });
             }
             return leg;

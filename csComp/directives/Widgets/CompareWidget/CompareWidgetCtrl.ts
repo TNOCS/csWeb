@@ -141,7 +141,7 @@ module CompareWidget {
             });
             keys = _.uniq(keys);
             var fType: IFeatureType = JSON.parse(JSON.stringify(this.$layerService.getFeatureType(fts[0])));
-            this.$scope.featureTypeTitle = fType.name.toLowerCase();
+            this.$scope.featureTypeTitle = (fType.name) ? fType.name.toLowerCase() : 'items';
             fType.propertyTypeKeys = keys.join(';');
             var propTypes = csComp.Helpers.getPropertyTypes(fType, this.$layerService.propertyTypeData);
             if (this.$scope.data.numbersOnly) {

@@ -78,7 +78,9 @@ module StyleList {
                 }, 100);
         }
 
-        public initWizard() {
+        public initWizard = _.debounce(this.initWizardDebounced, 500);
+
+        public initWizardDebounced() {
             console.log('init wizard');
             this.selectedSection = null;
             this.selectedGroup = null;

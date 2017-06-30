@@ -361,6 +361,9 @@ module csComp.Services {
         min: number;
         count: number;
         mean: number;
+        median?: number;
+        q1?: number;
+        q3?: number;
         varience: number;
         sd: number;
         userMin?: number;

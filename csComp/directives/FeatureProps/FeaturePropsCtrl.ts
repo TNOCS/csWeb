@@ -189,8 +189,8 @@ module FeatureProps {
             }
             if (infoCallOutSection.properties.length > 0) {
                 this.hasInfoSection = true;
-                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically (not anymore in angular 1.4!!!)
-                this.sectionKeys.push('Aaa Info');
+                this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically (not anymore in angular 1.4!!!)
+                this.sectionKeys.push('AAA Info');
             } else {
                 this.hasInfoSection = false;
             }

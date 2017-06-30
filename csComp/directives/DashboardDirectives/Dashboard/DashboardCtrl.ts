@@ -425,7 +425,7 @@ module Dashboard {
             if (!d.showLegend) return;
             var legendWidgetPresent = false;
             d.widgets.forEach(w => {
-                if (w.id === 'Legend') legendWidgetPresent = true;
+                if (w.directive === 'legend-directive') legendWidgetPresent = true;
             });
             if (!legendWidgetPresent) {
                 //console.log('Create legend');
@@ -435,6 +435,7 @@ module Dashboard {
                 w.elementId = 'widget-' + w.id;
                 w.parentDashboard = d;
                 w.title = 'Legend';
+                w.position = 'dashboard';
                 w.data = { mode: 'lastSelectedStyle' };
                 w.left = '20px';
                 w.customStyle = <csComp.Services.WidgetStyle>{ background: 'White', borderColor: 'Black', borderWidth: '1px' };

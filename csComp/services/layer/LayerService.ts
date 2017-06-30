@@ -3227,10 +3227,12 @@ module csComp.Services {
 
             group.layers.forEach((l: ProjectLayer) => {
                 if (l.enabled) {
+                    let values = [];
                     this.project.features.forEach((f: IFeature) => {
                         if (f.layerId === l.id && f.properties.hasOwnProperty(property)) {
                             var v = Number(+f.properties[property]);
                             if (isNaN(v)) return;
+                            values.push(v);
                             r.count++;
                             sumOfElements += v;
                             sumOfSquares += v * v;
@@ -3238,6 +3240,10 @@ module csComp.Services {
                             if (v < r.min) r.min = v;
                         }
                     });
+                    let quartiles = Helpers.quartiles(values);
+                    r.median = quartiles.median;
+                    r.q1 = quartiles.q1;
+                    r.q3 = quartiles.q3;
                 }
             });
             if (!isNaN(sumOfElements) && r.count !== 0) {
@@ -3249,6 +3255,11 @@ module csComp.Services {
                 var mid = this.propertyTypeData[property];
                 r.userMin = mid.min;
                 r.userMax = mid.max;
+                if (!r.userMax && !r.userMin) {
+                    let iqr = Math.abs(r.q3 - r.q1);
+                    r.userMin = r.median - (1.5 * iqr);
+                    r.userMax = r.median + (1.5 * iqr);
+                }
             }
             return r;
         }
