@@ -50,7 +50,6 @@
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/express-serve-static-core": "^4.0.41",
-    "@types/node": "^7.0.8",
     "ansi-styles": "^2.2.0",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
@@ -99,7 +98,7 @@
     "request": "^2.69.0",
     "retyped-kafka-node-tsd-ambient": "^0.2.22-0",
     "run-sequence": "^1.1.5",
-    "typescript": "^2.2.1",
+    "typescript": "^2.3.4",
     "typings": "^2.0.0",
     "underscore": "^1.8.3",
     "which": "^1.2.4"

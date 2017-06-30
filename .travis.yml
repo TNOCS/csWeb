@@ -5,6 +5,7 @@ node_js:
 install:
   # - "npm install -g npm@4.0.5"
   - "npm install -g bower"
+  - "npm install -g typescript@2.3.4"
   - "npm install"
 script:
     - gulp travis
