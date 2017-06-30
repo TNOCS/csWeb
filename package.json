@@ -9,10 +9,11 @@
     "email": "damylen@gmail.com"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/typings install && npm run tsc",
+    "postinstall": "./node_modules/.bin/typings install && npm run tsc:v && npm run tsc",
     "test": "jasmine-node --verbose ./out/test/csServerComp && karma start ./test/karma.conf.js",
     "test2": "karma start ./test/karma.conf.js",
     "tsc": "./node_modules/.bin/tsc",
+    "tsc:v": "./node_modules/.bin/tsc -v",
     "tsc:w": "./node_modules/.bin/tsc -w",
     "typings": "typings"
   },
