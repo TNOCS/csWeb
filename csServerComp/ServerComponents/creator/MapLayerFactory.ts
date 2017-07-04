@@ -141,8 +141,8 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
     }
 
     public process(req: express.Request, res: express.Response) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end('');
+        // res.writeHead(200, { 'Content-Type': 'text/html' });
+        // res.end('');
         console.log('Received project template. Processing...');
         this.featuresNotFound = {};
         var template: ILayerTemplate = req.body;
@@ -192,6 +192,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 console.log('-------------------------------------');
             }
+            res.send(HTTPStatusCodes.OK, JSON.stringify(this.featuresNotFound));
 
             console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
@@ -541,13 +542,13 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         var layer = req.body.layer;
         var features = [];
         var template = <ILayerTemplate> { properties: layer.data.properties, propertyTypes: layer.data.propertyTypes || [] };
+        this.featuresNotFound = {};
         this.addGeometry(layer.data.layerDefinition, template, layer, () => {
             console.log('Finished adding geometry...');
             delete layer.data.properties;
             delete layer.data.features;
             this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
-                console.log(result);
-                res.sendStatus(result.result);
+                res.send(result.result, JSON.stringify({'notFound': this.featuresNotFound}));
             });
         });
     }
