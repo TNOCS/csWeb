@@ -269,7 +269,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             fn = this.getProjectFilename(project.id);
         }
         Winston.info('writing project file : ' + fn);
-        fs.writeFile(fn, JSON.stringify(project, null, 4), (error) => {
+        fs.writeFile(fn, JSON.stringify(project, null, 2), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
             } else {
@@ -293,7 +293,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private saveLayerFile(layer: Layer) {
         try {
             var fn = this.getLayerFilename(layer.id);
-            fs.writeFile(fn, JSON.stringify(layer, null, 2), (error) => {
+            fs.writeFile(fn, JSON.stringify(layer), (error) => {
                 if (error) {
                     Winston.info('error writing file : ' + fn);
                 } else {

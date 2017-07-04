@@ -687,6 +687,13 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                         this.apiManager.addPropertyTypes(ld['featureTypeId'], template.propertyTypes, {}, () => {
                             console.log('Added propertytypes to resources');
                         });
+                        geojson.dataSourceParameters = {
+                            geometryTemplate: {
+                                key: ld.geometryKey,
+                                name: ld.geometryFile,
+                                featureProp: ld.parameter1
+                            }
+                        };
                         callback(geojson);
                     });
                 break;
@@ -706,15 +713,17 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 break;
             case 'Gemeente':
+            case 'Gemeente(2015)':
             case 'CBS_Gemeente_2015':
             case 'CBS_Gemeente':
                 ld.geometryFile = 'CBS_Gemeente_2015';
                 if (type === 'both') {
-                    ld.geometryKey = 'GM_CODE';
+                    ld.geometryKey = 'CODE';
                 } else if (type === 'name') {
-                    ld.geometryKey = 'GM_NAAM';
+                    ld.geometryKey = 'NAAM';
                 } else {
                     //todo: convert to GM_CODE
+                    ld.geometryKey = 'CODE';
                 }
                 break;
             case 'Gemeente(2014)':
@@ -849,8 +858,12 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
+                var featureJson: IGeoJsonFeature = { type: 'Feature', properties: null };
+                if (sensors.length > 0) {
+                    featureJson['sensors'] = sensors[index];
+                }
                 if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===)
-                    console.log(p[par1]);
+                    // console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
                             if (!p.hasOwnProperty(key) && key !== templateKey) { //Do not overwrite input data, only add new items
@@ -858,24 +871,22 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                             }
                         }
                     }
-                    var featureJson: IGeoJsonFeature = {
-                        type: 'Feature',
-                        geometry: f.geometry,
-                        properties: p
-                    };
-                    if (sensors.length > 0) {
-                        featureJson['sensors'] = sensors[index];
-                    }
+                    featureJson.properties = p;
                     features.push(featureJson);
                     foundFeature = true;
                     return true;
                 } else {
+                    featureJson.properties = p; // Also add feature if a geometry was not found
+                    features.push(featureJson);
                     return false;
                 }
             });
             if (!foundFeature) {
                 console.log('Warning: Could not find: ' + p[par1]);
                 this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
+            }
+            if (index % 25 === 0) {
+                console.log(`Parsed feature ${index + 1}: ${p[par1]}`);
             }
         });
         callback();
@@ -895,10 +906,10 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                                             zip: `${q}`,
                                             number: `0`
                                         };
+                                        features.push(this.createFeatureWithoutGeometry(prop, sensors[index] || {}));
                                         innercallback();
                                     } else {
-                                        console.log('Found location (international)');
-                                        console.log(`${locations[0].lon}, ${locations[0].lat}`);
+                                        // console.log(`Found location (international) ${locations[0].lon}, ${locations[0].lat}`);
                                         features.push(this.createFeature(+locations[0].lon, +locations[0].lat, prop, sensors[index] || {}));
                                         innercallback();
                                     }
@@ -1000,6 +1011,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                                     zip: `${zip}`,
                                     number: `${nmb}`
                                 };
+                                features.push(asyncthis.createFeatureWithoutGeometry(prop, sensors[index] || {}));
                             } else {
                                 for (var key in locations[0]) {
                                     if (key !== 'lon' && key !== 'lat') {
@@ -1030,6 +1042,12 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         }, function(err) {
             callback();
         });
+    }
+
+    private createFeatureWithoutGeometry(properties: IProperty, sensors?: IProperty): IGeoJsonFeature {
+        let geom = this.createFeature(0, 0, properties, sensors);
+        delete geom.geometry;
+        return geom;
     }
 
     private createFeature(lon: number, lat: number, properties: IProperty, sensors?: IProperty): IGeoJsonFeature {

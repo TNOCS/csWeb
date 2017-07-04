@@ -9,9 +9,11 @@ module csComp.Services {
         layer: ProjectLayer;
         requiresLayer = false;
         $http: ng.IHttpService;
+        geometryStore: GeometryTemplateStore;
 
         public constructor(public service: LayerService, $http: ng.IHttpService, public $storage: ng.localStorage.ILocalStorageService) {
             this.$http = $http;
+            this.geometryStore = new GeometryTemplateStore(this.$http);
         }
 
         public refreshLayer(layer: ProjectLayer, newLayer?: any) {
@@ -111,7 +113,9 @@ module csComp.Services {
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
             var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
-            this.service.$messageBusService.publish('map', 'setextent', b);
+            if (b && b.northEast && b.northEast[0] != undefined) {
+                this.service.$messageBusService.publish('map', 'setextent', b);
+            }
         }
 
         /** zoom to boundaries of layer */
@@ -151,6 +155,19 @@ module csComp.Services {
             this.layer = layer;
             async.series([
                 (cb) => {
+                    // find geometries for the features if they don't have any
+                    if (layer.dataSourceParameters && layer.dataSourceParameters.geometryTemplate) {
+                        let geometryTemplate: IGeometryTemplate = layer.dataSourceParameters.geometryTemplate;
+                        let geometryName = geometryTemplate.name;
+                        this.geometryStore.loadGeometry(geometryName, (success) => {
+                            if (!success) console.warn(`Could not load geomtery template for ${geometryName}`);
+                            cb(null, null);
+                        });
+                    } else {
+                        cb(null, null);
+                    }
+                },
+                (cb) => {
                     layer.renderType = 'geojson';
                     // already got data (propably from drop action)
                     if (data) {
@@ -168,7 +185,7 @@ module csComp.Services {
                         // Open a layer URL
                         layer.isLoading = true;
                         // get data
-                        var u = layer.url.replace('[BBOX]', layer.BBOX);
+                        var u = (layer.url) ? layer.url.replace('[BBOX]', layer.BBOX) : `/api/layers/${layer.id}`;
                         // check proxy
                         if (layer.useProxy) u = '/api/proxy?url=' + u;
 
@@ -220,6 +237,29 @@ module csComp.Services {
             ]);
         }
 
+        /** 
+         *  Loops over all layer features and adds geometry based on a geometry template layer.
+         *  Existing geometries take precedence over template geometries.
+         */
+        private addGeometry(template: ProjectLayer, geomKey: string, featureProp: string, layer: ProjectLayer) {
+            if (!template || !featureProp) return;
+            console.log('Adding geometry to datalayer');
+            let geom = template['features'];
+            let notFound = [];
+            layer.data.features.forEach((f) => {
+                if (f.geometry && f.geometry.coordinates) return;
+                if (!f.properties || !f.properties.hasOwnProperty(featureProp)) return;
+                let val = f.properties[featureProp];
+                let entry = _.find(geom, (g: any) => { return g.properties[geomKey] === val; });
+                if (entry) {
+                    f.geometry = entry.geometry;
+                } else {
+                    notFound.push(val);
+                }
+            });
+            if (!_.isEmpty(notFound)) console.log(`Could not find ${notFound.length} geometries`);
+        }
+
         protected initLayer(data: any, layer: ProjectLayer) {
             // if this is a topojson layer, convert to geojson first
             if (layer.type.toLowerCase() === 'topojson') {
@@ -257,6 +297,12 @@ module csComp.Services {
                 let featuresWithoutId = layer.data.features.filter((f) => { return !f.hasOwnProperty('id') }); // Allow all features without id
                 if (featuresWithoutId.length !== layer.data.features.length) {
                     layer.data.features = featuresWithoutId.concat(_.uniq(layer.data.features, false, (f: Feature) => { return f.id; }));
+                }
+
+                 // find geometries for the features if they don't have any
+                if (layer.dataSourceParameters && layer.dataSourceParameters.geometryTemplate) {
+                    let geom = this.geometryStore.getTemplate(layer.dataSourceParameters.geometryTemplate.name);
+                    this.addGeometry(geom, layer.dataSourceParameters.geometryTemplate.key, layer.dataSourceParameters.geometryTemplate.featureProp, layer);
                 }
 
                 if (!_.isUndefined(layer.data.features)) {

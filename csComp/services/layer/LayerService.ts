@@ -976,6 +976,16 @@ module csComp.Services {
                 });
                 // upon deactivation of the layer? (but other layers can also have active styles)
                 this.mb.publish('updatelegend', 'title', property);
+            } else if (property.indexOf('#') >= 0) {
+                let key = property.split('#').pop();
+                this.project.features.some((f) => {
+                    if (f.layerId === layer.id && f.properties.hasOwnProperty(key)) {
+                        var pt = this.getPropertyType(f, key);
+                        this.setStyle({ feature: f, property: key, key: pt.title || key });
+                        return true;
+                    }
+                    return false;
+                });
             } else {
                 //when no layer is defined, set the given propertytype as styled property (and trigger creating a dynamic legend subsequently)
                 this.project.features.some((f) => {

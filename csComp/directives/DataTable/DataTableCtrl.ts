@@ -333,10 +333,10 @@ module DataTable {
                     let text: string;
                     meta.forEach((mi) => {
                         if (mi.label === 'Lat') {
-                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
+                            (f.geometry && f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
                             text = displayValue;
                         } else if (mi.label === 'Lon') {
-                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
+                            (f.geometry && f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
                             text = displayValue;
                         } else {
                             text = f.properties[mi.label];
