@@ -712,6 +712,14 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                     ld.geometryKey = 'Name';
                 }
                 break;
+            case 'Gemeente(2016)':
+                ld.geometryFile = 'CBS_Gemeente_2016';
+                if (type === 'name') {
+                    ld.geometryKey = 'GM_NAAM';
+                } else {
+                    ld.geometryKey = 'GM_CODE';
+                }
+                break;
             case 'Gemeente':
             case 'Gemeente(2015)':
             case 'CBS_Gemeente_2015':
@@ -735,11 +743,20 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 break;
             case 'Buurt':
-                ld.geometryFile = 'CBS_Buurt';
-                if (type === 'both') {
-                    ld.geometryKey = 'BU_CODE';
-                } else {
+            case 'Buurt(2016)':
+                ld.geometryFile = 'CBS_Buurt_2016';
+                if (type === 'name') {
                     ld.geometryKey = 'BU_NAAM';
+                } else {
+                    ld.geometryKey = 'BU_CODE';
+                }
+                break;
+            case 'Buurt(2014)':
+                ld.geometryFile = 'CBS_Buurt_2014';
+                if (type === 'name') {
+                    ld.geometryKey = 'BU_NAAM';
+                } else {
+                    ld.geometryKey = 'BU_CODE';
                 }
                 break;
             default:

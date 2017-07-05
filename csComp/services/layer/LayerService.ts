@@ -1605,6 +1605,8 @@ module csComp.Services {
                                             if (res) {
                                                 s.fillColor = res.color;
                                                 s.fillOpacity = res.opacity;
+                                            } else {
+                                                s.fillColor = '#ffffff';
                                             }
                                         }
                                         feature._gui['style'][gs.property] = s.fillColor;
@@ -1633,6 +1635,8 @@ module csComp.Services {
                                             if (res) {
                                                 s.fillColor = res.color;
                                                 s.fillOpacity = res.opacity;
+                                            } else {
+                                                s.fillColor = '#ffffff';
                                             }
                                         }
                                         feature._gui['style'][gs.property] = s.fillColor;
