@@ -124,6 +124,7 @@ export interface IConnector {
     getResource(resourceId: string, meta: ApiMeta, callback: Function);
     /** Add a file to the store, e.g. an icon or other media. */
     addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
+    getFile(file: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -556,6 +557,18 @@ export class ApiManager extends events.EventEmitter {
             callback(<CallbackResult>{ result: ApiResult.OK, error: 'Resource added' });
         } else {
             callback(<CallbackResult>{ result: ApiResult.Error, error: 'Failed to add resource.' });
+        }
+    }
+
+    /** Add a file to the store, e.g. an icon or other media. */
+    public getFile(file: string, meta: ApiMeta, callback: Function) {
+        var s: IConnector = this.connectors.hasOwnProperty('file') ? this.connectors['file'] : null;
+        if (s) {
+            s.getFile(file, meta, (result) => {
+                callback(result);
+            });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: 'Failed to get file.' });
         }
     }
 

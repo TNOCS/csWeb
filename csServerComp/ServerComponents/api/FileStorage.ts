@@ -290,6 +290,27 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    /** read media file */
+    private readFile(file: string, cb: Function) {
+        fs.stat(file, (err, stats) => {
+            if (err) {
+                cb();
+                return console.error(`file "${file}" not found`);
+            }
+            if (!stats.isFile()) {
+                cb();
+                return Winston.info(`file "${file}" is not a valid file`);
+            }
+            fs.readFile(file, (err, data) => {
+                if (err) {
+                cb();
+                    return Winston.info('Error while reading file ' + file);
+                }
+                cb(data);
+            });
+        });
+    }
+
     private saveLayerFile(layer: Layer) {
         try {
             var fn = this.getLayerFilename(layer.id);
@@ -702,6 +723,29 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var media: Media = { base64: base64, fileUri: fileUri };
         this.saveBase64(media);
         callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+
+    /** Get a file: images get from the iconPath folder, others to the blob folder */
+    public getFile(file: string, meta: ApiMeta, callback: Function) {
+        var ext = path.extname(file).toLowerCase();
+        var fileUri: string = file.split('/').pop(); // retreive the file name
+        switch (ext) {
+            case '.png':
+            case '.jpg':
+            case '.gif':
+            case '.jpeg':
+            case '.tif':
+            case '.tiff':
+                fileUri = path.join(this.iconPath, fileUri);
+                break;
+            default:
+                fileUri = path.join(this.blobPath, fileUri);
+                break;
+        }
+        this.readFile(fileUri, (base64) => {
+            let media: Media = { base64: base64, fileUri: path.basename(fileUri) };
+            callback(media);
+        });
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {

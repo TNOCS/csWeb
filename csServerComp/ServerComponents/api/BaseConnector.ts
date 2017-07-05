@@ -88,6 +88,8 @@ export class BaseConnector implements ApiManager.IConnector {
 
     public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {}
 
+    public getFile(file: string, meta: ApiMeta, callback: Function) {}
+
     public addResource(resource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {}
 
     public addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function) {}

@@ -301,6 +301,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
     }
 
+    private getTheFile(req: Request, res: Response) {
+        this.manager.getFile(req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            res.send(result);
+        });
+    }
+
     private addTheLogs(req: Request, res: Response) {
         var logs: { [key: string]: Logs[] };
         logs = req.body;
@@ -440,6 +446,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         router.route(this.filesUrl + ':folderId/:fileName')
             .post((req: Request, res: Response) => this.addTheFile(req, res));
+
+        router.route(this.filesUrl + ':folderId/:fileName')
+            .get((req: Request, res: Response) => this.getTheFile(req, res));
 
         router.route(this.proxyUrl)
             .get((req: Request, res: Response) => this.proxyTheUrl(req, res));
