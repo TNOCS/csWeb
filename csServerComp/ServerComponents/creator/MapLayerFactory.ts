@@ -854,11 +854,10 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
             });
         }
-        var fts = templateJson.features;
+        var fts: any[] = templateJson.features;
         properties.forEach((p, index) => {
-            var foundFeature = false;
-            fts.some((f) => {
-                var featureJson: IGeoJsonFeature = { type: 'Feature', properties: null };
+            let foundFeature = fts.some((f) => {
+                let featureJson: IGeoJsonFeature = { type: 'Feature', properties: null };
                 if (sensors.length > 0) {
                     featureJson['sensors'] = sensors[index];
                 }
@@ -873,17 +872,14 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                     }
                     featureJson.properties = p;
                     features.push(featureJson);
-                    foundFeature = true;
                     return true;
-                } else {
-                    featureJson.properties = p; // Also add feature if a geometry was not found
-                    features.push(featureJson);
-                    return false;
                 }
             });
             if (!foundFeature) {
                 console.log('Warning: Could not find: ' + p[par1]);
                 this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
+                let featureJson: IGeoJsonFeature = { type: 'Feature', properties: p}; // Also add feature if a geometry was not found
+                features.push(featureJson);
             }
             if (index % 25 === 0) {
                 console.log(`Parsed feature ${index + 1}: ${p[par1]}`);
