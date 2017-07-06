@@ -5,8 +5,8 @@ module csComp.Helpers {
      * the current value (e.g. assuming that the current property contains a color).
      */
     export function getColorFromStringValue(v: string, gs: csComp.Services.GroupStyle) {
+        var defaultcolor: string = '#000000';
         if (gs.activeLegend) {
-            var defaultcolor: string = '#000000';
             var l = gs.activeLegend;
             var s: String = l.id;
             var n = l.legendEntries.length;
@@ -25,7 +25,23 @@ module csComp.Helpers {
 
             //return defaultcolor;
         }
-        return v;
+        if (v && v.indexOf('#') === 0) {
+            return v;
+        } else {
+            // Validate color
+            if (this.validateCSSColor(v)) {
+                return v;
+            } else {
+                return defaultcolor;
+            }
+        }
+    }
+
+    export function validateCSSColor(col: string) {
+        var ele = document.createElement('div');
+        ele.style.color = col;
+        var str = ele.style.color.split(/\s+/).join('').toLowerCase();
+        return (str) ? true : false;
     }
 
     export function getImageUri(ft: csComp.Services.IFeatureType): string {
