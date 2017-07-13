@@ -946,7 +946,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
             });
     }
 
-    private createLatLonFeature(latString: string, lonString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
+    private createLatLonFeature(lonString: string, latString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
         if (!properties) { callback(); }
         properties.forEach((prop, index) => {
             var lat = prop[latString];

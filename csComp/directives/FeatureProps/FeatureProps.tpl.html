@@ -125,7 +125,7 @@
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="textarea-right" class="enable-newlines" style="clear:both;text-align:right;" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
-                                        <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
+                                        <div ng-switch-when="bbcode" class="enable-newlines" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="feature" class="enable-newlines clickable-feature-prop" style="clear:both" ng-bind-html="vm.toTrusted(item.value)" ng-click="vm.selectFeature(item.feature)"></div>
                                         <div ng-switch-when="image"><img ng-click="vm.openImage(item.value)" ng-hide="item.propertyType.inlineImage" ng-src="{{item.value}}" style="width:300px;float:left;margin:5px"></div>
                                         <div ng-switch-when="media">

@@ -394,8 +394,10 @@ module DataTable {
                 var order: boolean; // Original sort order
                 if (a[headerIndex].type === 'number' || a[headerIndex].type === 'date') {
                     order = a[headerIndex].originalValue > b[headerIndex].originalValue;
-                } else {
+                } else if (a[headerIndex].originalValue && b[headerIndex].originalValue) {
                     order = a[headerIndex].originalValue.toLowerCase() > b[headerIndex].originalValue.toLowerCase();
+                } else {
+                    order = false;
                 }
                 return order === reverseOrder
                     ? 1

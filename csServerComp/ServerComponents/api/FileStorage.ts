@@ -541,6 +541,23 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
+    public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
+        if (this.projects.hasOwnProperty(projectId)) {
+            delete this.projects[projectId];
+            var fn = this.getProjectFilename(projectId);
+            fs.unlink(fn, (err) => {
+                if (err) {
+                    Winston.error('File: Error deleting ' + fn + ' (' + err.message + ')');
+                } else {
+                    Winston.info('File: deleted: ' + fn);
+                }
+            });
+            callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.Error });
+        }
+    }
+
     // layer methods first, in crud order.
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         try {
