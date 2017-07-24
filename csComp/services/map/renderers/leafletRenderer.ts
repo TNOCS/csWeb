@@ -303,6 +303,31 @@ module csComp.Services {
             // }
         }
 
+        public removeFeatureBatch(features: IFeature[], layer: IProjectLayer) {
+            switch (layer.renderType) {
+                case 'geojson':
+                    var g = layer.group;
+                    if (g.clustering) {
+                        var m = g._cluster;
+                        try {
+                            features.forEach((feature) => {
+                                m.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            });
+                        } catch (error) { }
+                    } else {
+                        features.forEach((feature) => {
+                            if (layer.group.markers.hasOwnProperty(feature.id)) {
+                                layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
+                                layer.group._vectors.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            }
+                        });
+                    }
+                    break;
+            }
+        }
+
         public updateFeature(feature: IFeature) {
             if (feature.layer.group == null) return;
             var marker = feature.layer.group.markers[feature.id];

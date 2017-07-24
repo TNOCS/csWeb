@@ -393,6 +393,10 @@ module csComp.Services {
             });
         }
 
+        public removeFeatureBatch(features: IFeature[], layer: IProjectLayer) {
+            this.removeFeatures(features);
+        }
+
         public removeFeatures(features: IFeature[]) {
             var dfd = jQuery.Deferred();
 

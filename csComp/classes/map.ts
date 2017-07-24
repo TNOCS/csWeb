@@ -21,6 +21,7 @@ module csComp.Services {
         removeGroup(group: ProjectGroup);
         createFeature(feature: IFeature);
         removeFeature(feature: IFeature);
+        removeFeatureBatch(features: IFeature[], layer: IProjectLayer);
         updateFeature(feature: IFeature);
         selectFeature(feature: IFeature);
         addFeature(feature: IFeature);

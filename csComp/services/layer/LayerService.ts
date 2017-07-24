@@ -1516,6 +1516,62 @@ module csComp.Services {
             }
         }
 
+        /** remove feature batch */
+        public removeFeatureBatch(featureIds: string[], layer: IProjectLayer) {
+            var toRemove = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) >= 0; });
+            this.project.features = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            layer.data.features = layer.data.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            if (layer.group.filterResult)
+                layer.group.filterResult = layer.group.filterResult.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
+            layer.group.ndx.remove(toRemove);
+            this.activeMapRenderer.removeFeatureBatch(toRemove, layer);
+
+            toRemove.forEach((feature) => {
+                if (feature.isSelected) {
+                    this.lastSelectedFeature = null;
+                    this.selectedFeatures.some((f, ind, arr) => {
+                        if (f.id === feature.id) {
+                            arr.splice(ind, 1);
+                            return true;
+                        }
+                    });
+                    this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
+                }
+            });
+        }
+
+        /** remove feature batch */
+        public removeAllFeatures() {
+            var toRemove = this.project.features.slice(0);
+            this.project.groups.forEach((g) => {
+                if (!g.layers) return;
+                g.layers.forEach((layer) => {
+                    if (layer.data && layer.data.features) {
+                        layer.data.features.length = 0;
+                        if (layer.group.filterResult)
+                            layer.group.filterResult.length = 0;
+                        layer.group.ndx.remove(this.project.features);
+                        layer.mapLayer.clearLayers();
+                        this.activeMapRenderer.removeFeatureBatch(this.project.features, layer);
+                    }
+                });
+            });
+
+            toRemove.forEach((feature) => {
+                if (feature.isSelected) {
+                    this.lastSelectedFeature = null;
+                    this.selectedFeatures.some((f, ind, arr) => {
+                        if (f.id === feature.id) {
+                            arr.splice(ind, 1);
+                            return true;
+                        }
+                    });
+                    this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
+                }
+            });
+            this.project.features.length = 0;
+        }
+
         /**
         * Calculate the effective feature style.
         */
