@@ -886,6 +886,38 @@ body,
 .datatable-propertytype-admin {
     color: #777;
 }
+.datatable-download {
+    background: white;
+    float: right;
+    text-align: right;
+}
+.datatable-download-text > span {
+    cursor: pointer;
+    padding: 4px;
+}
+.datatable-download-text {
+    font-size: 18px;
+}
+#cs-data-table>tbody>tr>td>ul {
+    max-height: 21px!important;
+    overflow: auto;
+}
+@media (min-width: 992px ) {
+    .datatable-download-large {
+        display: inline-block!important;
+    }
+    .datatable-download-small {
+        display: none!important;
+    }
+}
+@media (max-width: 992px ) {
+    .datatable-download-large {
+        display: none!important;
+    }
+    .datatable-download-small {
+        display: inline-block!important;
+    }
+}
 .legendTable {
    display: table;
    width: 100%;

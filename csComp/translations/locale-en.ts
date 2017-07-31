@@ -231,7 +231,8 @@ module Translations {
             EMAIL: 'E-mail',
             YES: 'Yes',
             NO: 'No',
-            LOGIN_OR_OUT: 'Login or logout'
+            LOGIN_OR_OUT: 'Login or logout',
+            DOWNLOAD_SELECTION_AS: 'Download selection as:'
         };
     }
 }

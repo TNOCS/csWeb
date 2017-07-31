@@ -230,7 +230,8 @@ module Translations {
             EMAIL: 'E-mail',
             YES: 'Ja',
             NO: 'Nee',
-            LOGIN_OR_OUT: 'In- of uitloggen'
+            LOGIN_OR_OUT: 'In- of uitloggen',
+            DOWNLOAD_SELECTION_AS: 'Download selectie als:'
         };
     }
 }

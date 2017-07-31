@@ -1,86 +1,94 @@
-<div style="margin-top: 70px;">
-    <div style="width:100%; margin: 10px auto;">
-        <div style="float: left; width: 15%; margin: 0; padding: 1em">
+<div class="data-table">
+    <div class="table-return" ng-click="vm.returnToMap()">
+        <div style="float:right" ng-click="vm.returnToMap()">
+            <i class="fa fa-times pointer-cursor"></i>
+        </div>
+    </div>
+    <h2 style="margin: 0px 16px 16px">
+        {{'TABLE_LABEL' | translate}}
+    </h2>
+    <div class="row" style="margin-bottom: 12px">
+        <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 datatable-top-row-height">
             <!-- Pull down of map layers -->
-            <select id="layerSelection" data-ng-model="vm.selectedLayerId" data-ng-change="vm.loadLayer()" data-ng-options="layer.id as layer.title group by layer.group for layer in vm.layerOptions" class="form-control tt-input"></select>
+            <select id="layerSelection" data-ng-model="vm.selectedLayerId" data-ng-change="vm.loadLayer()" data-ng-options="layer.id as layer.title group by layer.group for layer in vm.layerOptions"
+                class="form-control tt-input"></select>
+        </div>
 
-            <!-- List of headers -->
-            <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;" resize resize-y="150" ng-show="vm.selectedLayerId != vm.mapLabel">
-                <!-- Select/deselect all -->
-                <li class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis; border-bottom: 1px solid #DADADA; margin-bottom: 10px;">
-                    <label>
-                        <input type="checkbox" name="selectAll" value="{{vm.selectAllText}}" data-ng-checked="vm.selectAllBool" data-ng-click="vm.selectAll()">&nbsp;&nbsp;{{vm.selectAllText}}
-                    </label>
+        <!-- Right side of the table view -->
+        <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10 datatable-top-row-height" ng-init="poiTypeFilter" ng-show="vm.selectedLayerId != vm.mapLabel">
+            <div class="row">
+                <div class="col-xs-5 col-sm-4 col-md-3 no-padding">
+                    <!-- Filter -->
+                    <div class="datatable-top-row-height datatable-filter">
+                        <span style="direction: ltr; position: relative; display: block;">
+                            <input id="searchbox" data-ng-model="featureFilter" type="text" placeholder="Filter" autocomplete="off" spellcheck="false" class="form-control tt-input">
+                            <span id="searchicon" class="fa form-control-feedback fa-filter" style="padding-top: 8px;"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-xs-7 col-sm-8 col-md-9" style="padding-right: 72px;">
+                    <!--Download to CSV option-->
+                    <div class="datatable-top-row-height datatable-download datatable-download-large">
+                        <div class="datatable-download-text">
+                            {{'DOWNLOAD_SELECTION_AS' | translate}}<span data-ng-click="vm.downloadCsv()" style="padding-left: 8px"><i class="fa fa-download"></i>CSV</span>
+                            <span data-ng-click="vm.downloadGeoJson()"><i class="fa fa-download"></i>GeoJSON</span>
+                        </div>
+                    </div>
+                    <div class="datatable-top-row-height datatable-download datatable-download-small">
+                        <div class="datatable-download-text">
+                            <span data-ng-click="vm.downloadCsv()" style="padding-left: 8px"><i class="fa fa-download"></i>CSV</span>
+                            <span data-ng-click="vm.downloadGeoJson()"><i class="fa fa-download"></i>GeoJSON</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 no-padding">
+            <!-- Select/deselect all -->
+            <ul class="form-group datatable-padding-left" style="margin-top: 8px">
+                <li class="list-unstyled datatable-select-all wodk-checkbox">
+                    <input type="checkbox" id="selectAll" name="selectAll" value="{{vm.selectAllText}}" data-ng-checked="vm.selectAllBool" data-ng-click="vm.selectAll()"
+                    />
+                    <label for="selectAll"></label>
+                    <div style="display: inline;padding: 0px 10px;">{{vm.selectAllText}}</div>
                 </li>
+            </ul>
+            <!-- List of headers -->
+            <ul class="form-group datatable-grey datatable-padding-left" style="overflow-y: auto; overflow-x: hidden;" resize resize-y="220" ng-show="vm.selectedLayerId != vm.mapLabel">
                 <!-- PropertyTypes -->
-                <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
-                    <label ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}">
-                        <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1" data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
-                    </label>
-                    <!--<div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
-                                   data-ng-checked="vm.headers.indexOf(mi.title) > -1"
-                                   data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
-                        </label>
-                    </div>-->
+                <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled wodk-checkbox" style="white-space: nowrap; text-overflow: ellipsis">
+                    <!--<label ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}">
+                            <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1" data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
+                        </label>-->
+                    <input type="checkbox" id="checkbox-{{$index}}" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1"
+                        data-ng-click="vm.toggleSelection(mi.title)" />
+                    <label for="checkbox-{{$index}}" ng-class="{'datatable-propertytype-admin': !mi.visibleInCallOut}"></label>
+                    <div style="display: inline;padding: 0px 10px;">{{mi.title}}</div>
                 </li>
                 <!-- Empty space to prevent items hiding under timeline -->
                 <li class="list-unstyled" style="margin-bottom: 30px" />
             </ul>
-            <!--       <pre>{{vm.headers|json}}</pre>-->
         </div>
 
-        <!-- Right side of the table view -->
-        <div style="margin-left: 16%; border-left: 1px solid gray; padding: 1em;" ng-init="poiTypeFilter" ng-show="vm.selectedLayerId != vm.mapLabel">
-
-            <!-- Filter -->
-            <div class="has-feedback" style="margin-bottom: 1em; float: right; width: 16%; min-width: 200px;">
-                <span style="direction: ltr; position: static; display: block;">
-                    <input id="searchbox" data-ng-model="featureFilter" type="text" placeholder="Filter" autocomplete="off" spellcheck="false" style="position: relative; vertical-align: top;" class="form-control tt-input">
-                </span>
-                <span id="searchicon" class="fa form-control-feedback fa-filter" style="padding-top: 0px;"></span>
-            </div>
-
-            <!--Download to CSV option-->
-            <div align="center">
-                <a href="" data-ng-click="vm.downloadCsv()" alt="Download CSV" style="margin-top: 5px; margin-right: 1em; float: right;">
-                    <i class="fa fa-download fa-2x"></i><br>CSV
-                    </a>
-            </div>
-            <div align="center">
-                <a href="" data-ng-click="vm.downloadGeoJson()" alt="Download geoJSON" style="margin-top: 5px; margin-right: 1em; float: right;">
-                    <i class="fa fa-download fa-2x"></i><br>geoJSON
-                </a>
-            </div>
-
-            <!-- Specify how many items to show -->
-            <select data-ng-model="vm.numberOfItems" style="margin-bottom: 1em; margin-right: 10px; float: left; width: 16%; min-width: 200px;" class="form-control tt-input">
-                <option value="5" translate="SHOW5"></option>
-                <option value="10" translate="SHOW10"></option>
-                <option value="15" translate="SHOW15"></option>
-                <option value="20" translate="SHOW20"></option>
-                <option value="25" translate="SHOW25"></option>
-                <option value="30" translate="SHOW30"></option>
-                <option value="35" translate="SHOW35"></option>
-                <option value="40" translate="SHOW40"></option>
-            </select>
+        <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10">
 
             <!-- Data table -->
-            <table class="table table-striped table-condensed">
+            <table class="table table-striped table-condensed" id="cs-data-table">
                 <tr>
                     <th data-ng-repeat="header in vm.headers track by $index">
                         {{header}}&nbsp;
-                        <a data-ng-click="reverseSort = !reverseSort; vm.orderBy($index, reverseSort);"><i data-ng-class="vm.sortOrderClass($index, reverseSort)">&nbsp;&nbsp;</i></a>
+                        <a class="black" data-ng-click="$parent.reverseSort = !$parent.reverseSort; $parent.sortIndex = $index; vm.orderBy($parent.sortIndex, $parent.reverseSort);"><i data-ng-class="vm.sortOrderClass($index, $parent.reverseSort)">&nbsp;&nbsp;</i></a>
                     </th>
                 </tr>
-                <tr dir-paginate="row in vm.rows | filter:featureFilter | itemsPerPage: vm.numberOfItems" style="cursor: pointer; vertical-align: central">
+                <tr dir-paginate="row in vm.rows | filterRows:featureFilter | itemsPerPage: vm.numberOfItems" style="cursor: pointer; vertical-align: central" fit-rows rowheight="32" tablepadding="280">
                     <td data-ng-class="{'text-right': field.type == 'number'}" data-ng-repeat="field in row track by $index" data-ng-bind-html="vm.toTrusted(field.displayValue)"></td>
                 </tr>
             </table>
 
-            <dir-pagination-controls style="" max-size="10" boundary-links="true" direction-links="true" template-url="bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
-
+            <dir-pagination-controls style="" max-size="10" boundary-links="true" boundary-link-numbers="true" rotate="true" direction-links="true" next-text="{{'NEXT' | translate}}" previous-text="{{'PREVIOUS' | translate}}"></dir-pagination-controls>
         </div>
     </div>
     <div style="clear: both; margin: 0; padding: .5em"></div>

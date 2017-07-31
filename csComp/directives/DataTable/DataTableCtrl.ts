@@ -301,6 +301,7 @@ module DataTable {
                 this.headers.push(propertyTypeTitle);
             }
             this.rows = this.getRows();
+            this.restoreSorting();
         }
 
         private findLayerById(id: string): ProjectLayer {
@@ -510,6 +511,13 @@ module DataTable {
                 this.rows = this.getRows();
             }
             this.selectAllBool = !this.selectAllBool;
+            this.restoreSorting();
+        }
+
+        public restoreSorting() {
+            if (this.$scope.hasOwnProperty('sortIndex') && this.$scope.hasOwnProperty('reverseSort')) {
+                this.orderBy(this.$scope.sortIndex, this.$scope.reverseSort);
+            }
         }
 
         /**
