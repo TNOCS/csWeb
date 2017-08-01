@@ -76,17 +76,24 @@
         <div class="col-xs-6 col-sm-8 col-md-9 col-lg-10">
 
             <!-- Data table -->
-            <table class="table table-striped table-condensed" id="cs-data-table">
-                <tr>
-                    <th data-ng-repeat="header in vm.headers track by $index">
-                        {{header}}&nbsp;
-                        <a class="black" data-ng-click="$parent.reverseSort = !$parent.reverseSort; $parent.sortIndex = $index; vm.orderBy($parent.sortIndex, $parent.reverseSort);"><i data-ng-class="vm.sortOrderClass($index, $parent.reverseSort)">&nbsp;&nbsp;</i></a>
-                    </th>
-                </tr>
-                <tr dir-paginate="row in vm.rows | filterRows:featureFilter | itemsPerPage: vm.numberOfItems" style="cursor: pointer; vertical-align: central" fit-rows rowheight="32" tablepadding="280">
-                    <td data-ng-class="{'text-right': field.type == 'number'}" data-ng-repeat="field in row track by $index" data-ng-bind-html="vm.toTrusted(field.displayValue)"></td>
-                </tr>
-            </table>
+            <div style="overflow-y: none;overflow-x: auto;">
+                <table class="table table-striped table-condensed" id="cs-data-table">
+                    <tr>
+                        <th data-ng-repeat="header in vm.headers track by $index">
+                            {{header}}&nbsp;
+                            <a class="black" data-ng-click="$parent.reverseSort = !$parent.reverseSort; $parent.sortIndex = $index; vm.orderBy($parent.sortIndex, $parent.reverseSort);"><i data-ng-class="vm.sortOrderClass($index, $parent.reverseSort)">&nbsp;&nbsp;</i></a>
+                        </th>
+                    </tr>
+                    <tr dir-paginate="row in vm.rows | filterRows:featureFilter | itemsPerPage: vm.numberOfItems" style="cursor: pointer; vertical-align: central" fit-rows rowheight="32" tablepadding="300">
+                        <td data-ng-class="{'text-right': field.type == 'number'}" data-ng-repeat="field in row track by $index">
+                            <div ng-switch="field.type">
+                                <a ng-switch-when="bbcode" ng-href="{{field.displayValue}}" data-ng-bind-html="vm.toTrusted(field.displayValue)" target="_blank"></a>
+                                <div ng-switch-default data-ng-bind-html="vm.toTrusted(field.displayValue)"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
             <dir-pagination-controls style="" max-size="10" boundary-links="true" boundary-link-numbers="true" rotate="true" direction-links="true" next-text="{{'NEXT' | translate}}" previous-text="{{'PREVIOUS' | translate}}"></dir-pagination-controls>
         </div>

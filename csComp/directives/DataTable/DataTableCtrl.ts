@@ -441,7 +441,7 @@ module DataTable {
             csvRows.push(this.headers.join(';'));
 
             for (var i = 0; i < this.rows.length; i++) {
-                csvRows.push(this.rows[i].map((f) => { return f.displayValue; }).join(';'));
+                csvRows.push(this.rows[i].map((f) => { return f.displayValue; }).join(';').replace(/\r?\n|\r/g, ''));
             }
 
             var csvString = csvRows.join('\r\n');
