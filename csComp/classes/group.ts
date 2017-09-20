@@ -94,7 +94,7 @@ module csComp.Services {
             $injector.invoke(($http, $timeout) => {
                 $http.get(this.owsurl)
                     .then((res: {data: any}) => {
-                        this.parseXML(res.data);
+                        this.parseXML(res.data, $timeout);
                         this.isLoading = false;
                     },
                     (xml, status) => {
@@ -256,8 +256,8 @@ module csComp.Services {
     export class Legend {
         id: string;
         description: string;
-        legendKind: 'discrete' | 'discreteStrings' | 'interpolated';
-        imageUrl: string;
+        legendKind: 'image' | 'discrete' | 'discreteStrings' | 'interpolated';
+        imageUrl?: string;
         visualAspect: string;
         /** Optionally provide a label of a LegendEntry for values not present in the Legend */
         defaultLabel?: string;
