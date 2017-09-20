@@ -1431,7 +1431,9 @@ module csComp.Services {
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
-                if (feature.id == null) feature.id = Helpers.getGuid();
+                if (feature.id == null || typeof feature.id === 'undefined') {
+                    feature.id = Helpers.getGuid();
+                }
                 feature.layerId = layer.id;
                 feature.layer = layer;
 
@@ -1931,7 +1933,9 @@ module csComp.Services {
         findFeatureByName(name: string): IFeature {
             for (var i = 0; i < this.project.features.length; i++) {
                 var feature = this.project.features[i];
-                if (feature.hasOwnProperty('Name') && name === feature.properties['Name'])
+                if (feature.hasOwnProperty('properties') &&
+                    feature.properties.hasOwnProperty('Name') &&
+                    name === feature.properties['Name'])
                     return feature;
             }
         }
