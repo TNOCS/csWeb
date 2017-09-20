@@ -1379,15 +1379,15 @@ export class ApiManager extends events.EventEmitter {
      * @param  {Function} callback Callback function that performs the cleanup
      * See also: http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits
      */
-    public cleanup(callback?: Function) {
+    public cleanup(callback?: (code: number) => void) {
         // attach user callback to the process event emitter
         // if no callback, it will still exit gracefully on Ctrl-C
         if (!callback) callback = () => { };
-        process.on('cleanup', callback);
+        process.on('beforeExit', callback);
 
         // do app specific cleaning before exiting
         process.on('exit', function () {
-            process.emit('cleanup');
+            process.emit('beforeExit', 0);
         });
 
         // catch ctrl+c event and exit normally

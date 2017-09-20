@@ -196,7 +196,7 @@ module Dashboard {
             this.$timeout(() => {
                 w._initialized = true;
                 var widgetElement;
-                var newScope = this.$scope;
+                var newScope = this.$scope.$new(true);
                 (<any>newScope).widget = w;
 
                 if (w.position === 'rightpanel') {

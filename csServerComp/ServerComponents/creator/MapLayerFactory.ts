@@ -192,7 +192,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
                 console.log('-------------------------------------');
             }
-            res.send(HTTPStatusCodes.OK, JSON.stringify(this.featuresNotFound));
+            res.status(HTTPStatusCodes.OK).send(JSON.stringify(this.featuresNotFound));
 
             console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
@@ -548,7 +548,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
             delete layer.data.properties;
             delete layer.data.features;
             this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
-                res.send(result.result, JSON.stringify({'notFound': this.featuresNotFound}));
+                res.status(result.result).send(JSON.stringify({'notFound': this.featuresNotFound}));
             });
         });
     }
