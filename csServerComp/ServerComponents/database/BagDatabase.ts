@@ -313,9 +313,17 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             }
             var sql;
             if (isArea) {
-                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 1000`;
+                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb,
+                 ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal, lb_situ,lb_score,dim_won,dim_bev,dim_voorz,dim_veil,
+                 dim_fys,afs_adl,afs_harts,afs_apo,afs_super,afs_wnkl,afs_ziek_in,afs_ziek_ex,wdruk_ha,mantelz,afs_trein,afs_adl_int, 
+                 ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 
+                 WHERE ST_Intersects(geom, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992)) AND aant_inw > 0 LIMIT 1000`;
             } else {
-                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb, ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal, ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 WHERE gm_code_2015 = '${bounds}' AND aant_inw > 0 LIMIT 1000`;
+                sql = `SELECT bu_naam, bu_code, gm_naam, gm_code, gm_code_2015, aant_inw, woningen, woz, p_1gezw, p_mgezw, p_koopwon,p_huurwon, p_huko_onb,
+                 ster_0, ster_1, ster_2, ster_3, ster_4, ster_5, ster_onb, ster_in_ond, ster_totaal,lb_situ,lb_score,dim_won,dim_bev,dim_voorz,dim_veil,
+                 dim_fys,afs_adl,afs_harts,afs_apo,afs_super,afs_wnkl,afs_ziek_in,afs_ziek_ex,wdruk_ha,mantelz,afs_trein,afs_adl_int, 
+                 ST_AsGeoJSON(ST_Force_2D(ST_Transform(geom, 4326)), 6, 0) as contour FROM bagactueel.buurt_2014 
+                 WHERE gm_code_2015 = '${bounds}' AND aant_inw > 0 LIMIT 1000`;
             }
             client.query(sql, (err, result) => {
                 done();
