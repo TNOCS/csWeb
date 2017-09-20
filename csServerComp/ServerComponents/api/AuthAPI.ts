@@ -160,7 +160,13 @@ export class AuthAPI {
         if (!req.headers['authorization']) {
             return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
         }
-        var token = req.headers['authorization'].split(' ')[1];
+        var auths = req.headers['authorization'];
+        if (auths instanceof Array) {
+            var token = auths[0].split(' ')[1];
+        } else {
+            var token = auths.split(' ')[1];
+        }
+
         //Winston.error(`Token received: ${token}`);
         //var user: IUser = { displayName: 'Erik', email: 'erik.vullings@gmail.com', password: '1234' };
         //var testPayload = AuthAPI.createJWT(user);
