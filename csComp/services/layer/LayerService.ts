@@ -2106,11 +2106,13 @@ module csComp.Services {
         /**
          * enable a filter for a specific property
          */
-        setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
+        setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup, showMenu: boolean = true) {
             filter.group = group;
             group.filters.push(filter);
-            this.visual.leftPanelVisible = true;
-            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
+            if (showMenu) {
+                this.visual.leftPanelVisible = true;
+                (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
+            }
             this.triggerUpdateFilter(group.id);
         }
 
