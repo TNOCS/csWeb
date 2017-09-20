@@ -53,13 +53,13 @@ describe('ProjectGroup', function() {
 
             projectgroup.owsurl = targetURL;
             projectgroup.loadLayersFromOWS($myInjector, () => {
+                $httpBackend.expectGET(targetURL);
+                $httpBackend.flush();
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
                 expect(projectgroup.layers).not.toBe(null);
                 expect(projectgroup.layers.length).toBeGreaterThan(0);
             });
-            $httpBackend.expectGET(targetURL);
-            $httpBackend.flush();
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
         });
     });
 });
