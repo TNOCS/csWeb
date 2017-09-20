@@ -142,6 +142,9 @@ module Legend {
                 this.$scope.activeStyleGroup = activeStyle.group;
             }
             if (!activeStyle) return leg;
+            if (activeStyle.activeLegend) {
+                leg = angular.merge(leg, activeStyle.activeLegend);
+            }
 
             var ptd: csComp.Services.IPropertyType = this.$layerService.propertyTypeData[activeStyle.property];
             this.$scope.activeStyleProperty = ptd;
@@ -150,12 +153,8 @@ module Legend {
             leg.id = ptd.label + 'legendcolors';
             leg.legendKind = 'interpolated';
             leg.description = ptd.title;
-            leg.legendEntries = [];
-            if (activeStyle.activeLegend && activeStyle.activeLegend.legendEntries) {
-                activeStyle.activeLegend.legendEntries.forEach(le => {
-                    leg.legendEntries.push(le);
-                });
-            } else {
+            if (!leg.legendEntries) leg.legendEntries = [];
+            if (leg.legendEntries.length == 0 && activeStyle.info.min !== activeStyle.info.max) {
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.userMin));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.userMin + activeStyle.info.userMax) / 4));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.userMin + activeStyle.info.userMax) / 4));
@@ -198,7 +197,7 @@ module Legend {
             }
             return style;
         }
-        
+
         public toggleFilter(legend: csComp.Services.Legend, le: csComp.Services.LegendEntry) {
             if (!legend || !le) return;
             var projGroup = this.$scope.activeStyleGroup;

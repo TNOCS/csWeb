@@ -1,6 +1,4 @@
 module csComp.Services {
-    'use strict';
-
     export class WmsSource implements ILayerSource {
         title = 'wms';
         requiresLayer = false;
@@ -38,19 +36,19 @@ module csComp.Services {
                     if (a === 'focusChange') this.delay(layer, date);
                 });
             }
-            var wms: any = L.tileLayer.wms(layer.url, <any>{
+            var wms: any = L.tileLayer.wms(layer.url, <L.WMSOptions>{
                 layers: layer.wmsLayers,
                 styles: 'default',
                 opacity: layer.opacity / 100,
                 format: 'image/png',
                 transparent: true,
-                attribution: layer.description
+                attribution: layer.description,
+                srs: 'EPSG:4326'
             });
 
             layer.renderType = 'wms';
             layer._gui['wms'] = wms;
             callback(layer);
-            //this.$rootScope.$apply();
         }
 
         public updateTime(layer: ProjectLayer, date: Date) {

@@ -24,5 +24,9 @@
                 </li>
             </ul>
         </div>
+        <div data-ng-if="legend.legendKind === 'image'">
+            <div class="legend-description">{{legend.description}}</div>
+            <img ng-src="{{legend.imageUrl}}" title="legend"/>
+        </div>
     </div>
 </div>

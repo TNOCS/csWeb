@@ -78,6 +78,13 @@
                     data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                 <div uib-popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="'mouseenter'"
                     popover-append-to-body="true" class="group-title">{{group.title}}</div>
+                <div ng-show="group.isLoading" class="spinner">
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>
+                <div ng-show="group.error" class="fa fa-exclamation-triangle group-error" popover="{{group.error}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter"
+                     popover-append-to-body="true" style="position:absolute;right:50px;top:3px"></div>
                 <div ng-show="vm.$mapService.isAdminExpert && group._gui.mo" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer"
                     ng-click="vm.editGroup(group)"></div>
                 <div id="layergroup_{{group.id}}" class="collapse in">
