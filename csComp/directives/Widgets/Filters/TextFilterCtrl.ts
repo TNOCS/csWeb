@@ -81,6 +81,8 @@ module Filters {
             }
 
             group.filterResult = f.dimension.top(Infinity);
+            console.log(`Filtered textfilter (${f.dimension.top(1000).length})`);
+
             this.$layerService.updateMapFilter(group);
             //dc.renderAll();
             dc.redrawAll();
