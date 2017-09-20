@@ -161,10 +161,11 @@ export class AuthAPI {
             return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
         }
         var auths = req.headers['authorization'];
-        if (auths instanceof Array) {
-            var token = auths[0].split(' ')[1];
+        var token;
+        if (_.isArray(auths)) {
+            token = auths[0].split(' ')[1];
         } else {
-            var token = auths.split(' ')[1];
+            token = auths.split(' ')[1];
         }
 
         //Winston.error(`Token received: ${token}`);
@@ -175,8 +176,7 @@ export class AuthAPI {
         var payload = null;
         try {
             payload = jwt.decode(token, config.TOKEN_SECRET);
-        }
-        catch (err) {
+        } catch (err) {
             Winston.error(`Error ${err.message}`);
             return res.status(401).send({ message: err.message });
         }
