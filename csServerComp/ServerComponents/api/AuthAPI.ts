@@ -162,7 +162,7 @@ export class AuthAPI {
         }
         var auths = req.headers['authorization'];
         var token;
-        if (_.isArray(auths)) {
+        if (_.isArray<string>(auths)) {
             token = auths[0].split(' ')[1];
         } else {
             token = auths.split(' ')[1];
