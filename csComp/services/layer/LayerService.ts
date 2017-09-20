@@ -1285,7 +1285,7 @@ module csComp.Services {
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
             if (feature === this.lastSelectedFeature) {
-                this.$messageBusService.publish('feature', 'onFeatureUpdated');
+                this.$messageBusService.publish('feature', 'onFeatureUpdated', feature);
             }
         }
 
