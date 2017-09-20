@@ -161,7 +161,7 @@ export class AuthAPI {
             return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
         }
         var auths = req.headers['authorization'];
-        if (auths instanceof Array){
+        if (auths instanceof Array) {
             var token = auths[0].split(' ')[1];
         } else {
             var token = auths.split(' ')[1];
