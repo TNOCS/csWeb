@@ -84,7 +84,7 @@ module csComp.Services {
             return res;
         }
 
-        public loadLayersFromOWS($injector: ng.auto.IInjectorService = null): void {
+        public loadLayersFromOWS($injector: ng.auto.IInjectorService = null, onSuccess?: () => void): void {
             this.layers = [];   // add some layers here...
             this.isLoading = true;
 
@@ -96,6 +96,7 @@ module csComp.Services {
                     .then((res: {data: any}) => {
                         this.parseXML(res.data, $timeout);
                         this.isLoading = false;
+                        onSuccess();
                     },
                     (xml, status) => {
                         console.log('Unable to load OWSurl: ' + this.owsurl);

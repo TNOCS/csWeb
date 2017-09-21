@@ -52,15 +52,14 @@ describe('ProjectGroup', function() {
             $httpBackend.whenGET(targetURL).respond(200, fakeXML);
 
             projectgroup.owsurl = targetURL;
-            projectgroup.loadLayersFromOWS($myInjector);
-
-            $httpBackend.expectGET(targetURL);
-            $httpBackend.flush();
-            $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();
-
-            expect(projectgroup.layers).not.toBe(null);
-            expect(projectgroup.layers.length).toBeGreaterThan(0);
+            projectgroup.loadLayersFromOWS($myInjector, () => {
+                $httpBackend.expectGET(targetURL);
+                $httpBackend.flush();
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+                expect(projectgroup.layers).not.toBe(null);
+                expect(projectgroup.layers.length).toBeGreaterThan(0);
+            });
         });
     });
 });
