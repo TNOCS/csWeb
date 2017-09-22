@@ -75,7 +75,7 @@ module Filters {
                 f.dimension.filterAll();
             } else {
                 f.dimension.filterFunction((d: string) => {
-                    if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(f.stringValue.toLowerCase()) > -1);
+                    if (d != null && typeof d.toLowerCase === 'function') return (f.stringValue.toLowerCase().indexOf(d.toLowerCase()) > -1);
                     return false;
                 });
             }
