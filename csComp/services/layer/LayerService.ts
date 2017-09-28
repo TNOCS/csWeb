@@ -2054,7 +2054,12 @@ module csComp.Services {
                     }
 
                     if (ft.style && ft.style.fillColor) {
-                        gs.colors = ['white', '#FF5500'];
+                        // Set style color range from fillColor to grey or white, depending on highest contrast
+                        if ((<any>chroma).deltaE('white', ft.style.fillColor) < 50) {
+                            gs.colors = ['black', ft.style.fillColor];
+                        } else {
+                            gs.colors = ['white', ft.style.fillColor];
+                        }
                     } else {
                         gs.colors = ['red', 'white', 'blue'];
                     }
@@ -2740,6 +2745,7 @@ module csComp.Services {
                 d.name = 'Home';
                 d.showMap = true;
                 d.showLeftmenu = true;
+                d.showLegend = true;
                 d.widgets = [];
                 this.project.dashboards.push(d);
                 var d2 = new Services.Dashboard();
@@ -3334,6 +3340,8 @@ module csComp.Services {
                     let iqr = Math.abs(r.q3 - r.q1);
                     r.userMin = r.median - (1.5 * iqr);
                     r.userMax = r.median + (1.5 * iqr);
+                    if (r.userMin < r.min) r.userMin = r.min;
+                    if (r.userMax > r.max) r.userMax = r.max;
                 }
             }
             return r;

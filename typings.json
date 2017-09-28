@@ -15,7 +15,7 @@
     "body-parser": "registry:dt/body-parser#0.0.0+20160619023215",
     "cesium": "github:rinzeb/DefinitelyTyped/cesium/cesium.d.ts#09e844c1ef5a2b4b5bda6c672453cc7f1fdfe0c6",
     "chai-http": "registry:dt/chai-http#0.0.0+20170201082344",
-    "chroma-js": "registry:dt/chroma-js#1.1.1+20160815215350",
+    "chroma-js": "registry:dt/chroma-js#1.1.1+20160816205622",
     "cors": "registry:dt/cors#0.0.0+20160708202709",
     "crossfilter": "registry:dt/crossfilter#0.0.0+20160317120654",
     "d3": "github:rinzeb/DefinitelyTyped/d3/d3.d.ts#3de292f2aab5566a0030af48b9cd7bcae6392696",

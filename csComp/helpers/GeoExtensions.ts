@@ -55,6 +55,8 @@ module csComp.Helpers {
             for (var i = 0; i < data.length; i++) {
                 // get bound
                 if (!data[i].hasOwnProperty('geometry')) continue;
+                if (data[i]['geometry']['type'] === 'MultiPolygon') continue; // TODO: Add multipolygon support
+
                 var b = d3.geo.bounds(data[i]);
                 // Update the bounds recursively by comparing the current
                 // xMin/xMax and yMin/yMax with the coordinate

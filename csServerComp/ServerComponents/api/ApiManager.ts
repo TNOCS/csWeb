@@ -946,7 +946,7 @@ export class ApiManager extends events.EventEmitter {
             typeUrl: layer.typeUrl,
             quickRefresh: layer.quickRefresh,
             confirmUpdate: layer.confirmUpdate,
-            opacity: layer.opacity ? layer.opacity : 75,
+            opacity: layer.opacity ? layer.opacity : 100,
             type: layer.type,
             geometryTypeId: layer.geometryTypeId,
             // We are returning a definition, so remove the data
