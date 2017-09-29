@@ -86,6 +86,8 @@ export class BaseConnector implements ApiManager.IConnector {
 
     public deleteProject(projectId, meta: ApiMeta, callback: Function) {}
 
+    public cloneProject(projectId, clonedProjectId: string, meta: ApiMeta, callback: Function) {}
+
     public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {}
 
     public getFile(file: string, meta: ApiMeta, callback: Function) {}

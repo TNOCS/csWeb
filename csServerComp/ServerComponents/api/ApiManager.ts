@@ -116,6 +116,8 @@ export interface IConnector {
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    cloneProject(projectId: string, clonedProjectId: string, meta: ApiMeta, callback: Function);
+
     /** Add a resource type file to the store. */
     addResource(resource: ResourceFile, meta: ApiMeta, callback: Function);
     /** Update a resource type file to the store. */
@@ -603,6 +605,31 @@ export class ApiManager extends events.EventEmitter {
                 }
             }
         }
+    }
+
+    private cloneResource(resourceId: string, newResourceId: string, meta: ApiMeta, callback: Function) {
+        if (!this.resources.hasOwnProperty(resourceId)) {
+            callback(<CallbackResult>{ result: ApiResult.ResourceNotFound, error: 'Resource not found' });
+            return;
+        }
+        if (this.resources.hasOwnProperty(newResourceId)) {
+            callback(<CallbackResult>{ result: ApiResult.ResourceAlreadyExists, error: 'Resource already exists' });
+            return;
+        }
+        this.getResource(resourceId, {}, (result) => {
+            var resource = result.resource;
+            var resourceClone = JSON.parse(JSON.stringify(resource));
+            resourceClone.id = newResourceId;
+            resourceClone.url = resourceClone.url.replace(resourceId, newResourceId);
+            if (resourceClone._localFile) {
+                resourceClone._localFile = resourceClone._localFile.replace(resourceId, newResourceId);
+            }
+            if (resourceClone.featureTypes && resourceClone.featureTypes[resourceId]) {
+                resourceClone.featureTypes[newResourceId] = JSON.parse(JSON.stringify(resourceClone.featureTypes[resourceId]));
+                delete resourceClone.featureTypes[resourceId];
+            }
+            this.addResource(resourceClone, true, {source: 'apimanager'}, callback);
+        });
     }
 
     public addPropertyTypes(resourceId: string, data: IPropertyType[], meta: ApiMeta, callback: Function) {
@@ -1133,6 +1160,63 @@ export class ApiManager extends events.EventEmitter {
                 this.saveProjectDelay(project);
             }
         ]);
+    }
+
+    public cloneProject(projectId: string, clonedProjectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        var pClone: Project = this.findProject(clonedProjectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
+        if (!p.groups) p.groups = [];
+        pClone = JSON.parse(JSON.stringify(p)); // Clone project
+        var groupsClone = JSON.parse(JSON.stringify(p.groups)); // Clone groups
+        pClone.groups.length = 0; // Remove groups from project
+        pClone.id = clonedProjectId;
+        async.eachSeries(groupsClone, (g: Group, groupCB: Function) => {
+            var layersClone = JSON.parse(JSON.stringify(g.layers));
+            g.layers.length = 0; // Remove layers from group
+            g.id = helpers.newGuid();
+            this.addGroup(g, clonedProjectId, meta, (result: CallbackResult) => {
+                if (result.result !== ApiResult.OK) {
+                    groupCB(result);
+                    return;
+                }
+                async.eachSeries(layersClone, (layer: Layer, layerCB: Function) => {
+                    this.getLayer(layer.id, {}, (result) => {
+                        var l = result.layer;
+                        let newLayerGuid = helpers.newGuid();
+                        l.url = l.url.replace(l.id, newLayerGuid);
+                        l.id = newLayerGuid;
+                        this.addUpdateLayer(l, meta, (result: CallbackResult) => {
+                            if (result.result !== ApiResult.OK) {
+                                layerCB(result);
+                                return;
+                            }
+                            let oldResId = l.typeUrl.split('/').pop();
+                            let newResId = helpers.newGuid();
+                            l.defaultFeatureType = l.defaultFeatureType.replace(oldResId, newResId);
+                            l.defaultLegendProperty = l.defaultLegendProperty.replace(oldResId, newResId);
+                            l.typeUrl = l.typeUrl.replace(oldResId, newResId);
+                            this.cloneResource(oldResId, newResId, {}, (result) => {
+                                this.addLayerToProject(clonedProjectId, g.id, l.id, {}, (result) => {
+                                    if (result.result !== ApiResult.OK) {
+                                        layerCB(result);
+                                        return;
+                                    }
+                                    layerCB();
+                                });
+                            });
+                        });
+                    });
+                }, (err) => {
+                    groupCB();
+                });
+            });
+        }, (err) => {
+            var res = new CallbackResult();
+            res.result = (err) ? ApiResult.Error : ApiResult.OK;
+            res.error = err;
+            callback(res);
+        });
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
