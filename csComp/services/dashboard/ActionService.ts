@@ -34,7 +34,11 @@ module csComp.Services {
 
             // NOTE all action titles must be in lowercase
             this.actions['select feature'] = () => {
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
+                let featurePropsDirective = 'featureprops';
+                if (this.layerService.project && this.layerService.project.featurePropsDirective) {
+                    featurePropsDirective = this.layerService.project.featurePropsDirective;
+                }
+                var rpt = csComp.Helpers.createRightPanelTab(featurePropsDirective, featurePropsDirective, null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info', false, true);
                 this.messageBusService.publish('rightpanel', 'activate', rpt);
                 this.layerService.visual.rightPanelVisible = true;
             };

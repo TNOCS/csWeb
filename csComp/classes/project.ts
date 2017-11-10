@@ -243,6 +243,8 @@ module csComp.Services {
         // useOnlineSearch: boolean = false;
         // /** If useOnlineSearch = true define the url of the online search engine. */
         // onlineSearchUrl: string;
+        /** Directive to use for the featurepropspanel (default: featureprops) */
+        featurePropsDirective?: string;
 
         /**
          * Serialize the project to a JSON string.
@@ -308,7 +310,8 @@ module csComp.Services {
                 searchProviders:   project.searchProviders,
                 hideLayerActions:  project.hideLayerActions,
                 attributions: project.attributions,
-                disableDrop: project.disableDrop
+                disableDrop: project.disableDrop,
+                featurePropsDirective: project.featurePropsDirective
             };
         }
 
