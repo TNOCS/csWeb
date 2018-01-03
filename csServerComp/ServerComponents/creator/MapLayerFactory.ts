@@ -703,6 +703,14 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
     private getPolygonType(ld: ILayerDefinition, props: IProperty[]) {
         let type = this.determineType(props, ld.parameter1);
         switch (ld.geometryType) {
+            case 'Zorgkantoorregios':
+                ld.geometryFile = 'Zorgkantoorregio';
+                ld.geometryKey = 'Name';
+                break;
+            case 'Regioplus':
+                ld.geometryFile = 'Regioplus';
+                ld.geometryKey = 'Name';
+                break;
             case 'Provincie':
                 if (type === 'both') {
                     ld.geometryFile = 'CBS_Provincie_op_code';
