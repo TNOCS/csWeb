@@ -591,6 +591,11 @@ module FeatureProps {
                 if (this.showMore.indexOf(item.property) < 0) this.showMore.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
                 var d = item.property;
+                if (item.propertyType.type === 'number') {
+                    _.each(values, ((val) => {
+                        if (val[d]) val[d] = +val[d];
+                    }));
+                }
                 var res = vg.util.summary(values, [item.property]);
                 item.stats = res[0];
                 item.stats.sum = item.stats.count * item.stats.mean;

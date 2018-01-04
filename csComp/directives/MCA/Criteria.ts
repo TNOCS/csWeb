@@ -282,14 +282,14 @@ module Mca.Models {
         }
 
         getFeatureScore(x: number) {
-            if (this.maxCutoffValue <= x || x <= this.minCutoffValue) {
+            if (this.maxCutoffValue < x || x < this.minCutoffValue) {
                 return 0;
             }
-            if (x < this._x[0]) {
+            if (x <= this._x[0]) {
                 return this._y[0];
             }
             let last = this._x.length - 1;
-            if (x > this._x[last]) {
+            if (x >= this._x[last]) {
                 return this._y[last];
             }
             //for (var k in this.x) {
