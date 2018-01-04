@@ -711,6 +711,10 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 ld.geometryFile = 'Regioplus';
                 ld.geometryKey = 'Name';
                 break;
+            case 'GGD_Regios':
+                ld.geometryFile = 'GGD_Regios';
+                ld.geometryKey = 'Name';
+                break;
             case 'Provincie':
                 if (type === 'both') {
                     ld.geometryFile = 'CBS_Provincie_op_code';
