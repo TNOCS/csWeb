@@ -14,11 +14,13 @@ import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
 import Api = require('../api/ApiManager');
 import Utils = require('../helpers/Utils');
+const StringExt = require('../helpers/StringExt');
 import async = require('async');
 import winston = require('winston');
 import path = require('path');
 import _ = require('underscore');
 import IProperty = Api.IProperty;
+import { IFeature, IGeoJsonGeometry } from '../../index';
 
 export interface ILayerDefinition {
     projectTitle: string;
@@ -97,6 +99,8 @@ export interface IBagSearchRequest {
     query: string;
     nrItems: number;
 }
+
+const MIN_STRING_EQUALITY_SCORE = 0.60;
 
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
@@ -885,36 +889,60 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         }
         var fts: any[] = templateJson.features;
         properties.forEach((p, index) => {
+            let featureJson: IGeoJsonFeature = { type: 'Feature', properties: null };
+            if (sensors.length > 0) {
+                featureJson['sensors'] = sensors[index];
+            }
             let foundFeature = fts.some((f) => {
-                let featureJson: IGeoJsonFeature = { type: 'Feature', properties: null };
-                if (sensors.length > 0) {
-                    featureJson['sensors'] = sensors[index];
-                }
                 if (f.properties[templateKey] == p[par1]) { // Do no type-check (don't use ===)
-                    // console.log(p[par1]);
-                    if (inclTemplProps) {
-                        for (var key in f.properties) {
-                            if (!p.hasOwnProperty(key) && key !== templateKey) { //Do not overwrite input data, only add new items
-                                p[key] = f.properties[key];
-                            }
-                        }
-                    }
-                    featureJson.properties = p;
-                    features.push(featureJson);
+                    this.enrichFeature(featureJson, f, p, inclTemplProps, templateKey);
                     return true;
                 }
             });
             if (!foundFeature) {
-                console.log('Warning: Could not find: ' + p[par1]);
-                this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
-                let featureJson: IGeoJsonFeature = { type: 'Feature', properties: p}; // Also add feature if a geometry was not found
-                features.push(featureJson);
+                console.log('Warning: Could not find: ' + p[par1] + '. Trying again...');
+                let cleanChars = new RegExp('[^a-zA-Z0-9 -]');
+                let featureScores: {f: IFeature, score: number}[] = [];
+                let cleanMatchProp = p[par1].replace(cleanChars, '');
+                fts.forEach((f) => {
+                    let text1 = decodeURIComponent(f.properties[templateKey]); // Try to convert to utf8
+                    let text2 = f.properties[templateKey].toString();
+                    let score = _.max([cleanMatchProp.score(text1.replace(cleanChars, ''), 0.8), cleanMatchProp.score(text2.replace(cleanChars, ''), 0.8)]);
+                    featureScores.push({f: f, score: score});
+                });
+                let maxScore = _.reduce(featureScores,
+                                    (memo, val: {f: IFeature, score: number}) => {
+                                        return (val.score > memo.score) ? {f: val.f, score: val.score} : memo;
+                                    }, {score: 0.0, f: null}
+                                );
+                if (maxScore.score >= MIN_STRING_EQUALITY_SCORE) {
+                    console.log(`Did find ${p[par1]} for ${maxScore.f.properties[templateKey]} (Score ${maxScore.score})`);
+                    p[par1] = maxScore.f.properties[templateKey]; // Update the property to the exact same key
+                    this.enrichFeature(featureJson, maxScore.f, p, inclTemplProps, templateKey);
+                } else {
+                    console.log('Warning: Could not find: ' + p[par1] + '.');
+                    this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
+                    featureJson.properties = p; // Also add feature if a geometry was not found
+                }
             }
+            features.push(featureJson);
             if (index % 25 === 0) {
                 console.log(`Parsed feature ${index + 1}: ${p[par1]}`);
             }
         });
         callback();
+    }
+
+    private enrichFeature(featureJson: IGeoJsonFeature, f: IFeature, p: IProperty, inclTemplProps: boolean, templateKey: string): IGeoJsonFeature {
+        if (inclTemplProps) {
+            for (var key in f.properties) {
+                if (!p.hasOwnProperty(key) && key !== templateKey) { //Do not overwrite input data, only add new items
+                    p[key] = f.properties[key];
+                }
+            }
+        }
+        featureJson.properties = p;
+        return featureJson;
     }
 
     private createInternationalFeature(queryString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
