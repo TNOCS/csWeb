@@ -54,21 +54,21 @@
                     <label class="editor-title input-xlarge" for="name">{{'NAME' | translate}}</label>
                     <input type="text" class="form-control" name="name" id="name" ng-model="vm.name" placeholder="Enter name"
                         required>
-                    <span class="help-block" ng-show="loginForm.userName.$error.required">Not a valid username</span>
+                    <span class="help-block" ng-show="loginForm.userNameReg.$error.required">Not a valid username</span>
                 </div>
                 
                 <div class="form-group" ng-class="{ 'has-error': loginForm.userName.$invalid }">
-                    <label class="editor-title input-xlarge" for="userName">{{'EMAIL' | translate}}</label>
-                    <input type="text" class="form-control" name="userName" id="userName" ng-model="vm.userName" placeholder="Enter email address"
+                    <label class="editor-title input-xlarge" for="userNameReg">{{'EMAIL' | translate}}</label>
+                    <input type="text" class="form-control" name="userNameReg" id="userNameReg" ng-model="vm.userName" placeholder="Enter email address"
                         required>
-                    <span class="help-block" ng-show="loginForm.userName.$error.required">Not a valid username</span>
+                    <span class="help-block" ng-show="loginForm.userNameReg.$error.required">Not a valid username</span>
                 </div>
 
-                <div class="form-group" ng-class="{ 'has-error': loginForm.userPassword.$required }">
+                <div class="form-group" ng-class="{ 'has-error': loginForm.userPasswordReg.$required }">
                     <label class="editor-title input-xlarge" for="groupDescription">{{'PASSWORD' | translate}}</label>
-                    <input type="password" class="form-control" name="userPassword" id="userPassword" ng-model="vm.userPassword" placeholder="Enter password"
+                    <input type="password" class="form-control" name="userPasswordReg" id="userPasswordReg" ng-model="vm.userPassword" placeholder="Enter password"
                         required>
-                    <span class="help-block" ng-show="loginForm.userPassword.$error.required">Not a valid password</span>
+                    <span class="help-block" ng-show="loginForm.userPasswordReg.$error.required">Not a valid password</span>
                 </div>
 
                 <div>

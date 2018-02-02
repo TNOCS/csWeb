@@ -2585,7 +2585,7 @@ module csComp.Services {
                     if (this.openSingleProject) {
                         let projectId = searchParams['project'];
                         // By default, look for an API project
-                        let u = 'api/projects/' + projectId;
+                        let u = 'http://www.zorgopdekaart.nl/zelfkaartenmaken/api/projects/' + projectId;
                         if (!initialProject) {
                             var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.

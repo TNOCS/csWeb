@@ -52,7 +52,7 @@
                                     </div>
                                     <ul class="dropdown-menu" role="menu" style="right:0;left:auto;left:initial;white-space:nowrap;min-width:130px">
                                         <li ng-repeat="title in style.availableAspects" style="margin:3px;cursor: pointer">
-                                            <i class="style-aspect style-{{title}}" style="float:left" />
+                                            <i class="style-aspect style-{{title}}" ng-class="{'style-aspect-selected': $parent.style.visualAspect == title}"style="float:left" />
                                             <span ng-click="$parent.style.visualAspect = title;vm.$layerService.updateStyle($parent.style)">
                                                 <img class="fa fa-search" style="margin-right: 8px" /> {{title}} </span>
                                         </li>

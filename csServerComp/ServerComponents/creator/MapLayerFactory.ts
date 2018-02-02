@@ -274,10 +274,11 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 fitToMap: data.fitToMap,
                 defaultFeatureType: data.defaultFeatureType,
                 typeUrl: 'data/api/resourceTypes/' + data.reference + '.json',
-                url: 'api/layers/' + data.reference,
+                url: 'zelfkaartenmaken/api/layers/' + data.reference,
                 opacity: data.opacity,
                 dynamicResource: true
             });
+        layer.url = 'zelfkaartenmaken/api/layers/' + data.reference;
         layer.features = data.geojson.features;
         layer.timestamps = data.geojson.timestamps;
         var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });

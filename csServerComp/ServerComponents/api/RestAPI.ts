@@ -27,6 +27,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     constructor(public server: Express, public baseUrl: string = '/api') {
         super();
+        Winston.info(`Constructing restApi with baseUrl ${baseUrl}`);
         this.isInterface = true;
         this.resourceUrl = '/resources/';
         this.layersUrl = '/layers/';
@@ -36,6 +37,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.projectsUrl = '/projects/';
         this.proxyUrl = '/proxy';
         this.tilesUrl = '/tiles/';
+        Winston.info(`Constructed restApi with baseUrl ${baseUrl}`);
     }
 
     private getResources(req: Request, res: Response) {

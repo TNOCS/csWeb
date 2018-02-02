@@ -486,12 +486,13 @@ module csComp.Helpers {
         }
 
         /** Convert a string representation of a bounding box to an LatLngBounds.  */
-        static toBoundingBox(bb: string) {
+        static toBoundingBox(bb: string): L.LatLngBounds {
             var pts: number[] = [];
             bb.split(',').forEach(p => {
                 pts.push(+p);
             });
-            return new L.LatLngBounds([pts[1], pts[0]], [pts[3], pts[2]]);
+            var bnds = new L.LatLngBounds(new L.LatLng(pts[1], pts[0]), new L.LatLng(pts[3], pts[2]));
+            return bnds;
         }
 
         /** Start slippy map computation */

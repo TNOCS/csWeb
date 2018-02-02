@@ -1,6 +1,7 @@
 import IFeature = csComp.Services.IFeature;
 import IPropertyType = csComp.Services.IPropertyType;
 import IActionOption = csComp.Services.IActionOption;
+import GeoExtensions = csComp.Helpers.GeoExtensions;
 
 module Accessibility {
     export class AccessibilityModel implements csComp.Services.IActionService {
@@ -198,8 +199,8 @@ module Accessibility {
             }
             this.urlParameters['mode'] = this.transportMode;
             this.urlParameters['time'] = encodeURIComponent(this.time);
-            if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
-            if (this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
+            if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            if (this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             var url = this.urlAddress + '?';
             for (var key in this.urlParameters) {
                 if (this.urlParameters.hasOwnProperty(key) && key !== 'cutoffSec') {
@@ -236,8 +237,8 @@ module Accessibility {
             this.time = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
             this.urlParameters['date'] = (d.getMonth() + 1) + '-' + d.getDate() + '-' + d.getFullYear();
             this.transportMode = this.urlParameters['mode'];
-            if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
-            if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
+            if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
+            if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
 
             if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }

@@ -112,7 +112,9 @@ export class csServer {
         //     });
         // }
 
-        this.config.add('server', 'http://localhost:' + this.options.port);
+        if (!this.config.containsKey('server')) {
+            this.config.add('server', 'http://localhost:' + this.options.port);
+        }
 
         if (this.options.swagger === true) this.server.use('/swagger', express.static(path.join(this.dir, 'swagger')));
         this.server.use(express.static(path.resolve(this.dir, 'public')));
@@ -141,10 +143,10 @@ export class csServer {
             /*
              * API platform
              */
-            this.api = new csweb.ApiManager('cs', 'cs');
+            this.api = new csweb.ApiManager('cs', 'cs', false, {server: 'http://www.zorgopdekaart.nl/zelfkaartenmaken'});
             this.api.init(path.resolve(this.dir, this.apiFolder), () => {
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
-                    { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
+                    { key: 'rest', s: new csweb.RestAPI(this.server, this.config.containsKey('baseUrl') ? this.config['baseUrl'] : null), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
                 ];
