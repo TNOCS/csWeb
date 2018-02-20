@@ -1519,7 +1519,7 @@ module csComp.Services {
         }
 
         /** remove feature batch */
-        public removeFeatureBatch(featureIds: string[], layer: IProjectLayer) {
+        public removeFeatureBatch(featureIds: string[], layer: IProjectLayer, save: boolean = false) {
             var toRemove = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) >= 0; });
             this.project.features = this.project.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
             layer.data.features = layer.data.features.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
@@ -1527,6 +1527,14 @@ module csComp.Services {
                 layer.group.filterResult = layer.group.filterResult.filter((f: IFeature) => { return featureIds.indexOf(f.id) < 0; });
             layer.group.ndx.remove(toRemove);
             this.activeMapRenderer.removeFeatureBatch(toRemove, layer);
+
+            if (save && layer.isDynamic) {
+                var s = new LayerUpdate();
+                s.layerId = layer.id;
+                s.action = LayerUpdateAction.deleteFeatureBatch;
+                s.item = featureIds;
+                this.$messageBusService.serverSendMessageAction('layer', s);
+            }
 
             toRemove.forEach((feature) => {
                 if (feature.isSelected) {
@@ -3558,7 +3566,8 @@ module csComp.Services {
         deleteFeature,
         updateLayer,
         deleteLayer,
-        addUpdateFeatureBatch
+        addUpdateFeatureBatch,
+        deleteFeatureBatch
     }
 
     /** Type of change in an ApiEvent */

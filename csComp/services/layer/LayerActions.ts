@@ -153,9 +153,7 @@ module csComp.Services {
                 var erase = <IActionOption>{ title: 'Clean Layer', icon: 'eraser' };
                 erase.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
                     console.log('Eraseing features from layer: ' + layer.title);
-                    layer.data.features.forEach((f) => {
-                        layerService.removeFeature(f);
-                    });
+                    layer.layerSource.service.removeFeatureBatch(_.map(layer.data.features, (f: IFeature) => { return f.id; }), layer, true); // remove and save
                     layer.data.features.length = 0;
                 };
                 res.push(erase);

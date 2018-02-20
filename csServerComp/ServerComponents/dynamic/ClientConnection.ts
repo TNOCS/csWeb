@@ -75,7 +75,8 @@ import ApiMeta = ApiManager.ApiMeta;
         deleteFeature,
         updateLayer,
         deleteLayer,
-        addUpdateFeatureBatch
+        addUpdateFeatureBatch,
+        deleteFeatureBatch
     }
 
     /**

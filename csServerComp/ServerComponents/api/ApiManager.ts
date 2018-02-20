@@ -97,6 +97,7 @@ export interface IConnector {
     getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
     updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function);
     deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
+    deleteFeatureBatch(layerId: string, featureIds: string[], useLog: boolean, meta: ApiMeta, callback: Function);
     addUpdateFeatureBatch(layerId: string, features: any[], useLog: boolean, meta: ApiMeta, callback: Function);
     //log methods
     addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function);
@@ -1332,6 +1333,18 @@ export class ApiManager extends events.EventEmitter {
             i.addUpdateFeatureBatch(layerId, features, false, meta, () => { });
         });
         this.emit(Event[Event.FeaturesChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: features });
+    }
+
+    /** Similar to deleteFeature, but with an array of updated features instead of one feature.
+     *
+     */
+    public deleteFeatureBatch(layerId: string, featureIds: string[], useLog: boolean, meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForLayerId(layerId);
+        if (s) s.deleteFeatureBatch(layerId, featureIds, true, meta, (result) => callback(result));
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.deleteFeatureBatch(layerId, featureIds, false, meta, () => { });
+        });
+        this.emit(Event[Event.FeaturesChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureIds });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {

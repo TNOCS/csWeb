@@ -3,46 +3,54 @@
 
         <span ng-repeat="(key,featureType) in vm.layer._gui.featureTypes" class="featureType-item">
 
-            <span ng-switch="view" >
+            <span ng-switch="view">
                 <span ng-switch-when="icons" style="margin-top:5px;margin-bottom:5px">
-                     <span ng-switch="featureType.style.drawingMode">
-                    <div ng-switch-when="Point" id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="width:30px;height:30px;margin-right:10px;float:left;border:none;background:transparent"
-                        when-ready="vm.initDrag(key,vm.layer)">
-                        <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
-                    </div>
-                     <!--<div ng-switch-when="Polygon" ng-click="vm.startDraw(featureType,$event)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">                        
-                        <feature-type featuretype="featureType" />
-                    </div>      -->
+                    <span ng-switch="featureType.style.drawingMode">
+                        <div ng-switch-when="Point" id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="width:30px;height:30px;margin-right:10px;float:left;border:none;background:transparent"
+                            when-ready="vm.initDrag(key,vm.layer)">
+                            <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
+                        </div>
+                        <div ng-switch-when="Line" id="layerfeaturetype-{{featureType._guid}}" ng-click="vm.startDraw(featureType,$event)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">
+                            <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
+                        </div>
+                        <div ng-switch-when="Polygon" id="layerfeaturetype-{{featureType._guid}}" ng-click="vm.startDraw(featureType,$event)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">
+                            <feature-type class="leaflet-draw-draw-polygon" featuretype="featureType" />
+                        </div>
                     </span>
                 </span>
-        <div ng-switch-default style="clear:both;position:relative">
-            <span ng-switch="featureType.style.drawingMode">
-                    <div ng-switch-when="Point" id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="cursor:pointer;width:30px;height:30px;border:none;float:left;background:transparent"
-                        when-ready="vm.initDrag(key,vm.layer)">
-                        <feature-type featuretype="featureType" />
+                <div ng-switch-default style="clear:both;position:relative">
+                    <span ng-switch="featureType.style.drawingMode">
+                        <div ng-switch-when="Point" id="layerfeaturetype-{{featureType._guid}}" class="draggable drag-element-source" style="cursor:pointer;width:30px;height:30px;border:none;float:left;background:transparent"
+                            when-ready="vm.initDrag(key,vm.layer)">
+                            <feature-type featuretype="featureType" />
+                        </div>
+                        <div ng-switch-when="Line" ng-click="vm.startDraw(featureType)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">
+                            <feature-type featuretype="featureType" />
+                        </div>
+                        <div ng-switch-when="Polygon" ng-click="vm.startDraw(featureType)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">
+                            <feature-type featuretype="featureType" />
+                        </div>
+                    </span>
+                    <div ng-if="featureType.style.drawingMode=='Point'" class="featureType-name">{{featureType.name}}</div>
+                    <div ng-if="featureType.style.drawingMode!='Point'" class="featureType-name" style="cursor:pointer" ng-click="vm.startDraw(featureType)">{{featureType.name}}</div>
+                    <div style="position:absolute;right:10px;top:14px" ng-if="vm.$mapService.isAdminExpert">
+                        <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
+                            aria-expanded="false">
+                        </div>
+                        <ul class="dropdown-menu pull-right">
+                            <li ng-click="vm.editFeaturetype(featureType)" class="dropdown-item">
+                                <a>Edit</a>
+                                <span class="fa fa-pencil dropdown-item-icon" />
+                            </li>
+                            <li ng-click="vm.deleteFeaturetype(featureType)" class="dropdown-item">
+                                <a>Delete</a>
+                                <span class="fa fa-trash dropdown-item-icon" />
+                            </li>
+                            <!--<li ng-click="vm.makeDefaultFeaturetype(featureType)" class="dropdown-item"><a>Make default</a><span class="fa fa-trash dropdown-item-icon" /></li>-->
+                        </ul>
                     </div>
-                    <div ng-switch-when="Line" ng-click="vm.startDraw(featureType)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">
-                        
-                        <feature-type featuretype="featureType" />
-                    </div>
-                    <div ng-switch-when="Polygon" ng-click="vm.startDraw(featureType)" style="width:30px;height:30px;border:none;float:left;background:transparent;cursor:pointer">                        
-                        <feature-type featuretype="featureType" />
-                    </div>                    
-            </span>
-            <div ng-if="featureType.style.drawingMode=='Point'" class="featureType-name">{{featureType.name}}</div>
-            <div ng-if="featureType.style.drawingMode!='Point'" class="featureType-name" style="cursor:pointer" ng-click="vm.startDraw(featureType)">{{featureType.name}}</div>
-            <div style="position:absolute;right:10px;top:14px" ng-if="vm.$mapService.isAdminExpert">
-                <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:18px;cursor:pointer"
-                    aria-expanded="false">
                 </div>
-                <ul class="dropdown-menu pull-right">
-                    <li ng-click="vm.editFeaturetype(featureType)" class="dropdown-item"><a>Edit</a><span class="fa fa-pencil dropdown-item-icon" /></li>
-                    <li ng-click="vm.deleteFeaturetype(featureType)" class="dropdown-item"><a>Delete</a><span class="fa fa-trash dropdown-item-icon" /></li>
-                    <!--<li ng-click="vm.makeDefaultFeaturetype(featureType)" class="dropdown-item"><a>Make default</a><span class="fa fa-trash dropdown-item-icon" /></li>-->
-                </ul>
-            </div>
-        </div>
-        </span>
+            </span>
         </span>
     </div>
 </div>

@@ -51,6 +51,9 @@ export class BaseConnector implements ApiManager.IConnector {
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {}
 
     //TODO: implement
+    public deleteFeatureBatch(layerId: string, featureIds: string[], useLog: boolean, meta: ApiMeta, callback: Function) {};
+
+    //TODO: implement
     public addUpdateFeatureBatch(layerId: string, feature: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {}
 
     //TODO: test further. Result is the # of deleted docs.

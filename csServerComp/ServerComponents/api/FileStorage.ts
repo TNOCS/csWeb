@@ -720,6 +720,19 @@ export class FileStorage extends BaseConnector.BaseConnector {
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
+    public deleteFeatureBatch(layerId: string, featureIds: string[], useLog: boolean, meta: ApiMeta, callback: Function) {
+        if (!featureIds || !Array.isArray(featureIds)) {
+            callback(<CallbackResult>{ result: ApiResult.Error });
+            return;
+        }
+        var layer = this.findLayer(layerId);
+        if (layer && layer.features) {
+            layer.features = layer.features.filter((k) => { return k.id && featureIds.indexOf(k.id) < 0; });
+            this.saveLayerDelay(layer);
+        }
+        callback(<CallbackResult>{ result: ApiResult.OK });
+    };
+
     /** Add a file: images go to the iconPath folder, others to the blob folder */
     public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
         var ext = path.extname(file).toLowerCase();

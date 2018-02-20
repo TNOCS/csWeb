@@ -52,6 +52,9 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                     case ClientConnection.LayerUpdateAction.addUpdateFeatureBatch:
                         this.manager.addUpdateFeatureBatch(lu.layerId, lu.item, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
+                    case ClientConnection.LayerUpdateAction.deleteFeatureBatch:
+                        this.manager.deleteFeatureBatch(lu.layerId, lu.item, false, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
+                        break;
                 }
             }
         });
@@ -172,6 +175,14 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
         Winston.info('socketio: update logs ' + JSON.stringify(logs));
         var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateLog, item: logs, featureId: featureId };
         this.connection.updateFeature(layerId, lu, meta);
+        callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+
+    public deleteFeatureBatch(layerId: string, featureIds: string[], useLog: boolean, meta: ApiMeta, callback: Function) {
+        featureIds.forEach(fid => {
+            var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.deleteFeature, featureId: fid };
+            this.connection.updateFeature(layerId, lu, meta);
+        });
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
