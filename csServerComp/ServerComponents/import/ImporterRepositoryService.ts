@@ -118,7 +118,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         }
         instances.push(transformerInstance);
 
-        transformerInstance.initialize(transformerDefinition, (error)=>{
+        transformerInstance.initialize(transformerDefinition as transform.ITransformFactoryOptions, (error)=>{
           if (error) {
             next(error);
             return;

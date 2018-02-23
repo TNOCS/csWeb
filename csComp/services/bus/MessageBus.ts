@@ -67,8 +67,8 @@ module csComp.Services {
 
     // Exposing events
     export interface IMessageEvent extends IBaseEvent {
-        add(listener: (message: string) => void): void;
-        remove(listener: (message: string) => void): void;
+        add(listener: (message?: string) => void): void;
+        remove(listener: (message?: string) => void): void;
         trigger(message: string): void;
     }
 

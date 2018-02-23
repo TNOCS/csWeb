@@ -159,7 +159,7 @@ export class RestDataSource {
             if (this.enableLogging) {
                 var toWrite = 'Time: ' + (new Date()).toISOString() + '\n';
                 toWrite += JSON.stringify(result, null, 2) + '\n';
-                fs.appendFile(this.restDataSourceOpts.logFile, toWrite, 'utf8', (err) => {
+                fs.appendFile(this.restDataSourceOpts.logFile, toWrite, {encoding: 'utf8'}, (err) => {
                     if (!err) {
                         Winston.debug('Logged REST datasource result');
                     } else {
@@ -217,7 +217,7 @@ export class RestDataSource {
         let fts = fCollection.features;
         let fCollectionIds = [];
         if (_.isArray(fts)) {
-            fts.forEach((f: IFeature) => {
+            fts.forEach((f: Api.Feature) => {
                 fCollectionIds.push(f.id);
                 if (!this.features.hasOwnProperty(f.id)) {
                     // ADD FEATURE

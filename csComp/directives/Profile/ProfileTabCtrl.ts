@@ -94,12 +94,12 @@ module ProfileTab {
                     restrict: 'E',
                     scope: {},
                     templateUrl: 'directives/Profile/ProfileTab.tpl.html',
-                    compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                    compile: (el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
                         var fn = $compile(el);
                         return scope => {
                             fn(scope);
                         };
-                    },
+                    }) as ng.IDirectiveCompileFn,
                     //link: function (scope, element, attrs) {
                     //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
                     //     // so I copy the existing attributes manually.

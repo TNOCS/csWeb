@@ -320,7 +320,7 @@ module DataTable {
          * Returns the data rows that are relevant for the current selection.
          */
         public getRows(): Array<Array<TableField>> {
-            var meta: Array<IPropertyType> = [this.headers.length];
+            var meta = new Array<IPropertyType>(this.headers.length);
             this.propertyTypes.forEach((mi: IPropertyType) => {
                 // Keep headers and mi in the right order
                 var index = this.headers.indexOf(mi.title);

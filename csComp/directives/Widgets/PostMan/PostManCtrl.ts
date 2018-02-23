@@ -47,12 +47,12 @@ module PostMan {
                         .catch((err) => { this.result = `Error: ${err}` });
                     break;
                 case 'GET':
-                    this.$http.get(msg.url, msg.message)
+                    this.$http.get(msg.url)
                         .then((data) => { this.result = `Result: ${data.data}` })
                         .catch((err) => { this.result = `Error: ${err}` });
                     break;
                 case 'DELETE':
-                    this.$http.delete(msg.url, msg.message)
+                    this.$http.delete(msg.url)
                         .then(() => { this.result = 'OK' })
                         .catch((err) => { this.result = `Error: ${err}` });
                     break;

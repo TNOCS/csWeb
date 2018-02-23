@@ -52,9 +52,9 @@ export interface ITransform {
      */
     outputDataTypes?: OutputDataType[];
 
-    create?(config: ConfigurationService.ConfigurationService, opt?: ITransformFactoryOptions): NodeJS.ReadWriteStream;
+    create?(config: ConfigurationService.ConfigurationService, opt?: ITransformFactoryOptions | ITransformFactoryOptions[]): NodeJS.ReadWriteStream;
 
-    initialize(opt: ITransformFactoryOptions, callback: (error)=>void);
+    initialize(opt: ITransformFactoryOptions | ITransformFactoryOptions[], callback: (error)=>void);
 }
 
 // import s = require('stream');

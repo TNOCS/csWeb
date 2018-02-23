@@ -244,11 +244,11 @@ export class FiniteStateMachine<T> {
             this._onCallbacks[state.toString()] = [];
         }
 
-        var canExit = this._exitCallbacks[this.currentState.toString()].reduce<boolean>((accum: boolean, next: () => boolean) => {
+        var canExit = this._exitCallbacks[this.currentState.toString()].reduce<boolean>((accum: boolean, next: (from) => boolean) => {
             return accum && (<boolean>next.call(this, state, options));
         }, true);
 
-        var canEnter = this._enterCallbacks[state.toString()].reduce<boolean>((accum: boolean, next: () => boolean) => {
+        var canEnter = this._enterCallbacks[state.toString()].reduce<boolean>((accum: boolean, next: (from) => boolean) => {
             return accum && (<boolean>next.call(this, this.currentState, options));
         }, true);
 

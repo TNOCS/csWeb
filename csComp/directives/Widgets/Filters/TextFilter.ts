@@ -26,13 +26,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/TextFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope, () => {}); //https://docs.angularjs.org/error/$compile/multilink
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: TextFilterCtrl
@@ -47,13 +47,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/BoolFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: BoolFilterCtrl
@@ -68,13 +68,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/BarFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: BarFilterCtrl
@@ -89,13 +89,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/RowFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope, () => {}); //https://docs.angularjs.org/error/$compile/multilink
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: RowFilterCtrl
@@ -110,13 +110,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/ScatterFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: ScatterFilterCtrl
@@ -131,13 +131,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/DateFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: DateFilterCtrl
@@ -152,13 +152,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/LocationFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: LocationFilterCtrl
@@ -173,13 +173,13 @@ module Filters {
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Widgets/Filters/AreaFilter.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: AreaFilterCtrl

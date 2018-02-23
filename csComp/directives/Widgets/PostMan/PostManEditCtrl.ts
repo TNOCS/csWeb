@@ -17,7 +17,7 @@ module PostMan {
         vm: PostManEditCtrl;
         selectedMessage: IPostManMessage;
         data: PostManEditorData;
-        methods: [{name: string}];
+        methods: {name: string}[];
     }
 
     export class PostManEditCtrl {

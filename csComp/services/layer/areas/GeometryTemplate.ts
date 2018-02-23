@@ -10,7 +10,7 @@ module csComp.Services {
 
     export class GeometryTemplateStore {
 
-        readonly TEMPLATE_URL = 'api/layers';
+        readonly TEMPLATE_URL = 'http://www.zorgopdekaart.nl/zelfkaartenmaken/public/data/empty-templates';
         private templateList: _.Dictionary < ProjectLayer > = {};
 
         constructor(public $http: ng.IHttpService) {
@@ -42,7 +42,7 @@ module csComp.Services {
         }
 
         private getTemplateFromServer(name: string, cb: Function) {
-            this.$http.get(`${this.TEMPLATE_URL}/${name}`.toLowerCase())
+            this.$http.get(`${this.TEMPLATE_URL}/${name}.json`.toLowerCase())
                 .then((res: {
                     data: ProjectLayer
                 }) => {

@@ -10,7 +10,7 @@ module csComp.Services {
         fitTimeline?(layer: ProjectLayer): void;
         requiresLayer: boolean;
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
-        layerMenuOptions(layer: ProjectLayer): [[string, Function]];
+        layerMenuOptions(layer: ProjectLayer): [string, Function][];
     }
 
     /** layer service is responsible for reading and managing all project, layer and sensor related data */

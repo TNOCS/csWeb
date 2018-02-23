@@ -31,13 +31,13 @@ module Legend {
                 restrict: 'E', // E = elements, other options are A=attributes and C=classes
                 scope: {}, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/Legend/Legend.tpl.html',
-                compile: el => { // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                compile: (el => { // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     //console.log('this is the compile function of legendDirective');
                     return scope => {
                         fn(scope);
                     };
-                },
+                }) as ng.IDirectiveCompileFn,
                 replace: true, // Remove the directive from the DOM
                 transclude: true, // Add elements and attributes to the template
                 controller: LegendCtrl

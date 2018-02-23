@@ -82,7 +82,7 @@ module Mca {
             this.rankTitle           = mca.rankTitle;
             this.scaleMin            = mca.scaleMinValue;
             this.scaleMax            = mca.scaleMaxValue;
-            this.selectedFeatureType = mca.featureIds.length === 0 ? '' : this.dataset.featureTypes[mca.featureIds[0]];
+            this.selectedFeatureType = mca.featureIds.length === 0 ? null : this.dataset.featureTypes[mca.featureIds[0]];
             if (this.selectedFeatureType) {
                 this.updatePropertyInfo(this.selectedFeatureType);
                 this.updatePropertyInfoUponEdit(mca);
@@ -180,7 +180,7 @@ module Mca {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);
                     else if (featureType._propertyTypeData != null) {
-                        var result = $.grep(featureType._propertyTypeData, e => e.label === k);
+                        var result: any = $.grep(featureType._propertyTypeData, e => e.label === k);
                         if (result.length >= 1) pis.push(result);
                     }
                 });
@@ -220,7 +220,8 @@ module Mca {
 
         isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
-            if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
+            // if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true; ???
+            if (this.propInfos.length === 0 || !this.propInfos.reduce((p) => { return p; })) return true;
             return false;
         }
 

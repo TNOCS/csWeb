@@ -8,7 +8,7 @@ module SimTimeController {
     export interface ISimTimeControllerEditCtrl extends ng.IScope {
         vm: SimTimeControllerEditCtrl;
         data: SimTimeControllerEditorData;
-        methods: [{name: string}];
+        methods: {name: string}[];
     }
 
     /** Controller class for the SimTimeController editor */

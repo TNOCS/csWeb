@@ -45,7 +45,7 @@ module ButtonWidget {
         vm: ButtonWidgetEditCtrl;
         selectedMessage: IButtonWidgetMessage;
         data: ButtonWidgetEditorData;
-        methods: [{name: string}];
+        methods: {name: string}[];
     }
 
     export class ButtonWidgetEditCtrl {

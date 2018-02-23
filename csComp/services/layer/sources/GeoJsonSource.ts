@@ -566,7 +566,7 @@ module csComp.Services {
                 var t = this.service.typesResources[layer.typeUrl].featureTypes[ft];
                 if (!t.style.drawingMode) t.style.drawingMode = 'Point';
                 featureTypes[ft] = this.service.typesResources[layer.typeUrl].featureTypes[ft];
-                featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                featureTypes[ft].u = csComp.Helpers.getImageUri(t);
                 featureTypes[ft]._guid = csComp.Helpers.getGuid();
 
             }

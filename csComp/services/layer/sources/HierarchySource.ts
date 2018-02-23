@@ -25,10 +25,9 @@ module csComp.Services {
             this.service.$messageBusService.publish("map", "setextent", b);
         }
 
-        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+        public layerMenuOptions(layer: ProjectLayer): [string, Function][] {
             return [
                 ["Fit map", (($itemScope) => this.fitMap(layer))],
-                null,
                 ['Refresh', (($itemScope) => this.refreshLayer(layer))]
             ];
         }
