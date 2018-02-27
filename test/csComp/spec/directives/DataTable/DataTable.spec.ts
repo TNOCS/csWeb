@@ -12,18 +12,16 @@ describe('DataTable.DataTable', function() {
     beforeEach(angular.mock.module('csComp'));
     beforeEach(angular.mock.module('csWebApp'));
 
-    beforeEach(function() {
-        var mockTranslate;
-        beforeEach(() => {
-            angular.mock.module(function($provide) {
-                $provide.value('$translate', mockTranslate);
-            });
-            mockTranslate = function(key) {
-                var mct = new ColorTranslationMock.MockColorTranslation();
-                return mct;
-            };
-        });
-    });
+    // var mockTranslate;
+    // beforeEach(() => {
+    //     angular.mock.module(function($provide) {
+    //         $provide.value('$translate', mockTranslate);
+    //     });
+    //     mockTranslate = function(key) {
+    //         var mct = new ColorTranslationMock.MockColorTranslation();
+    //         return mct;
+    //     };
+    // });
 
     beforeEach(angular.mock.inject(($rootScope: ng.IRootScopeService, _$compile_, _$templateCache_, _$httpBackend_, _$sce_, _layerService_, _$translate_) => {
         scope = $rootScope.$new();
