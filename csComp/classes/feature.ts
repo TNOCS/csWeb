@@ -181,6 +181,10 @@ module csComp.Services {
         visibleInCallOut?: boolean;
         visibleInTooltip?: boolean;
         canEdit?: boolean;
+        /** If set to false, don't allow styling for this property */
+        canStyle?: boolean;
+        /** If set to false, don't allow filtering for this property */
+        canFilter?: boolean;
         /** If set to false, don't show the statistical information (for numbers) */
         canShowStats?: boolean;
         /** Type of filter: none if you don't want to allow filtering */

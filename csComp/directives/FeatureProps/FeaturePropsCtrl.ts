@@ -218,9 +218,18 @@ module FeatureProps {
             // Skip empty, non-editable values
             if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-            var canFilter = (mi.type === 'number' || mi.type === 'text' || mi.type === 'options' || mi.type === 'date' || mi.type === 'boolean');
+            var canFilter, canStyle;
+            if (mi.hasOwnProperty('canFilter')) {
+                canFilter = mi.canFilter;
+            } else {
+                canFilter = (mi.type === 'number' || mi.type === 'text' || mi.type === 'options' || mi.type === 'date' || mi.type === 'boolean');
+            }
             if (mi.filterType) canFilter = mi.filterType.toLowerCase() !== 'none';
-            var canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
+            if (mi.hasOwnProperty('canStyle')) {
+                canStyle = mi.canStyle;
+            } else {
+                canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
+            }
             if (mi.styleType) canStyle = mi.styleType.toLowerCase() !== 'none';
             var canShowStats = (typeof mi.canShowStats === 'undefined') || mi.canShowStats;
             if (mi.visibleInCallOut) {
