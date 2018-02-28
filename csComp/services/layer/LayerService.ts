@@ -2730,6 +2730,9 @@ module csComp.Services {
                 this.activeMapRenderer.fitBounds(this.project.viewBounds);
             }
 
+            if (this.project.menuPaddingTopLeft) {
+                this.$messageBusService.publish('map', 'setPadding', this.project.menuPaddingTopLeft);
+            }
             this.$messageBusService.publish('map', 'showScale', this.project.showScale);
             this.$messageBusService.publish('map', 'showLocation', this.project.showLocation);
 

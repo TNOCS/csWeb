@@ -30,6 +30,9 @@ module csComp.Services {
         public drawInstance: any;
         public featureGroup: L.ILayer;
         public drawingNotification : any;
+        /** Padding from the top-left of the screen to compensate for part of the map that 
+         * is overlayed by the menu */
+        private menuPaddingTopLeft: L.Point = new L.Point(0,0);
 
         private _timelineVisible: boolean = false;
         public get timelineVisible() { return this._timelineVisible; }
@@ -69,10 +72,13 @@ module csComp.Services {
 
             $messageBusService.subscribe('map', (action: string, data) => {
                 switch (action.toLowerCase()) {
+                    case 'setpadding': 
+                        this.menuPaddingTopLeft = new L.Point(data.x, data.y);
+                        break;
                     case 'setextent':
                         // console.log(data);
                         // take the navbar and leftpanel into account using padding (15+50px height, 25+400px left)
-                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(400, 105) });
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: this.menuPaddingTopLeft });
                         break;
                     case 'setzoom':
                         // Zoom to a location on the map.
