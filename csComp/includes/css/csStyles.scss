@@ -1302,6 +1302,75 @@ body,
     text-align: right;
     font-weight: bold;
 }
+
+@mixin css3-prefix($property, $value) {
+  -webkit-#{$property}: #{$value};
+   -khtml-#{$property}: #{$value};
+     -moz-#{$property}: #{$value};
+      -ms-#{$property}: #{$value};
+       -o-#{$property}: #{$value};
+          #{$property}: #{$value};
+}
+
+@mixin box-shadow($x: 2px, $y: 2px, $blur: 5px, $color: rgba(0,0,0,.4), $inset: "") {
+  @if ($inset != "") {
+    @include css3-prefix('box-shadow', $inset $x $y $blur $color);
+  } @else {
+    @include css3-prefix('box-shadow', $x $y $blur $color);
+  }
+}
+
+.fullbox-shadow {
+    @include box-shadow(0px, 0px, 12px, rgba(0, 0, 0, .3));
+    background-color: white;
+}
+
+.featureTooltip td {
+    background-color: white;
+}
+
+.featureTooltip tr:first-child td {
+   background: inherit;
+   background-color: white;
+}
+
+.tooltip-holder {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-style: normal;
+    padding: 15px;
+    width: 260px;
+    background-color: white;
+    font-size: 18px;
+    @include box-shadow(0px, 0px, 12px, rgba(0, 0, 0, .3));
+}
+
+.tooltip-holder div.title {
+    text-align: left;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 18px;
+    width: 100%;
+    word-wrap: break-word;
+}
+
+.tooltip-holder div.content {
+    border-top: solid 1px #ccc;
+    margin-top: 5px;
+}
+
+.csweb-tooltip-value {
+    display: inline-block;
+    font-size: 14px;
+    text-align: right;
+    width: 100px;
+}
+
+.csweb-tooltip-label-entry {
+    display: inline-block;
+    font-size: 14px;
+    width: 130px;
+}
 .style-icon {
     border-radius: 25%;
     border: red;

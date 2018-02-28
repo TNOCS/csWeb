@@ -244,6 +244,8 @@ module csComp.Services {
         fillColor?: string;
         /** The stroke/outline color */
         strokeColor?: string;
+        /** The fill color on hover */
+        hoverColor?: string;
         /** The stroke/outline width */
         strokeWidth?: number;
         /** The background fill color when selected */

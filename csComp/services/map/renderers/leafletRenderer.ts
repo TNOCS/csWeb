@@ -370,8 +370,14 @@ module csComp.Services {
                     var l = <ProjectLayer>feature.layer;
                     l.group.markers[feature.id] = m;
                     m.on({
-                        mouseover: (a) => this.showFeatureTooltip(a, l.group),
-                        mouseout: (s) => this.hideFeatureTooltip(s),
+                        mouseover: (a) => {
+                            this.showFeatureTooltip(a, l.group);
+                            this.setHoverColor(a);
+                        },
+                        mouseout: (s) => {
+                            this.hideFeatureTooltip(s);
+                            this.resetHoverColor(s);
+                        },
                         mousemove: (d) => this.updateFeatureTooltip(d),
                         click: (e) => {
                             this.selectFeature(feature);
@@ -551,7 +557,8 @@ module csComp.Services {
             }
             return {
                 length: valueLength + title.length,
-                content: content + `<tr><td><div class="fa ${faLabel}"></td><td>${title}</td><td>${value}</td></tr>`
+                content: content + `<div class=\"csweb-tooltip-label-entry\">${title}</div><div class=\"csweb-tooltip-value\">${value}</div></div>`
+              //  `<tr><td><div class="fa ${faLabel}"></td><td>${title}</td><td>${value}</td></tr>`
             };
         }
 
@@ -561,7 +568,9 @@ module csComp.Services {
             // add title
             var title = csComp.Helpers.getFeatureTooltipTitle(feature);
             var rowLength = (title) ? title.length : 1;
-            var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            var titlecontent = '<div class=\'title\'>' + title + '</div>';
+            var content = ''
+
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
@@ -604,11 +613,35 @@ module csComp.Services {
                     }
                 });
             }
+            if (content) {
+                content = '<div class=\'content\'>' + content + '</div>';
+            }
+            
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
             return {
-                content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
+                content: '<div class=\'tooltip-holder\'>' + titlecontent + content + '</div>',
                 widthInPixels: widthInPixels
             };
+        }
+
+        setHoverColor(e: L.LeafletMouseEvent) {
+            if (!e || !e.target || !e.target.feature) return;
+            var layer = e.target;
+            var feature = <Feature>layer.feature;
+            var fType = this.service.getFeatureType(feature);
+            var hoverColor = fType.style.hoverColor;
+            if (!hoverColor) return;
+            feature.effectiveStyle.fillColor = hoverColor;
+            this.updateFeature(feature);
+        }
+
+        resetHoverColor(e: L.LeafletMouseEvent) {
+            if (!e || !e.target || !e.target.feature) return;
+            var layer = e.target;
+            var feature = <Feature>layer.feature;
+            var fType = this.service.getFeatureType(feature);
+            this.service.calculateFeatureStyle(feature);
+            this.updateFeature(feature);
         }
 
         /**
