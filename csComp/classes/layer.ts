@@ -344,6 +344,10 @@ module csComp.Services {
          /** type of geometry of the layer (lat-long, provinces, etc.) */
         geometryTypeId?: string;
 
+        /** provide an id that can only be active once: all other layers with the same id will be closed
+         * when activating this layer */
+        oneLayerActiveId?: string;
+
         /** Get the features from the layer's original source, if present. */
         public static getFeatures(layer: ProjectLayer) {
             return (layer.data && layer.data.features)

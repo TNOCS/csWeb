@@ -711,6 +711,21 @@ module csComp.Services {
             this.$messageBusService.publish('layer', 'loading', layer);
             async.series([
                 (callback) => {
+                    // check if only one layer can be active having a specific
+                    // tag ("oneLayerActiveId"). Make sure all active layers with that id are disabled
+                    if (layer.oneLayerActiveId) {
+                        this.project.groups.forEach((g: ProjectGroup) => {
+                            g.layers.forEach((l: ProjectLayer) => {
+                                if (l.id !== layer.id && l.oneLayerActiveId === layer.oneLayerActiveId && l.enabled) {
+                                    this.removeLayer(l);
+                                    l.enabled = false;
+                                }
+                            });
+                        });
+                    }
+                    callback(null, null);
+                },
+                (callback) => {
                     // check if in this group only one layer can be active
                     // make sure all existising active layers are disabled
                     if (layer.group.oneLayerActive) {
@@ -2459,7 +2474,6 @@ module csComp.Services {
             var g = layer.group;
 
             try {
-
                 layer.enabled = false;
                 layer.isLoading = false;
                 if (layer._gui) layer._gui.more = false;
