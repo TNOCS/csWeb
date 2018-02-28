@@ -76,7 +76,7 @@ module csComp.Helpers {
                 fillOpacity: 1,
                 strokeOpacity: 0,
                 opacity: 1,
-                fillColor: '#000000',
+                fillColor: '#999999',
                 stroke: true,
                 rotate: 0,
                 cornerRadius: 50,

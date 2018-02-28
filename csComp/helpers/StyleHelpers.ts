@@ -104,6 +104,12 @@ module csComp.Helpers {
             return (defaultcolor);
         }
         if (l.legendKind.toLowerCase() === 'discrete') {
+            e1 = _.min(l.legendEntries, (val) => {
+                return (val.interval ? val.interval.min : Number.MIN_VALUE);
+            });
+            e2 = _.max(l.legendEntries, (val) => {
+                return (val.interval ? val.interval.max : Number.MAX_VALUE);
+            });
             if (e1.interval && e2.interval && typeof e1.interval.min !== 'undefined' && typeof e2.interval.max !== 'undefined') {
                 if (v < e1.interval.min) return e1.color;
                 if (v > e2.interval.max) return e2.color;
