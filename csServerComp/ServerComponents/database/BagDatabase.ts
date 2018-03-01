@@ -11,6 +11,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
     private connectionString: string;
     private isInitialized: boolean = false;
     private pg;
+    private pgPool;
     public name: string = 'BagDatabase';
 
     constructor(config: ConfigurationService.ConfigurationService) {
@@ -21,6 +22,9 @@ export class BagDatabase implements IAddressSource.IAddressSource {
         this.pg = require('pg');
         if (this.isInitialized) return;
         this.pg.defaults.poolSize = 10;
+        this.pgPool = new this.pg.Pool({
+            connectionString: this.connectionString,
+        });
         console.log("BAG connection: " + this.connectionString);
         console.log("Poolsize: " + this.pg.defaults.poolSize);
         this.isInitialized = true;
@@ -112,7 +116,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             callback(null);
             return;
         }
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        this.pgPool.connect((err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -141,7 +145,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             callback(null);
             return;
         }
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        this.pgPool.connect((err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -168,7 +172,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             callback(null);
             return;
         }
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        this.pgPool.connect((err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -199,7 +203,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             callback(null);
             return;
         }
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        this.pgPool.connect((err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -244,9 +248,10 @@ export class BagDatabase implements IAddressSource.IAddressSource {
         var houseLetter: string = splittedAdressNumber.letter;
         var houseNumberAddition: string = splittedAdressNumber.addition;
 
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        console.log('Connect to pgPool to lookup address');
+        this.pgPool.connect((err, client, done) => {
             if (err) {
-                console.log(err);
+                console.error(err);
                 callback(null);
                 return;
             }
@@ -284,10 +289,11 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             client.query(sql, (err, result) => {
                 done();
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                     console.log(`Cannot find zip: ${zipCode}, houseNumber: ${houseNumber}, letter: ${houseLetter}`);
                     callback(null);
                 } else {
+                    console.log(`Found zip: ${zipCode}, houseNumber: ${houseNumber}, letter: ${houseLetter}`);
                     callback(result.rows);
                 }
             });
@@ -318,7 +324,7 @@ export class BagDatabase implements IAddressSource.IAddressSource {
             return;
         }
 
-        this.pg.connect(this.connectionString, (err, client, done) => {
+        this.pgPool.connect((err, client, done) => {
             if (err) {
                 console.log(err);
                 return;

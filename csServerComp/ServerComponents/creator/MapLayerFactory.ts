@@ -547,8 +547,14 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
         var features = [];
         var template = <ILayerTemplate> { properties: layer.data.properties, propertyTypes: layer.data.propertyTypes || [] };
         this.featuresNotFound = {};
+        var emptyLayer = JSON.parse(JSON.stringify(layer));
+        delete emptyLayer.features;
+        delete emptyLayer.data;
+        this.apiManager.addUpdateLayer(emptyLayer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
+            console.log('Unconverted layer was saved, waiting to be updated...');
+        });
         this.addGeometry(layer.data.layerDefinition, template, layer, () => {
-            console.log('Finished adding geometry...');
+            console.log('Finished adding geometry.');
             delete layer.data.properties;
             delete layer.data.features;
             this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
@@ -900,7 +906,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 }
             });
             if (!foundFeature) {
-                console.log('Warning: Could not find: ' + p[par1] + '. Trying again...');
+                console.log(`Warning: Could not find property ${par1}: ${p[par1]}. Trying again...`);
                 let cleanChars = new RegExp('[^a-zA-Z0-9 -]');
                 let featureScores: {f: IFeature, score: number}[] = [];
                 let cleanMatchProp = p[par1].replace(cleanChars, '');
