@@ -525,6 +525,7 @@ module csComp.Services {
         /** Find a dashboard by ID */
         public findDashboardById(dashboardId: string) {
             var dashboard: csComp.Services.Dashboard;
+            if (!this.project || !this.project.dashboards) return;
             this.project.dashboards.some(d => {
                 if (d.id !== dashboardId) return false;
                 dashboard = d;
