@@ -173,6 +173,7 @@ export class Project implements StorageObject {
     storage: string;
     groups: Group[];
     isDynamic: boolean;
+    featurePropsDirective?: string;
 }
 
 export class Group {
@@ -937,6 +938,9 @@ export class ApiManager extends events.EventEmitter {
             url: project.url ? project.url : '/api/projects/' + project.id,
             _localFile: project._localFile
         };
+        if (project.featurePropsDirective) {
+            p.featurePropsDirective = project.featurePropsDirective;
+        }
         return p;
     }
 
