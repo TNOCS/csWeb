@@ -137,13 +137,15 @@ module csComp.Services {
         ) {
             this.jwtDecoded = JwtDecoder.decode(this.token);
             if (this.jwtDecoded.exp) {
-                const expiresInMsec = Date.parse(this.jwtDecoded.expires) - Date.now();
+                const expiresInMsec = (new Date(this.jwtDecoded.exp * 1000).getTime() - Date.now());
                 if (expiresInMsec > 0) {
                     this.addJwtToHeader();
                     this.loggedIn = true;
                     this.userProfile = this.$localStorageService.get('profile');
                     this.$messageBusService.publish('profileservice', 'login', this.userProfile);
                     setTimeout(() => this.validateUser(), expiresInMsec - 5 * 60 * 1000);
+                } else {
+                    this.logoutUser();
                 }
             }
         }
@@ -157,6 +159,10 @@ module csComp.Services {
         }
 
         public set userProfile(profile: IProfile) {
+            if (this.jwtDecoded && this.jwtDecoded.exp) {
+                this.jwtDecoded.expires = (new Date(this.jwtDecoded.exp * 1000)).toISOString();
+                profile.expires = this.jwtDecoded.expires;
+            }
             this.profile = profile;
             this.$localStorageService.set('profile', profile);
             if (!_.isFunction(this.update)) return;
@@ -182,6 +188,7 @@ module csComp.Services {
                     this.isValidating = false;
                     this.loggedIn = success;
                     if (this.loggedIn) {
+                        this.jwtDecoded = JwtDecoder.decode(this.token);
                         this.userProfile = profile;
                         this.$messageBusService.publish('profileservice', 'login', profile);
                     } else {
@@ -239,6 +246,10 @@ module csComp.Services {
          */
         public set token(myToken: string) {
             this.jwtToken = myToken;
+            this.jwtDecoded = JwtDecoder.decode(myToken);
+            if (this.jwtDecoded && this.jwtDecoded.exp) {
+                this.jwtDecoded.expires = (new Date(this.jwtDecoded.exp * 1000)).toISOString();
+            }
             this.addJwtToHeader();
             this.$localStorageService.set('jwt', myToken);
         }
