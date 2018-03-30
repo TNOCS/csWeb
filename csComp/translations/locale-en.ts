@@ -232,7 +232,12 @@ module Translations {
             YES: 'Yes',
             NO: 'No',
             LOGIN_OR_OUT: 'Login or logout',
-            DOWNLOAD_SELECTION_AS: 'Download selection as:'
+            DOWNLOAD_SELECTION_AS: 'Download selection as:',
+            ERROR_LOADING_TYPERESOURCE: 'Error loading TypeResources',
+            ERROR_LOADING_SENSORDATA: 'Error loading sensordata',
+            ERROR_LOADING_LAYER: 'Error loading layer',
+            ERROR_LOADING_SOLUTION: 'Error loading solution',
+            ERROR_LOADING_PROJECT: 'Error loading project'
         };
     }
 }

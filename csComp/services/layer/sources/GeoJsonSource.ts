@@ -223,7 +223,7 @@ module csComp.Services {
                                     layer.isLoading = false;
                                     layer.enabled = false;
                                     layer.isConnected = false;
-                                    this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                                    this.service.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_LAYER', `${layer.title} \nurl: ${u}`);
                                     this.service.$messageBusService.publish('layer', 'error', layer);
                                     cb(null, null);
                                 });

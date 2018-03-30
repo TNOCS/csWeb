@@ -873,7 +873,7 @@ module csComp.Services {
                                 let resource = res.data;
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
-                                    this.$messageBusService.notifyError('Error loading resource type', url);
+                                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_TYPERESOURCE', url);
                                 } else {
                                     var r = <TypeResource>resource;
                                     if (r) {
@@ -884,7 +884,7 @@ module csComp.Services {
                                 }
                                 callback();
                             }, (err) => {
-                                this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
+                                this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_TYPERESOURCE', `URL: ${url}`);
                                 console.log(err);
                             });
                         setTimeout(() => {
@@ -2627,7 +2627,7 @@ module csComp.Services {
                                         }
                                     },
                                     (err) => {
-                                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                        this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `Project: ${u}`);
                                     });
                             }
                         } else {
@@ -2638,7 +2638,7 @@ module csComp.Services {
                                     }
                                 },
                                 (data) => {
-                                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `Project: ${u}`);
                                 });
                         }
                     }
@@ -2661,7 +2661,7 @@ module csComp.Services {
 
                     this.solution = solution;
                 }, () => {
-                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_SOLUTION', `@: ${url}`);
                 });
         }
 
@@ -2714,7 +2714,7 @@ module csComp.Services {
                         var delayFocusChange = _.debounce((date) => { this.refreshActiveLayers(); }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
                     }, () => {
-                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+                        this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `project: ${solutionProject.url}`);
                     });
             } else {
                 this.parseProject(project, solutionProject, layerIds);
