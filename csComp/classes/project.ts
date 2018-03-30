@@ -120,6 +120,10 @@ module csComp.Services {
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];
         widgetStyles: { [key: string]: WidgetStyle } = {};
+        /** These dashboards will be the dashboards of every project in the solution,
+         *  if none are provided by the project itself.
+         */
+        defaultDashboards?: Dashboard[];
         projects: SolutionProject[];
     }
 

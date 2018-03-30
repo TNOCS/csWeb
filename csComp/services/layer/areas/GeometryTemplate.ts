@@ -10,7 +10,7 @@ module csComp.Services {
 
     export class GeometryTemplateStore {
 
-        readonly TEMPLATE_URL = 'http://www.zorgopdekaart.nl/zelfkaartenmaken/public/data/empty-templates';
+        readonly TEMPLATE_URL = 'data/templates';//'http://www.zorgopdekaart.nl/zelfkaartenmaken/public/data/empty-templates';
         private templateList: _.Dictionary < ProjectLayer > = {};
 
         constructor(public $http: ng.IHttpService) {

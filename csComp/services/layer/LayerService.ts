@@ -2765,53 +2765,58 @@ module csComp.Services {
 
             // if no dashboards defined, create one
             if (!this.project.dashboards) {
-                this.project.dashboards = [];
-                var d = new Services.Dashboard();
-                d.id = 'map';
-                d.name = 'Home';
-                d.showMap = true;
-                d.showLeftmenu = true;
-                d.showLegend = true;
-                d.widgets = [];
-                this.project.dashboards.push(d);
-                var d2 = new Services.Dashboard();
-                d2.id = 'datatable';
-                d2.name = 'Table';
-                d2.showMap = false;
-                d2.showLeftmenu = false;
-                d2.showRightmenu = false;
-                d2.showTimeline = false;
-                d2.widgets = [{
-                    id: 'datatable_id',
-                    directive: 'datatable',
-                    elementId: 'widget-datatable_id',
-                    enabled: true,
-                    width: '100%',
-                    top: "75px",
-                    height: '100%',
-                    bottom: '0px',
-                    position: 'dashboard'
-                }];
-                this.project.dashboards.push(d2);
-            } else {
-                // initialize dashboards
-                this.project.dashboards.forEach((d) => {
-                    d = csComp.Helpers.translateObject(d, this.currentLocale, false);
-                    if (!d.id) { d.id = Helpers.getGuid(); }
-                    if (d.widgets && d.widgets.length > 0)
-                        d.widgets.forEach((w) => {
-                            if (w.datasource) {
-                                let source = this.findWidgetById(w.datasource);
-                                w.data = csComp.Helpers.translateObject(source.data, this.currentLocale, true);
-                            } else {
-                                w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
-                            }
-                            if (!w.id) w.id = Helpers.getGuid();
-                            if (!w.enabled) w.enabled = true;
-                            if (!w.position) w.position = 'dashboard';
-                        });
-                });
+                if (this.project.solution.defaultDashboards) {
+                    this.project.dashboards = this.project.solution.defaultDashboards;
+                } else {
+                    this.project.dashboards = [];
+                    var d = new Services.Dashboard();
+                    d.id = 'map';
+                    d.name = 'Home';
+                    d.showMap = true;
+                    d.showLeftmenu = true;
+                    d.showLegend = true;
+                    d.widgets = [];
+                    this.project.dashboards.push(d);
+                    var d2 = new Services.Dashboard();
+                    d2.id = 'datatable';
+                    d2.name = 'Table';
+                    d2.showMap = false;
+                    d2.showLeftmenu = false;
+                    d2.showRightmenu = false;
+                    d2.showTimeline = false;
+                    d2.widgets = [{
+                        id: 'datatable_id',
+                        directive: 'datatable',
+                        elementId: 'widget-datatable_id',
+                        enabled: true,
+                        width: '100%',
+                        top: "75px",
+                        height: '100%',
+                        bottom: '0px',
+                        position: 'dashboard'
+                    }];
+                    this.project.dashboards.push(d2);
+                }
             }
+
+            // initialize dashboards
+            this.project.dashboards.forEach((d) => {
+                d = csComp.Helpers.translateObject(d, this.currentLocale, false);
+                if (!d.id) { d.id = Helpers.getGuid(); }
+                if (d.widgets && d.widgets.length > 0)
+                    d.widgets.forEach((w) => {
+                        if (w.datasource) {
+                            let source = this.findWidgetById(w.datasource);
+                            w.data = csComp.Helpers.translateObject(source.data, this.currentLocale, true);
+                        } else {
+                            w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
+                        }
+                        if (!w.id) w.id = Helpers.getGuid();
+                        if (!w.enabled) w.enabled = true;
+                        if (!w.position) w.position = 'dashboard';
+                    });
+            });
+            
             async.series([
                 (callback) => {
 
