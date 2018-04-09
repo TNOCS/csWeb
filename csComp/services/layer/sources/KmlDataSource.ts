@@ -34,8 +34,9 @@ module csComp.Services {
                 })
                 .fail((error) => {
                     layer.isLoading = false;
-                    this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
+                    this.service.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_LAYER', `${layer.title} \n${layer.url}`);
                     this.service.$messageBusService.publish('layer', 'error', layer);
+                    console.log(`Failed loading layer ${layer.title} due to ${JSON.stringify(error)}.`);
                     callback(layer);
                 });
         }

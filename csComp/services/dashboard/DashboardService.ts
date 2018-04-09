@@ -288,6 +288,10 @@ module csComp.Services {
                     });
                 }
 
+                if (tab.data && _.isObject(tab.data) && tab.data.hasOwnProperty('class')) {
+                    $('#rightpanel').addClass(tab.data.class);
+                }
+
                 if (_.isUndefined(tab.open) || tab.open === true) {
                     let elm = (<any>$('#rightpanelTabs a[data-target="#' + content + '"]'));
                     if (elm && elm.tab) {

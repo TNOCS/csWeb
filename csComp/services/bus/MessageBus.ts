@@ -307,6 +307,10 @@ module csComp.Services {
         }
 
 
+        public notifyErrorWithTranslation(title: string, text: string, variableReplacement: {[key: string]: string} = null) {
+            this.notifyWithTranslation(title, text, variableReplacement, NotifyLocation.TopBar, NotifyType.Error);
+        }
+
         public notifyError(title: string, text: string) {
             this.notify(title, text, NotifyLocation.TopBar, NotifyType.Error);
         }

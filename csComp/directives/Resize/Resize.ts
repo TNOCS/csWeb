@@ -34,7 +34,8 @@ module Helpers.Resize {
                 scope: {
                     resizeX: '@',
                     resizeY: '@',
-                    resizeRelativeToParent: '@'
+                    resizeRelativeToParent: '@',
+                    resizeRelativeToScreen: '@'
                 },
                 // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
                 // * scope is an Angular scope object.
@@ -47,6 +48,9 @@ module Helpers.Resize {
                         if (scope.resizeRelativeToParent) {
                             height = element.parent().innerHeight();
                             width = element.parent().innerWidth();
+                        } else if (scope.resizeRelativeToScreen) {
+                            height = window.innerHeight;
+                            width = window.innerWidth;
                         } else {
                             height = $window.innerHeight;
                             width = $window.innerWidth;

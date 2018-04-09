@@ -95,7 +95,7 @@ module csComp.Services {
                         .catch(() => {
                             layer.count = 0;
                             layer.isLoading = false;
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + layer.url);
+                            this.service.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_LAYER', `${layer.title} \nurl: ${layer.url}`);
                             this.service.$messageBusService.publish('layer', 'error', layer);
                             cb(null, null);
                         });

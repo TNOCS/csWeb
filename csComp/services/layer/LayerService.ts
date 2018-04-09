@@ -525,6 +525,7 @@ module csComp.Services {
         /** Find a dashboard by ID */
         public findDashboardById(dashboardId: string) {
             var dashboard: csComp.Services.Dashboard;
+            if (!this.project || !this.project.dashboards) return;
             this.project.dashboards.some(d => {
                 if (d.id !== dashboardId) return false;
                 dashboard = d;
@@ -872,7 +873,7 @@ module csComp.Services {
                                 let resource = res.data;
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
-                                    this.$messageBusService.notifyError('Error loading resource type', url);
+                                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_TYPERESOURCE', url);
                                 } else {
                                     var r = <TypeResource>resource;
                                     if (r) {
@@ -883,7 +884,7 @@ module csComp.Services {
                                 }
                                 callback();
                             }, (err) => {
-                                this.$messageBusService.notifyError('ERROR loading TypeResources', 'While loading: ' + url);
+                                this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_TYPERESOURCE', `URL: ${url}`);
                                 console.log(err);
                             });
                         setTimeout(() => {
@@ -2631,7 +2632,7 @@ module csComp.Services {
                                         }
                                     },
                                     (err) => {
-                                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                        this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `Project: ${u}`);
                                     });
                             }
                         } else {
@@ -2642,7 +2643,7 @@ module csComp.Services {
                                     }
                                 },
                                 (data) => {
-                                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `Project: ${u}`);
                                 });
                         }
                     }
@@ -2665,7 +2666,7 @@ module csComp.Services {
 
                     this.solution = solution;
                 }, () => {
-                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+                    this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_SOLUTION', `@: ${url}`);
                 });
         }
 
@@ -2718,7 +2719,7 @@ module csComp.Services {
                         var delayFocusChange = _.debounce((date) => { this.refreshActiveLayers(); }, this.project.timeLine.updateDelay);
                         //alert('project open ' + this.$location.absUrl());
                     }, () => {
-                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+                        this.$messageBusService.notifyErrorWithTranslation('ERROR_LOADING_PROJECT', `project: ${solutionProject.url}`);
                     });
             } else {
                 this.parseProject(project, solutionProject, layerIds);
@@ -2769,53 +2770,58 @@ module csComp.Services {
 
             // if no dashboards defined, create one
             if (!this.project.dashboards) {
-                this.project.dashboards = [];
-                var d = new Services.Dashboard();
-                d.id = 'map';
-                d.name = 'Home';
-                d.showMap = true;
-                d.showLeftmenu = true;
-                d.showLegend = true;
-                d.widgets = [];
-                this.project.dashboards.push(d);
-                var d2 = new Services.Dashboard();
-                d2.id = 'datatable';
-                d2.name = 'Table';
-                d2.showMap = false;
-                d2.showLeftmenu = false;
-                d2.showRightmenu = false;
-                d2.showTimeline = false;
-                d2.widgets = [{
-                    id: 'datatable_id',
-                    directive: 'datatable',
-                    elementId: 'widget-datatable_id',
-                    enabled: true,
-                    width: '100%',
-                    top: "75px",
-                    height: '100%',
-                    bottom: '0px',
-                    position: 'dashboard'
-                }];
-                this.project.dashboards.push(d2);
-            } else {
-                // initialize dashboards
-                this.project.dashboards.forEach((d) => {
-                    d = csComp.Helpers.translateObject(d, this.currentLocale, false);
-                    if (!d.id) { d.id = Helpers.getGuid(); }
-                    if (d.widgets && d.widgets.length > 0)
-                        d.widgets.forEach((w) => {
-                            if (w.datasource) {
-                                let source = this.findWidgetById(w.datasource);
-                                w.data = csComp.Helpers.translateObject(source.data, this.currentLocale, true);
-                            } else {
-                                w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
-                            }
-                            if (!w.id) w.id = Helpers.getGuid();
-                            if (!w.enabled) w.enabled = true;
-                            if (!w.position) w.position = 'dashboard';
-                        });
-                });
+                if (this.project.solution.defaultDashboards) {
+                    this.project.dashboards = this.project.solution.defaultDashboards;
+                } else {
+                    this.project.dashboards = [];
+                    var d = new Services.Dashboard();
+                    d.id = 'map';
+                    d.name = 'Home';
+                    d.showMap = true;
+                    d.showLeftmenu = true;
+                    d.showLegend = true;
+                    d.widgets = [];
+                    this.project.dashboards.push(d);
+                    var d2 = new Services.Dashboard();
+                    d2.id = 'datatable';
+                    d2.name = 'Table';
+                    d2.showMap = false;
+                    d2.showLeftmenu = false;
+                    d2.showRightmenu = false;
+                    d2.showTimeline = false;
+                    d2.widgets = [{
+                        id: 'datatable_id',
+                        directive: 'datatable',
+                        elementId: 'widget-datatable_id',
+                        enabled: true,
+                        width: '100%',
+                        top: "75px",
+                        height: '100%',
+                        bottom: '0px',
+                        position: 'dashboard'
+                    }];
+                    this.project.dashboards.push(d2);
+                }
             }
+
+            // initialize dashboards
+            this.project.dashboards.forEach((d) => {
+                d = csComp.Helpers.translateObject(d, this.currentLocale, false);
+                if (!d.id) { d.id = Helpers.getGuid(); }
+                if (d.widgets && d.widgets.length > 0)
+                    d.widgets.forEach((w) => {
+                        if (w.datasource) {
+                            let source = this.findWidgetById(w.datasource);
+                            w.data = csComp.Helpers.translateObject(source.data, this.currentLocale, true);
+                        } else {
+                            w.data = csComp.Helpers.translateObject(w.data, this.currentLocale, true);
+                        }
+                        if (!w.id) w.id = Helpers.getGuid();
+                        if (!w.enabled) w.enabled = true;
+                        if (!w.position) w.position = 'dashboard';
+                    });
+            });
+            
             async.series([
                 (callback) => {
 

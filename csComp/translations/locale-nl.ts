@@ -231,7 +231,12 @@ module Translations {
             YES: 'Ja',
             NO: 'Nee',
             LOGIN_OR_OUT: 'In- of uitloggen',
-            DOWNLOAD_SELECTION_AS: 'Download selectie als:'
+            DOWNLOAD_SELECTION_AS: 'Download selectie als:',
+            ERROR_LOADING_TYPERESOURCE: 'Error bij het laden van TypeResources',
+            ERROR_LOADING_LAYER: 'Error bij het laden van de kaartlaag',
+            ERROR_LOADING_SOLUTION: 'Error bij het laden van de projecten',
+            ERROR_LOADING_SENSORDATA: 'Error bij het laden van sensordata',
+            ERROR_LOADING_PROJECT: 'Error bij het laden van het project'
         };
     }
 }

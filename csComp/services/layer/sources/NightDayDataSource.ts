@@ -7,13 +7,7 @@
  http://mathematica.stackexchange.com/questions/3326/composition-how-to-make-a-day-and-night-world-map
 */
 
-declare module L {
-    export class Terminator extends L.Polygon {
-        constructor(options?: Object);
-    }
-}
-
-L.Terminator = <any>L.Polygon.extend(<any>{
+(<any>L).Terminator = <any>L.Polygon.extend(<any>{
     options: {
         color: '#00',
         opacity: 0.5,
@@ -207,7 +201,7 @@ module csComp.Services {
                 if (typeof gridParams.dayName !== 'undefined') dayName = gridParams.dayName;
                 if (typeof gridParams.value !== 'undefined') defaultValue = gridParams.value;
             }
-            var terminator = new L.Terminator({ "showNight": showNight });
+            var terminator = new (<any>L).Terminator({ "showNight": showNight });
             var geojson = terminator.toGeoJSON();
             if (showNight) {
                 geojson.properties["Name"] = nightName;
