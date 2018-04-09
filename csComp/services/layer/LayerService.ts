@@ -2076,7 +2076,12 @@ module csComp.Services {
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
 
-                    if (ft.style && ft.style.fillColor) {
+                    // When a styling colors array is provided, use that one
+                    if (ft.style && ft.style.styleColors) {
+                        gs.colors = ft.style.styleColors;
+                    }
+                    // Else create styling colors based on fillColor
+                    else if (ft.style && ft.style.fillColor) {
                         // Set style color range from fillColor to grey or white, depending on highest contrast
                         if ((<any>chroma).deltaE('white', ft.style.fillColor) < 50) {
                             gs.colors = ['black', ft.style.fillColor];

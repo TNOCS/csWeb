@@ -258,6 +258,8 @@ module csComp.Services {
         selectedStrokeColor?: string;
         /** The stroke/outline width when selected */
         selectedStrokeWidth?: number;
+        /** The GroupStyle colors */
+        styleColors?: string[];
         /** Height of the property, e.g. when styling a property in Cesium */
         height?: number;
         opacity?: number;
