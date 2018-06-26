@@ -174,6 +174,7 @@ export class Project implements StorageObject {
     groups: Group[];
     isDynamic: boolean;
     featurePropsDirective?: string;
+    updated?: number;
 }
 
 export class Group {
@@ -801,6 +802,7 @@ export class ApiManager extends events.EventEmitter {
 
             // store project
             var meta = <ApiMeta>{ source: 'rest' };
+            this.setUpdateProject(project, meta);
 
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.initProject(this.projects[project.id]);
@@ -936,7 +938,8 @@ export class ApiManager extends events.EventEmitter {
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
             groups: project.groups ? _.map(project.groups, (g) => { return this.getGroupDefinition(g); }) : [],
             url: project.url ? project.url : '/api/projects/' + project.id,
-            _localFile: project._localFile
+            _localFile: project._localFile,
+            updated: project.updated
         };
         if (project.featurePropsDirective) {
             p.featurePropsDirective = project.featurePropsDirective;
@@ -1144,10 +1147,9 @@ export class ApiManager extends events.EventEmitter {
                 var file = this.projects[project.id]._localFile;
                 if (file && !project._localFile) project._localFile = file;
 
+                this.setUpdateProject(project, meta);
                 var p = this.getProjectDefinition(project);
-
                 this.projects[p.id] = p;
-
 
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.updateProject(project, meta, () => { });
@@ -1258,6 +1260,10 @@ export class ApiManager extends events.EventEmitter {
             if (this.connectors[i].isInterface && (this.connectors[i].receiveCopy || meta.source !== i)) { res.push(this.connectors[i]); }
         }
         return res;
+    }
+
+    private setUpdateProject(project: Project, meta: ApiMeta) {
+        project.updated = new Date().getTime();
     }
 
     private setUpdateLayer(layer: ILayer, meta: ApiMeta) {

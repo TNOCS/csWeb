@@ -203,6 +203,7 @@ module csComp.Services {
         featureTypes: { [id: string]: IFeatureType };
         propertyTypeData: { [id: string]: IPropertyType };
         solution: Solution;
+        updated?: number;
         groups: ProjectGroup[];
         mapFilterResult: L.Marker[];
         startposition: Coordinates;
