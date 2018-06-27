@@ -41,7 +41,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public resourcesPath: string;
     private layerDebounceFunctions: Dictionary<Function> = {};
 
-    constructor(public rootpath: string, watch: boolean = true, private ignoreInitial = false) {
+    constructor(public rootpath: string, watch: boolean = true, private ignoreInitial = false, private layerBaseUrl = '/api/layers') {
         super();
         this.receiveCopy = false;
         this.backupPath = path.join(rootpath, 'backup/');
@@ -63,6 +63,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
             this.watchProjectsFolder();
             this.watchResourcesFolder();
         }
+        setTimeout(() => {
+            this.printOverview();
+        }, 10000);
     }
 
     public watchLayersFolder() {
@@ -117,6 +120,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
             });
 
         }, 1000);
+    }
+
+    private printOverview() {
+        Winston.info(`Filestorage contains ${Object.keys(this.projects).length} projects`);
+        Winston.info(`and ${Object.keys(this.layers).length} layers`);
+        Winston.info(`and ${Object.keys(this.resources).length} resources.`);
     }
 
     public openStaticFolder(folder: string) {
@@ -252,7 +261,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (res && !_.isEmpty(res)) {
             fs.outputFile(fn, JSON.stringify(res, null, 2), (error) => {
                 if (error) {
-                    Winston.error('filestore: error writing resourcefile : ' + fn);
+                    Winston.error(`filestore: error writing resourcefile : ${fn} ${error.message}`);
                 } else {
                     Winston.info('filestore: file saved : ' + fn);
                 }
@@ -268,10 +277,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!fn) {
             fn = this.getProjectFilename(project.id);
         }
-        Winston.info('writing project file : ' + fn);
+        Winston.info(`writing project to file: ${fn}`);
         fs.writeFile(fn, JSON.stringify(project, null, 2), (error) => {
             if (error) {
-                Winston.info('error writing project file : ' + fn);
+                Winston.info(`filestore: error writing project : ${fn} ${error.message}`);
             } else {
                 Winston.info('filestore: file saved : ' + fn);
             }
@@ -409,7 +418,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 //layer.title = id;
                 layer.storage = this.id;
                 //layer.type = "geojson";
-                layer.url = '/api/layers/' + id;
+                layer.url = this.layerBaseUrl + '/' + id;
                 (layer.storage) ? Winston.debug('storage ' + layer.storage) : Winston.warn(`No storage found for ${layer}`);
                 this.manager && this.manager.addUpdateLayer(layer, {source: this.id}, (result) => { 
                     if (result && result.layer) {
@@ -440,7 +449,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private openResourceFile(fileName: string) {
         var id = this.getResourceId(fileName);
-        console.log('!! open resource file : ' + fileName + ' (' + id + ')');
+        // console.log('!! open resource file : ' + fileName + ' (' + id + ')');
         Winston.info('filestore: openfile ' + id);
         if (!this.resources.hasOwnProperty(id)) {
             fs.readFile(fileName, 'utf8', (err, data) => {

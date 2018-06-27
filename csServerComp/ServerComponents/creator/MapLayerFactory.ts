@@ -109,7 +109,7 @@ export class MapLayerFactory {
     apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-constructor(private addressSources: IAddressSource.IAddressSource[], private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '') {
+constructor(private addressSources: IAddressSource.IAddressSource[], private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager, private workingDir: string = '', private apiRoute: string = 'api') {
         addressSources.slice().reverse().forEach((src, ind, arr) => {
             if (src == null) {
                 addressSources.splice(arr.length - 1 - ind, 1);
@@ -274,10 +274,11 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                 fitToMap: data.fitToMap,
                 defaultFeatureType: data.defaultFeatureType,
                 typeUrl: 'data/api/resourceTypes/' + data.reference + '.json',
-                url: 'api/layers/' + data.reference,
+                url: this.apiRoute + '/layers/' + data.reference,
                 opacity: data.opacity,
                 dynamicResource: true
             });
+        layer.url = this.apiRoute + '/layers/' + data.reference;
         layer.features = data.geojson.features;
         layer.timestamps = data.geojson.timestamps;
         var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });

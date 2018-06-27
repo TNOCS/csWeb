@@ -12,6 +12,7 @@ var compress = require('compression');
 import csweb = require('./index');
 
 export class csServerOptions {
+    host = 'http://localhost';
     port = 3002;
     apiFolder = 'public/data/api';
     swagger: boolean;
@@ -112,7 +113,9 @@ export class csServer {
         //     });
         // }
 
-        this.config.add('server', 'http://localhost:' + this.options.port);
+        if (!this.config.containsKey('server')) {
+            this.config.add('server', this.options.host + ':' + this.options.port);
+        }
 
         if (this.options.swagger === true) this.server.use('/swagger', express.static(path.join(this.dir, 'swagger')));
         this.server.use(express.static(path.resolve(this.dir, 'public')));
@@ -123,7 +126,7 @@ export class csServer {
         if (!c.hasOwnProperty('file')) c['file'] = { path: path.resolve(this.dir, this.apiFolder) };
         var fsWatch = (c['file'].hasOwnProperty('watch') ? c['file'].watch : true);
         var fsIgnoreInitial = (c['file'].hasOwnProperty('ignoreInitial') ? c['file'].ignoreInitial : false);
-        var fs = new csweb.FileStorage(c['file'].path, fsWatch, fsIgnoreInitial);
+        var fs = new csweb.FileStorage(c['file'].path, fsWatch, fsIgnoreInitial, this.config.containsKey('layerBaseUrl') ? this.config['layerBaseUrl'] : null);
 
         // For nodemon restarts
         process.once('SIGUSR2', () => {
@@ -141,10 +144,10 @@ export class csServer {
             /*
              * API platform
              */
-            this.api = new csweb.ApiManager('cs', 'cs');
+            this.api = new csweb.ApiManager('cs', 'cs', false, {server: this.config['server']});
             this.api.init(path.resolve(this.dir, this.apiFolder), () => {
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
-                    { key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
+                    { key: 'rest', s: new csweb.RestAPI(this.server, this.config.containsKey('baseUrl') ? this.config['baseUrl'] : null), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
                 ];

@@ -384,6 +384,7 @@ export class ApiManager extends events.EventEmitter {
     /** Create a new client, optionally specifying whether it should act as client. */
     constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
         super();
+        console.log(`Construction ApiManager with options: ${JSON.stringify(this.options, null, 2)}`);
         this.setMaxListeners(25);
         this.namespace = namespace;
         this.name = name;
