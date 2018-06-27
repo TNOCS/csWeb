@@ -1103,7 +1103,7 @@ export class ApiManager extends events.EventEmitter {
                         Winston.debug('updating layer finished');
                     });
                 }
-                callback(<CallbackResult>{ result: ApiResult.OK });
+                callback(<CallbackResult>{ result: ApiResult.OK, layer: layer });
                 this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Update, value: layer });
                 this.saveLayersDelay(layer);
                 cb();
@@ -1263,10 +1263,12 @@ export class ApiManager extends events.EventEmitter {
     }
 
     private setUpdateProject(project: Project, meta: ApiMeta) {
+        if (meta && meta.source === 'file') return;
         project.updated = new Date().getTime();
     }
 
     private setUpdateLayer(layer: ILayer, meta: ApiMeta) {
+        if (meta && meta.source === 'file') return;
         layer.updated = new Date().getTime();
     }
 
