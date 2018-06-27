@@ -116,6 +116,8 @@ module csComp.Services {
      */
     export class Solution {
         title: string;
+        /** Route to the REST api of the server */
+        apiPath: string;
         maxBounds: IBoundingBox;
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];

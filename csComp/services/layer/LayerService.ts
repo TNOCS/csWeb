@@ -2614,6 +2614,9 @@ module csComp.Services {
                         let projectId = searchParams['project'];
                         // By default, look for an API project
                         let u = 'api/projects/' + projectId;
+                        if (solution.apiPath) {
+                            u = solution.apiPath + '/projects/' + projectId;
+                        }
                         if (!initialProject) {
                             var foundProject = solution.projects.some(p => {
                                 // If the solution already specifies a project, use that instead.
