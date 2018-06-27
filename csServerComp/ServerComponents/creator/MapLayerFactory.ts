@@ -782,6 +782,10 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                     ld.geometryKey = 'BU_CODE';
                 }
                 break;
+            case 'Wijk(2014)':
+                ld.geometryFile = 'CBS_Wijk';
+                ld.geometryKey = 'WK_CODE';
+                break;
             default:
                 break;
             }
