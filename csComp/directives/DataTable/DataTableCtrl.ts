@@ -60,6 +60,7 @@ module DataTable {
             private $translate: ng.translate.ITranslateService,
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
+            private $dashboardService: csComp.Services.DashboardService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $messageBusService: csComp.Services.MessageBusService
         ) {
@@ -458,6 +459,11 @@ module DataTable {
                 console.log('Save settings: ');
                 csComp.Helpers.saveData(csvString, filename, 'csv');
             }, 0);
+        }
+
+        private returnToMap() {
+            const mapDashboard = this.$layerService.findDashboardById('map');
+            if (mapDashboard) this.$dashboardService.selectDashboard(mapDashboard, 'main');
         }
 
         // private saveData(csvData: string, filename: string) {

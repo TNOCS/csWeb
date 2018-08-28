@@ -32,6 +32,9 @@ module RelationAction {
                 var useSubjectID = (!prop.subject) ? true : false;
                 // Search for the property when it is defined as subject, otherwise search for id.
                 var searchValue = (useSubjectID) ? feature.id : feature.properties[prop.subject];
+                if (!_.isArray(searchValue)) {
+                    searchValue = [searchValue];
+                }
                 var searchFeatures = [];
                 if (!prop.targetlayers) {
                     searchFeatures = feature.layer.data.features || [];
@@ -47,11 +50,11 @@ module RelationAction {
                 }
                 results = searchFeatures.filter((f) => {
                     if (useTargetID) {
-                        if (f.id === searchValue && f.id !== feature.id) {
+                        if (searchValue.indexOf(f.id) >= 0 && f.id !== feature.id) {
                             return true;
                         }
                     } else {
-                        if (f.properties && f.properties.hasOwnProperty(prop.target) && f.properties[prop.target] === searchValue) {
+                        if (f.properties && f.properties.hasOwnProperty(prop.target) && searchValue.indexOf(f.properties[prop.target]) >= 0) {
                             if (f.id !== feature.id) { // Do not return self
                                 return true;
                             }
