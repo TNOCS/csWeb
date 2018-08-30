@@ -15,6 +15,7 @@ export class csServerOptions {
     host = 'http://localhost';
     port = 3002;
     apiFolder = 'public/data/api';
+    baseUrl = '/api';
     swagger: boolean;
     connectors: Object;
     /** If true (default), use CORRS. Optionally, specify the supported methods in corsSupportedMethods. */
@@ -147,7 +148,7 @@ export class csServer {
             this.api = new csweb.ApiManager('cs', 'cs', false, {server: this.config['server']});
             this.api.init(path.resolve(this.dir, this.apiFolder), () => {
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [
-                    { key: 'rest', s: new csweb.RestAPI(this.server, this.config.containsKey('baseUrl') ? this.config['baseUrl'] : null), options: {} },
+                    { key: 'rest', s: new csweb.RestAPI(this.server, this.config.containsKey('baseUrl') ? this.config['baseUrl'] : undefined), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
                 ];
