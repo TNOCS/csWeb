@@ -1,6 +1,5 @@
 {
     "name": "csweb",
-    "version": false,
     "ambientDependencies": {
         "angular-ui-router": "github:DefinitelyTyped/DefinitelyTyped/types/angular-ui-router/index.d.ts#219dd6df82e7ee9023e8602e58102e22781fb12f"
     },

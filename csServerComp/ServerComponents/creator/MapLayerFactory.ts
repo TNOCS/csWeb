@@ -1209,7 +1209,7 @@ constructor(private addressSources: IAddressSource.IAddressSource[], private mes
                     }
                 });
                 // Prepare propType for use in csWeb-client
-                pt['type'] = 'bbcode';
+                (<any>pt)['type'] = 'bbcode';
                 delete pt['stringFormat'];
             }
         });
