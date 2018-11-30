@@ -99,7 +99,7 @@
     "request": "^2.69.0",
     "retyped-kafka-node-tsd-ambient": "^0.2.22-0",
     "run-sequence": "^1.1.5",
-    "typescript": "2.7.2",
+    "typescript": "3.2.1",
     "typings": "^2.0.0",
     "underscore": "^1.8.3",
     "which": "^1.2.4"
