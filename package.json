@@ -1,6 +1,6 @@
 {
   "name": "csweb",
-  "version": "0.2.16-rc1",
+  "version": "0.3.0-wodk.0",
   "description": "CommonSense web application",
   "main": "dist-npm/index.js",
   "typings": "dist-npm/index",
@@ -93,10 +93,10 @@
     "request": "^2.79.0",
     "retyped-kafka-node-tsd-ambient": "^0.2.22-0",
     "run-sequence": "^1.2.2",
-    "typescript": "^2.2.1",
+    "typescript": "2.2.2",
     "typings": "^2.1.0",
     "underscore": "^1.8.3",
-    "which": "^1.2.12"
+    "which": "^1.3.1"
   },
   "bugs": {
     "url": "https://github.com/TNOCS/csWeb/issues"

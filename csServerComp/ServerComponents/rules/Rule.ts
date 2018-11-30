@@ -124,7 +124,7 @@ export class Rule implements IRule {
             var c = this.conditions[i];
             var check = c[0];
             if (typeof check === 'string') {
-                var length = c.length;
+                var length: number = c.length;
                 var prop: string | number | boolean;
                 switch (check.toLowerCase()) {
                     case 'propertyexists':

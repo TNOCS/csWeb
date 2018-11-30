@@ -215,7 +215,7 @@ module Filters {
                                 return arr[0].color.substring(0, 7);
                             } else {
                                 if (pt && pt.legend && pt.legend.hasOwnProperty('defaultLabel')) {
-                                    return pt.legend.legendEntries.find((le) => { return le.label === pt.legend.defaultLabel; });
+                                    return _.find(pt.legend.legendEntries, (le: csComp.Services.LegendEntry) => { return le.label === pt.legend.defaultLabel; });
                                 } else {
                                     return '#444444';
                                 }

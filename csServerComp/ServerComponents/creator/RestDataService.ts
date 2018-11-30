@@ -217,7 +217,7 @@ export class RestDataSource {
         let fts = fCollection.features;
         let fCollectionIds = [];
         if (_.isArray(fts)) {
-            fts.forEach((f: IFeature) => {
+            fts.forEach((f: IFeature | any) => {
                 fCollectionIds.push(f.id);
                 if (!this.features.hasOwnProperty(f.id)) {
                     // ADD FEATURE
