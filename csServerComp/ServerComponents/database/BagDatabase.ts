@@ -300,6 +300,39 @@ export class BagDatabase implements IAddressSource.IAddressSource {
         });
     }
 
+    /**
+     * Lookup the address from the BAG.
+     */
+    public lookupBagCity(city: string, callback: (addresses: Location[]) => void) {
+        if (!city) {
+            console.log('No city: ' + city);
+            callback(null);
+            return;
+        }
+        console.log('Connect to pgPool to lookup address');
+        this.pgPool.connect((err, client, done) => {
+            if (err) {
+                console.error(err);
+                callback(null);
+                return;
+            }
+
+            const sql: string = `SELECT ST_X(ST_Centroid(ST_Transform(geovlak, 4326))) as lon,ST_Y(ST_Centroid(ST_Transform(geovlak, 4326))) as lat FROM bagactueel.woonplaats WHERE woonplaats.woonplaatsnaam='${city}'`;
+            
+            client.query(sql, (err, result) => {
+                done();
+                if (err) {
+                    console.error(err);
+                    console.log(`Cannot find city: ${city}`);
+                    callback(null);
+                } else {
+                    console.log(`Found city: ${city}`);
+                    callback(result.rows);
+                }
+            });
+        });
+    }
+
     private indexes(source: string, find: string) {
         if (!source) return [];
         var result: number[] = [];
