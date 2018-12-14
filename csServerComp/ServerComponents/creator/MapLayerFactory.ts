@@ -992,7 +992,7 @@ export class MapLayerFactory {
                     }
                 });
                 // Prepare propType for use in csWeb-client
-                pt['type'] = 'bbcode';
+                (<any>pt)['type'] = 'bbcode';
                 delete pt['stringFormat'];
             }
         });

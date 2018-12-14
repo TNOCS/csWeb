@@ -41,10 +41,10 @@ export interface IRule {
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
      * In case the condition is empty, the rule is always fired, on every process.
      */
-    conditions?: [[string | number | boolean]];
+    conditions?: [[string | number | boolean, string | number | boolean, string | number | boolean | undefined]];
 
     /** Set of actions that will be executed when */
-    actions?: [[string | number | boolean]];
+    actions?: [[string | number | boolean, string | number | boolean, string | number | boolean | undefined]];
 
     /** Evaluate the rule and execute all actions, is applicable. */
     process?: (worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) => void;
@@ -77,10 +77,10 @@ export class Rule implements IRule {
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
      * In case the condition is empty, the rule is always fired, on every process.
      */
-    conditions: [[string | number | boolean]];
+    conditions: [[string | number | boolean, string | number | boolean, string | number | boolean | undefined]];
 
     /** Set of actions that will be executed when */
-    actions: [[string | number | boolean]];
+    actions: [[string | number | boolean, string | number | boolean, string | number | boolean | undefined]];
 
     /** Create a new rule. */
     constructor(rule: IRule, activationTime?: Date) {
@@ -237,7 +237,7 @@ export class Rule implements IRule {
         return true;
     }
 
-    private showWarning(condition: [string | number | boolean]) {
+    private showWarning(condition: [string | number | boolean, string | number | boolean, string | number | boolean | undefined]) {
         console.warn(`Rule ${this.id} contains an invalid condition (ignored): ${condition}!`);
         return false;
     }
@@ -363,7 +363,7 @@ export class Rule implements IRule {
     }
 
     /** Get the delay, if present, otherwise return 0 */
-    private getDelay(actions: [string | number | boolean], index: number) {
+    private getDelay(actions: [string | number | boolean, string | number | boolean, string | number | boolean | undefined], index: number) {
         if (index >= actions.length) return 0;
         var delay = actions[index];
         return (typeof delay === 'number')
