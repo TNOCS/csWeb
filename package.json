@@ -15,7 +15,9 @@
     "tsc": "./node_modules/.bin/tsc",
     "tsc:v": "./node_modules/.bin/tsc -v",
     "tsc:w": "./node_modules/.bin/tsc -w",
-    "typings": "typings"
+    "typings": "typings",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -42,11 +44,12 @@
     "request": "^2.69.0",
     "serve-favicon": "^2.3.0",
     "sift": "^3.2.1",
-    "socket.io": "^1.4.5",
+    "socket.io": "^2.0.0",
     "underscore": "^1.8.3",
     "which": "^1.2.4",
     "winston": "^2.2.0",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.4.16",
+    "snyk": "^1.31.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
@@ -107,5 +110,6 @@
   "bugs": {
     "url": "https://github.com/TNOCS/csWeb/issues"
   },
-  "homepage": "https://github.com/TNOCS/csWeb"
+  "homepage": "https://github.com/TNOCS/csWeb",
+  "snyk": true
 }
