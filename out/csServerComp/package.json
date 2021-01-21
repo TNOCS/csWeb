@@ -32,7 +32,7 @@
     "request": "^2.69.0",
     "serve-favicon": "^2.3.0",
     "sift": "^3.2.1",
-    "socket.io": "^1.4.5",
+    "socket.io": "^2.4.0",
     "underscore": "^1.8.3",
     "which": "^1.2.4",
     "winston": "^2.2.0",
