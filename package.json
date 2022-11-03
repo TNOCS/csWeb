@@ -58,7 +58,7 @@
     "coveralls": "^2.11.9",
     "del": "^2.2.0",
     "glob": "^7.0.3",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-angular-templatecache": "^2.0.0",
     "gulp-batch": "^1.0.5",
     "gulp-cached": "~1.1.1",
